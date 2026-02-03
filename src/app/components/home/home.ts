@@ -1,9 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { HeroComponent } from '../hero/hero';
+import { HeroComponent } from '../hero/hero'; 
 import { ProductCardComponent } from '../product-card/product-card';
-import { NexusService } from '../../services/nexus.service';
-import { NexusItem, Oferta } from '../../models/nexus.types';
+import { FeedService } from '../../services/feed-service';
+import { NexusItem } from '../../models/nexus-item';
+import { Oferta } from '../../models/oferta';
 
 @Component({
   selector: 'app-home',
@@ -17,7 +18,7 @@ export class HomeComponent implements OnInit {
   allItems: NexusItem[] = [];
   isLoading = true;
 
-  constructor(private nexusService: NexusService) { }
+  constructor(private feedService: FeedService) {}
 
   ngOnInit() {
     this.cargarFeed();
@@ -25,26 +26,26 @@ export class HomeComponent implements OnInit {
 
   cargarFeed() {
     this.isLoading = true;
-    this.nexusService.getFeedUnificado().subscribe({
+    this.feedService.getUnifiedFeed().subscribe({
       next: (data) => {
         this.allItems = data;
         this.isLoading = false;
+        console.log('Feed cargado:', data); // Para depurar
       },
       error: (err) => {
         console.error('Error cargando feed:', err);
         this.isLoading = false;
-        // Aquí podrías poner datos falsos de respaldo si falla el backend
       }
     });
   }
 
   get filteredProducts() {
     if (this.activeFilter === 'all') return this.allItems;
-
+    
     return this.allItems.filter(item => {
-      // Detectamos si es oferta comprobando una propiedad exclusiva
+      // Chequeo seguro si es oferta
       const esOferta = (item as Oferta).precioOferta !== undefined;
-
+      
       if (this.activeFilter === 'deals') return esOferta;
       if (this.activeFilter === 'secondhand') return !esOferta;
       return true;

@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { NexusService } from '../../services/nexus.service';
-import { NexusItem, Producto, Oferta } from '../../models/nexus.types';
+import { NexusItem, Producto, Oferta } from '../../models/actor';
 
 @Component({
   selector: 'app-product-detail',

@@ -1,7 +1,9 @@
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
-import { NexusItem, Oferta, Producto } from '../../models/nexus.types';
+import { NexusItem } from '../../models/nexus-item';
+import { Producto } from '../../models/producto';
+import { Oferta } from '../../models/oferta';
 
 @Component({
   selector: 'app-product-card',
@@ -11,18 +13,18 @@ import { NexusItem, Oferta, Producto } from '../../models/nexus.types';
   styleUrls: ['./product-card.css']
 })
 export class ProductCardComponent {
-  @Input() product!: NexusItem; // Ahora acepta la interfaz genérica
+  @Input() product!: NexusItem;
 
-  // Helpers para distinguir tipos
   isOferta(item: NexusItem): boolean {
     return (item as Oferta).precioOferta !== undefined;
   }
 
   getImageUrl(item: NexusItem): string {
     if (this.isOferta(item)) {
-      return (item as Oferta).urlOferta || 'assets/placeholder.jpg';
+      return (item as Oferta).urlOferta || 'assets/placeholder-offer.jpg';
     }
-    return (item as Producto).imagenUrl || 'assets/placeholder.jpg';
+    // Como Producto no tiene imagen en BD, usamos una aleatoria de tecnología
+    return `https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=500&q=60&random=${item.id}`;
   }
 
   getPrice(item: NexusItem): number {
@@ -34,7 +36,7 @@ export class ProductCardComponent {
       const oferta = item as Oferta;
       return oferta.precioOriginal > oferta.precioOferta ? oferta.precioOriginal : null;
     }
-    return null; // Productos de segunda mano no suelen tener precio original tachado en este modelo
+    return null;
   }
 
   getDiscount(item: NexusItem): number {
@@ -49,10 +51,18 @@ export class ProductCardComponent {
 
   getSellerName(item: NexusItem): string {
     if (this.isOferta(item)) {
-      return (item as Oferta).tienda || 'Oferta Web';
+      return (item as Oferta).tienda || 'Tienda';
     }
-    // Para producto, intentamos sacar el nombre del publicador
     const prod = item as Producto;
-    return prod.publicador?.nombre || 'Usuario Nexus';
+    // En tu backend el campo es 'user', no 'nombre'
+    return prod.publicador?.user || 'Usuario Nexus';
+  }
+  
+  getSellerAvatar(item: NexusItem): string {
+     if (!this.isOferta(item)) {
+         const prod = item as Producto;
+         return prod.publicador?.fotoPerfil || '';
+     }
+     return '';
   }
 }
