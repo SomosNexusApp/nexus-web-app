@@ -1,0 +1,45 @@
+<article class="product-card" *ngIf="product">
+  <div class="card-image-wrapper">
+    <div class="badges-container">
+      <span class="badge badge-type second-hand" *ngIf="!isOferta(product)">Segunda Mano</span>
+      <span class="badge badge-type deal" *ngIf="isOferta(product)">Oferta</span>
+      
+      <span class="badge badge-discount" *ngIf="getDiscount(product) > 0">
+        -{{ getDiscount(product) }}%
+      </span>
+    </div>
+
+    <img [src]="getImageUrl(product)" [alt]="product.titulo" class="card-image" loading="lazy">
+    
+    <div class="card-overlay">
+      <button class="btn-view">Ver Detalles</button>
+    </div>
+  </div>
+
+  <div class="card-content">
+    <div class="card-meta">
+      <span class="meta-tag">{{ getSellerName(product) }}</span>
+    </div>
+
+    <h3 class="card-title" [title]="product.titulo">
+      {{ product.titulo }}
+    </h3>
+
+    <div class="price-section">
+      <div class="prices">
+        <span class="current-price">{{ getPrice(product) }}€</span>
+        
+        <span class="old-price" *ngIf="getOriginalPrice(product)">
+          {{ getOriginalPrice(product) }}€
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <div class="card-footer">
+    <button class="btn-action">
+      {{ isOferta(product) ? 'Ir al Chollo' : 'Contactar' }}
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
+    </button>
+  </div>
+</article>
