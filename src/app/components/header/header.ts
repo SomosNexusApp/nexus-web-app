@@ -10,17 +10,13 @@ import { RouterModule } from '@angular/router';
   styleUrls: ['./header.css']
 })
 export class HeaderComponent {
-  isMenuOpen = false;
+  // Cambia a 'true' para ver la versión con avatar
+  isLoggedIn = false; 
 
   navLinks = [
     { label: 'Categorías', route: '/categorias' },
     { label: 'Ofertas Flash', route: '/ofertas' },
     { label: 'Cupones', route: '/cupones' },
-    { label: 'Cerca de ti', route: '/cerca' },
-    { label: 'Discusiones', route: '/foro' }
+    { label: 'Cerca de ti', route: '/cerca' }
   ];
-
-  toggleMenu() {
-    this.isMenuOpen = !this.isMenuOpen;
-  }
 }

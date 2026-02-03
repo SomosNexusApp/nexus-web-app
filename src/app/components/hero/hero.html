@@ -1,55 +1,73 @@
-<section class="hero-section">
-  <div class="hero-background">
-    <div class="blob blob-1"></div>
-    <div class="blob blob-2"></div>
-    <div class="blob blob-3"></div>
+<section class="nexus-hero-masterpiece">
+  
+  <div class="aurora-background">
+    <div class="deep-fade-top"></div>
+    <div class="aurora-beam beam-1"></div>
+    <div class="aurora-beam beam-2"></div>
+    <div class="aurora-beam beam-3"></div>
+    <div class="grid-overlay"></div>
   </div>
 
-  <div class="container hero-content">
-    <div class="hero-text-area">
-      <div class="badge-pill">
-        <span class="dot"></span> Nuevo: Sistema de Subastas Beta
-      </div>
+  <div class="container hero-layout">
+    
+    <div class="text-content">
       
-      <h1 class="hero-title">
-        El punto de encuentro <br>
-        <span class="text-gradient">Definitivo.</span>
+      <h1 class="monumental-title">
+        EL COMERCIO <br>
+        <span class="outline-text">EVOLUCIONADO</span>
       </h1>
       
-      <p class="hero-subtitle">
-        Fusionamos lo mejor de los chollos virales con un marketplace de segunda mano premium. 
-        Descubre, ahorra y comparte en Nexus.
+      <p class="hero-description">
+        Olvida lo convencional. Entra en el ecosistema donde las ofertas exclusivas y el mercado premium convergen en tiempo real.
       </p>
 
-      <div class="hero-actions">
-        <button class="btn-nexus-primary btn-lg">Explorar Ofertas</button>
-        <button class="btn-nexus-glass btn-lg">Vender Artículo</button>
+      <div class="cta-group">
+        <button class="btn-titan">
+          <span class="btn-inner">Explorar Mercado</span>
+          <div class="btn-shine"></div>
+        </button>
+        
+        <button class="btn-ghost">
+          <span>Vender Ahora</span>
+          <svg class="arrow-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+        </button>
       </div>
 
-      <div class="hero-stats">
-        <div class="stat-item" *ngFor="let stat of stats">
-          <span class="stat-value">{{ stat.value }}</span>
-          <span class="stat-label">{{ stat.label }}</span>
+      </div>
+
+    <div class="visual-3d-stage">
+      <div class="floating-deck">
+        
+        <div class="glass-card main-card">
+          <div class="card-header">
+            <div class="user-badge">
+              <img src="example-profile-screen.webp" alt="Profile" class="circle-avatar-img">
+              <span class="username">@Malegro32</span>
+            </div>
+            <span class="price-tag">299€</span>
+          </div>
+          
+          <div class="product-preview">
+            <img src="https://images.unsplash.com/photo-1546435770-a3e426bf472b?q=80&w=1000&auto=format&fit=crop" alt="Auriculares Premium" class="product-img">
+            
+            <div class="flash-badge">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path></svg>
+              <span>Venta Rápida</span>
+            </div>
+          </div>
+          
+          <div class="card-footer">
+            <div class="meta-row">
+              <span class="meta-label">Sony WH-1000XM5 Black</span>
+              <div class="rating">★★★★★</div>
+            </div>
+          </div>
         </div>
+
+        <div class="glass-card back-card"></div>
+        <div class="floating-orb"></div>
       </div>
     </div>
 
-    <div class="hero-visuals">
-      <div class="glass-card card-floating-1">
-        <div class="card-icon">🔥</div>
-        <div class="card-info">
-          <span class="card-title">Super Oferta</span>
-          <span class="card-price">-40%</span>
-        </div>
-      </div>
-      
-      <div class="glass-card card-floating-2">
-        <div class="card-icon">📱</div>
-        <div class="card-info">
-          <span class="card-title">iPhone 15 Pro</span>
-          <span class="card-price">Vendiendo...</span>
-        </div>
-      </div>
-    </div>
   </div>
 </section>
