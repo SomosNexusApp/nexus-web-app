@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { HeroComponent } from '../hero/hero'; // Recuerda: sin .component
+import { HeroComponent } from '../hero/hero';
 import { ProductCardComponent } from '../product-card/product-card';
 import { NexusService } from '../../services/nexus.service';
-import { NexusItem, Producto, Oferta } from '../../models/nexus.types';
+import { NexusItem, Oferta } from '../../models/nexus.types';
 
 @Component({
   selector: 'app-home',
@@ -14,12 +14,10 @@ import { NexusItem, Producto, Oferta } from '../../models/nexus.types';
 })
 export class HomeComponent implements OnInit {
   activeFilter: 'all' | 'deals' | 'secondhand' = 'all';
-  
-  // Arrays para almacenar los datos reales
   allItems: NexusItem[] = [];
   isLoading = true;
 
-  constructor(private nexusService: NexusService) {}
+  constructor(private nexusService: NexusService) { }
 
   ngOnInit() {
     this.cargarFeed();
@@ -33,20 +31,20 @@ export class HomeComponent implements OnInit {
         this.isLoading = false;
       },
       error: (err) => {
-        console.error('Error conectando con Spring Boot:', err);
+        console.error('Error cargando feed:', err);
         this.isLoading = false;
-        // Aquí podrías mostrar un mensaje de error visual si quieres
+        // Aquí podrías poner datos falsos de respaldo si falla el backend
       }
     });
   }
 
   get filteredProducts() {
     if (this.activeFilter === 'all') return this.allItems;
-    
+
     return this.allItems.filter(item => {
-      // Diferenciamos si es Oferta o Producto comprobando alguna propiedad única
+      // Detectamos si es oferta comprobando una propiedad exclusiva
       const esOferta = (item as Oferta).precioOferta !== undefined;
-      
+
       if (this.activeFilter === 'deals') return esOferta;
       if (this.activeFilter === 'secondhand') return !esOferta;
       return true;
@@ -55,10 +53,5 @@ export class HomeComponent implements OnInit {
 
   setFilter(filter: 'all' | 'deals' | 'secondhand') {
     this.activeFilter = filter;
-  }
-  
-  // Helper para el HTML: saber si es oferta o producto
-  isOferta(item: NexusItem): boolean {
-    return (item as Oferta).precioOferta !== undefined;
   }
 }

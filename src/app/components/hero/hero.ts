@@ -9,9 +9,5 @@ import { CommonModule } from '@angular/common';
   styleUrls: ['./hero.css']
 })
 export class HeroComponent {
-  stats = [
-    { value: '25k+', label: 'Ofertas Activas' },
-    { value: '10k+', label: 'Usuarios' },
-    { value: '4.9', label: 'Valoración' }
-  ];
+  // Aquí irá lógica futura (ej: animaciones controladas por scroll)
 }
