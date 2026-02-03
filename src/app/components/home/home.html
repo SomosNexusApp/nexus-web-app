@@ -1,0 +1,41 @@
+<app-hero></app-hero>
+
+<section class="feed-section container">
+  <div class="feed-header">
+    <h2 class="section-title">Tendencias en Nexus</h2>
+    
+    <div class="filter-tabs glass-panel">
+      <button 
+        class="tab-btn" 
+        [class.active]="activeFilter === 'all'"
+        (click)="setFilter('all')">
+        Todo
+      </button>
+      <button 
+        class="tab-btn" 
+        [class.active]="activeFilter === 'deals'"
+        (click)="setFilter('deals')">
+        🔥 Ofertas
+      </button>
+      <button 
+        class="tab-btn" 
+        [class.active]="activeFilter === 'secondhand'"
+        (click)="setFilter('secondhand')">
+        ♻️ Segunda Mano
+      </button>
+      <div class="tab-indicator" [attr.data-pos]="activeFilter"></div>
+    </div>
+  </div>
+
+  <div class="product-grid">
+    <app-product-card 
+      *ngFor="let product of filteredProducts" 
+      [product]="product"
+      class="grid-item">
+    </app-product-card>
+  </div>
+  
+  <div *ngIf="filteredProducts.length === 0" class="empty-state">
+    <p>No hay productos en esta categoría hoy.</p>
+  </div>
+</section>

@@ -1,0 +1,55 @@
+<section class="hero-section">
+  <div class="hero-background">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+  </div>
+
+  <div class="container hero-content">
+    <div class="hero-text-area">
+      <div class="badge-pill">
+        <span class="dot"></span> Nuevo: Sistema de Subastas Beta
+      </div>
+      
+      <h1 class="hero-title">
+        El punto de encuentro <br>
+        <span class="text-gradient">Definitivo.</span>
+      </h1>
+      
+      <p class="hero-subtitle">
+        Fusionamos lo mejor de los chollos virales con un marketplace de segunda mano premium. 
+        Descubre, ahorra y comparte en Nexus.
+      </p>
+
+      <div class="hero-actions">
+        <button class="btn-nexus-primary btn-lg">Explorar Ofertas</button>
+        <button class="btn-nexus-glass btn-lg">Vender Artículo</button>
+      </div>
+
+      <div class="hero-stats">
+        <div class="stat-item" *ngFor="let stat of stats">
+          <span class="stat-value">{{ stat.value }}</span>
+          <span class="stat-label">{{ stat.label }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="hero-visuals">
+      <div class="glass-card card-floating-1">
+        <div class="card-icon">🔥</div>
+        <div class="card-info">
+          <span class="card-title">Super Oferta</span>
+          <span class="card-price">-40%</span>
+        </div>
+      </div>
+      
+      <div class="glass-card card-floating-2">
+        <div class="card-icon">📱</div>
+        <div class="card-info">
+          <span class="card-title">iPhone 15 Pro</span>
+          <span class="card-price">Vendiendo...</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

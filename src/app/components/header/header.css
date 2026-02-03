@@ -1,0 +1,229 @@
+/* --- Layout General --- */
+.nexus-header {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  width: 100%;
+  font-family: var(--font-primary);
+}
+
+.container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* --- Top Bar (Glass) --- */
+.header-top {
+  height: 80px;
+  background: rgba(10, 10, 10, 0.85); /* Más opaco para legibilidad */
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  transition: all 0.3s ease;
+}
+
+/* Logo */
+.logo-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  margin-right: 40px;
+}
+
+.logo-img {
+  height: 32px;
+  width: auto;
+  filter: drop-shadow(0 0 8px rgba(168, 180, 255, 0.4)); /* Glow sutil */
+}
+
+/* Search Bar - Componente Heroico */
+.search-container {
+  flex: 1;
+  max-width: 600px;
+  margin: 0 20px;
+}
+
+.search-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-full);
+  padding: 8px 16px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.search-input-wrapper:focus-within {
+  background: rgba(0, 0, 0, 0.5);
+  border-color: var(--nexus-blue);
+  box-shadow: 0 0 20px rgba(168, 180, 255, 0.15); /* Neon Glow */
+  transform: scale(1.01);
+}
+
+.search-icon {
+  color: var(--text-muted);
+  margin-right: 10px;
+}
+
+.search-input {
+  width: 100%;
+  background: transparent;
+  border: none;
+  color: var(--text-primary);
+  font-size: 0.95rem;
+  font-family: var(--font-primary);
+  outline: none;
+}
+
+.search-input::placeholder {
+  color: var(--text-muted);
+}
+
+/* Actions */
+.actions-container {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.btn-publish {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+  padding: 10px 20px;
+}
+
+.auth-divider {
+  width: 1px;
+  height: 24px;
+  background: rgba(255, 255, 255, 0.15);
+  margin: 0 4px;
+}
+
+.btn-text {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  font-weight: 500;
+  font-family: var(--font-primary);
+  cursor: pointer;
+  padding: 8px 16px;
+  transition: color 0.3s;
+}
+
+.btn-text:hover {
+  color: var(--text-primary);
+}
+
+.btn-register {
+  font-size: 0.9rem;
+  padding: 8px 20px;
+}
+
+/* --- Bottom Nav (Subtle Dark) --- */
+.header-nav {
+  background: #000000;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  height: 48px;
+  display: flex;
+  align-items: center;
+}
+
+.nav-container {
+  height: 100%;
+}
+
+.nav-list {
+  display: flex;
+  list-style: none;
+  gap: 32px;
+  height: 100%;
+}
+
+.nav-link {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 500;
+  position: relative;
+  transition: color 0.3s;
+}
+
+.nav-link:hover, .nav-link.active {
+  color: var(--nexus-purple);
+}
+
+/* Efecto de línea inferior animada */
+.nav-link::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: var(--gradient-primary);
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.nav-link:hover::after {
+  transform: scaleX(1);
+  transform-origin: left;
+}
+
+.nav-extras {
+  margin-left: auto;
+  display: flex;
+  gap: 24px;
+}
+
+.extra-link {
+  color: var(--text-muted);
+  text-decoration: none;
+  font-size: 0.85rem;
+  transition: color 0.2s;
+}
+
+.extra-link:hover {
+  color: var(--text-primary);
+}
+
+/* --- Mobile Toggle (Hidden by default) --- */
+.mobile-toggle {
+  display: none;
+  flex-direction: column;
+  gap: 6px;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.bar {
+  width: 24px;
+  height: 2px;
+  background-color: var(--text-primary);
+}
+
+/* --- Responsive Adjustments --- */
+@media (max-width: 992px) {
+  .search-container {
+    display: none; /* En móvil simplificamos (se podría poner un icono) */
+  }
+  
+  .header-nav, .btn-text, .auth-divider {
+    display: none;
+  }
+  
+  .mobile-toggle {
+    display: flex;
+  }
+}

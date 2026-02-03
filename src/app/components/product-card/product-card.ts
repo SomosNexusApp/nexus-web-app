@@ -1,0 +1,58 @@
+import { Component, Input } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
+import { NexusItem, Oferta, Producto } from '../../models/nexus.types';
+
+@Component({
+  selector: 'app-product-card',
+  standalone: true,
+  imports: [CommonModule, RouterModule],
+  templateUrl: './product-card.html',
+  styleUrls: ['./product-card.css']
+})
+export class ProductCardComponent {
+  @Input() product!: NexusItem; // Ahora acepta la interfaz genérica
+
+  // Helpers para distinguir tipos
+  isOferta(item: NexusItem): boolean {
+    return (item as Oferta).precioOferta !== undefined;
+  }
+
+  getImageUrl(item: NexusItem): string {
+    if (this.isOferta(item)) {
+      return (item as Oferta).urlOferta || 'assets/placeholder.jpg';
+    }
+    return (item as Producto).imagenUrl || 'assets/placeholder.jpg';
+  }
+
+  getPrice(item: NexusItem): number {
+    return this.isOferta(item) ? (item as Oferta).precioOferta : (item as Producto).precio;
+  }
+
+  getOriginalPrice(item: NexusItem): number | null {
+    if (this.isOferta(item)) {
+      const oferta = item as Oferta;
+      return oferta.precioOriginal > oferta.precioOferta ? oferta.precioOriginal : null;
+    }
+    return null; // Productos de segunda mano no suelen tener precio original tachado en este modelo
+  }
+
+  getDiscount(item: NexusItem): number {
+    if (this.isOferta(item)) {
+      const off = item as Oferta;
+      if (off.precioOriginal > 0 && off.precioOferta < off.precioOriginal) {
+        return Math.round(((off.precioOriginal - off.precioOferta) / off.precioOriginal) * 100);
+      }
+    }
+    return 0;
+  }
+
+  getSellerName(item: NexusItem): string {
+    if (this.isOferta(item)) {
+      return (item as Oferta).tienda || 'Oferta Web';
+    }
+    // Para producto, intentamos sacar el nombre del publicador
+    const prod = item as Producto;
+    return prod.publicador?.nombre || 'Usuario Nexus';
+  }
+}

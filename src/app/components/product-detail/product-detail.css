@@ -1,0 +1,238 @@
+.detail-container {
+  padding: 40px 24px;
+  display: grid;
+  grid-template-columns: 1.2fr 1fr; /* Imagen más ancha */
+  gap: 60px;
+  min-height: 80vh;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* --- Columna Visual --- */
+.main-image-wrapper {
+  position: relative;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  aspect-ratio: 4/3;
+  background: #111;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+}
+
+.main-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain; /* Para ver el producto entero */
+  background: radial-gradient(circle at center, #1a1a1a 0%, #000 100%);
+}
+
+.badges-overlay {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  display: flex;
+  gap: 10px;
+}
+
+.badge-status, .badge-hot {
+  padding: 8px 16px;
+  border-radius: var(--radius-full);
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 0.85rem;
+  backdrop-filter: blur(10px);
+}
+
+.badge-status {
+  background: rgba(168, 180, 255, 0.9);
+  color: #000;
+}
+
+.badge-hot {
+  background: var(--nexus-hot-pink);
+  color: #fff;
+  box-shadow: 0 0 15px rgba(255, 105, 180, 0.4);
+}
+
+/* --- Columna Info --- */
+.info-column {
+  display: flex;
+  flex-direction: column;
+}
+
+.breadcrumbs {
+  margin-bottom: 20px;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.back-link {
+  color: var(--text-secondary);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.back-link:hover {
+  color: var(--nexus-blue);
+}
+
+.separator { margin: 0 10px; }
+
+.item-title {
+  font-family: var(--font-display);
+  font-size: 2.5rem;
+  line-height: 1.2;
+  margin-bottom: 24px;
+  color: var(--text-primary);
+}
+
+/* Precios */
+.price-block {
+  margin-bottom: 32px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.price-row {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+}
+
+.current-price {
+  font-size: 3rem;
+  font-weight: 700;
+  color: var(--nexus-blue);
+  font-family: var(--font-display);
+}
+
+.original-price {
+  font-size: 1.5rem;
+  color: var(--text-muted);
+  text-decoration: line-through;
+}
+
+.discount-tag {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--nexus-green, #4ade80); /* Verde éxito */
+  padding: 4px 12px;
+  border-radius: 4px;
+  font-size: 0.9rem;
+}
+
+/* Descripción */
+.description-box {
+  background: rgba(255, 255, 255, 0.02);
+  padding: 24px;
+  border-radius: var(--radius-md);
+  margin-bottom: 32px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.description-box h3 {
+  margin-bottom: 12px;
+  font-size: 1.1rem;
+  color: var(--text-secondary);
+}
+
+.description-box p {
+  color: var(--text-secondary);
+  line-height: 1.7;
+}
+
+/* Meta Info */
+.meta-box {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 40px;
+}
+
+.seller-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.avatar-placeholder {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--gradient-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  color: #000;
+  font-size: 1.2rem;
+}
+
+.seller-details {
+  display: flex;
+  flex-direction: column;
+}
+
+.seller-label { font-size: 0.8rem; color: var(--text-muted); }
+.seller-name { font-weight: 600; color: var(--text-primary); }
+
+.trust-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--nexus-purple);
+  font-size: 0.9rem;
+  background: rgba(205, 176, 232, 0.1);
+  padding: 8px 16px;
+  border-radius: var(--radius-full);
+}
+
+/* Acciones */
+.actions-bar {
+  display: flex;
+  gap: 16px;
+  margin-top: auto;
+}
+
+.btn-block {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  height: 56px;
+  font-size: 1.1rem;
+}
+
+/* Loading */
+.loading-container {
+  height: 60vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid rgba(255,255,255,0.1);
+  border-top-color: var(--nexus-blue);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 16px;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Responsive */
+@media (max-width: 992px) {
+  .detail-container {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+  
+  .main-image-wrapper {
+    aspect-ratio: 16/9;
+  }
+}
