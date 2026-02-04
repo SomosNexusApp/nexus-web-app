@@ -19,6 +19,27 @@ export interface Producto {
   precio: number;
   tipoOferta: TipoOferta;
   estadoProducto: EstadoProducto;
-  publicador: Usuario; // Relación ManyToOne con Usuario
-  // NOTA: Tu backend no tiene campo imagenUrl en Producto, lo gestionaremos en el frontend
+  imagenPrincipal: string; // URL de Cloudinary - OBLIGATORIO
+  galeriaImagenes?: string[]; // Array de URLs de Cloudinary - OPCIONAL (max 5)
+  publicador: Usuario;
+  fechaPublicacion?: string;
+  categoria?: string;
+}
+
+// DTOs para crear/actualizar productos
+export interface ProductoCreateDTO {
+  titulo: string;
+  descripcion: string;
+  precio: number;
+  tipoOferta: TipoOferta;
+  categoria?: string;
+}
+
+export interface ProductoUpdateDTO {
+  titulo?: string;
+  descripcion?: string;
+  precio?: number;
+  tipoOferta?: TipoOferta;
+  estadoProducto?: EstadoProducto;
+  categoria?: string;
 }

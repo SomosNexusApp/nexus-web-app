@@ -1,18 +1,17 @@
-export interface Actor {
-  id: number;
-  nombre?: string;
-  fotoPerfil?: string;
-  ubicacion?: string;
-  reputacion?: number;
-}
+import { ApplicationConfig } from '@angular/core';
+import { provideRouter } from '@angular/router';
+import { provideHttpClient, withInterceptorsFromDi, HTTP_INTERCEPTORS } from '@angular/common/http';
+import { routes } from './app.routes';
+import { AuthInterceptor } from './interceptors/auth-interceptor';
 
-export interface Usuario extends Actor {
-  telefono?: string;
-  esVerificado: boolean;
-  biografia?: string;
-}
-
-export interface Empresa extends Actor {
-  cif: string;
-  razonSocial?: string;
-}
+export const appConfig: ApplicationConfig = {
+  providers: [
+    provideRouter(routes),
+    provideHttpClient(withInterceptorsFromDi()),
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: AuthInterceptor,
+      multi: true
+    }
+  ]
+};

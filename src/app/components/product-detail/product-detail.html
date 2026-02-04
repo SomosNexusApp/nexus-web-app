@@ -2,7 +2,7 @@
   
   <div class="visual-column">
     <div class="main-image-wrapper glass-panel">
-      <img [src]="type === 'oferta' ? asOferta.urlOferta : asProducto.imagenUrl" 
+      <img [src]="type === 'oferta' ? asOferta.urlOferta : asProducto.imagenPrincipal"
            [alt]="item.titulo" 
            class="main-image">
       
@@ -47,12 +47,12 @@
     <div class="meta-box">
       <div class="seller-info">
         <div class="avatar-placeholder">
-          {{ type === 'oferta' ? asOferta.tienda.charAt(0) : asProducto.publicador.nombre?.charAt(0) || 'U' }}
+          {{ type === 'oferta' ? asOferta.tienda.charAt(0) : asProducto.publicador.user.charAt(0) || 'U' }}
         </div>
         <div class="seller-details">
           <span class="seller-label">{{ type === 'oferta' ? 'Tienda' : 'Vendedor' }}</span>
           <span class="seller-name">
-            {{ type === 'oferta' ? asOferta.tienda : asProducto.publicador.nombre || 'Usuario Nexus' }}
+            {{ type === 'oferta' ? asOferta.tienda : asProducto.publicador.user || 'Usuario Nexus' }}
           </span>
         </div>
       </div>

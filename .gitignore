@@ -26,3 +26,5 @@ Thumbs.db
 # Cache
 .cache/
 .tmp/
+src/environments/enviroment-production.ts
+src/environments/enviroment.ts
