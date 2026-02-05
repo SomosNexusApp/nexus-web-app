@@ -1,148 +1,97 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/enviroment';
-import { Oferta, OfertaCreateDTO, OfertaUpdateDTO } from '../models/oferta';
+import { Oferta, FiltroOfertaDTO, OfertaCreateDTO } from '../models/oferta';
 
 @Injectable({
   providedIn: 'root'
 })
 export class OfertaService {
-  private endpoint = `${environment.apiUrl}/oferta`;
+  private apiUrl = `${environment.apiUrl}/oferta`;
 
   constructor(private http: HttpClient) {}
 
-  /**
-   * Obtiene todas las ofertas
-   */
+  // Listar todas
   getAll(): Observable<Oferta[]> {
-    return this.http.get<Oferta[]>(this.endpoint);
+    return this.http.get<Oferta[]>(this.apiUrl);
   }
 
-  /**
-   * Obtiene una oferta por ID
-   */
+  // Ver detalle (incrementa vistas automáticamente)
   getById(id: number): Observable<Oferta> {
-    return this.http.get<Oferta>(`${this.endpoint}/${id}`);
+    return this.http.get<Oferta>(`${this.apiUrl}/${id}`);
   }
 
-  /**
-   * Crea una nueva oferta con imágenes
-   * @param oferta Datos de la oferta
-   * @param actorId ID del actor (Usuario o Empresa)
-   * @param imagenPrincipal Archivo de imagen principal/banner (OBLIGATORIO)
-   * @param galeriaImagenes Array de archivos de imágenes adicionales (OPCIONAL, max 4)
-   */
-  create(
-    oferta: OfertaCreateDTO,
-    actorId: number,
-    imagenPrincipal: File,
-    galeriaImagenes?: File[]
-  ): Observable<Oferta> {
+  // Búsqueda con filtros avanzados
+  filtrar(filtros: FiltroOfertaDTO): Observable<any> {
+    return this.http.post(`${this.apiUrl}/filtrar`, filtros);
+  }
+
+  // Destacadas
+  getDestacadas(): Observable<Oferta[]> {
+    return this.http.get<Oferta[]>(`${this.apiUrl}/destacadas`);
+  }
+
+  // Trending
+  getTrending(): Observable<Oferta[]> {
+    return this.http.get<Oferta[]>(`${this.apiUrl}/trending`);
+  }
+
+  // Top Spark
+  getTopSpark(): Observable<Oferta[]> {
+    return this.http.get<Oferta[]>(`${this.apiUrl}/top-spark`);
+  }
+
+  // Expiran pronto
+  getExpiranProx(): Observable<Oferta[]> {
+    return this.http.get<Oferta[]>(`${this.apiUrl}/expiran-pronto`);
+  }
+
+  // ⚡ Votar (Spark/Drip)
+  votar(id: number, usuarioId: number, esSpark: boolean): Observable<any> {
+    const params = new HttpParams()
+      .set('usuarioId', usuarioId.toString())
+      .set('esSpark', esSpark.toString());
+    
+    return this.http.post(`${this.apiUrl}/${id}/votar`, {}, { params });
+  }
+
+  // Compartir
+  compartir(id: number): Observable<any> {
+    return this.http.post(`${this.apiUrl}/${id}/compartir`, {});
+  }
+
+  // Crear oferta
+  crear(actorId: number, oferta: OfertaCreateDTO, imagenPrincipal: File, galeria?: File[]): Observable<Oferta> {
     const formData = new FormData();
-    
-    // Agregar el JSON de la oferta
     formData.append('oferta', new Blob([JSON.stringify(oferta)], { type: 'application/json' }));
-    
-    // Agregar imagen principal (OBLIGATORIO)
     formData.append('imagenPrincipal', imagenPrincipal);
     
-    // Agregar galería de imágenes (OPCIONAL)
-    if (galeriaImagenes && galeriaImagenes.length > 0) {
-      galeriaImagenes.forEach(imagen => {
-        formData.append('galeria', imagen);
-      });
+    if (galeria && galeria.length > 0) {
+      galeria.forEach(img => formData.append('galeria', img));
     }
     
-    return this.http.post<Oferta>(`${this.endpoint}/${actorId}`, formData);
+    return this.http.post<Oferta>(`${this.apiUrl}/${actorId}`, formData);
   }
 
-  /**
-   * Actualiza una oferta existente con nuevas imágenes
-   * @param id ID de la oferta
-   * @param oferta Datos a actualizar
-   * @param imagenPrincipal Nueva imagen principal (opcional)
-   * @param galeriaImagenes Nuevas imágenes de galería (opcional, se añaden a las existentes)
-   */
-  update(
-    id: number,
-    oferta: OfertaUpdateDTO,
-    imagenPrincipal?: File,
-    galeriaImagenes?: File[]
-  ): Observable<Oferta> {
+  // Actualizar
+  actualizar(id: number, oferta: Partial<OfertaCreateDTO>, imagenPrincipal?: File, galeria?: File[]): Observable<Oferta> {
     const formData = new FormData();
-    
-    // Agregar el JSON de la oferta
     formData.append('oferta', new Blob([JSON.stringify(oferta)], { type: 'application/json' }));
     
-    // Agregar nueva imagen principal si se proporciona
     if (imagenPrincipal) {
       formData.append('imagenPrincipal', imagenPrincipal);
     }
     
-    // Agregar nuevas imágenes de galería si se proporcionan
-    if (galeriaImagenes && galeriaImagenes.length > 0) {
-      galeriaImagenes.forEach(imagen => {
-        formData.append('galeria', imagen);
-      });
+    if (galeria && galeria.length > 0) {
+      galeria.forEach(img => formData.append('galeria', img));
     }
     
-    return this.http.put<Oferta>(`${this.endpoint}/${id}`, formData);
+    return this.http.put<Oferta>(`${this.apiUrl}/${id}`, formData);
   }
 
-  /**
-   * Elimina una oferta (también elimina sus imágenes de Cloudinary)
-   */
-  delete(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.endpoint}/${id}`);
-  }
-
-  /**
-   * Obtiene ofertas activas (no expiradas)
-   */
-  getActivas(): Observable<Oferta[]> {
-    return this.http.get<Oferta[]>(`${this.endpoint}/activas`);
-  }
-
-  /**
-   * Obtiene ofertas de un actor específico
-   */
-  getByActor(actorId: number): Observable<Oferta[]> {
-    return this.http.get<Oferta[]>(`${this.endpoint}/actor/${actorId}`);
-  }
-
-  /**
-   * Busca ofertas por tienda
-   */
-  getByTienda(tienda: string): Observable<Oferta[]> {
-    return this.http.get<Oferta[]>(`${this.endpoint}/tienda/${encodeURIComponent(tienda)}`);
-  }
-
-  /**
-   * Busca ofertas por categoría
-   */
-  getByCategoria(categoria: string): Observable<Oferta[]> {
-    return this.http.get<Oferta[]>(`${this.endpoint}/categoria/${categoria}`);
-  }
-
-  /**
-   * Busca ofertas por título (búsqueda parcial)
-   */
-  search(query: string): Observable<Oferta[]> {
-    return this.http.get<Oferta[]>(`${this.endpoint}/buscar?q=${encodeURIComponent(query)}`);
-  }
-
-  /**
-   * Obtiene ofertas que expiran pronto (próximas 24 horas)
-   */
-  getProximasExpirar(): Observable<Oferta[]> {
-    return this.http.get<Oferta[]>(`${this.endpoint}/proximas-expirar`);
-  }
-
-  /**
-   * Obtiene ofertas con mejor descuento
-   */
-  getMejoresDescuentos(): Observable<Oferta[]> {
-    return this.http.get<Oferta[]>(`${this.endpoint}/mejores-descuentos`);
+  // Eliminar
+  delete(id: number): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/${id}`);
   }
 }

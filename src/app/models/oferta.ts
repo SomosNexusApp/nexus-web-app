@@ -1,41 +1,61 @@
-import { Actor } from './actor';
+export enum BadgeOferta {
+  LEGENDARY = 'LEGENDARY',
+  FIRE = 'FIRE',
+  HOT = 'HOT',
+  TRENDING = 'TRENDING',
+  NORMAL = 'NORMAL',
+  EXPIRED = 'EXPIRED'
+}
 
 export interface Oferta {
   id: number;
   titulo: string;
   descripcion: string;
-  imagenPrincipal: string; // URL de Cloudinary - OBLIGATORIO (banner de la oferta)
-  galeriaImagenes?: string[]; // Array de URLs de Cloudinary - OPCIONAL (max 4)
   tienda: string;
-  precioOferta: number;
   precioOriginal: number;
-  fechaExpiracion: string;
-  urlOferta: string; // Link externo a la tienda
-  actor: Actor; // Puede ser Usuario o Empresa
+  precioOferta: number;
+  urlOferta: string; // ← URL externa (Amazon, etc.)
+  imagenPrincipal: string;
+  galeriaImagenes?: string[];
+  fechaExpiracion?: string;
   fechaPublicacion?: string;
   categoria?: string;
   esActiva?: boolean;
+  
+  // Sistema Spark
+  sparkCount?: number;
+  dripCount?: number;
+  numeroComentarios?: number;
+  numeroVistas?: number;
+  numeroCompartidos?: number;
+  badge?: BadgeOferta;
+  
+  // Relaciones
+  actor?: any;
 }
 
-// DTOs para crear/actualizar ofertas
 export interface OfertaCreateDTO {
   titulo: string;
   descripcion: string;
   tienda: string;
-  precioOferta: number;
   precioOriginal: number;
-  fechaExpiracion: string;
+  precioOferta: number;
   urlOferta: string;
+  fechaExpiracion?: string;
   categoria?: string;
 }
 
-export interface OfertaUpdateDTO {
-  titulo?: string;
-  descripcion?: string;
-  tienda?: string;
-  precioOferta?: number;
-  precioOriginal?: number;
-  fechaExpiracion?: string;
-  urlOferta?: string;
+export interface FiltroOfertaDTO {
   categoria?: string;
+  tienda?: string;
+  precioMinimo?: number;
+  precioMaximo?: number;
+  descuentoMinimo?: number;
+  soloActivas?: boolean;
+  badge?: BadgeOferta;
+  ordenarPor?: 'spark' | 'precio' | 'descuento' | 'fecha';
+  orden?: 'asc' | 'desc';
+  busqueda?: string;
+  pagina?: number;
+  elementosPorPagina?: number;
 }

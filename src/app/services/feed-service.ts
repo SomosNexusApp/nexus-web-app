@@ -6,7 +6,7 @@ import { OfertaService } from './oferta-service';
 import { NexusItem } from '../models/nexus-item';
 import { Producto } from '../models/producto';
 import { Oferta } from '../models/oferta';
-
+import { environment } from '../../environments/enviroment';
 export type FeedFilter = 'all' | 'deals' | 'secondhand' | 'trending' | 'recent';
 
 @Injectable({
