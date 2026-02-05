@@ -107,6 +107,8 @@ body {
   opacity: 0;
 }
 
+
+/* Botón primario con hover */
 .btn-nexus-primary:hover {
   transform: translateY(-2px);
   box-shadow: 0 10px 20px -5px rgba(205, 176, 232, 0.5);
