@@ -1,0 +1,149 @@
+<section class="publicar-page">
+  <div class="container">
+    
+    <div class="header">
+      <h1 class="page-title">Publicar Producto</h1>
+      <div class="progress-bar">
+        <div class="step" [class.active]="paso >= 1" [class.completed]="paso > 1">
+          <div class="step-number">1</div>
+          <span>Información</span>
+        </div>
+        <div class="step" [class.active]="paso >= 2" [class.completed]="paso > 2">
+          <div class="step-number">2</div>
+          <span>Imágenes</span>
+        </div>
+        <div class="step" [class.active]="paso >= 3">
+          <div class="step-number">3</div>
+          <span>Confirmar</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- PASO 1: Información Básica -->
+    <div *ngIf="paso === 1" class="step-content">
+      <div class="form-card">
+        <h2>Información del Producto</h2>
+        
+        <div class="form-group">
+          <label>Título *</label>
+          <input type="text" [(ngModel)]="producto.titulo" placeholder="ej: iPhone 13 Pro Max 256GB" class="form-input">
+        </div>
+
+        <div class="form-group">
+          <label>Descripción *</label>
+          <textarea [(ngModel)]="producto.descripcion" placeholder="Describe el producto en detalle..." class="form-textarea" rows="5"></textarea>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Precio (€) *</label>
+            <input type="number" [(ngModel)]="producto.precio" placeholder="0.00" class="form-input">
+          </div>
+
+          <div class="form-group">
+            <label>Categoría *</label>
+            <select [(ngModel)]="producto.categoria" class="form-input">
+              <option value="">Selecciona una categoría</option>
+              <option *ngFor="let cat of categorias" [value]="cat">{{ cat }}</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Tipo de Oferta</label>
+          <div class="radio-group">
+            <label class="radio-label">
+              <input type="radio" [(ngModel)]="producto.tipoOferta" value="VENTA">
+              <span>Venta</span>
+            </label>
+            <label class="radio-label">
+              <input type="radio" [(ngModel)]="producto.tipoOferta" value="INTERCAMBIO">
+              <span>Intercambio</span>
+            </label>
+            <label class="radio-label">
+              <input type="radio" [(ngModel)]="producto.tipoOferta" value="SUBASTA">
+              <span>Subasta</span>
+            </label>
+          </div>
+        </div>
+
+        <button (click)="siguiente()" class="btn-primary">Siguiente</button>
+      </div>
+    </div>
+
+    <!-- PASO 2: Imágenes -->
+    <div *ngIf="paso === 2" class="step-content">
+      <div class="form-card">
+        <h2>Imágenes del Producto</h2>
+        
+        <div class="upload-section">
+          <label class="upload-label">Imagen Principal *</label>
+          <div class="upload-zone" [class.has-image]="imagenPrincipalPreview">
+            <input type="file" accept="image/*" (change)="onImagenPrincipalChange($event)" id="imagenPrincipal" hidden>
+            <label for="imagenPrincipal" class="upload-trigger">
+              <div *ngIf="!imagenPrincipalPreview" class="upload-placeholder">
+                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                  <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+                  <circle cx="12" cy="13" r="4"/>
+                </svg>
+                <p>Click para subir imagen</p>
+              </div>
+              <img *ngIf="imagenPrincipalPreview" [src]="imagenPrincipalPreview" class="preview-image">
+            </label>
+          </div>
+        </div>
+
+        <div class="upload-section">
+          <label class="upload-label">Galería (Máx. 5 imágenes)</label>
+          <div class="galeria-grid">
+            <div *ngFor="let preview of galeriaPreview; let i = index" class="galeria-item">
+              <img [src]="preview" class="preview-image">
+              <button (click)="eliminarImagenGaleria(i)" class="delete-btn">✕</button>
+            </div>
+            
+            <div *ngIf="producto.galeria.length < 5" class="upload-zone-small">
+              <input type="file" accept="image/*" (change)="onGaleriaChange($event)" id="galeria" hidden multiple>
+              <label for="galeria" class="upload-trigger-small">
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                  <line x1="12" y1="5" x2="12" y2="19"></line>
+                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div class="button-row">
+          <button (click)="anterior()" class="btn-secondary">Anterior</button>
+          <button (click)="siguiente()" class="btn-primary">Siguiente</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- PASO 3: Confirmación -->
+    <div *ngIf="paso === 3" class="step-content">
+      <div class="form-card">
+        <h2>Confirmar Publicación</h2>
+        
+        <div class="preview-card">
+          <img [src]="imagenPrincipalPreview" class="preview-main">
+          <div class="preview-info">
+            <h3>{{ producto.titulo }}</h3>
+            <p class="preview-price">{{ producto.precio | currency:'EUR' }}</p>
+            <p class="preview-desc">{{ producto.descripcion }}</p>
+            <div class="preview-meta">
+              <span class="badge">{{ producto.categoria }}</span>
+              <span class="badge">{{ producto.tipoOferta }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="button-row">
+          <button (click)="anterior()" class="btn-secondary">Anterior</button>
+          <button (click)="publicar()" class="btn-primary">Publicar Producto</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>

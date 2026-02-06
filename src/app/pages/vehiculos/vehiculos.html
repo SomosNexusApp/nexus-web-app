@@ -1,0 +1,112 @@
+<section class="vehiculos-page">
+  
+  <div class="page-hero">
+    <div class="container">
+      <h1 class="hero-title">
+        <span class="icon">🚗</span>
+        Vehículos
+      </h1>
+      <p class="hero-subtitle">Encuentra tu próximo coche, moto o furgoneta</p>
+    </div>
+  </div>
+
+  <div class="container main-layout">
+    
+    <!-- Sidebar Filtros -->
+    <aside class="filter-sidebar">
+      <div class="filter-card">
+        <h3 class="filter-title">Filtros Avanzados</h3>
+        
+        <div class="filter-group">
+          <label>Marca</label>
+          <select [(ngModel)]="filtro.marca" class="filter-select">
+            <option [value]="undefined">Todas</option>
+            <option *ngFor="let marca of marcas" [value]="marca">{{ marca }}</option>
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <label>Combustible</label>
+          <select [(ngModel)]="filtro.combustible" class="filter-select">
+            <option [value]="undefined">Todos</option>
+            <option *ngFor="let comb of combustibles" [value]="comb">{{ comb }}</option>
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <label>Precio</label>
+          <div class="price-inputs">
+            <input type="number" [(ngModel)]="filtro.precioMin" placeholder="Min" class="filter-input-small">
+            <span>—</span>
+            <input type="number" [(ngModel)]="filtro.precioMax" placeholder="Max" class="filter-input-small">
+          </div>
+        </div>
+
+        <div class="filter-group">
+          <label>Año</label>
+          <div class="price-inputs">
+            <input type="number" [(ngModel)]="filtro.anioMin" placeholder="Desde" class="filter-input-small">
+            <span>—</span>
+            <input type="number" [(ngModel)]="filtro.anioMax" placeholder="Hasta" class="filter-input-small">
+          </div>
+        </div>
+
+        <div class="filter-group">
+          <label>Kilómetros máximos</label>
+          <input type="number" [(ngModel)]="filtro.kilometrosMax" placeholder="150000" class="filter-input">
+        </div>
+
+        <div class="filter-actions">
+          <button (click)="limpiarFiltros()" class="btn-ghost-small">Limpiar</button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Grid de vehículos -->
+    <div class="content-area">
+      
+      <div class="toolbar">
+        <span class="result-count">{{ vehiculosFiltrados.length }} vehículos encontrados</span>
+      </div>
+
+      <div class="vehiculos-grid" *ngIf="!isLoading; else loadingTpl">
+        <div *ngFor="let vehiculo of vehiculosFiltrados" class="vehiculo-card" [routerLink]="['/vehiculo', vehiculo.id]">
+          <div class="card-image-wrapper">
+            <img [src]="vehiculo.imagenPrincipal" [alt]="vehiculo.titulo" class="card-image">
+            <div class="badge-combustible" [attr.data-tipo]="vehiculo.combustible">
+              {{ vehiculo.combustible }}
+            </div>
+          </div>
+          
+          <div class="card-content">
+            <h3 class="card-title">{{ vehiculo.titulo }}</h3>
+            
+            <div class="specs-row">
+              <span class="spec-item">📅 {{ vehiculo.anio }}</span>
+              <span class="spec-item">🛣️ {{ vehiculo.kilometros | number }} km</span>
+              <span class="spec-item">⚡ {{ vehiculo.potencia }} CV</span>
+            </div>
+
+            <div class="price-row">
+              <span class="price">{{ vehiculo.precio | currency:'EUR' }}</span>
+              <span class="cambio-badge">{{ vehiculo.cambio }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <ng-template #loadingTpl>
+        <div class="loading-state">
+          <div class="spinner"></div>
+          <p>Cargando vehículos...</p>
+        </div>
+      </ng-template>
+
+      <div *ngIf="!isLoading && vehiculosFiltrados.length === 0" class="empty-state">
+        <p>No se encontraron vehículos con estos filtros</p>
+      </div>
+
+    </div>
+
+  </div>
+</section>
