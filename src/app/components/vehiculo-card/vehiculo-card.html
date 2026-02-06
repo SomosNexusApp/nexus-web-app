@@ -1,0 +1,23 @@
+<div class="vehiculo-card" (click)="verDetalle()">
+  <div class="card-image-wrapper">
+    <img [src]="vehiculo.imagenPrincipal" [alt]="vehiculo.titulo" class="card-image" />
+    <div class="badge-combustible" [attr.data-tipo]="vehiculo.combustible">
+      {{ vehiculo.combustible }}
+    </div>
+  </div>
+
+  <div class="card-content">
+    <h3 class="card-title">{{ vehiculo.titulo }}</h3>
+
+    <div class="specs-row">
+      <span class="spec-item">📅 {{ vehiculo.anio }}</span>
+      <span class="spec-item">🛣️ {{ vehiculo.kilometros | number }} km</span>
+      <span class="spec-item">⚡ {{ vehiculo.potencia }} CV</span>
+    </div>
+
+    <div class="price-row">
+      <span class="price">{{ vehiculo.precio | currency: 'EUR' }}</span>
+      <span class="cambio-badge">{{ vehiculo.cambio }}</span>
+    </div>
+  </div>
+</div>

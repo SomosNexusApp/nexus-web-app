@@ -1,0 +1,10 @@
+<div class="filter-card">
+  <h3 class="filter-title">{{ title }}</h3>
+
+  <ng-content></ng-content>
+
+  <div class="filter-actions" *ngIf="showActions">
+    <button (click)="aplicar.emit()" class="btn-primary">Aplicar Filtros</button>
+    <button (click)="limpiar.emit()" class="btn-ghost-small">Limpiar</button>
+  </div>
+</div>

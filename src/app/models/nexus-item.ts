@@ -1,5 +1,5 @@
 import { Producto } from './producto';
-import { Oferta } from '../guard/oferta';
+import { Oferta } from '../models/oferta';
 
 // Union type para manejar tanto Productos como Ofertas en el feed
 export type NexusItem = Producto | Oferta;
