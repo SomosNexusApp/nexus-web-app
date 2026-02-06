@@ -1,0 +1,38 @@
+.empty-state {
+  text-align: center;
+  padding: 80px 20px;
+  color: var(--text-muted);
+}
+
+.icon-wrapper {
+  font-size: 4rem;
+  margin-bottom: 20px;
+  opacity: 0.3;
+}
+
+h3 {
+  font-size: 1.5rem;
+  color: var(--text-secondary);
+  margin-bottom: 12px;
+}
+
+p {
+  font-size: 1rem;
+  margin-bottom: 24px;
+  line-height: 1.6;
+}
+
+.btn-action {
+  padding: 12px 32px;
+  background: var(--gradient-primary);
+  border: none;
+  border-radius: 50px;
+  color: #000;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.btn-action:hover {
+  transform: translateY(-2px);
+}

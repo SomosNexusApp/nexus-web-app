@@ -4,15 +4,15 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { OfertaService } from '../../services/oferta-service';
 import { ProductoService } from '../../services/producto-service';
 import { AuthService } from '../../services/auth-service';
-import { Oferta } from '../../guard/oferta';
 import { Producto } from '../../models/producto';
+import { Oferta } from '../../models/oferta';
 
 @Component({
   selector: 'app-product-detail',
   standalone: true,
   imports: [CommonModule],
-  templateUrl: './product-detail.component.html',
-  styleUrls: ['./product-detail.component.css']
+  templateUrl: './product-detail.html',
+  styleUrls: ['./product-detail.css']
 })
 export class ProductDetailComponent implements OnInit {
   tipo: 'oferta' | 'producto' = 'producto';

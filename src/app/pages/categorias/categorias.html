@@ -1,0 +1,32 @@
+<!-- src/app/pages/categorias/categorias.html -->
+<section class="categorias-page">
+  <div class="page-hero">
+    <div class="container">
+      <h1 class="hero-title">
+        <span class="icon">🏷️</span>
+        Categorías
+      </h1>
+      <p class="hero-subtitle">Explora por categoría y encuentra exactamente lo que buscas</p>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="categorias-grid">
+      <div
+        *ngFor="let categoria of categorias"
+        class="categoria-card"
+        (click)="verCategoria(categoria.id)"
+        [style.border-color]="categoria.color + '40'"
+      >
+        <div class="categoria-icon" [style.background]="categoria.color + '20'">
+          {{ categoria.icono }}
+        </div>
+
+        <h3 class="categoria-nombre">{{ categoria.nombre }}</h3>
+        <p class="categoria-count">{{ categoria.count }} productos</p>
+
+        <div class="categoria-arrow">→</div>
+      </div>
+    </div>
+  </div>
+</section>
