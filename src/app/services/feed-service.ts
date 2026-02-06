@@ -1,188 +1,100 @@
 import { Injectable } from '@angular/core';
-import { Observable, forkJoin, of } from 'rxjs';
-import { map, catchError } from 'rxjs/operators';
-import { ProductoService } from './producto-service';
+import { HttpClient } from '@angular/common/http';
+import { Observable, combineLatest, map } from 'rxjs';
 import { OfertaService } from './oferta-service';
-import { NexusItem } from '../models/nexus-item';
-import { Producto } from '../models/producto';
+import { ProductoService } from './producto-service';
 import { Oferta } from '../models/oferta';
-import { environment } from '../../environments/enviroment';
-export type FeedFilter = 'all' | 'deals' | 'secondhand' | 'trending' | 'recent';
+import { Producto } from '../models/producto';
+
+export interface FeedItem {
+  tipo: 'oferta' | 'producto';
+  data: Oferta | Producto;
+  fecha: Date;
+}
 
 @Injectable({
   providedIn: 'root'
 })
 export class FeedService {
-
   constructor(
-    private productoService: ProductoService,
-    private ofertaService: OfertaService
+    private ofertaService: OfertaService,
+    private productoService: ProductoService
   ) {}
 
-  /**
-   * Obtiene el feed unificado de productos y ofertas
-   * Maneja errores gracefully y siempre retorna datos
-   */
-  getUnifiedFeed(): Observable<NexusItem[]> {
-    return forkJoin({
-      productos: this.productoService.getDisponibles().pipe(
-        catchError(error => {
-          console.error('Error cargando productos:', error);
-          return of([] as Producto[]);
-        })
-      ),
-      ofertas: this.ofertaService.getAll().pipe(
-        catchError(error => {
-          console.error('Error cargando ofertas:', error);
-          return of([] as Oferta[]);
-        })
-      )
-    }).pipe(
-      map(response => {
-        const feed: NexusItem[] = [
-          ...(response.productos || []),
-          ...(response.ofertas || [])
-        ];
-        // Mezclar aleatoriamente
-        return this.shuffleArray(feed);
+  // Feed unificado (Ofertas + Productos)
+  getFeedPrincipal(): Observable<FeedItem[]> {
+    return combineLatest([
+      this.ofertaService.getAll(),
+      this.productoService.getDisponibles()
+    ]).pipe(
+      map(([ofertas, productos]) => {
+        const feedItems: FeedItem[] = [];
+        
+        // Convertir ofertas a FeedItem
+        ofertas.forEach(oferta => {
+          feedItems.push({
+            tipo: 'oferta',
+            data: oferta,
+            fecha: new Date(oferta.fechaPublicacion || Date.now())
+          });
+        });
+        
+        // Convertir productos a FeedItem
+        productos.forEach(producto => {
+          feedItems.push({
+            tipo: 'producto',
+            data: producto,
+            fecha: new Date() // Los productos no tienen fecha de publicación en tu modelo actual
+          });
+        });
+        
+        // Ordenar por fecha descendente
+        return feedItems.sort((a, b) => b.fecha.getTime() - a.fecha.getTime());
       })
     );
   }
 
-  /**
-   * Obtiene solo productos disponibles
-   */
-  getProductosFeed(): Observable<Producto[]> {
-    return this.productoService.getDisponibles().pipe(
-      catchError(error => {
-        console.error('Error cargando productos:', error);
-        return of([] as Producto[]);
-      })
+  // Feed personalizado (por categoría)
+  getFeedPorCategoria(categoria: string): Observable<FeedItem[]> {
+    return this.getFeedPrincipal().pipe(
+      map(items => items.filter(item => {
+        if (item.tipo === 'oferta') {
+          return (item.data as Oferta).categoria === categoria;
+        }
+        return false; // Productos no tienen categoría en tu modelo
+      }))
     );
   }
 
-  /**
-   * Obtiene solo ofertas
-   */
-  getOfertasFeed(): Observable<Oferta[]> {
-    return this.ofertaService.getAll().pipe(
-      catchError(error => {
-        console.error('Error cargando ofertas:', error);
-        return of([] as Oferta[]);
+  // Feed destacados (Spark alto + Productos populares)
+  getFeedDestacados(): Observable<FeedItem[]> {
+    return combineLatest([
+      this.ofertaService.getDestacadas(),
+      this.productoService.getAll() // Podrías crear un método getDestacados() también
+    ]).pipe(
+      map(([ofertas, productos]) => {
+        const feedItems: FeedItem[] = [];
+        
+        ofertas.forEach(oferta => {
+          feedItems.push({
+            tipo: 'oferta',
+            data: oferta,
+            fecha: new Date(oferta.fechaPublicacion || Date.now())
+          });
+        });
+        
+        // Filtrar productos más recientes o con mejor precio
+        const productosRecientes = productos.slice(0, 10);
+        productosRecientes.forEach(producto => {
+          feedItems.push({
+            tipo: 'producto',
+            data: producto,
+            fecha: new Date()
+          });
+        });
+        
+        return feedItems;
       })
     );
-  }
-
-  /**
-   * Obtiene ofertas flash (que expiran pronto)
-   */
-  getFlashDeals(): Observable<Oferta[]> {
-    return this.ofertaService.getProximasExpirar().pipe(
-      catchError(error => {
-        console.error('Error cargando ofertas flash:', error);
-        return of([] as Oferta[]);
-      })
-    );
-  }
-
-  /**
-   * Obtiene los mejores descuentos
-   */
-  getBestDeals(): Observable<Oferta[]> {
-    return this.ofertaService.getMejoresDescuentos().pipe(
-      catchError(error => {
-        console.error('Error cargando mejores descuentos:', error);
-        return of([] as Oferta[]);
-      })
-    );
-  }
-
-  /**
-   * Filtra items del feed según el tipo
-   */
-  filterFeed(items: NexusItem[], filter: FeedFilter): NexusItem[] {
-    switch (filter) {
-      case 'all':
-        return items;
-      
-      case 'deals':
-        return items.filter(item => this.isOferta(item));
-      
-      case 'secondhand':
-        return items.filter(item => !this.isOferta(item));
-      
-      case 'trending':
-        // Ordenar por algún criterio de tendencia (ej: precio más bajo, descuento mayor)
-        return this.sortByTrending(items);
-      
-      case 'recent':
-        // Ordenar por fecha de publicación (más recientes primero)
-        return this.sortByRecent(items);
-      
-      default:
-        return items;
-    }
-  }
-
-  /**
-   * Type guard para distinguir ofertas
-   */
-  private isOferta(item: NexusItem): boolean {
-    return (item as Oferta).precioOferta !== undefined;
-  }
-
-  /**
-   * Ordena por "trending" (ofertas con mejor descuento primero)
-   */
-  private sortByTrending(items: NexusItem[]): NexusItem[] {
-    return [...items].sort((a, b) => {
-      const discountA = this.getDiscountPercentage(a);
-      const discountB = this.getDiscountPercentage(b);
-      return discountB - discountA;
-    });
-  }
-
-  /**
-   * Ordena por fecha (más recientes primero)
-   */
-  private sortByRecent(items: NexusItem[]): NexusItem[] {
-    return [...items].sort((a, b) => {
-      const dateA = this.getPublicationDate(a);
-      const dateB = this.getPublicationDate(b);
-      return dateB.getTime() - dateA.getTime();
-    });
-  }
-
-  /**
-   * Calcula el porcentaje de descuento
-   */
-  private getDiscountPercentage(item: NexusItem): number {
-    if (this.isOferta(item)) {
-      const oferta = item as Oferta;
-      if (oferta.precioOriginal > 0) {
-        return ((oferta.precioOriginal - oferta.precioOferta) / oferta.precioOriginal) * 100;
-      }
-    }
-    return 0;
-  }
-
-  /**
-   * Obtiene la fecha de publicación
-   */
-  private getPublicationDate(item: NexusItem): Date {
-    const fechaStr = (item as any).fechaPublicacion || (item as any).fechaRegistro;
-    return fechaStr ? new Date(fechaStr) : new Date(0);
-  }
-
-  /**
-   * Mezcla aleatoriamente un array
-   */
-  private shuffleArray<T>(array: T[]): T[] {
-    const shuffled = [...array];
-    for (let i = shuffled.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-    }
-    return shuffled;
   }
 }

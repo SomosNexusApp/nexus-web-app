@@ -14,7 +14,7 @@ export interface Oferta {
   tienda: string;
   precioOriginal: number;
   precioOferta: number;
-  urlOferta: string; // ← URL externa (Amazon, etc.)
+  urlOferta: string;
   imagenPrincipal: string;
   galeriaImagenes?: string[];
   fechaExpiracion?: string;
@@ -25,6 +25,7 @@ export interface Oferta {
   // Sistema Spark
   sparkCount?: number;
   dripCount?: number;
+  sparkScore?: number;
   numeroComentarios?: number;
   numeroVistas?: number;
   numeroCompartidos?: number;
@@ -34,28 +35,15 @@ export interface Oferta {
   actor?: any;
 }
 
-export interface OfertaCreateDTO {
-  titulo: string;
-  descripcion: string;
-  tienda: string;
-  precioOriginal: number;
-  precioOferta: number;
-  urlOferta: string;
-  fechaExpiracion?: string;
-  categoria?: string;
-}
-
-export interface FiltroOfertaDTO {
+export interface FiltroOferta {
   categoria?: string;
   tienda?: string;
   precioMinimo?: number;
   precioMaximo?: number;
-  descuentoMinimo?: number;
-  soloActivas?: boolean;
-  badge?: BadgeOferta;
-  ordenarPor?: 'spark' | 'precio' | 'descuento' | 'fecha';
-  orden?: 'asc' | 'desc';
   busqueda?: string;
+  soloActivas?: boolean;
+  ordenarPor?: 'spark' | 'precio' | 'fecha' | 'vistas';
+  direccion?: 'asc' | 'desc';
   pagina?: number;
-  elementosPorPagina?: number;
+  tamañoPagina?: number;
 }

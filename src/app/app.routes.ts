@@ -1,15 +1,71 @@
 import { Routes } from '@angular/router';
-import { HomeComponent } from './components/home/home';
-import { ProductDetailComponent } from './components/product-detail/product-detail';
+import { authGuard, roleGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
-  // Cuando la URL está vacía (inicio), carga la Home
-  { path: '', component: HomeComponent },
+  { path: '', redirectTo: '/feed', pathMatch: 'full' },
   
-  // Rutas de detalle
-  { path: 'producto/:id', component: ProductDetailComponent },
-  { path: 'oferta/:id', component: ProductDetailComponent },
+  // Feed principal
+  { 
+    path: 'feed', 
+    loadComponent: () => import('./pages/feed/feed.component').then(m => m.FeedComponent) 
+  },
   
-  // Si no encuentra nada, vuelve al inicio
-  { path: '**', redirectTo: '' }
+  // Ofertas
+  { 
+    path: 'ofertas', 
+    loadComponent: () => import('./pages/ofertas/ofertas.component').then(m => m.OfertasComponent) 
+  },
+  { 
+    path: 'oferta/:id', 
+    loadComponent: () => import('./components/product-detail/product-detail.component').then(m => m.ProductDetailComponent) 
+  },
+  
+  // Productos
+  { 
+    path: 'productos', 
+    loadComponent: () => import('./pages/productos/productos.component').then(m => m.ProductosComponent) 
+  },
+  { 
+    path: 'producto/:id', 
+    loadComponent: () => import('./components/product-detail/product-detail.component').then(m => m.ProductDetailComponent) 
+  },
+  
+  // Vehículos
+  { 
+    path: 'vehiculos', 
+    loadComponent: () => import('./pages/vehiculos/vehiculos.component').then(m => m.VehiculosComponent) 
+  },
+  
+  // Auth
+  { 
+    path: 'login', 
+    loadComponent: () => import('./pages/login/login.component').then(m => m.LoginComponent) 
+  },
+  { 
+    path: 'registro', 
+    loadComponent: () => import('./pages/registro/registro.component').then(m => m.RegistroComponent) 
+  },
+  
+  // Área privada
+  { 
+    path: 'perfil', 
+    loadComponent: () => import('./pages/perfil/perfil.component').then(m => m.PerfilComponent),
+    canActivate: [authGuard]
+  },
+  { 
+    path: 'publicar', 
+    loadComponent: () => import('./pages/publicar/publicar.component').then(m => m.PublicarComponent),
+    canActivate: [authGuard]
+  },
+  
+  // Admin
+  { 
+    path: 'admin', 
+    loadComponent: () => import('./pages/admin/admin.component').then(m => m.AdminComponent),
+    canActivate: [authGuard, roleGuard],
+    data: { role: 'ADMIN' }
+  },
+  
+  // 404
+  { path: '**', redirectTo: '/feed' }
 ];
