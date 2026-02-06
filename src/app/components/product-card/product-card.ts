@@ -1,76 +1,72 @@
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { Oferta } from '../../guard/oferta';
+import { Oferta } from '../../models/oferta';
 import { Producto } from '../../models/producto';
 
 @Component({
   selector: 'app-product-card',
   standalone: true,
   imports: [CommonModule],
-  templateUrl: './product-card.component.html',
-  styleUrls: ['./product-card.component.css']
+  templateUrl: './product-card.html',
+  styleUrls: ['./product-card.css']
 })
 export class ProductCardComponent {
-  @Input() tipo: 'oferta' | 'producto' = 'producto';
-  @Input() oferta?: Oferta;
-  @Input() producto?: Producto;
+  @Input() product!: Oferta | Producto;
 
   constructor(private router: Router) {}
 
+  get esOferta(): boolean {
+    return 'precioOferta' in this.product;
+  }
+
   get imagen(): string {
-    if (this.tipo === 'oferta' && this.oferta) {
-      return this.oferta.imagenPrincipal;
-    } else if (this.tipo === 'producto' && this.producto) {
-      return this.producto.imagenPrincipal;
-    }
-    return 'assets/placeholder.png';
+    return this.product.imagenPrincipal || 'https://via.placeholder.com/300';
   }
 
   get titulo(): string {
-    if (this.tipo === 'oferta' && this.oferta) {
-      return this.oferta.titulo;
-    } else if (this.tipo === 'producto' && this.producto) {
-      return this.producto.titulo;
-    }
-    return '';
+    return this.product.titulo;
   }
 
   get precio(): number {
-    if (this.tipo === 'oferta' && this.oferta) {
-      return this.oferta.precioOferta;
-    } else if (this.tipo === 'producto' && this.producto) {
-      return this.producto.precio;
-    }
-    return 0;
+    return this.esOferta
+      ? (this.product as Oferta).precioOferta
+      : (this.product as Producto).precio;
   }
 
   get precioOriginal(): number | undefined {
-    if (this.tipo === 'oferta' && this.oferta) {
-      return this.oferta.precioOriginal;
-    }
-    return undefined;
+    return this.esOferta ? (this.product as Oferta).precioOriginal : undefined;
   }
 
   get descuento(): number | undefined {
-    if (this.tipo === 'oferta' && this.oferta && this.oferta.precioOriginal) {
-      return Math.round(((this.oferta.precioOriginal - this.oferta.precioOferta) / this.oferta.precioOriginal) * 100);
-    }
-    return undefined;
+    if (!this.esOferta) return undefined;
+    const oferta = this.product as Oferta;
+    if (!oferta.precioOriginal) return undefined;
+    return Math.round(((oferta.precioOriginal - oferta.precioOferta) / oferta.precioOriginal) * 100);
   }
 
   get sparkScore(): number | undefined {
-    if (this.tipo === 'oferta' && this.oferta) {
-      return (this.oferta.sparkCount || 0) - (this.oferta.dripCount || 0);
-    }
-    return undefined;
+    if (!this.esOferta) return undefined;
+    const oferta = this.product as Oferta;
+    return (oferta.sparkCount || 0) - (oferta.dripCount || 0);
+  }
+
+  get badge(): string | undefined {
+    if (!this.esOferta) return undefined;
+    const oferta = this.product as Oferta;
+    return oferta.badge;
+  }
+
+  get tienda(): string | undefined {
+    return this.esOferta ? (this.product as Oferta).tienda : undefined;
+  }
+
+  get vistas(): number | undefined {
+    return this.esOferta ? (this.product as Oferta).numeroVistas : undefined;
   }
 
   verDetalle(): void {
-    if (this.tipo === 'oferta' && this.oferta) {
-      this.router.navigate(['/oferta', this.oferta.id]);
-    } else if (this.tipo === 'producto' && this.producto) {
-      this.router.navigate(['/producto', this.producto.id]);
-    }
+    const ruta = this.esOferta ? '/oferta' : '/producto';
+    this.router.navigate([ruta, this.product.id]);
   }
 }

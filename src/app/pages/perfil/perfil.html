@@ -1,0 +1,137 @@
+<section class="perfil-page" *ngIf="!isLoading && usuario; else loadingTpl">
+  
+  <!-- Header del perfil -->
+  <div class="perfil-header">
+    <div class="container">
+      <div class="header-content">
+        
+        <!-- Avatar -->
+        <div class="avatar-section">
+          <div class="avatar-wrapper">
+            <img [src]="usuario.avatar || 'https://ui-avatars.com/api/?name=' + usuario.user" [alt]="usuario.user" class="avatar-img">
+            <label for="avatar-input" class="avatar-edit-btn">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+                <circle cx="12" cy="13" r="4"/>
+              </svg>
+            </label>
+            <input type="file" id="avatar-input" accept="image/*" (change)="subirAvatar($event)" style="display: none;">
+          </div>
+          
+          <div class="verificado-badge" *ngIf="usuario.esVerificado">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+            </svg>
+            Verificado
+          </div>
+        </div>
+
+        <!-- Info -->
+        <div class="info-section">
+          <div class="user-header">
+            <h1 class="username">{{ usuario.user }}</h1>
+            <button (click)="editMode = !editMode" class="btn-edit">
+              {{ editMode ? 'Cancelar' : 'Editar Perfil' }}
+            </button>
+          </div>
+
+          <p class="user-bio" *ngIf="!editMode">{{ usuario.biografia || 'Sin biografía' }}</p>
+          <textarea 
+            *ngIf="editMode" 
+            [(ngModel)]="usuario.biografia" 
+            placeholder="Cuéntanos sobre ti..."
+            class="bio-input"
+          ></textarea>
+
+          <div class="user-stats">
+            <div class="stat">
+              <span class="stat-value">{{ stats.reputacion }}</span>
+              <span class="stat-label">⭐ Reputación</span>
+            </div>
+            <div class="stat">
+              <span class="stat-value">{{ stats.productosPublicados }}</span>
+              <span class="stat-label">📦 Publicados</span>
+            </div>
+            <div class="stat">
+              <span class="stat-value">{{ stats.ventas }}</span>
+              <span class="stat-label">💰 Ventas</span>
+            </div>
+          </div>
+
+          <div class="user-meta" *ngIf="!editMode">
+            <span class="meta-item" *ngIf="usuario.ubicacion">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/>
+                <circle cx="12" cy="10" r="3"/>
+              </svg>
+              {{ usuario.ubicacion }}
+            </span>
+            <span class="meta-item" *ngIf="usuario.email">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="2" y="4" width="20" height="16" rx="2"/>
+                <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
+              </svg>
+              {{ usuario.email }}
+            </span>
+          </div>
+
+          <!-- Formulario de edición -->
+          <div class="edit-form" *ngIf="editMode">
+            <div class="form-group">
+              <label>Ubicación</label>
+              <input type="text" [(ngModel)]="usuario.ubicacion" placeholder="Madrid, España" class="form-input">
+            </div>
+            <div class="form-group">
+              <label>Teléfono</label>
+              <input type="tel" [(ngModel)]="usuario.telefono" placeholder="600123456" class="form-input">
+            </div>
+            <button (click)="guardarCambios()" class="btn-save">Guardar Cambios</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabs de contenido -->
+  <div class="container tabs-container">
+    <div class="tabs-header">
+      <button class="tab active">Mis Productos ({{ misProductos.length }})</button>
+      <button class="tab">Favoritos</button>
+      <button class="tab">Valoraciones</button>
+    </div>
+
+    <div class="tabs-content">
+      <div class="productos-grid" *ngIf="misProductos.length > 0; else emptyProducts">
+        <div *ngFor="let producto of misProductos" class="producto-item">
+          <img [src]="producto.imagenPrincipal" [alt]="producto.titulo" class="producto-img">
+          <div class="producto-info">
+            <h3>{{ producto.titulo }}</h3>
+            <p class="precio">{{ producto.precio | currency:'EUR' }}</p>
+            <span class="estado" [attr.data-estado]="producto.estadoProducto">{{ producto.estadoProducto }}</span>
+          </div>
+        </div>
+      </div>
+
+      <ng-template #emptyProducts>
+        <div class="empty-state">
+          <p>No has publicado ningún producto aún</p>
+          <button routerLink="/publicar" class="btn-primary">Publicar Ahora</button>
+        </div>
+      </ng-template>
+    </div>
+  </div>
+
+  <!-- Botón de cerrar sesión -->
+  <div class="container logout-section">
+    <button (click)="cerrarSesion()" class="btn-logout">Cerrar Sesión</button>
+  </div>
+
+</section>
+
+<ng-template #loadingTpl>
+  <div class="loading-container">
+    <div class="spinner"></div>
+    <p>Cargando perfil...</p>
+  </div>
+</ng-template>

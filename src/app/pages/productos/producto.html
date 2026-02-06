@@ -1,0 +1,121 @@
+<section class="productos-page">
+  
+  <!-- Hero compacto -->
+  <div class="page-hero">
+    <div class="container">
+      <h1 class="hero-title">
+        <span class="icon">🛍️</span>
+        Segunda Mano
+      </h1>
+      <p class="hero-subtitle">Compra, vende e intercambia lo que ya no usas</p>
+    </div>
+  </div>
+
+  <div class="container main-layout">
+    
+    <!-- Sidebar Filtros -->
+    <aside class="filter-sidebar">
+      <div class="filter-card glass-panel">
+        <h3 class="filter-title">Filtros</h3>
+        
+        <!-- Búsqueda -->
+        <div class="filter-group">
+          <label>Buscar</label>
+          <input 
+            type="text" 
+            [(ngModel)]="filtros.busqueda" 
+            placeholder="Buscar productos..."
+            class="filter-input"
+          />
+        </div>
+
+        <!-- Categoría -->
+        <div class="filter-group">
+          <label>Categoría</label>
+          <select [(ngModel)]="filtros.categoria" class="filter-select">
+            <option [value]="undefined">Todas</option>
+            <option *ngFor="let cat of categorias" [value]="cat">{{ cat }}</option>
+          </select>
+        </div>
+
+        <!-- Tipo de oferta -->
+        <div class="filter-group">
+          <label>Tipo</label>
+          <select [(ngModel)]="filtros.tipoOferta" class="filter-select">
+            <option [value]="undefined">Todos</option>
+            <option *ngFor="let tipo of tiposOferta" [value]="tipo.value">{{ tipo.label }}</option>
+          </select>
+        </div>
+
+        <!-- Precio -->
+        <div class="filter-group">
+          <label>Precio</label>
+          <div class="price-inputs">
+            <input 
+              type="number" 
+              [(ngModel)]="filtros.precioMin" 
+              placeholder="Min"
+              class="filter-input-small"
+            />
+            <span>—</span>
+            <input 
+              type="number" 
+              [(ngModel)]="filtros.precioMax" 
+              placeholder="Max"
+              class="filter-input-small"
+            />
+          </div>
+        </div>
+
+        <!-- Botones -->
+        <div class="filter-actions">
+          <button (click)="limpiarFiltros()" class="btn-ghost-small">
+            Limpiar Filtros
+          </button>
+        </div>
+      </div>
+
+      <!-- CTA Publicar -->
+      <div class="cta-card">
+        <h4>¿Tienes algo que vender?</h4>
+        <p>Publica tu producto gratis y llega a miles de compradores</p>
+        <button routerLink="/publicar" class="btn-primary">
+          Publicar Ahora
+        </button>
+      </div>
+    </aside>
+
+    <!-- Grid de productos -->
+    <div class="content-area">
+      
+      <!-- Toolbar -->
+      <div class="toolbar">
+        <span class="result-count">{{ productosFiltrados.length }} productos encontrados</span>
+      </div>
+
+      <!-- Grid -->
+      <div class="productos-grid" *ngIf="!isLoading; else loadingTpl">
+        <app-product-card 
+          *ngFor="let producto of productosFiltrados" 
+          [product]="producto">
+        </app-product-card>
+      </div>
+
+      <!-- Loading -->
+      <ng-template #loadingTpl>
+        <div class="loading-state">
+          <div class="spinner"></div>
+          <p>Cargando productos...</p>
+        </div>
+      </ng-template>
+
+      <!-- Empty -->
+      <div *ngIf="!isLoading && productosFiltrados.length === 0" class="empty-state">
+        <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+        <p>No se encontraron productos</p>
+      </div>
+
+    </div>
+
+  </div>
+</section>

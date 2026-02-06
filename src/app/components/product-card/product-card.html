@@ -1,31 +1,54 @@
-<div class="card" (click)="verDetalle()">
-  <div class="card-image">
-    <img [src]="imagen" [alt]="titulo" />
+<div class="nexus-card" (click)="verDetalle()">
+  <div class="card-image-wrapper">
+    <img [src]="imagen" [alt]="titulo" class="card-image" />
     
     <!-- Badge de descuento (solo ofertas) -->
-    <div *ngIf="descuento" class="badge-descuento">
+    <div *ngIf="descuento" class="badge-discount">
       -{{ descuento }}%
     </div>
 
-    <!-- Badge de Spark Score (solo ofertas) -->
+    <!-- Badge de Spark Score (solo ofertas con score > 10) -->
     <div *ngIf="sparkScore !== undefined && sparkScore > 10" class="badge-spark">
-      ⚡ {{ sparkScore }}
+      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+      </svg>
+      {{ sparkScore }}
+    </div>
+
+    <!-- Badge según categoría (LEGENDARY, FIRE, etc) -->
+    <div *ngIf="badge && badge !== 'NORMAL'" class="badge-category" [attr.data-badge]="badge">
+      <span *ngIf="badge === 'LEGENDARY'">👑 LEGENDARY</span>
+      <span *ngIf="badge === 'FIRE'">🔥 FIRE</span>
+      <span *ngIf="badge === 'HOT'">🌶️ HOT</span>
+      <span *ngIf="badge === 'TRENDING'">📈 TRENDING</span>
     </div>
   </div>
 
-  <div class="card-body">
+  <div class="card-content">
     <h3 class="card-title">{{ titulo }}</h3>
     
-    <div class="card-price">
-      <span class="precio-actual">{{ precio | currency:'EUR' }}</span>
-      <span *ngIf="precioOriginal" class="precio-original">
+    <div class="card-price-row">
+      <span class="price-current">{{ precio | currency:'EUR' }}</span>
+      <span *ngIf="precioOriginal" class="price-original">
         {{ precioOriginal | currency:'EUR' }}
       </span>
     </div>
 
-    <div *ngIf="tipo === 'oferta' && oferta" class="card-footer">
-      <span class="tienda">🏬 {{ oferta.tienda }}</span>
-      <span class="vistas">👁️ {{ oferta.numeroVistas || 0 }}</span>
+    <div *ngIf="esOferta" class="card-meta">
+      <span class="meta-item">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="3" width="18" height="18" rx="2"/>
+          <path d="M9 7h6"/>
+        </svg>
+        {{ tienda }}
+      </span>
+      <span class="meta-item">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+          <circle cx="12" cy="12" r="3"/>
+        </svg>
+        {{ vistas || 0 }}
+      </span>
     </div>
   </div>
 </div>
