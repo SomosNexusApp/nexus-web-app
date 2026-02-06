@@ -4,7 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { OfertaService } from '../../services/oferta-service';
 import { ProductoService } from '../../services/producto-service';
 import { AuthService } from '../../services/auth-service';
-import { Oferta } from '../../models/oferta';
+import { Oferta } from '../../guard/oferta';
 import { Producto } from '../../models/producto';
 
 @Component({

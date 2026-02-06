@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/enviroment';
 import { Producto } from '../models/producto';
-import { Oferta } from '../models/oferta';
+import { Oferta } from '../guard/oferta';
 
 /**
  * Servicio unificado para acceder a productos y ofertas

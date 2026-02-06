@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, combineLatest, map } from 'rxjs';
 import { OfertaService } from './oferta-service';
 import { ProductoService } from './producto-service';
-import { Oferta } from '../models/oferta';
+import { Oferta } from '../guard/oferta';
 import { Producto } from '../models/producto';
 
 export interface FeedItem {

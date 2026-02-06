@@ -1,7 +1,7 @@
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { Oferta } from '../../models/oferta';
+import { Oferta } from '../../guard/oferta';
 import { Producto } from '../../models/producto';
 
 @Component({

@@ -1,4 +1,4 @@
-import { Oferta } from './oferta';
+import { Oferta } from '../guard/oferta';
 import { Producto } from './producto';
 
 export interface Favorito {

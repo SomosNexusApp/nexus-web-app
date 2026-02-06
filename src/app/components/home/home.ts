@@ -4,7 +4,7 @@ import { HeroComponent } from '../hero/hero';
 import { ProductCardComponent } from '../product-card/product-card';
 import { FeedService } from '../../services/feed-service';
 import { NexusItem } from '../../models/nexus-item';
-import { Oferta } from '../../models/oferta';
+import { Oferta } from '../../guard/oferta';
 
 @Component({
   selector: 'app-home',

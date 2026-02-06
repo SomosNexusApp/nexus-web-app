@@ -1,0 +1,51 @@
+<!-- src/app/pages/feed/feed.html -->
+<app-hero></app-hero>
+
+<section class="feed-section container">
+  
+  <div class="feed-header">
+    <h2 class="section-title">Explorar Nexus</h2>
+    
+    <div class="filter-tabs">
+      <button 
+        class="tab-btn" 
+        [class.active]="activeFilter === 'all'"
+        (click)="setFilter('all')">
+        Todo
+      </button>
+      <button 
+        class="tab-btn" 
+        [class.active]="activeFilter === 'deals'"
+        (click)="setFilter('deals')">
+        Ofertas Flash
+      </button>
+      <button 
+        class="tab-btn" 
+        [class.active]="activeFilter === 'secondhand'"
+        (click)="setFilter('secondhand')">
+        Segunda Mano
+      </button>
+    </div>
+  </div>
+
+  <div class="product-grid" *ngIf="!isLoading; else loadingTpl">
+    <app-product-card 
+      *ngFor="let item of filteredItems" 
+      [oferta]="item.precioOferta ? item : undefined"
+      [producto]="!item.precioOferta ? item : undefined"
+      [tipo]="item.precioOferta ? 'oferta' : 'producto'">
+    </app-product-card>
+  </div>
+
+  <div *ngIf="!isLoading && filteredItems.length === 0" class="empty-state">
+    <p>No se encontraron productos en esta categoría.</p>
+  </div>
+
+  <ng-template #loadingTpl>
+    <div class="loading-state">
+      <div class="spinner"></div>
+      <p>Cargando el mercado...</p>
+    </div>
+  </ng-template>
+
+</section>
