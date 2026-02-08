@@ -1,0 +1,43 @@
+<div class="container page-container">
+  <div class="page-header">
+    <h1>Mis Favoritos</h1>
+    <p class="subtitle">Gestiona los productos y ofertas que has guardado.</p>
+  </div>
+
+  <app-loading-spinner *ngIf="loading"></app-loading-spinner>
+
+  <div *ngIf="error" class="alert-error">
+    {{ error }}
+    <a routerLink="/login" class="btn-link">Iniciar Sesión</a>
+  </div>
+
+  <div *ngIf="!loading && !error">
+    <app-empty-state
+      *ngIf="favoritos.length === 0"
+      title="No tienes favoritos aún"
+      description="Explora el feed y guarda lo que más te guste para verlo aquí."
+      icon="heart"
+      actionText="Explorar Feed"
+      actionLink="/feed"
+    >
+    </app-empty-state>
+
+    <div class="favorites-grid" *ngIf="favoritos.length > 0">
+      @for (fav of favoritos; track fav.id) {
+        <div class="favorite-item-wrapper">
+          <button
+            class="btn-remove"
+            (click)="eliminarFavorito(fav.id, $event)"
+            title="Eliminar de favoritos"
+          >
+            <i class="fas fa-trash-alt"></i>
+          </button>
+
+          <ng-container *ngIf="getNexusItem(fav) as item">
+            <app-product-card [product]="item"></app-product-card>
+          </ng-container>
+        </div>
+      }
+    </div>
+  </div>
+</div>

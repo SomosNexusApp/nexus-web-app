@@ -7,6 +7,8 @@ import { AuthService } from '../../services/auth-service';
 import { Producto } from '../../models/producto';
 import { Oferta } from '../../models/oferta';
 
+
+
 @Component({
   selector: 'app-product-detail',
   standalone: true,
@@ -85,13 +87,17 @@ export class ProductDetailComponent implements OnInit {
 
     if (this.tipo === 'oferta' && this.oferta) {
       const usuarioId = this.authService.getUserId();
-      this.ofertaService.votar(this.oferta.id, usuarioId, true).subscribe({
-        next: (res) => {
-          this.oferta!.sparkCount = res.sparkScore + (this.oferta!.dripCount || 0);
-          console.log('⚡ Spark dado');
-        },
-        error: (err) => console.error('Error al votar:', err)
-      });
+      if (usuarioId) {
+        this.ofertaService.votar(this.oferta.id, Number(usuarioId), true).subscribe({
+          next: (res) => {
+            if (this.oferta) {
+              this.oferta.sparkCount = (this.oferta.sparkCount || 0) + 1;
+            }
+            console.log('⚡ Spark dado');
+          },
+          error: (err) => console.error('Error al votar:', err)
+        });
+      }
     }
   }
 
@@ -110,4 +116,8 @@ export class ProductDetailComponent implements OnInit {
     // Implementar chat o contacto
     console.log('Abrir chat con vendedor');
   }
+}
+
+function irAOferta() {
+  throw new Error('Function not implemented.');
 }

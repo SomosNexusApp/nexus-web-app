@@ -1,0 +1,83 @@
+.page-container {
+  padding: 2rem 1rem;
+  min-height: 80vh;
+}
+
+.page-header {
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.page-header h1 {
+  font-size: 2.5rem;
+  color: var(--text-primary, #333);
+  margin-bottom: 0.5rem;
+}
+
+.subtitle {
+  color: var(--text-secondary, #666);
+}
+
+.favorites-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 2rem;
+  padding: 1rem 0;
+}
+
+.favorite-item-wrapper {
+  position: relative;
+  transition: transform 0.2s;
+}
+
+.favorite-item-wrapper:hover {
+  transform: translateY(-5px);
+}
+
+/* Botón flotante para eliminar */
+.btn-remove {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 10;
+  background-color: rgba(255, 255, 255, 0.9);
+  border: none;
+  border-radius: 50%;
+  width: 35px;
+  height: 35px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #dc3545;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  transition: all 0.2s ease;
+}
+
+.btn-remove:hover {
+  background-color: #dc3545;
+  color: white;
+  transform: scale(1.1);
+}
+
+.alert-error {
+  background-color: #f8d7da;
+  color: #721c24;
+  padding: 1rem;
+  border-radius: 8px;
+  text-align: center;
+  margin: 2rem auto;
+  max-width: 500px;
+}
+
+.btn-link {
+  color: #721c24;
+  font-weight: bold;
+  margin-left: 5px;
+}
+
+@media (max-width: 768px) {
+  .favorites-grid {
+    grid-template-columns: repeat(auto-fill, minmax(100%, 1fr));
+  }
+}

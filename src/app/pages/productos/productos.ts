@@ -9,8 +9,8 @@ import { Producto, EstadoProducto, TipoOferta } from '../../models/producto';
   selector: 'app-productos',
   standalone: true,
   imports: [CommonModule, FormsModule, ProductCardComponent],
-  templateUrl: './productos.html',
-  styleUrls: ['./productos.css']
+  templateUrl: './producto.html',
+  styleUrls: ['./producto.css']
 })
 export class ProductosComponent implements OnInit {
   productos: Producto[] = [];

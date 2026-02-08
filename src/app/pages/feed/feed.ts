@@ -1,57 +1,73 @@
-// src/app/pages/feed/feed.ts
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { HeroComponent } from '../../components/hero/hero';
+import { FormsModule } from '@angular/forms';
+
+// Importa los componentes STANDALONE correctamente
 import { ProductCardComponent } from '../../components/product-card/product-card';
+import { LoadingSpinnerComponent } from '../../components/loading-spinner/loading-spinner';
+import { EmptyStateComponent } from '../../components/empty-state/empty-state';
+import { HeroComponent } from '../../components/hero/hero'; // Si usas app-hero
+
 import { FeedService } from '../../services/feed-service';
-import { Oferta } from '../../models/oferta';
-import { Producto } from '../../models/producto';
+import { NexusItem } from '../../models/nexus-item';
+
+// Definimos el tipo de filtro
+type FeedFilter = 'todos' | 'trending' | 'destacados';
 
 @Component({
   selector: 'app-feed',
   standalone: true,
-  imports: [CommonModule, HeroComponent, ProductCardComponent],
+  // IMPORTANTE: Aquí importamos todo lo que usa el HTML
+  imports: [
+    CommonModule, 
+    FormsModule,
+    ProductCardComponent, 
+    LoadingSpinnerComponent, 
+    EmptyStateComponent,
+    HeroComponent // Añadir si usas <app-hero>
+  ],
   templateUrl: './feed.html',
   styleUrls: ['./feed.css']
 })
 export class FeedComponent implements OnInit {
-  activeFilter: 'all' | 'deals' | 'secondhand' = 'all';
-  ofertas: Oferta[] = [];
-  productos: Producto[] = [];
-  isLoading = true;
+  private feedService = inject(FeedService);
 
-  constructor(private feedService: FeedService) {}
+  // Variables alineadas con lo que solemos usar
+  items: NexusItem[] = [];
+  loading: boolean = true;
+  error: string | null = null;
+  activeFilter: FeedFilter = 'todos';
 
-  ngOnInit() {
-    this.cargarFeed();
+  ngOnInit(): void {
+    this.cargarFeed('todos');
   }
 
-  cargarFeed() {
-    this.isLoading = true;
-    this.feedService.getFeedPrincipal().subscribe({
+  // Método para cambiar filtro
+  setFilter(filtro: FeedFilter): void {
+    if (this.activeFilter === filtro) return;
+    this.activeFilter = filtro;
+    this.cargarFeed(filtro);
+  }
+
+  cargarFeed(filtro: FeedFilter): void {
+    this.loading = true;
+    this.items = []; // Limpiar
+    
+    let obs$;
+    if (filtro === 'trending') obs$ = this.feedService.getFeedTrending();
+    else if (filtro === 'destacados') obs$ = this.feedService.getFeedDestacados();
+    else obs$ = this.feedService.getUnifiedFeed();
+
+    obs$.subscribe({
       next: (data) => {
-        this.ofertas = data.filter(item => item.tipo === 'oferta').map(item => item.data) as Oferta[];
-        this.productos = data.filter(item => item.tipo === 'producto').map(item => item.data) as Producto[];
-        this.isLoading = false;
+        this.items = data;
+        this.loading = false;
       },
       error: (err) => {
-        console.error('Error cargando feed:', err);
-        this.isLoading = false;
+        console.error(err);
+        this.loading = false;
+        this.error = 'Error cargando el feed';
       }
     });
-  }
-
-  get filteredItems() {
-    if (this.activeFilter === 'all') {
-      return [...this.ofertas, ...this.productos];
-    } else if (this.activeFilter === 'deals') {
-      return this.ofertas;
-    } else {
-      return this.productos;
-    }
-  }
-
-  setFilter(filter: 'all' | 'deals' | 'secondhand') {
-    this.activeFilter = filter;
   }
 }

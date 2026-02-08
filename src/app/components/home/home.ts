@@ -30,7 +30,6 @@ export class HomeComponent implements OnInit {
       next: (data) => {
         this.allItems = data;
         this.isLoading = false;
-        console.log('Feed cargado:', data); // Para depurar
       },
       error: (err) => {
         console.error('Error cargando feed:', err);
@@ -44,7 +43,7 @@ export class HomeComponent implements OnInit {
     
     return this.allItems.filter(item => {
       // Chequeo seguro si es oferta
-      const esOferta = (item as Oferta).precioOferta !== undefined;
+      const esOferta = 'precioOferta' in item;
       
       if (this.activeFilter === 'deals') return esOferta;
       if (this.activeFilter === 'secondhand') return !esOferta;

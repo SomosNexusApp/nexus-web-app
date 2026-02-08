@@ -1,100 +1,49 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, combineLatest, map } from 'rxjs';
+import { environment } from '../../environments/environment';
+import { NexusItem } from '../models/nexus-item';
 import { OfertaService } from './oferta-service';
 import { ProductoService } from './producto-service';
-import { Oferta } from '../guard/oferta';
-import { Producto } from '../models/producto';
+import { Oferta } from '../models/oferta';
 
-export interface FeedItem {
-  tipo: 'oferta' | 'producto';
-  data: Oferta | Producto;
-  fecha: Date;
-}
-
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable({ providedIn: 'root' })
 export class FeedService {
+  private apiUrl = `${environment.apiUrl}/feed`; 
+
   constructor(
+    private http: HttpClient,
     private ofertaService: OfertaService,
     private productoService: ProductoService
   ) {}
 
-  // Feed unificado (Ofertas + Productos)
-  getFeedPrincipal(): Observable<FeedItem[]> {
+  getUnifiedFeed(): Observable<NexusItem[]> {
     return combineLatest([
       this.ofertaService.getAll(),
       this.productoService.getDisponibles()
     ]).pipe(
       map(([ofertas, productos]) => {
-        const feedItems: FeedItem[] = [];
-        
-        // Convertir ofertas a FeedItem
-        ofertas.forEach(oferta => {
-          feedItems.push({
-            tipo: 'oferta',
-            data: oferta,
-            fecha: new Date(oferta.fechaPublicacion || Date.now())
-          });
+        const items: NexusItem[] = [...ofertas, ...productos];
+        return items.sort((a, b) => {
+          // Lógica de ordenación segura
+          const dateA = 'fechaPublicacion' in a ? new Date(a.fechaPublicacion || 0) : new Date();
+          const dateB = 'fechaPublicacion' in b ? new Date(b.fechaPublicacion || 0) : new Date();
+          return dateB.getTime() - dateA.getTime();
         });
-        
-        // Convertir productos a FeedItem
-        productos.forEach(producto => {
-          feedItems.push({
-            tipo: 'producto',
-            data: producto,
-            fecha: new Date() // Los productos no tienen fecha de publicación en tu modelo actual
-          });
-        });
-        
-        // Ordenar por fecha descendente
-        return feedItems.sort((a, b) => b.fecha.getTime() - a.fecha.getTime());
       })
     );
   }
 
-  // Feed personalizado (por categoría)
-  getFeedPorCategoria(categoria: string): Observable<FeedItem[]> {
-    return this.getFeedPrincipal().pipe(
-      map(items => items.filter(item => {
-        if (item.tipo === 'oferta') {
-          return (item.data as Oferta).categoria === categoria;
-        }
-        return false; // Productos no tienen categoría en tu modelo
-      }))
-    );
+  getFeedPrincipal(): Observable<NexusItem[]> {
+    // CORREGIDO: Usar this.apiUrl, no 'this'
+    return this.http.get<NexusItem[]>(`${this.apiUrl}/principal`);
   }
 
-  // Feed destacados (Spark alto + Productos populares)
-  getFeedDestacados(): Observable<FeedItem[]> {
-    return combineLatest([
-      this.ofertaService.getDestacadas(),
-      this.productoService.getAll() // Podrías crear un método getDestacados() también
-    ]).pipe(
-      map(([ofertas, productos]) => {
-        const feedItems: FeedItem[] = [];
-        
-        ofertas.forEach(oferta => {
-          feedItems.push({
-            tipo: 'oferta',
-            data: oferta,
-            fecha: new Date(oferta.fechaPublicacion || Date.now())
-          });
-        });
-        
-        // Filtrar productos más recientes o con mejor precio
-        const productosRecientes = productos.slice(0, 10);
-        productosRecientes.forEach(producto => {
-          feedItems.push({
-            tipo: 'producto',
-            data: producto,
-            fecha: new Date()
-          });
-        });
-        
-        return feedItems;
-      })
-    );
+  getFeedTrending(): Observable<Oferta[]> {
+    return this.ofertaService.getTrending();
+  }
+
+  getFeedDestacados(): Observable<Oferta[]> {
+    return this.ofertaService.getDestacadas();
   }
 }

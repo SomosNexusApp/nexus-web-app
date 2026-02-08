@@ -13,6 +13,7 @@ export interface Usuario extends Actor {
   biografia?: string;
   ubicacion?: string;
   reputacion?: number;
+  rol: 'USER' | 'ADMIN';
 }
 
 export interface Empresa extends Actor {

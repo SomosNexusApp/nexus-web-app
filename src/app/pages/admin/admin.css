@@ -1,0 +1,157 @@
+.admin-container {
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  min-height: 80vh;
+}
+
+.admin-header h1 {
+  font-size: 2rem;
+  color: #2c3e50;
+  margin-bottom: 0.5rem;
+}
+
+/* Tabs */
+.admin-tabs {
+  display: flex;
+  gap: 1rem;
+  margin: 2rem 0;
+  border-bottom: 1px solid #ddd;
+}
+
+.admin-tabs button {
+  background: none;
+  border: none;
+  padding: 1rem 1.5rem;
+  font-size: 1rem;
+  color: #666;
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.admin-tabs button:hover {
+  color: #6e8efb;
+}
+
+.admin-tabs button.active {
+  color: #6e8efb;
+  border-bottom-color: #6e8efb;
+  font-weight: bold;
+}
+
+/* Tablas */
+.table-responsive {
+  overflow-x: auto;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.admin-table th,
+.admin-table td {
+  padding: 1rem;
+  text-align: left;
+  border-bottom: 1px solid #eee;
+}
+
+.admin-table th {
+  background-color: #f8f9fa;
+  font-weight: 600;
+  color: #444;
+}
+
+.user-cell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.avatar-sm {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+/* Badges */
+.badge {
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  background-color: #e2e8f0;
+  color: #475569;
+}
+
+.badge-admin {
+  background-color: #e0f2fe;
+  color: #0369a1;
+}
+
+.badge-verified {
+  background-color: #dcfce7;
+  color: #15803d;
+}
+
+/* Actions */
+.actions-cell {
+  display: flex;
+  gap: 8px;
+}
+
+.btn-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-view {
+  background-color: #eff6ff;
+  color: #3b82f6;
+}
+.btn-view:hover {
+  background-color: #3b82f6;
+  color: white;
+}
+
+.btn-check {
+  background-color: #f0fdf4;
+  color: #22c55e;
+}
+.btn-check:hover {
+  background-color: #22c55e;
+  color: white;
+}
+
+.btn-delete {
+  background-color: #fef2f2;
+  color: #ef4444;
+}
+.btn-delete:hover {
+  background-color: #ef4444;
+  color: white;
+}
+
+@media (max-width: 768px) {
+  .admin-container {
+    padding: 1rem;
+  }
+  .admin-tabs {
+    overflow-x: auto;
+  }
+}

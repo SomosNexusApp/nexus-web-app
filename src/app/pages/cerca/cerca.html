@@ -1,0 +1,62 @@
+<div class="page-container">
+  <div class="search-hero">
+    <h1>Encuentra Nexus Cerca de Ti</h1>
+    <p>Descubre vendedores y tiendas en tu zona local.</p>
+
+    <div class="search-box">
+      <div class="input-group">
+        <i class="fas fa-map-marker-alt location-icon"></i>
+        <input
+          type="text"
+          [(ngModel)]="busqueda"
+          (keyup.enter)="buscar()"
+          placeholder="Escribe tu ciudad (ej. Madrid, Lima...)"
+        />
+        <button class="btn-gps" (click)="usarMiUbicacion()" title="Usar mi ubicación actual">
+          <i class="fas fa-crosshairs"></i>
+        </button>
+      </div>
+      <button class="btn-search" (click)="buscar()" [disabled]="loading">
+        {{ loading ? 'Buscando...' : 'Buscar' }}
+      </button>
+    </div>
+  </div>
+
+  <div class="results-container">
+    <app-loading-spinner *ngIf="loading"></app-loading-spinner>
+
+    <div *ngIf="!busquedaRealizada && !loading" class="initial-state">
+      <i class="fas fa-search-location"></i>
+      <p>Ingresa una ubicación para comenzar a explorar.</p>
+    </div>
+
+    <app-empty-state
+      *ngIf="busquedaRealizada && !loading && usuariosEncontrados.length === 0"
+      title="No encontramos a nadie en esa zona"
+      description="Intenta con otra ciudad cercana o explora el feed global."
+      icon="map"
+    ></app-empty-state>
+
+    <div *ngIf="usuariosEncontrados.length > 0 && !loading" class="users-grid">
+      @for (user of usuariosEncontrados; track user.id) {
+        <div class="user-card" (click)="verPerfil(user.id)">
+          <div class="user-avatar">
+            <img [src]="user.avatar || 'assets/placeholder-avatar.png'" [alt]="user.user" />
+          </div>
+          <div class="user-info">
+            <h3>{{ user.user }}</h3>
+            <p class="user-location">
+              <i class="fas fa-map-pin"></i> {{ user.ubicacion || busqueda }}
+            </p>
+            <div class="user-stats">
+              <span class="badge-reputation" *ngIf="user.esVerificado">
+                <i class="fas fa-check-circle"></i> Verificado
+              </span>
+            </div>
+          </div>
+          <button class="btn-visit">Visitar <i class="fas fa-arrow-right"></i></button>
+        </div>
+      }
+    </div>
+  </div>
+</div>

@@ -1,51 +1,32 @@
-<!-- src/app/pages/feed/feed.html -->
-<app-hero></app-hero>
+<div class="feed-container">
+  <app-hero></app-hero>
 
-<section class="feed-section container">
-  
   <div class="feed-header">
-    <h2 class="section-title">Explorar Nexus</h2>
-    
     <div class="filter-tabs">
-      <button 
-        class="tab-btn" 
-        [class.active]="activeFilter === 'all'"
-        (click)="setFilter('all')">
-        Todo
+      <button [class.active]="activeFilter === 'todos'" (click)="setFilter('todos')">Todo</button>
+      <button [class.active]="activeFilter === 'trending'" (click)="setFilter('trending')">
+        Trending
       </button>
-      <button 
-        class="tab-btn" 
-        [class.active]="activeFilter === 'deals'"
-        (click)="setFilter('deals')">
-        Ofertas Flash
-      </button>
-      <button 
-        class="tab-btn" 
-        [class.active]="activeFilter === 'secondhand'"
-        (click)="setFilter('secondhand')">
-        Segunda Mano
+      <button [class.active]="activeFilter === 'destacados'" (click)="setFilter('destacados')">
+        Destacados
       </button>
     </div>
   </div>
 
-  <div class="product-grid" *ngIf="!isLoading; else loadingTpl">
-    <app-product-card 
-      *ngFor="let item of filteredItems" 
-      [oferta]="item.precioOferta ? item : undefined"
-      [producto]="!item.precioOferta ? item : undefined"
-      [tipo]="item.precioOferta ? 'oferta' : 'producto'">
-    </app-product-card>
-  </div>
+  <app-loading-spinner *ngIf="loading"></app-loading-spinner>
 
-  <div *ngIf="!isLoading && filteredItems.length === 0" class="empty-state">
-    <p>No se encontraron productos en esta categoría.</p>
-  </div>
+  <div *ngIf="!loading">
+    <app-empty-state
+      *ngIf="items.length === 0"
+      title="Sin resultados"
+      description="No hay publicaciones en esta categoría."
+    >
+    </app-empty-state>
 
-  <ng-template #loadingTpl>
-    <div class="loading-state">
-      <div class="spinner"></div>
-      <p>Cargando el mercado...</p>
+    <div class="feed-grid" *ngIf="items.length > 0">
+      @for (item of items; track item.id) {
+        <app-product-card [product]="item"></app-product-card>
+      }
     </div>
-  </ng-template>
-
-</section>
+  </div>
+</div>

@@ -1,0 +1,67 @@
+<div class="page-container">
+  <div class="cupones-header">
+    <div class="header-content">
+      <h1>Zona de Cupones</h1>
+      <p>Ahorra a lo grande con los mejores códigos de descuento de Nexus.</p>
+    </div>
+  </div>
+
+  <div class="container main-content">
+    <app-loading-spinner *ngIf="loading"></app-loading-spinner>
+
+    <app-empty-state
+      *ngIf="!loading && cupones.length === 0"
+      title="No hay cupones activos hoy"
+      description="Vuelve mañana para ver nuevas ofertas exclusivas."
+      icon="tags"
+    ></app-empty-state>
+
+    <div class="grid-cupones" *ngIf="!loading && cupones.length > 0">
+      @for (cupon of cupones; track cupon.id) {
+        <div class="ticket-card">
+          <div class="ticket-left">
+            <div class="discount-badge">
+              -{{ calcularDescuento(cupon.precioOriginal, cupon.precioOferta) }}%
+            </div>
+            <img [src]="cupon.imagenPrincipal" [alt]="cupon.titulo" />
+          </div>
+
+          <div class="ticket-rip"></div>
+
+          <div class="ticket-right">
+            <div class="ticket-info">
+              <span class="store-name"><i class="fas fa-store"></i> {{ cupon.tienda }}</span>
+              <h3>{{ cupon.titulo }}</h3>
+              <div class="price-row">
+                <span class="old-price">{{ cupon.precioOriginal }}€</span>
+                <span class="new-price">{{ cupon.precioOferta }}€</span>
+              </div>
+            </div>
+
+            <div class="ticket-actions">
+              <button
+                class="btn-code"
+                [class.copied]="codigoCopiadoId === cupon.id"
+                (click)="copiarCodigo(cupon)"
+              >
+                <i
+                  class="fas"
+                  [class.fa-copy]="codigoCopiadoId !== cupon.id"
+                  [class.fa-check]="codigoCopiadoId === cupon.id"
+                ></i>
+                {{ codigoCopiadoId === cupon.id ? '¡Copiado!' : 'Ver Código' }}
+              </button>
+              <button class="btn-go" (click)="irAOferta(cupon.urlOferta)">
+                Ir a Tienda <i class="fas fa-external-link-alt"></i>
+              </button>
+            </div>
+
+            <p class="expiry" *ngIf="cupon.fechaExpiracion">
+              Expira: {{ cupon.fechaExpiracion | date: 'shortDate' }}
+            </p>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+</div>

@@ -7,6 +7,6 @@ import { Component, Input } from '@angular/core';
   templateUrl: './loading-spinner.html',
   styleUrl: './loading-spinner.css',
 })
-export class LoadingSpinner {
+export class LoadingSpinnerComponent {
   @Input() message: string = 'Cargando...';
 }

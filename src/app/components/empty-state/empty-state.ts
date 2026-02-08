@@ -8,7 +8,7 @@ import { RouterModule } from '@angular/router';
   templateUrl: './empty-state.html',
   styleUrl: './empty-state.css',
 })
-export class EmptyState {
+export class EmptyStateComponent {
   @Input() icon: string = '📭';
   @Input() title: string = 'No hay elementos';
   @Input() message: string = 'No se encontraron resultados.';

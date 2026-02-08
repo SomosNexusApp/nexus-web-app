@@ -1,0 +1,244 @@
+
+> nexusapp@0.0.0 build
+> ng build
+
+[33m❯[39m Building...
+[32m✔[39m Building...
+Application bundle generation failed. [2.278 seconds] - 2026-02-06T22:17:34.000Z
+
+[1m[31m[31mX [41;31m[[41;97mERROR[41;31m][0m [1mTS2724: '"./interceptors/auth-interceptor"' has no exported member named 'AuthInterceptor'. Did you mean 'authInterceptor'?[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/app.config.ts:5:9:
+[37m      5 │ import { [32mAuthInterceptor[37m } from './interceptors/auth-interceptor';
+        ╵          [32m~~~~~~~~~~~~~~~[0m
+
+  'authInterceptor' is declared here.
+
+    src/app/interceptors/auth-interceptor.ts:5:13:
+[37m      5 │ export const [32mauthInterceptor[37m: HttpInterceptorFn = (req, next) => {
+        ╵              [32m~~~~~~~~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mTS2307: Cannot find module './guards/auth-guard' or its corresponding type declarations.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/app.routes.ts:3:37:
+[37m      3 │ import { authGuard, roleGuard } from [32m'./guards/auth-guard'[37m;
+        ╵                                      [32m~~~~~~~~~~~~~~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mTS2307: Cannot find module './pages/favoritos/favoritos' or its corresponding type declarations.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/app.routes.ts:67:32:
+[37m      67 │ ...nt: () => import([32m'./pages/favoritos/favoritos'[37m).then(m => m.Fav...
+         ╵                     [32m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mTS2307: Cannot find module './pages/admin/admin' or its corresponding type declarations.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/app.routes.ts:74:32:
+[37m      74 │ ...ponent: () => import([32m'./pages/admin/admin'[37m).then(m => m.AdminCo...
+         ╵                         [32m~~~~~~~~~~~~~~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mTS2307: Cannot find module './pages/cerca/cerca' or its corresponding type declarations.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/app.routes.ts:86:32:
+[37m      86 │ ...ponent: () => import([32m'./pages/cerca/cerca'[37m).then(m => m.CercaCo...
+         ╵                         [32m~~~~~~~~~~~~~~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mTS2307: Cannot find module './pages/cupones/cupones' or its corresponding type declarations.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/app.routes.ts:90:32:
+[37m      90 │ ...nent: () => import([32m'./pages/cupones/cupones'[37m).then(m => m.Cupon...
+         ╵                       [32m~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mNG8002: Can't bind to 'oferta' since it isn't a known property of 'app-product-card'.
+1. If 'app-product-card' is an Angular component and it has 'oferta' input, then verify that it is included in the '@Component.imports' of this component.
+2. If 'app-product-card' is a Web Component then add 'CUSTOM_ELEMENTS_SCHEMA' to the '@Component.schemas' of this component to suppress this message.
+3. To allow any property add 'NO_ERRORS_SCHEMA' to the '@Component.schemas' of this component.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/pages/feed/feed.html:34:6:
+[37m      34 │       [32m[oferta]="item.precioOferta ? item : undefined"[37m
+         ╵       [32m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+  Error occurs in the template of component FeedComponent.
+
+    src/app/pages/feed/feed.ts:14:15:
+[37m      14 │   templateUrl: [32m'./feed.html'[37m,
+         ╵                [32m~~~~~~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mTS2339: Property 'precioOferta' does not exist on type 'Oferta | Producto'.
+  Property 'precioOferta' does not exist on type 'Producto'.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/pages/feed/feed.html:34:21:
+[37m      34 │       [oferta]="item.[32mprecioOferta[37m ? item : undefined"
+         ╵                      [32m~~~~~~~~~~~~[0m
+
+  Error occurs in the template of component FeedComponent.
+
+    src/app/pages/feed/feed.ts:14:15:
+[37m      14 │   templateUrl: [32m'./feed.html'[37m,
+         ╵                [32m~~~~~~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mNG8002: Can't bind to 'producto' since it isn't a known property of 'app-product-card'.
+1. If 'app-product-card' is an Angular component and it has 'producto' input, then verify that it is included in the '@Component.imports' of this component.
+2. If 'app-product-card' is a Web Component then add 'CUSTOM_ELEMENTS_SCHEMA' to the '@Component.schemas' of this component to suppress this message.
+3. To allow any property add 'NO_ERRORS_SCHEMA' to the '@Component.schemas' of this component.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/pages/feed/feed.html:35:6:
+[37m      35 │       [32m[producto]="!item.precioOferta ? item : undefined"[37m
+         ╵       [32m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+  Error occurs in the template of component FeedComponent.
+
+    src/app/pages/feed/feed.ts:14:15:
+[37m      14 │   templateUrl: [32m'./feed.html'[37m,
+         ╵                [32m~~~~~~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mTS2339: Property 'precioOferta' does not exist on type 'Oferta | Producto'.
+  Property 'precioOferta' does not exist on type 'Producto'.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/pages/feed/feed.html:35:24:
+[37m      35 │       [producto]="!item.[32mprecioOferta[37m ? item : undefined"
+         ╵                         [32m~~~~~~~~~~~~[0m
+
+  Error occurs in the template of component FeedComponent.
+
+    src/app/pages/feed/feed.ts:14:15:
+[37m      14 │   templateUrl: [32m'./feed.html'[37m,
+         ╵                [32m~~~~~~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mNG8002: Can't bind to 'tipo' since it isn't a known property of 'app-product-card'.
+1. If 'app-product-card' is an Angular component and it has 'tipo' input, then verify that it is included in the '@Component.imports' of this component.
+2. If 'app-product-card' is a Web Component then add 'CUSTOM_ELEMENTS_SCHEMA' to the '@Component.schemas' of this component to suppress this message.
+3. To allow any property add 'NO_ERRORS_SCHEMA' to the '@Component.schemas' of this component.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/pages/feed/feed.html:36:6:
+[37m      36 │       [32m[tipo]="item.precioOferta ? 'oferta' : 'producto'"[37m>
+         ╵       [32m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+  Error occurs in the template of component FeedComponent.
+
+    src/app/pages/feed/feed.ts:14:15:
+[37m      14 │   templateUrl: [32m'./feed.html'[37m,
+         ╵                [32m~~~~~~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mTS2339: Property 'precioOferta' does not exist on type 'Oferta | Producto'.
+  Property 'precioOferta' does not exist on type 'Producto'.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/pages/feed/feed.html:36:19:
+[37m      36 │       [tipo]="item.[32mprecioOferta[37m ? 'oferta' : 'producto'">
+         ╵                    [32m~~~~~~~~~~~~[0m
+
+  Error occurs in the template of component FeedComponent.
+
+    src/app/pages/feed/feed.ts:14:15:
+[37m      14 │   templateUrl: [32m'./feed.html'[37m,
+         ╵                [32m~~~~~~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mTS2339: Property 'getFeedPrincipal' does not exist on type 'FeedService'.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/pages/feed/feed.ts:31:21:
+[37m      31 │     this.feedService.[32mgetFeedPrincipal[37m().subscribe({
+         ╵                      [32m~~~~~~~~~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mTS7006: Parameter 'data' implicitly has an 'any' type.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/pages/feed/feed.ts:32:13:
+[37m      32 │       next: ([32mdata[37m) => {
+         ╵              [32m~~~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mTS7006: Parameter 'item' implicitly has an 'any' type.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/pages/feed/feed.ts:33:35:
+[37m      33 │ ...   this.ofertas = data.filter([32mitem[37m => item.tipo === 'oferta').m...
+         ╵                                  [32m~~~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mTS7006: Parameter 'item' implicitly has an 'any' type.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/pages/feed/feed.ts:33:71:
+[37m      33 │ ...tem => item.tipo === 'oferta').map([32mitem[37m => item.data) as Oferta[];
+         ╵                                       [32m~~~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mTS7006: Parameter 'item' implicitly has an 'any' type.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/pages/feed/feed.ts:34:37:
+[37m      34 │ ... this.productos = data.filter([32mitem[37m => item.tipo === 'producto')...
+         ╵                                  [32m~~~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mTS7006: Parameter 'item' implicitly has an 'any' type.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/pages/feed/feed.ts:34:75:
+[37m      34 │ ...=> item.tipo === 'producto').map([32mitem[37m => item.data) as Producto[];
+         ╵                                     [32m~~~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mTS7006: Parameter 'err' implicitly has an 'any' type.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/pages/feed/feed.ts:37:14:
+[37m      37 │       error: ([32merr[37m) => {
+         ╵               [32m~~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mNG2008: Could not find template file './productos.html'.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/pages/productos/productos.ts:12:15:
+[37m      12 │   templateUrl: [32m'./productos.html'[37m,
+         ╵                [32m~~~~~~~~~~~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mTS2307: Cannot find module '../guard/oferta' or its corresponding type declarations.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/services/nexus-service.ts:6:23:
+[37m      6 │ import { Oferta } from [32m'../guard/oferta'[37m;
+        ╵                        [32m~~~~~~~~~~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mCould not resolve "./guards/auth-guard"[0m
+
+    src/app/app.routes.ts:3:37:
+[37m      3 │ import { authGuard, roleGuard } from [32m'./guards/auth-guard'[37m;
+        ╵                                      [32m~~~~~~~~~~~~~~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mCould not resolve "./pages/favoritos/favoritos"[0m
+
+    src/app/app.routes.ts:67:32:
+[37m      67 │ ...nt: () => import([32m'./pages/favoritos/favoritos'[37m).then(m => m.Fav...
+         ╵                     [32m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mCould not resolve "./pages/admin/admin"[0m
+
+    src/app/app.routes.ts:74:32:
+[37m      74 │ ...ponent: () => import([32m'./pages/admin/admin'[37m).then(m => m.AdminCo...
+         ╵                         [32m~~~~~~~~~~~~~~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mCould not resolve "./pages/cerca/cerca"[0m
+
+    src/app/app.routes.ts:86:32:
+[37m      86 │ ...ponent: () => import([32m'./pages/cerca/cerca'[37m).then(m => m.CercaCo...
+         ╵                         [32m~~~~~~~~~~~~~~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mCould not resolve "./pages/cupones/cupones"[0m
+
+    src/app/app.routes.ts:90:32:
+[37m      90 │ ...nent: () => import([32m'./pages/cupones/cupones'[37m).then(m => m.Cupon...
+         ╵                       [32m~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+[39m[22m
