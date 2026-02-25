@@ -6,8 +6,6 @@ import { CommonModule } from '@angular/common';
   standalone: true,
   imports: [CommonModule],
   templateUrl: './hero.html',
-  styleUrls: ['./hero.css']
+  styleUrls: ['./hero.css'],
 })
-export class HeroComponent {
-  // Aquí irá lógica futura (ej: animaciones controladas por scroll)
-}
+export class HeroComponent {}
