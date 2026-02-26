@@ -3,14 +3,13 @@
     <div class="deep-fade-top"></div>
     <div class="aurora-beam beam-1"></div>
     <div class="aurora-beam beam-2"></div>
-    <div class="aurora-beam beam-3"></div>
     <div class="grid-overlay"></div>
   </div>
 
   <div class="container hero-layout">
     <div class="text-content">
       <h1 class="monumental-title">
-        EL COMERCIO <br />
+        TU COMERCIO <br />
         <span class="outline-text">EVOLUCIONADO</span>
       </h1>
 
@@ -46,49 +45,92 @@
       </div>
     </div>
 
-    <div class="visual-3d-stage">
+    <div class="visual-slider-stage" (mouseenter)="stopAutoPlay()" (mouseleave)="startAutoPlay()">
       <div class="floating-deck">
-        <div class="glass-card main-card">
-          <div class="card-header">
-            <div class="user-badge">
-              <img src="example-profile-screen.webp" alt="Profile" class="circle-avatar-img" />
-              <span class="username">@Malegro32</span>
+        <div class="slider-track">
+          <div
+            class="solid-card main-card slide"
+            *ngFor="let slide of slides; let i = index"
+            [class.active]="i === currentIndex"
+          >
+            <div class="card-header">
+              <div class="user-badge">
+                <img [src]="slide.avatar" [alt]="slide.user" class="circle-avatar-img" />
+                <span class="username">{{ slide.user }}</span>
+              </div>
+              <span class="price-tag">{{ slide.price }}</span>
             </div>
-            <span class="price-tag">299€</span>
-          </div>
 
-          <div class="product-preview">
-            <img
-              src="https://images.unsplash.com/photo-1546435770-a3e426bf472b?q=80&w=1000&auto=format&fit=crop"
-              alt="Auriculares Premium"
-              class="product-img"
-            />
-
-            <div class="flash-badge">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="14"
-                height="14"
-                viewBox="0 0 24 24"
-                fill="currentColor"
-                stroke="none"
-              >
-                <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path>
-              </svg>
-              <span>Venta Rápida</span>
+            <div class="product-preview">
+              <img [src]="slide.image" [alt]="slide.title" class="product-img" />
+              <div class="flash-badge">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                  stroke="none"
+                  [style.color]="slide.badgeIconColor"
+                >
+                  <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path>
+                </svg>
+                <span>{{ slide.badge }}</span>
+              </div>
             </div>
-          </div>
 
-          <div class="card-footer">
-            <div class="meta-row">
-              <span class="meta-label">Sony WH-1000XM5 Black</span>
-              <div class="rating">★★★★★</div>
+            <div class="card-footer">
+              <div class="meta-row">
+                <span class="meta-label">{{ slide.title }}</span>
+                <div class="rating">{{ slide.rating }}</div>
+              </div>
             </div>
           </div>
         </div>
+      </div>
 
-        <div class="glass-card back-card"></div>
-        <div class="floating-orb"></div>
+      <div class="slider-controls">
+        <button class="control-arrow" (click)="prevSlide()" aria-label="Anterior">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <polyline points="15 18 9 12 15 6"></polyline>
+          </svg>
+        </button>
+
+        <div class="slider-dots">
+          <button
+            *ngFor="let slide of slides; let i = index"
+            class="dot"
+            [class.active]="i === currentIndex"
+            (click)="goToSlide(i)"
+            [attr.aria-label]="'Ir a diapositiva ' + (i + 1)"
+          ></button>
+        </div>
+
+        <button class="control-arrow" (click)="nextSlide()" aria-label="Siguiente">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <polyline points="9 18 15 12 9 6"></polyline>
+          </svg>
+        </button>
       </div>
     </div>
   </div>
