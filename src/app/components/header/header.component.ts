@@ -7,8 +7,8 @@ import { RouterModule } from '@angular/router';
   selector: 'app-header',
   standalone: true,
   imports: [CommonModule, RouterModule],
-  templateUrl: './header.html',
-  styleUrls: ['./header.css'],
+  templateUrl: './header.component.html',
+  styleUrls: ['./header.component.css'],
 })
 export class HeaderComponent {
   isLoggedIn = false;
@@ -16,7 +16,7 @@ export class HeaderComponent {
   navLinks = [
     { label: 'Categorías', route: '/categorias' },
     { label: 'Ofertas Flash', route: '/ofertas' },
-    { label: 'Vehículos', route: '/vehiculos' }, // Reemplazado Cupones por Vehículos
+    { label: 'Vehículos', route: '/vehiculos' },
     { label: 'Cerca de ti', route: '/cerca' },
   ];
 }

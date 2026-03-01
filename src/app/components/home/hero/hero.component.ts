@@ -16,8 +16,8 @@ interface ProductSlide {
   selector: 'app-hero',
   standalone: true,
   imports: [CommonModule],
-  templateUrl: './hero.html',
-  styleUrls: ['./hero.css'],
+  templateUrl: './hero.component.html',
+  styleUrls: ['./hero.component.css'],
 })
 export class HeroComponent implements OnInit, OnDestroy {
   slides: ProductSlide[] = [
