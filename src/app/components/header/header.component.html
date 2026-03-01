@@ -22,12 +22,36 @@
             <circle cx="11" cy="11" r="8"></circle>
             <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
           </svg>
-          <input type="text" placeholder="Buscar en Nexus..." class="search-input" />
+          <input
+            type="text"
+            [formControl]="searchControl"
+            placeholder="Buscar en Nexus..."
+            class="search-input"
+          />
+
+          @if (searchControl.value) {
+            <button class="icon-btn-sm" (click)="limpiarBuscador()" aria-label="Limpiar">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </button>
+          }
         </div>
       </div>
 
       <div class="actions-wrapper">
-        <button class="icon-btn" aria-label="Favoritos">
+        <button class="icon-btn" aria-label="Favoritos" (click)="onFavoritosClick()">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="22"
@@ -46,7 +70,7 @@
           </svg>
         </button>
 
-        <button class="icon-btn" aria-label="Notificaciones">
+        <button class="icon-btn relative" aria-label="Notificaciones">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="22"
@@ -61,11 +85,16 @@
             <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
             <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
           </svg>
+          @if (notifCount() > 0) {
+            <span class="notification-badge badge-pop">{{
+              notifCount() > 99 ? '99+' : notifCount()
+            }}</span>
+          }
         </button>
 
         <div class="divider-v"></div>
 
-        <button class="btn-publish-premium">
+        <button class="btn-publish-premium" (click)="onPublicarClick()">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="18"
@@ -84,22 +113,46 @@
         </button>
 
         <div class="auth-section">
-          <ng-container *ngIf="isLoggedIn; else guestTemplate">
-            <button class="user-avatar-btn">
-              <img
-                src="https://ui-avatars.com/api/?name=User&background=random"
-                alt="Perfil"
-                class="avatar-img"
-              />
-            </button>
-          </ng-container>
+          @if (isLoggedIn()) {
+            <div class="user-menu-wrapper">
+              <button class="user-avatar-btn" (click)="toggleUserDropdown($event)">
+                @if (usuario()?.avatar) {
+                  <img [src]="usuario()?.avatar" alt="Perfil" class="avatar-img" />
+                } @else {
+                  <div class="avatar-placeholder">{{ getIniciales(usuario()?.nombre) }}</div>
+                }
+              </button>
 
-          <ng-template #guestTemplate>
+              @if (isUserDropdownOpen()) {
+                <div class="dropdown-menu fade-in-up">
+                  <div class="dropdown-header">
+                    <p class="user-name">{{ usuario()?.nombre }} {{ usuario()?.apellidos }}</p>
+                    <p class="user-email">{{ usuario()?.email }}</p>
+                  </div>
+                  <a routerLink="/perfil" class="dropdown-item">Mi perfil</a>
+                  <a
+                    [routerLink]="['/perfil']"
+                    [queryParams]="{ tab: 'compras' }"
+                    class="dropdown-item"
+                    >Mis compras</a
+                  >
+                  <a
+                    [routerLink]="['/perfil']"
+                    [queryParams]="{ tab: 'favoritos' }"
+                    class="dropdown-item"
+                    >Mis favoritos</a
+                  >
+                  <hr class="dropdown-divider" />
+                  <button (click)="logout()" class="dropdown-item logout-btn">Cerrar sesión</button>
+                </div>
+              }
+            </div>
+          } @else {
             <div class="guest-buttons">
               <a routerLink="/login" class="btn-text">Iniciar Sesión</a>
               <a routerLink="/register" class="btn-register-soft">Registrarse</a>
             </div>
-          </ng-template>
+          }
         </div>
       </div>
     </div>
@@ -108,86 +161,86 @@
   <div class="bottom-bar">
     <div class="container bottom-content">
       <nav class="main-nav">
-        <a
-          *ngFor="let link of navLinks"
-          [routerLink]="link.route"
-          class="nav-item"
-          routerLinkActive="active"
-        >
-          <svg
-            *ngIf="link.label === 'Categorías'"
-            class="nav-icon"
-            xmlns="http://www.w3.org/2000/svg"
-            width="18"
-            height="18"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="1.5"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          >
-            <rect x="3" y="3" width="7" height="7"></rect>
-            <rect x="14" y="3" width="7" height="7"></rect>
-            <rect x="14" y="14" width="7" height="7"></rect>
-            <rect x="3" y="14" width="7" height="7"></rect>
-          </svg>
+        @for (link of navLinks; track link.label) {
+          <a [routerLink]="link.route" class="nav-item" routerLinkActive="active">
+            @switch (link.label) {
+              @case ('Categorías') {
+                <svg
+                  class="nav-icon"
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <rect x="3" y="3" width="7" height="7"></rect>
+                  <rect x="14" y="3" width="7" height="7"></rect>
+                  <rect x="14" y="14" width="7" height="7"></rect>
+                  <rect x="3" y="14" width="7" height="7"></rect>
+                </svg>
+              }
+              @case ('Ofertas Flash') {
+                <svg
+                  class="nav-icon"
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+                </svg>
+              }
+              @case ('Vehículos') {
+                <svg
+                  class="nav-icon"
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path
+                    d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9C2.1 11.6 2 12.2 2 12.8V16c0 .6.4 1 1 1h2"
+                  ></path>
+                  <circle cx="7" cy="17" r="2"></circle>
+                  <circle cx="17" cy="17" r="2"></circle>
+                </svg>
+              }
+              @case ('Cerca de ti') {
+                <svg
+                  class="nav-icon"
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
+                  <circle cx="12" cy="10" r="3" />
+                </svg>
+              }
+            }
 
-          <svg
-            *ngIf="link.label === 'Ofertas Flash'"
-            class="nav-icon"
-            xmlns="http://www.w3.org/2000/svg"
-            width="18"
-            height="18"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="1.5"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          >
-            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
-          </svg>
-
-          <svg
-            *ngIf="link.label === 'Vehículos'"
-            class="nav-icon"
-            xmlns="http://www.w3.org/2000/svg"
-            width="18"
-            height="18"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="1.5"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          >
-            <path
-              d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9C2.1 11.6 2 12.2 2 12.8V16c0 .6.4 1 1 1h2"
-            ></path>
-            <circle cx="7" cy="17" r="2"></circle>
-            <circle cx="17" cy="17" r="2"></circle>
-          </svg>
-
-          <svg
-            *ngIf="link.label === 'Cerca de ti'"
-            class="nav-icon"
-            xmlns="http://www.w3.org/2000/svg"
-            width="18"
-            height="18"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="1.5"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          >
-            <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
-            <circle cx="12" cy="10" r="3" />
-          </svg>
-
-          <span>{{ link.label }}</span>
-        </a>
+            <span>{{ link.label }}</span>
+          </a>
+        }
       </nav>
     </div>
   </div>

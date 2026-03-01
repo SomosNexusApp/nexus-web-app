@@ -1,0 +1,95 @@
+<div class="popup-overlay fade-in">
+  <div class="popup-card scale-in">
+    <div class="text-center mb-6">
+      <h2 class="text-2xl font-bold mb-2">¿Cómo usarás Nexus?</h2>
+      <p class="text-muted text-sm">
+        Selecciona el tipo de cuenta que mejor se adapte a tus necesidades. Podrás cambiar esto más
+        adelante en tus ajustes.
+      </p>
+    </div>
+
+    @if (errorMessage()) {
+      <div class="banner error mb-6 fade-in">
+        <i class="fas fa-exclamation-circle"></i> {{ errorMessage() }}
+      </div>
+    }
+
+    <div class="type-cards-container mb-6">
+      <div
+        class="type-card"
+        [class.active]="selectedType() === 'PERSONAL'"
+        (click)="seleccionarTipo('PERSONAL')"
+      >
+        <div class="card-icon text-nexus-blue"><i class="fas fa-user"></i></div>
+        <h3 class="font-bold mb-1">Personal</h3>
+        <p class="text-xs text-muted">Para compra y venta entre particulares.</p>
+        <div class="active-indicator"><i class="fas fa-check-circle"></i></div>
+      </div>
+
+      <div
+        class="type-card"
+        [class.active]="selectedType() === 'EMPRESA'"
+        (click)="seleccionarTipo('EMPRESA')"
+      >
+        <div class="card-icon text-nexus-purple"><i class="fas fa-building"></i></div>
+        <h3 class="font-bold mb-1">Empresa</h3>
+        <p class="text-xs text-muted">Para negocios y comercios profesionales.</p>
+        <div class="active-indicator"><i class="fas fa-check-circle"></i></div>
+      </div>
+    </div>
+
+    @if (selectedType() === 'EMPRESA') {
+      <form [formGroup]="empresaForm" class="empresa-form fade-in mb-6">
+        <div class="form-group mb-3">
+          <label>CIF / NIF</label>
+          <input
+            type="text"
+            formControlName="cif"
+            placeholder="B12345678"
+            class="uppercase"
+            [class.error]="f['cif'].invalid && f['cif'].touched"
+          />
+          @if (f['cif'].errors?.['pattern']) {
+            <small class="text-red text-xs mt-1 block">Formato de CIF inválido.</small>
+          }
+        </div>
+
+        <div class="form-group mb-3">
+          <label>Razón Social / Nombre Comercial</label>
+          <input
+            type="text"
+            formControlName="nombreComercial"
+            placeholder="Tu Empresa SL"
+            [class.error]="f['nombreComercial'].invalid && f['nombreComercial'].touched"
+          />
+        </div>
+
+        <div class="form-group mb-2">
+          <label>Página Web (Opcional)</label>
+          <input type="text" formControlName="web" placeholder="https://www.tuempresa.com" />
+        </div>
+      </form>
+    }
+
+    <button
+      class="btn-primary w-full"
+      [disabled]="!selectedType() || isLoading()"
+      (click)="onSubmit()"
+    >
+      @if (!isLoading()) {
+        Confirmar y Entrar
+      } @else {
+        <i class="fas fa-spinner fa-spin"></i>
+      }
+    </button>
+
+    <div class="popup-footer mt-6 text-center">
+      <p class="text-xs text-muted">
+        ¿Alguna pregunta?
+        <a href="mailto:somosnexusapp@gmail.com" class="text-nexus-blue font-bold"
+          >Resuélvela aquí</a
+        >
+      </p>
+    </div>
+  </div>
+</div>

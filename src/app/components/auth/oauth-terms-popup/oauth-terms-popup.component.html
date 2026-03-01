@@ -1,0 +1,52 @@
+<div class="popup-overlay fade-in">
+  <div class="popup-card scale-in">
+    <div class="text-center mb-6">
+      <div class="icon-circle mb-4 text-nexus-blue text-4xl">
+        <i class="fas fa-file-signature"></i>
+      </div>
+      <h2 class="text-xl font-bold mb-2">Casi hemos terminado</h2>
+      <p class="text-muted text-sm">
+        Para finalizar tu registro con la red social, es necesario que aceptes nuestras condiciones
+        legales (RGPD).
+      </p>
+    </div>
+
+    @if (errorMessage()) {
+      <div class="banner error mb-6">
+        <i class="fas fa-exclamation-circle"></i> {{ errorMessage() }}
+      </div>
+    }
+
+    <form [formGroup]="termsForm" (ngSubmit)="onSubmit()">
+      <label class="checkbox-container mb-4">
+        <input type="checkbox" formControlName="terminosAceptados" />
+        <span class="checkmark"></span>
+        <span class="label-text">
+          He leído y acepto las
+          <a routerLink="/legal/terminos" target="_blank">Condiciones de uso</a> y la
+          <a routerLink="/legal/privacidad" target="_blank">Política de privacidad</a> de Nexus. *
+        </span>
+      </label>
+
+      <label class="checkbox-container mb-6">
+        <input type="checkbox" formControlName="newsletterSuscrito" />
+        <span class="checkmark"></span>
+        <span class="label-text">
+          Quiero recibir comunicaciones sobre promociones y novedades de Nexus.
+        </span>
+      </label>
+
+      <button
+        type="submit"
+        class="btn-primary w-full"
+        [disabled]="termsForm.invalid || isLoading()"
+      >
+        @if (!isLoading()) {
+          <span>Completar Registro</span>
+        } @else {
+          <i class="fas fa-spinner fa-spin"></i> Guardando...
+        }
+      </button>
+    </form>
+  </div>
+</div>

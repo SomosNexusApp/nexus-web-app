@@ -1,0 +1,68 @@
+<div class="auth-container">
+  <div class="auth-card">
+    <div class="brand-header">
+      <img src="/logo.webp" alt="Nexus Logo" class="logo" />
+      <h2>Verifica tu correo</h2>
+    </div>
+
+    @if (errorMessage()) {
+      <div class="banner error fade-in mb-6">
+        <i class="fas fa-exclamation-circle"></i> {{ errorMessage() }}
+      </div>
+    }
+
+    <div class="text-center mb-6">
+      <div class="icon-circle mb-4 text-nexus-blue text-4xl">
+        <i class="fas fa-envelope-open-text"></i>
+      </div>
+      <p class="text-muted">
+        Hemos enviado un código de 6 dígitos a <br /><strong>{{ emailToVerify() }}</strong>
+      </p>
+    </div>
+
+    <div class="code-inputs-container mb-6">
+      @for (digit of codeArray; track $index) {
+        <input
+          #codeInput
+          type="text"
+          maxlength="1"
+          class="code-input"
+          (input)="onInput($event, $index)"
+          (keydown)="onKeyDown($event, $index)"
+          (paste)="onPaste($event)"
+          autocomplete="off"
+        />
+      }
+    </div>
+
+    <button
+      type="button"
+      class="btn-primary w-full"
+      [disabled]="codeArray.join('').length < 6 || isLoading()"
+      (click)="onSubmit()"
+    >
+      @if (!isLoading()) {
+        <span>Verificar Cuenta</span>
+      } @else {
+        <i class="fas fa-spinner fa-spin"></i>
+      }
+    </button>
+
+    <div class="resend-section mt-6 text-center">
+      <p class="text-muted text-sm mb-2">¿No has recibido el código?</p>
+      <button
+        type="button"
+        class="btn-link"
+        [disabled]="resendCooldown() > 0 || isLoading()"
+        (click)="resendCode()"
+        [class.text-nexus-blue]="resendCooldown() === 0"
+      >
+        @if (resendCooldown() > 0) {
+          Reenviar código en {{ resendCooldown() }}s
+        } @else {
+          Reenviar código ahora
+        }
+      </button>
+    </div>
+  </div>
+</div>

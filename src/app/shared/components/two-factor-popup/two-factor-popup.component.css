@@ -1,0 +1,235 @@
+:host {
+  --nexus-surface: #1e1e1e;
+  --nexus-blue: #0a84ff;
+  --nexus-blue-hover: #0066cc;
+  --nexus-text: #ffffff;
+  --nexus-text-muted: #a0a0a0;
+  --nexus-border: #333333;
+  --error: #ff453a;
+}
+
+.popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(5px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 1rem;
+}
+
+.popup-card {
+  background-color: var(--nexus-surface);
+  border: 1px solid var(--nexus-border);
+  border-radius: 16px;
+  width: 100%;
+  max-width: 420px;
+  padding: 2.5rem;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+  color: var(--nexus-text);
+  font-family: 'Outfit', sans-serif;
+}
+
+/* Botones de selección de método */
+.method-btn {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 1rem;
+  background-color: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--nexus-border);
+  border-radius: 12px;
+  color: var(--nexus-text);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: 'Outfit', sans-serif;
+}
+.method-btn:hover {
+  background-color: rgba(10, 132, 255, 0.05);
+  border-color: var(--nexus-blue);
+  transform: translateY(-2px);
+}
+.method-icon {
+  font-size: 1.5rem;
+  color: var(--nexus-blue);
+  width: 40px;
+  text-align: left;
+}
+.method-text {
+  flex-grow: 1;
+}
+
+/* Input de código */
+.code-input {
+  width: 100%;
+  padding: 0.8rem 1rem;
+  background-color: rgba(0, 0, 0, 0.2);
+  border: 2px solid var(--nexus-border);
+  border-radius: 8px;
+  color: var(--nexus-text);
+  transition: all 0.2s ease;
+}
+.code-input:focus {
+  outline: none;
+  border-color: var(--nexus-blue);
+}
+
+/* Utilidades generales */
+.btn-primary,
+.btn-secondary {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0.85rem;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s ease;
+  font-family: 'Outfit', sans-serif;
+}
+.btn-primary {
+  background-color: var(--nexus-blue);
+  color: #fff;
+}
+.btn-primary:hover:not(:disabled) {
+  background-color: var(--nexus-blue-hover);
+}
+.btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-secondary {
+  background-color: transparent;
+  border: 1px solid var(--nexus-border);
+  color: var(--nexus-text);
+}
+.btn-secondary:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.btn-link {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+.btn-link:hover {
+  text-decoration: underline;
+  color: var(--nexus-text);
+}
+
+.banner.error {
+  background-color: rgba(255, 69, 58, 0.1);
+  color: var(--error);
+  border: 1px solid rgba(255, 69, 58, 0.3);
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Helpers */
+.w-full {
+  width: 100%;
+}
+.text-center {
+  text-align: center;
+}
+.text-left {
+  text-align: left;
+}
+.text-muted {
+  color: var(--nexus-text-muted);
+}
+.text-nexus-blue {
+  color: var(--nexus-blue);
+}
+.text-sm {
+  font-size: 0.85rem;
+}
+.text-xs {
+  font-size: 0.75rem;
+}
+.text-xl {
+  font-size: 1.25rem;
+}
+.text-2xl {
+  font-size: 1.5rem;
+}
+.text-4xl {
+  font-size: 2.25rem;
+}
+.font-bold {
+  font-weight: 700;
+}
+.block {
+  display: block;
+}
+.inline-block {
+  display: inline-block;
+}
+.flex {
+  display: flex;
+}
+.flex-col {
+  flex-direction: column;
+}
+.gap-4 {
+  gap: 1rem;
+}
+.mb-2 {
+  margin-bottom: 0.5rem;
+}
+.mb-4 {
+  margin-bottom: 1rem;
+}
+.mb-6 {
+  margin-bottom: 1.5rem;
+}
+.mt-2 {
+  margin-top: 0.5rem;
+}
+.mt-4 {
+  margin-top: 1rem;
+}
+.tracking-widest {
+  letter-spacing: 0.25em;
+}
+
+/* Animaciones */
+.fade-in {
+  animation: fadeIn 0.3s ease-in-out;
+}
+.scale-in {
+  animation: scaleIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}

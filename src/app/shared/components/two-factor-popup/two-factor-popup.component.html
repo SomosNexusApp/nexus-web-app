@@ -1,0 +1,112 @@
+<div class="popup-overlay fade-in">
+  <div class="popup-card scale-in">
+    <div class="text-center mb-6">
+      <div class="icon-circle mb-4 text-nexus-blue text-4xl">
+        <i class="fas fa-lock"></i>
+      </div>
+      <h2 class="text-xl font-bold mb-2">Activa la verificación en dos pasos</h2>
+      <p class="text-muted text-sm">
+        Protege tu cuenta contra accesos no autorizados. Añadir una capa extra de seguridad es vital
+        para tus compras y ventas en Nexus.
+      </p>
+    </div>
+
+    @if (errorMessage()) {
+      <div class="banner error mb-6 fade-in">
+        <i class="fas fa-exclamation-circle"></i> {{ errorMessage() }}
+      </div>
+    }
+
+    @if (selectedMethod() === 'NONE') {
+      <div class="methods-container flex flex-col gap-4 mb-6">
+        <button class="method-btn" (click)="seleccionarMetodo('TOTP')">
+          <div class="method-icon"><i class="fas fa-mobile-alt"></i></div>
+          <div class="method-text text-left">
+            <span class="font-bold block">Aplicación de Autenticación</span>
+            <span class="text-xs text-muted block"
+              >Google Authenticator, Authy, etc. (Recomendado)</span
+            >
+          </div>
+          <i class="fas fa-chevron-right text-muted"></i>
+        </button>
+
+        <button class="method-btn" (click)="seleccionarMetodo('EMAIL')">
+          <div class="method-icon"><i class="fas fa-envelope"></i></div>
+          <div class="method-text text-left">
+            <span class="font-bold block">Correo Electrónico</span>
+            <span class="text-xs text-muted block"
+              >Recibe un código en tu email al iniciar sesión.</span
+            >
+          </div>
+          <i class="fas fa-chevron-right text-muted"></i>
+        </button>
+      </div>
+
+      <button class="btn-secondary w-full" (click)="saltarPorAhora()">Saltar por ahora</button>
+    }
+
+    @if (selectedMethod() !== 'NONE') {
+      @if (isLoading() && !qrCodeUrl() && selectedMethod() === 'TOTP') {
+        <div class="text-center py-8">
+          <i class="fas fa-spinner fa-spin text-3xl text-nexus-blue mb-4"></i>
+          <p class="text-muted text-sm">Generando credenciales...</p>
+        </div>
+      } @else {
+        @if (selectedMethod() === 'TOTP') {
+          <div class="totp-setup text-center mb-6 fade-in">
+            <p class="text-sm text-muted mb-4">
+              1. Escanea este código QR con tu aplicación de autenticación:
+            </p>
+            <div class="qr-container bg-white p-2 rounded-lg inline-block mb-4">
+              <img [src]="qrCodeUrl()" alt="Código QR 2FA" class="w-32 h-32" />
+            </div>
+            <p class="text-xs text-muted mb-2">O introduce este código manualmente:</p>
+            <code
+              class="block bg-black/20 p-2 rounded text-nexus-blue tracking-widest font-mono mb-4"
+              >{{ totpSecret() }}</code
+            >
+          </div>
+        }
+
+        @if (selectedMethod() === 'EMAIL') {
+          <div class="email-setup text-center mb-6 fade-in">
+            <p class="text-sm text-muted">
+              Te hemos enviado un código de 6 dígitos a tu correo electrónico para confirmar la
+              activación.
+            </p>
+          </div>
+        }
+
+        <form [formGroup]="verifyForm" (ngSubmit)="onVerifySubmit()" class="fade-in">
+          <div class="form-group mb-4">
+            <label class="text-center w-full block">Introduce el código de 6 dígitos</label>
+            <input
+              type="text"
+              formControlName="codigo"
+              maxlength="6"
+              class="code-input text-center text-2xl tracking-widest uppercase font-mono mt-2"
+              placeholder="000000"
+              autocomplete="off"
+            />
+          </div>
+
+          <button
+            type="submit"
+            class="btn-primary w-full"
+            [disabled]="verifyForm.invalid || isLoading()"
+          >
+            @if (!isLoading()) {
+              Confirmar Activación
+            } @else {
+              <i class="fas fa-spinner fa-spin"></i>
+            }
+          </button>
+
+          <button type="button" class="btn-link text-muted mt-4 w-full" (click)="volverAtras()">
+            <i class="fas fa-arrow-left"></i> Cambiar método
+          </button>
+        </form>
+      }
+    }
+  </div>
+</div>

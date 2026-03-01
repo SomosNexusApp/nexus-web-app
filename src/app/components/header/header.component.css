@@ -8,7 +8,7 @@
 
 .nexus-header {
   width: 100%;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
 }
 
 .container {
@@ -81,7 +81,9 @@
   font-family: var(--font-primary);
 }
 
-.search-input::placeholder { color: rgba(255, 255, 255, 0.4); }
+.search-input::placeholder {
+  color: rgba(255, 255, 255, 0.4);
+}
 
 /* Acciones */
 .actions-wrapper {
@@ -132,7 +134,9 @@
   font-weight: 700;
   font-size: 0.9rem;
   cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s;
   box-shadow: 0 4px 12px rgba(168, 180, 255, 0.2);
 }
 
@@ -184,7 +188,9 @@
   white-space: nowrap;
 }
 
-.btn-text:hover { color: #fff; }
+.btn-text:hover {
+  color: #fff;
+}
 
 .btn-register-soft {
   background: rgba(255, 255, 255, 0.1);
@@ -236,7 +242,8 @@
   border-bottom: 2px solid transparent;
 }
 
-.nav-item:hover, .nav-item.active {
+.nav-item:hover,
+.nav-item.active {
   color: #fff;
 }
 
@@ -249,18 +256,30 @@
   transition: color 0.2s;
 }
 
-.nav-item:hover .nav-icon, .nav-item.active .nav-icon {
+.nav-item:hover .nav-icon,
+.nav-item.active .nav-icon {
   color: var(--nexus-blue);
 }
 
 /* Responsive */
 @media (max-width: 1100px) {
-  .search-wrapper { margin: 0 16px; }
-  .btn-text { display: none; } /* Ocultar texto "Iniciar sesión" en pantallas medias */
+  .search-wrapper {
+    margin: 0 16px;
+  }
+  .btn-text {
+    display: none;
+  } /* Ocultar texto "Iniciar sesión" en pantallas medias */
 }
 
 @media (max-width: 992px) {
-  .nav-item span { display: none; }
-  .btn-publish-premium span { display: none; }
-  .btn-publish-premium { padding: 10px; border-radius: 50%; }
+  .nav-item span {
+    display: none;
+  }
+  .btn-publish-premium span {
+    display: none;
+  }
+  .btn-publish-premium {
+    padding: 10px;
+    border-radius: 50%;
+  }
 }

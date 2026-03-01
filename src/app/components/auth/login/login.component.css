@@ -1,0 +1,294 @@
+/* Misma paleta que el register para consistencia */
+:host {
+  --nexus-bg: #121212;
+  --nexus-surface: #1e1e1e;
+  --nexus-blue: #0a84ff;
+  --nexus-blue-hover: #0066cc;
+  --nexus-purple: #bf5af2;
+  --nexus-text: #ffffff;
+  --nexus-text-muted: #a0a0a0;
+  --nexus-border: #333333;
+  --error: #ff453a;
+  --success: #32d74b;
+}
+
+.login-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--nexus-bg);
+  font-family: 'Outfit', sans-serif;
+  color: var(--nexus-text);
+  padding: 2rem 1rem;
+}
+
+.login-card {
+  background-color: var(--nexus-surface);
+  border: 1px solid var(--nexus-border);
+  border-radius: 16px;
+  width: 100%;
+  max-width: 420px;
+  padding: 2.5rem;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+}
+
+.brand-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.logo {
+  height: 48px;
+  margin-bottom: 1rem;
+}
+
+.subtitle {
+  color: var(--nexus-text-muted);
+  font-size: 0.95rem;
+  margin: 0;
+}
+
+/* Banners de Mensajes */
+.banner {
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 500;
+}
+.banner.error {
+  background-color: rgba(255, 69, 58, 0.1);
+  color: var(--error);
+  border: 1px solid rgba(255, 69, 58, 0.3);
+}
+.banner.success {
+  background-color: rgba(50, 215, 75, 0.1);
+  color: var(--success);
+  border: 1px solid rgba(50, 215, 75, 0.3);
+}
+
+/* OAuth Buttons */
+.oauth-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.btn-oauth {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 0.85rem;
+  border-radius: 8px;
+  font-family: 'Outfit', sans-serif;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid var(--nexus-border);
+  background: transparent;
+  color: var(--nexus-text);
+  transition: all 0.2s ease;
+}
+.btn-oauth:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+.btn-oauth.google i {
+  color: #ea4335;
+}
+.btn-oauth.facebook i {
+  color: #1877f2;
+}
+
+/* Divider */
+.divider {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  margin: 1.5rem 0;
+  color: var(--nexus-text-muted);
+  font-size: 0.85rem;
+}
+.divider::before,
+.divider::after {
+  content: '';
+  flex: 1;
+  border-bottom: 1px solid var(--nexus-border);
+}
+.divider span {
+  padding: 0 10px;
+}
+
+/* Form Fields */
+.form-group {
+  margin-bottom: 1.25rem;
+  position: relative;
+}
+
+label {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+  color: var(--nexus-text-muted);
+}
+
+input[type='text'],
+input[type='email'],
+input[type='password'] {
+  width: 100%;
+  padding: 0.8rem 1rem;
+  background-color: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--nexus-border);
+  border-radius: 8px;
+  color: var(--nexus-text);
+  font-family: 'Outfit', sans-serif;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+}
+
+input:focus {
+  outline: none;
+  border-color: var(--nexus-blue);
+  background-color: rgba(10, 132, 255, 0.05);
+}
+input.error {
+  border-color: var(--error);
+}
+
+/* Toggle Password Visibility */
+.has-icon-right input {
+  padding-right: 2.5rem;
+}
+.icon-right {
+  position: absolute;
+  right: 1rem;
+  top: 35px;
+  font-size: 1rem;
+  background: none;
+  border: none;
+  color: var(--nexus-text-muted);
+  cursor: pointer;
+  padding: 0;
+}
+.icon-right:hover {
+  color: var(--nexus-text);
+}
+
+/* Botones Principales */
+.btn-primary {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0.85rem;
+  border-radius: 8px;
+  font-family: 'Outfit', sans-serif;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  background-color: var(--nexus-blue);
+  color: #fff;
+  transition: all 0.2s ease;
+}
+.btn-primary:hover:not(:disabled) {
+  background-color: var(--nexus-blue-hover);
+}
+.btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Links y Utilidades */
+.forgot-link a {
+  text-decoration: none;
+}
+.forgot-link a:hover {
+  text-decoration: underline;
+}
+
+.auth-footer a {
+  color: var(--nexus-blue);
+  text-decoration: none;
+  font-weight: 600;
+}
+.auth-footer a:hover {
+  text-decoration: underline;
+}
+
+.btn-link {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: 'Outfit', sans-serif;
+}
+.btn-link:hover {
+  text-decoration: underline;
+}
+
+/* Utils genericas */
+.w-full {
+  width: 100%;
+}
+.text-right {
+  text-align: right;
+}
+.text-center {
+  text-align: center;
+}
+.mb-2 {
+  margin-bottom: 0.5rem;
+}
+.mb-4 {
+  margin-bottom: 1rem;
+}
+.mb-6 {
+  margin-bottom: 1.5rem;
+}
+.mt-4 {
+  margin-top: 1rem;
+}
+.text-sm {
+  font-size: 0.85rem;
+}
+.text-xl {
+  font-size: 1.25rem;
+}
+.text-2xl {
+  font-size: 1.5rem;
+}
+.text-4xl {
+  font-size: 2.25rem;
+}
+.font-bold {
+  font-weight: 700;
+}
+.text-nexus-blue {
+  color: var(--nexus-blue);
+}
+.text-nexus-purple {
+  color: var(--nexus-purple);
+}
+.text-muted {
+  color: var(--nexus-text-muted);
+}
+.tracking-widest {
+  letter-spacing: 0.25em;
+}
+
+.fade-in {
+  animation: fadeIn 0.3s ease-in-out;
+}
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

@@ -1,5 +1,17 @@
 <app-header></app-header>
 
-<main class="nexus-main-content">
-  <router-outlet></router-outlet>
-</main>
+<router-outlet></router-outlet> <app-toast-container></app-toast-container>
+@if (guestPopup.isOpen()) {
+  <app-register-popup></app-register-popup>
+}
+@if (guestPopup.isOAuthTermsOpen()) {
+  <app-oauth-terms-popup></app-oauth-terms-popup>
+}
+
+@if (showTwoFactorPopup()) {
+  <app-two-factor-popup (completado)="onTwoFactorCompletado()"></app-two-factor-popup>
+}
+
+@if (showAccountTypePopup()) {
+  <app-account-type-popup (completado)="showAccountTypePopup.set(false)"></app-account-type-popup>
+}

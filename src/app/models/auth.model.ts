@@ -1,37 +1,28 @@
-import { Actor } from './actor.model';
-import { Producto } from './producto.model';
-import { Oferta } from './oferta.model';
-import { Vehiculo } from './vehiculo.model';
+import { Usuario } from './usuario.model';
 
-// He añadido MENSAJE y COMENTARIO según lo que soporta tu backend
-export type TipoReporte = 'PRODUCTO' | 'OFERTA' | 'USUARIO' | 'VEHICULO' | 'MENSAJE' | 'COMENTARIO';
-export type MotivoReporte =
-  | 'SPAM'
-  | 'FRAUDE'
-  | 'ACOSO'
-  | 'CONTENIDO_INAPROPIADO'
-  | 'INFORMACION_FALSA';
-export type EstadoReporte = 'PENDIENTE' | 'EN_REVISION' | 'RESUELTO' | 'DESESTIMADO';
+export interface LoginRequest {
+  email?: string;
+  username?: string; // Dependiendo de si tu API permite login con usuario o email
+  password?: string;
+  codigo2FA?: string; // Útil si implementas verificación en 2 pasos
+}
 
-export interface Reporte {
-  id: number;
-  reportador?: Actor;
-  tipo: TipoReporte;
-  motivo: MotivoReporte;
-  descripcion?: string;
-  estado: EstadoReporte;
-  fecha?: string;
+export interface RegisterRequest {
+  username: string; // Requerido por AuthController.java
+  email: string;
+  password: string;
+  nombre: string;
+  apellidos: string;
+  terminosAceptados: boolean;
+  newsletterSuscrito: boolean;
+  captchaToken: string;
+}
 
-  // Objeto denunciado (solo uno de estos tendrá valor dependiendo del 'tipo')
-  actorDenunciado?: Actor;
-  productoDenunciado?: Producto;
-  ofertaDenunciada?: Oferta;
-  vehiculoDenunciado?: Vehiculo;
-  mensajeDenunciado?: any; // Reemplazar 'any' por Mensaje si creas el modelo después
-  comentarioDenunciado?: any; // Reemplazar 'any' por Comentario si creas el modelo después
-
-  // Datos de resolución (Solo Admin)
-  resolucion?: string;
-  resoltor?: Actor;
-  fechaResolucion?: string;
+export interface AuthResponse {
+  token: string;
+  refreshToken?: string;
+  usuario: Usuario;
+  esNuevoUsuario?: boolean;
+  requires2FA?: boolean;
+  tempToken?: string;
 }
