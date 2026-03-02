@@ -172,6 +172,30 @@
   border-color: var(--nexus-purple);
 }
 
+/* Placeholder cuando no hay foto de perfil */
+.avatar-placeholder {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--nexus-blue) 0%, var(--nexus-purple) 100%);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1.1rem;
+  letter-spacing: 1px;
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  transition:
+    border-color 0.2s,
+    transform 0.2s;
+}
+
+.user-avatar-btn:hover .avatar-placeholder {
+  border-color: var(--nexus-purple);
+  transform: scale(1.05);
+}
+
 /* Invitado: Botones Texto */
 .guest-buttons {
   display: flex;

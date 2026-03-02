@@ -109,7 +109,16 @@ export class HeaderComponent implements OnInit {
     }
   }
 
-  getIniciales(nombre?: string): string {
-    return nombre ? nombre.charAt(0).toUpperCase() : 'U';
+  getIniciales(nombre?: string, apellidos?: string): string {
+    let iniciales = '';
+    if (nombre) {
+      iniciales += nombre.charAt(0).toUpperCase();
+    }
+    if (apellidos) {
+      iniciales += apellidos.charAt(0).toUpperCase();
+    }
+
+    // si no hay letra pa nadie
+    return iniciales || 'U';
   }
 }

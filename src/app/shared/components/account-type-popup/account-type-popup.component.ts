@@ -67,7 +67,7 @@ export class AccountTypePopupComponent {
     }
 
     // PATCH /api/usuarios/me/tipo-cuenta
-    this.http.patch(`${environment.apiUrl}/usuarios/me/tipo-cuenta`, payload).subscribe({
+    this.http.patch(`${environment.apiUrl}/usuario/me/tipo-cuenta`, payload).subscribe({
       next: () => {
         this.isLoading.set(false);
 
