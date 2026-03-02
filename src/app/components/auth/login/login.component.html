@@ -21,11 +21,13 @@
     }
 
     @if (step() === 1) {
-      <div class="oauth-section">
-        <button type="button" class="btn-oauth google" (click)="continuarConGoogle()">
-          <i class="fab fa-google"></i> Continuar con Google
-        </button>
-        <button type="button" class="btn-oauth facebook" (click)="continuarConFacebook()">
+      <div
+        class="oauth-section"
+        style="display: flex; flex-direction: column; gap: 10px; align-items: center"
+      >
+        <div id="google-btn-container" class="w-full flex justify-center"></div>
+
+        <button type="button" class="btn-oauth facebook w-full" (click)="continuarConFacebook()">
           <i class="fab fa-facebook-f"></i> Continuar con Facebook
         </button>
       </div>

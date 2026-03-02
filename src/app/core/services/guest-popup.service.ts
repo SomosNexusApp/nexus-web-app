@@ -25,6 +25,30 @@ export class GuestPopupService {
     this.lastShown = Date.now();
   }
 
+  // --- POPUP 2FA (AÑADIDO AHORA) ---
+  readonly isTwoFactorOpen = signal<boolean>(false);
+  readonly isAccountTypeOpen = signal<boolean>(false);
+
+  showTwoFactorPopup(): void {
+    this.isTwoFactorOpen.set(true);
+  }
+
+  hideTwoFactorPopup(): void {
+    this.isTwoFactorOpen.set(false);
+  }
+
+  closeTwoFactorPopup(): void {
+    this.hideTwoFactorPopup();
+  }
+
+  showAccountTypePopup(): void {
+    this.isAccountTypeOpen.set(true);
+  }
+
+  closeAccountTypePopup(): void {
+    this.isAccountTypeOpen.set(false);
+  }
+
   /**
    * Cierra el popup de invitado.
    * Se incluyen ambos nombres para evitar errores de compilación en auth.service y login.component

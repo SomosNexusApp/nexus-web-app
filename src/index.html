@@ -23,18 +23,12 @@
     <!-- Google One Tap / GSI -->
     <script src="https://accounts.google.com/gsi/client" async defer></script>
 
-    <!-- Facebook SDK (fbAsyncInit ANTES del script de carga) -->
-    <script>
-      window.fbAsyncInit = function () {
-        FB.init({
-          appId: 'TU_FACEBOOK_APP_ID',
-          cookie: true,
-          xfbml: true,
-          version: 'v19.0',
-        });
-      };
-    </script>
-    <script async defer crossorigin="anonymous" src="https://connect.facebook.net/es_ES/sdk.js"></script>
+    <script
+      async
+      defer
+      crossorigin="anonymous"
+      src="https://connect.facebook.net/es_ES/sdk.js"
+    ></script>
   </head>
   <body class="nexus-dark-theme">
     <app-root></app-root>

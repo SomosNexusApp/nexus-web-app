@@ -1,134 +1,242 @@
 :host {
-  --nexus-surface: #1e1e1e;
+  --nexus-surface: #121212;
+  --nexus-surface-hover: #1e1e1e;
   --nexus-blue: #0a84ff;
-  --nexus-blue-hover: #0066cc;
+  --nexus-blue-light: rgba(10, 132, 255, 0.1);
+  --nexus-purple: #bf5af2;
+  --nexus-purple-light: rgba(191, 90, 242, 0.1);
   --nexus-text: #ffffff;
-  --nexus-text-muted: #a0a0a0;
+  --nexus-text-muted: #9ca3af;
   --nexus-border: #333333;
   --error: #ff453a;
 }
 
+/* OVERLAY Y TARJETA BASE */
 .popup-overlay {
   position: fixed;
   top: 0;
   left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.85); /* Fondo oscuro semitransparente */
-  backdrop-filter: blur(5px);
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(8px);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 9999;
+  z-index: 10000;
   padding: 1rem;
 }
 
 .popup-card {
   background-color: var(--nexus-surface);
-  border: 1px solid var(--nexus-border);
-  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 24px;
   width: 100%;
-  max-width: 450px;
+  max-width: 460px;
   padding: 2.5rem;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.6);
   color: var(--nexus-text);
   font-family: 'Outfit', sans-serif;
 }
 
-/* Checkboxes (Reutilizados de tus componentes anteriores) */
-.checkbox-container {
+/* CABECERA (ICONO Y TEXTOS) */
+.header-section {
   display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.icon-circle {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: var(--nexus-blue-light);
+  color: var(--nexus-blue);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.75rem;
+}
+
+.text-2xl {
+  font-size: 1.5rem;
+}
+.text-sm {
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+/* TARJETAS DE SELECCIÓN (PERSONAL / EMPRESA) */
+.section-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--nexus-text);
+  text-align: center;
+}
+
+.type-cards-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.type-card {
+  background: var(--nexus-surface-hover);
+  border: 2px solid var(--nexus-border);
+  border-radius: 16px;
+  padding: 1.25rem 1rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.type-card:hover {
+  border-color: rgba(255, 255, 255, 0.3);
+  transform: translateY(-2px);
+}
+
+.card-icon {
+  font-size: 1.75rem;
+  color: var(--nexus-text-muted);
+  transition: color 0.2s;
+}
+
+/* ESTADOS ACTIVOS (AZUL O MORADO) */
+.type-card.active-personal {
+  border-color: var(--nexus-blue);
+  background: var(--nexus-blue-light);
+}
+.type-card.active-personal .card-icon {
+  color: var(--nexus-blue);
+}
+
+.type-card.active-empresa {
+  border-color: var(--nexus-purple);
+  background: var(--nexus-purple-light);
+}
+.type-card.active-empresa .card-icon {
+  color: var(--nexus-purple);
+}
+
+/* CHECKBOXES MODERNOS */
+.custom-checkbox {
+  display: flex;
+  align-items: flex-start;
   position: relative;
-  padding-left: 32px;
   cursor: pointer;
   font-size: 0.85rem;
   color: var(--nexus-text-muted);
   user-select: none;
-  align-items: flex-start;
+  gap: 12px;
 }
-.checkbox-container input {
+
+.custom-checkbox input {
   position: absolute;
   opacity: 0;
   cursor: pointer;
   height: 0;
   width: 0;
 }
+
 .checkmark {
-  position: absolute;
-  top: 2px;
-  left: 0;
-  height: 20px;
-  width: 20px;
+  min-width: 22px;
+  height: 22px;
   background-color: rgba(255, 255, 255, 0.05);
   border: 1px solid var(--nexus-border);
-  border-radius: 4px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   transition: all 0.2s;
+  margin-top: 2px;
 }
-.checkbox-container:hover input ~ .checkmark {
+
+.custom-checkbox:hover input ~ .checkmark {
   border-color: var(--nexus-blue);
 }
-.checkbox-container input:checked ~ .checkmark {
+
+.custom-checkbox input:checked ~ .checkmark {
   background-color: var(--nexus-blue);
   border-color: var(--nexus-blue);
 }
+
 .checkmark:after {
   content: '';
-  position: absolute;
   display: none;
-  left: 7px;
-  top: 3px;
-  width: 4px;
+  width: 5px;
   height: 10px;
   border: solid white;
   border-width: 0 2px 2px 0;
   transform: rotate(45deg);
+  margin-bottom: 2px;
 }
-.checkbox-container input:checked ~ .checkmark:after {
+
+.custom-checkbox input:checked ~ .checkmark:after {
   display: block;
 }
 
-.checkbox-container a {
+.label-text {
+  line-height: 1.5;
+}
+.label-text a {
   color: var(--nexus-blue);
   text-decoration: none;
   font-weight: 500;
+  transition: color 0.2s;
 }
-.checkbox-container a:hover {
+.label-text a:hover {
   text-decoration: underline;
 }
+.text-red {
+  color: var(--error);
+}
 
-/* Botones y utilidades */
+/* BOTÓN PRIMARIO (ENVIAR) */
 .btn-primary {
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 0.85rem;
-  border-radius: 8px;
+  padding: 1rem;
+  border-radius: 12px;
   font-weight: 600;
+  font-size: 1rem;
   cursor: pointer;
   border: none;
   background-color: var(--nexus-blue);
   color: #fff;
   transition: all 0.2s ease;
   font-family: 'Outfit', sans-serif;
-}
-.btn-primary:hover:not(:disabled) {
-  background-color: var(--nexus-blue-hover);
-}
-.btn-primary:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
+  box-shadow: 0 4px 12px rgba(10, 132, 255, 0.3);
 }
 
+.btn-primary:hover:not(:disabled) {
+  background-color: #0070e0;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(10, 132, 255, 0.4);
+}
+
+.btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
+}
+
+/* BANNERS DE ERROR Y UTILIDADES */
 .banner.error {
   background-color: rgba(255, 69, 58, 0.1);
   color: var(--error);
   border: 1px solid rgba(255, 69, 58, 0.3);
-  padding: 0.75rem 1rem;
-  border-radius: 8px;
-  font-size: 0.85rem;
+  padding: 1rem;
+  border-radius: 12px;
+  font-size: 0.9rem;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.75rem;
 }
 
 .text-center {
@@ -136,18 +244,6 @@
 }
 .text-muted {
   color: var(--nexus-text-muted);
-}
-.text-nexus-blue {
-  color: var(--nexus-blue);
-}
-.text-sm {
-  font-size: 0.85rem;
-}
-.text-xl {
-  font-size: 1.25rem;
-}
-.text-4xl {
-  font-size: 2.25rem;
 }
 .font-bold {
   font-weight: 700;
@@ -158,6 +254,9 @@
 .mb-2 {
   margin-bottom: 0.5rem;
 }
+.mb-3 {
+  margin-bottom: 0.75rem;
+}
 .mb-4 {
   margin-bottom: 1rem;
 }
@@ -165,7 +264,7 @@
   margin-bottom: 1.5rem;
 }
 
-/* Animaciones */
+/* ANIMACIONES */
 .fade-in {
   animation: fadeIn 0.3s ease-in-out;
 }
@@ -181,7 +280,6 @@
     opacity: 1;
   }
 }
-
 @keyframes scaleIn {
   from {
     opacity: 0;

@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, OnInit } from '@angular/core'; // <-- Añadir OnInit
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { GuestPopupService } from '../../../core/services/guest-popup.service';
@@ -13,7 +13,8 @@ import { ToastService } from '../../../core/services/toast.service';
   templateUrl: './register-popup.component.html',
   styleUrls: ['./register-popup.component.css'],
 })
-export class RegisterPopupComponent {
+export class RegisterPopupComponent implements OnInit {
+  // <-- Implementar OnInit
   public guestPopup = inject(GuestPopupService);
   private router = inject(Router);
   private googleAuth = inject(GoogleAuthService);
@@ -21,6 +22,13 @@ export class RegisterPopupComponent {
   private toast = inject(ToastService);
 
   isLoadingOAuth = signal(false);
+
+  ngOnInit() {
+    // Renderizamos el botón oficial dándole un respiro al DOM para que exista el div
+    setTimeout(() => {
+      this.googleAuth.renderGoogleButton('google-popup-btn-container');
+    }, 150);
+  }
 
   navegarA(ruta: string): void {
     this.guestPopup.hidePopup();
@@ -34,19 +42,7 @@ export class RegisterPopupComponent {
     }
   }
 
-  async loginConGoogle() {
-    this.isLoadingOAuth.set(true);
-    try {
-      this.googleAuth.initGoogleSignIn();
-      await this.googleAuth.promptGoogleSignIn();
-    } catch (err: any) {
-      if (typeof err === 'string' && err.includes('SDK')) {
-        this.toast.error(err);
-      }
-    } finally {
-      this.isLoadingOAuth.set(false);
-    }
-  }
+  // ELIMINADO: loginConGoogle() - Ya no es necesario
 
   async loginConFacebook() {
     this.isLoadingOAuth.set(true);

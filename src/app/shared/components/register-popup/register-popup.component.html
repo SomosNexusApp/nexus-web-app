@@ -48,14 +48,7 @@
         <i class="fas fa-user-plus"></i> Regístrate gratis
       </button>
 
-      <button class="btn-google" (click)="loginConGoogle()" [disabled]="isLoadingOAuth()">
-        @if (!isLoadingOAuth()) {
-          <i class="fab fa-google" style="color: #ea4335"></i>
-          Continuar con Google
-        } @else {
-          <i class="fas fa-spinner fa-spin"></i> Conectando...
-        }
-      </button>
+      <div id="google-popup-btn-container" class="w-full flex justify-center"></div>
 
       <button class="btn-facebook" (click)="loginConFacebook()" [disabled]="isLoadingOAuth()">
         <i class="fab fa-facebook-f" style="color: #fff"></i>

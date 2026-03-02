@@ -2,6 +2,7 @@ import { Injectable, inject, NgZone } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from './auth.service';
 import { GuestPopupService } from '../services/guest-popup.service';
+import { environment } from '../../../environments/enviroment';
 
 declare var FB: any;
 
@@ -11,6 +12,21 @@ export class FacebookAuthService {
   private router = inject(Router);
   private ngZone = inject(NgZone);
   private guestPopup = inject(GuestPopupService);
+
+  constructor() {
+    this.initFacebook();
+  }
+
+  private initFacebook() {
+    (window as any).fbAsyncInit = () => {
+      FB.init({
+        appId: environment.facebookAppId,
+        cookie: true,
+        xfbml: true,
+        version: 'v18.0',
+      });
+    };
+  }
 
   /**
    * Espera a que el SDK esté disponible y lanza el popup de Facebook.

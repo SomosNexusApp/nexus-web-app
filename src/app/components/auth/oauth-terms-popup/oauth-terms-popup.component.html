@@ -1,13 +1,13 @@
 <div class="popup-overlay fade-in">
   <div class="popup-card scale-in">
-    <div class="text-center mb-6">
-      <div class="icon-circle mb-4 text-nexus-blue text-4xl">
+    <div class="header-section text-center mb-6">
+      <div class="icon-circle mb-4">
         <i class="fas fa-file-signature"></i>
       </div>
-      <h2 class="text-xl font-bold mb-2">Casi hemos terminado</h2>
+      <h2 class="text-2xl font-bold mb-2">Casi hemos terminado</h2>
       <p class="text-muted text-sm">
-        Para finalizar tu registro con la red social, es necesario que aceptes nuestras condiciones
-        legales (RGPD).
+        Para finalizar tu registro, es necesario que elijas cómo usarás Nexus y aceptes nuestras
+        condiciones.
       </p>
     </div>
 
@@ -18,23 +18,54 @@
     }
 
     <form [formGroup]="termsForm" (ngSubmit)="onSubmit()">
-      <label class="checkbox-container mb-4">
-        <input type="checkbox" formControlName="terminosAceptados" />
-        <span class="checkmark"></span>
-        <span class="label-text">
-          He leído y acepto las
-          <a routerLink="/legal/terminos" target="_blank">Condiciones de uso</a> y la
-          <a routerLink="/legal/privacidad" target="_blank">Política de privacidad</a> de Nexus. *
-        </span>
-      </label>
+      <div class="account-type-section mb-6">
+        <h3 class="section-title mb-3">¿Cómo usarás Nexus?</h3>
 
-      <label class="checkbox-container mb-6">
-        <input type="checkbox" formControlName="newsletterSuscrito" />
-        <span class="checkmark"></span>
-        <span class="label-text">
-          Quiero recibir comunicaciones sobre promociones y novedades de Nexus.
-        </span>
-      </label>
+        <div class="type-cards-grid">
+          <div
+            class="type-card"
+            [class.active-personal]="termsForm.get('tipoCuenta')?.value === 'USUARIO'"
+            (click)="termsForm.patchValue({ tipoCuenta: 'USUARIO' })"
+          >
+            <div class="card-icon">
+              <i class="fas fa-user"></i>
+            </div>
+            <p class="font-bold">Personal</p>
+          </div>
+
+          <div
+            class="type-card"
+            [class.active-empresa]="termsForm.get('tipoCuenta')?.value === 'EMPRESA'"
+            (click)="termsForm.patchValue({ tipoCuenta: 'EMPRESA' })"
+          >
+            <div class="card-icon">
+              <i class="fas fa-building"></i>
+            </div>
+            <p class="font-bold">Empresa</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="legal-section mb-6">
+        <label class="custom-checkbox mb-4">
+          <input type="checkbox" formControlName="terminosAceptados" />
+          <span class="checkmark"></span>
+          <span class="label-text">
+            He leído y acepto las
+            <a routerLink="/legal/terminos" target="_blank">Condiciones de uso</a> y la
+            <a routerLink="/legal/privacidad" target="_blank">Política de privacidad</a>.
+            <span class="text-red">*</span>
+          </span>
+        </label>
+
+        <label class="custom-checkbox">
+          <input type="checkbox" formControlName="newsletterSuscrito" />
+          <span class="checkmark"></span>
+          <span class="label-text">
+            Quiero recibir comunicaciones sobre promociones y novedades de Nexus.
+          </span>
+        </label>
+      </div>
 
       <button
         type="submit"

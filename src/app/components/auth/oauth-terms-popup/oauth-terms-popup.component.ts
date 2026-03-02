@@ -26,6 +26,7 @@ export class OauthTermsPopupComponent {
   errorMessage = signal<string | null>(null);
 
   termsForm: FormGroup = this.fb.group({
+    tipoCuenta: ['USUARIO', Validators.required], // Valor por defecto
     terminosAceptados: [false, Validators.requiredTrue],
     newsletterSuscrito: [false],
   });
@@ -40,17 +41,17 @@ export class OauthTermsPopupComponent {
     this.errorMessage.set(null);
 
     const payload = {
+      tipoCuenta: this.termsForm.value.tipoCuenta, // Lo enviamos al backend
       terminosAceptados: this.termsForm.value.terminosAceptados,
       newsletterSuscrito: this.termsForm.value.newsletterSuscrito,
-      versionTerminosAceptados: '1.0', // O la versión actual de tus términos
+      versionTerminosAceptados: '1.0',
     };
 
     // Petición PATCH para actualizar el usuario actual
-    this.http.patch(`${environment.apiUrl}/usuarios/me`, payload).subscribe({
+    this.http.patch(`${environment.apiUrl}/usuario/me/terminos`, payload).subscribe({
       next: () => {
         this.isLoading.set(false);
 
-        // Actualizamos el store local para que la app sepa que ya aceptó los términos
         const currentUser = this.authStore.user();
         if (currentUser) {
           this.authStore.setUser({
@@ -60,10 +61,14 @@ export class OauthTermsPopupComponent {
           });
         }
 
-        // Cerramos el popup (suponiendo que tienes un método en tu servicio)
+        // 1. Cierra el popup de términos
         this.popupService.closeOAuthTermsPopup();
 
-        // Redirigimos al home o al dashboard
+        // 2. Abre el popup de 2FA
+        this.popupService.showTwoFactorPopup();
+
+        // 3. Opcional: Navegar al dashboard si es necesario.
+        // Si ya estás en "/", esta línea no hará nada visualmente, pero es correcta.
         this.router.navigate(['/']);
       },
       error: () => {

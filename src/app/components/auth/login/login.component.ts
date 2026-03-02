@@ -55,7 +55,7 @@ export class LoginComponent implements OnInit, OnDestroy {
   ngOnInit() {
     // Inicializar Google SDK
     this.googleAuth.initGoogleSignIn();
-
+    setTimeout(() => this.googleAuth.renderGoogleButton('google-btn-container'), 100);
     this.route.queryParams.subscribe((params) => {
       if (params['resetOk'] === 'true') this.resetSuccessMessage.set(true);
       this.returnUrl = params['returnUrl'] || '/';

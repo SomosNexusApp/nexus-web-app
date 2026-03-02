@@ -16,16 +16,11 @@ export class GoogleAuthService {
 
   private initialized = false;
 
-  /**
-   * Inicializa GSI. Llama desde ngOnInit del componente que muestre el botón.
-   * Es seguro llamarlo varias veces (guarda flag).
-   */
   initGoogleSignIn(): void {
     if (this.initialized) return;
-
     const tryInit = () => {
       if (typeof google === 'undefined' || !google?.accounts?.id) {
-        setTimeout(tryInit, 300); // Reintentar hasta que el script cargue
+        setTimeout(tryInit, 300);
         return;
       }
       google.accounts.id.initialize({
@@ -36,7 +31,6 @@ export class GoogleAuthService {
       });
       this.initialized = true;
     };
-
     tryInit();
   }
 
@@ -59,6 +53,7 @@ export class GoogleAuthService {
             this.handleCredentialResponseAndResolve(response, resolve, reject);
           },
           auto_select: false,
+          use_fedcm_for_prompt: true,
         });
       }
 
@@ -75,6 +70,32 @@ export class GoogleAuthService {
     });
   }
 
+  renderGoogleButton(elementId: string): void {
+    const checkAndRender = () => {
+      if (typeof google === 'undefined' || !google?.accounts?.id) {
+        setTimeout(checkAndRender, 300);
+        return;
+      }
+      if (!this.initialized) this.initGoogleSignIn();
+
+      const btnContainer = document.getElementById(elementId);
+      if (btnContainer) {
+        const parentWidth = btnContainer.parentElement?.clientWidth || 320;
+        const finalWidth = parentWidth > 400 ? 400 : parentWidth;
+
+        google.accounts.id.renderButton(btnContainer, {
+          theme: 'outline', // <-- Volvemos al blanco neutro
+          size: 'large', // <-- Esto fuerza los 40px de alto
+          shape: 'rectangular',
+          text: 'continue_with',
+          logo_alignment: 'center',
+          width: finalWidth.toString(),
+        });
+      }
+    };
+    checkAndRender();
+  }
+
   private handleCredentialResponse(response: any): void {
     this.ngZone.run(() => {
       this.authService.googleLogin(response.credential).subscribe({
@@ -86,9 +107,7 @@ export class GoogleAuthService {
             this.router.navigate(['/']);
           }
         },
-        error: (err) => {
-          console.error('Error Google login backend:', err);
-        },
+        error: (err) => console.error('Error Google login backend:', err),
       });
     });
   }

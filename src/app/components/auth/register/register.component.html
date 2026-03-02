@@ -9,11 +9,13 @@
     </div>
 
     @if (step() === 1) {
-      <div class="oauth-section">
-        <button type="button" class="btn-oauth google" (click)="continuarConGoogle()">
-          <i class="fab fa-google"></i> Continuar con Google
-        </button>
-        <button type="button" class="btn-oauth facebook" (click)="continuarConFacebook()">
+      <div
+        class="oauth-section"
+        style="display: flex; flex-direction: column; gap: 10px; align-items: center"
+      >
+        <div id="google-btn-container" class="w-full flex justify-center"></div>
+
+        <button type="button" class="btn-oauth facebook w-full" (click)="continuarConFacebook()">
           <i class="fab fa-facebook-f"></i> Continuar con Facebook
         </button>
       </div>
@@ -253,33 +255,12 @@
         <p class="text-muted mb-6">
           Activa la Autenticación en dos pasos (2FA) para proteger tus compras y ventas.
         </p>
-        <button class="btn-primary w-full mb-3" (click)="irPasoAccountType()">
+        <button class="btn-primary w-full mb-3" (click)="abrirConfiguracion2FA()">
           Configurar 2FA
         </button>
-        <button class="btn-secondary w-full" (click)="irPasoAccountType()">
+        <button class="btn-secondary w-full" (click)="finalizarEIrATipoCuenta()">
           Hacerlo más tarde
         </button>
-      </div>
-    }
-
-    @if (step() === 4) {
-      <div class="account-type-step text-center fade-in">
-        <h3 class="text-xl font-bold mb-4">¿Cómo usarás Nexus?</h3>
-        <div class="type-cards grid grid-cols-2 gap-4 mb-6">
-          <div
-            class="card active border border-nexus-blue p-4 rounded-xl cursor-pointer bg-nexus-blue/10"
-          >
-            <i class="fas fa-user text-2xl mb-2 text-nexus-blue"></i>
-            <p class="font-bold">Personal</p>
-          </div>
-          <div
-            class="card border border-nexus-border p-4 rounded-xl cursor-pointer hover:border-nexus-purple transition-colors"
-          >
-            <i class="fas fa-building text-2xl mb-2 text-nexus-purple"></i>
-            <p class="font-bold">Empresa</p>
-          </div>
-        </div>
-        <button class="btn-primary w-full" (click)="finalizarRegistro()">Finalizar y Entrar</button>
       </div>
     }
   </div>

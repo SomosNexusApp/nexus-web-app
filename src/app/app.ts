@@ -45,8 +45,16 @@ export class AppComponent implements OnInit {
 
   // --- Manejadores de eventos de los Popups ---
 
+  // Borra tus señales antiguas (showTwoFactorPopup y showAccountTypePopup) de aquí arriba
+
   onTwoFactorCompletado() {
-    this.showTwoFactorPopup.set(false);
-    this.showAccountTypePopup.set(true); // Se abre el popup de Tipo de Cuenta automáticamente
+    this.guestPopup.closeTwoFactorPopup();
+
+    // El "truco maestro": Si tras cerrar el 2FA, vemos que es un usuario nuevo (no tiene tipoCuenta),
+    // le lanzamos el popup de seleccionar Empresa o Personal.
+    const user = this.guestPopup['authStore'].user(); // O this.authStore.user() si lo inyectaste
+    if (user && !user.tipoCuenta) {
+      this.guestPopup.showAccountTypePopup();
+    }
   }
 }

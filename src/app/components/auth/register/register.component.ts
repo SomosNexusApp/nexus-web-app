@@ -16,6 +16,7 @@ import { AuthService } from '../../../core/auth/auth.service';
 import { environment } from '../../../../environments/enviroment';
 import { GoogleAuthService } from '../../../core/auth/google-auth.service';
 import { FacebookAuthService } from '../../../core/auth/facebook-auth.service';
+import { GuestPopupService } from '../../../core/services/guest-popup.service';
 
 // Validador asíncrono para email único
 export function emailAvailableValidator(authService: AuthService): AsyncValidatorFn {
@@ -51,14 +52,25 @@ export class RegisterComponent implements OnInit {
   private router = inject(Router);
   private googleAuth = inject(GoogleAuthService);
   private facebookAuth = inject(FacebookAuthService);
+  private guestPopup = inject(GuestPopupService);
 
   ngOnInit() {
     this.googleAuth.initGoogleSignIn();
-    // listener para sincronizar confirmacion con campo
+    setTimeout(() => this.googleAuth.renderGoogleButton('google-btn-container'), 100);
     this.registerForm.get('password')?.valueChanges.subscribe((val) => {
       this.calculatePasswordStrength(val || '');
       this.registerForm.get('confirmar')?.updateValueAndValidity();
     });
+  }
+
+  abrirConfiguracion2FA() {
+    this.guestPopup.showTwoFactorPopup();
+    this.router.navigate(['/']); // Navegamos al inicio, el popup del 2FA quedará por encima
+  }
+
+  finalizarEIrATipoCuenta() {
+    this.guestPopup.showAccountTypePopup();
+    this.router.navigate(['/']); // Navegamos al inicio, el popup de Tipo de Cuenta quedará por encima
   }
 
   @ViewChild('captchaRef') captchaRef!: RecaptchaComponent;

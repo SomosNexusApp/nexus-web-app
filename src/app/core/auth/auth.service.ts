@@ -20,8 +20,9 @@ export class AuthService {
   private guestPopup = inject(GuestPopupService);
 
   // NOTA: Base URL dinámica dependiente de si el endpoint es /auth o /api/auth
-  private readonly AUTH_URL = environment.apiUrl.replace('/api', '/auth');
-  private readonly API_AUTH_URL = `${environment.apiUrl}/auth`;
+  // Corregir la definición de las URLs en AuthService
+  private readonly AUTH_URL = `${environment.apiUrl}/auth`;
+  private readonly API_AUTH_URL = `${environment.apiUrl}/api/auth`;
 
   /**
    * LOGIN
@@ -131,7 +132,21 @@ export class AuthService {
   }
 
   verifyEmail(email: string, codigo: string): Observable<any> {
-    return this.http.post<any>(`${this.AUTH_URL}/verificar`, { email, codigo });
+    return this.http.post(`${environment.apiUrl}/auth/verificar`, { email, codigo }).pipe(
+      tap((res: any) => {
+        // Si el backend nos manda el token, logueamos al usuario en el acto
+        if (res && res.token) {
+          this.jwt.saveToken(res.token);
+
+          this.store.setUser({
+            id: res.userId,
+            user: res.username,
+            rol: res.rol,
+            ...res,
+          });
+        }
+      }),
+    );
   }
 
   /**
