@@ -1,4 +1,4 @@
-import { Component, inject, signal, ViewChild, DestroyRef } from '@angular/core';
+import { Component, inject, signal, ViewChild, DestroyRef, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   ReactiveFormsModule,
@@ -14,6 +14,8 @@ import { RecaptchaModule, RecaptchaComponent } from 'ng-recaptcha';
 import { map, catchError, delay, switchMap, timer, Observable, of } from 'rxjs';
 import { AuthService } from '../../../core/auth/auth.service';
 import { environment } from '../../../../environments/enviroment';
+import { GoogleAuthService } from '../../../core/auth/google-auth.service';
+import { FacebookAuthService } from '../../../core/auth/facebook-auth.service';
 
 // Validador asíncrono para email único
 export function emailAvailableValidator(authService: AuthService): AsyncValidatorFn {
@@ -43,10 +45,21 @@ export function matchPasswordValidator(passwordKey: string) {
   templateUrl: './register.component.html',
   styleUrls: ['./register.component.css'],
 })
-export class RegisterComponent {
+export class RegisterComponent implements OnInit {
   private fb = inject(FormBuilder);
   private authService = inject(AuthService);
   private router = inject(Router);
+  private googleAuth = inject(GoogleAuthService);
+  private facebookAuth = inject(FacebookAuthService);
+
+  ngOnInit() {
+    this.googleAuth.initGoogleSignIn();
+    // listener para sincronizar confirmacion con campo
+    this.registerForm.get('password')?.valueChanges.subscribe((val) => {
+      this.calculatePasswordStrength(val || '');
+      this.registerForm.get('confirmar')?.updateValueAndValidity();
+    });
+  }
 
   @ViewChild('captchaRef') captchaRef!: RecaptchaComponent;
   siteKey = environment.recaptchaSiteKey;
@@ -117,14 +130,24 @@ export class RegisterComponent {
   }
 
   // --- OAuth ---
-  continuarConGoogle() {
-    this.isOAuthMode.set(true);
-    // Aquí iría la lógica del SDK de Google (ej. googleAuthService.promptGoogleSignIn().then(...))
+  async continuarConGoogle() {
+    this.isLoading.set(true);
+    try {
+      await this.googleAuth.promptGoogleSignIn();
+      this.isLoading.set(false);
+    } catch (err) {
+      this.isLoading.set(false);
+    }
   }
 
-  continuarConFacebook() {
-    this.isOAuthMode.set(true);
-    // Aquí iría la lógica del SDK de Facebook
+  async continuarConFacebook() {
+    this.isLoading.set(true);
+    try {
+      await this.facebookAuth.login();
+      this.isLoading.set(false);
+    } catch (err) {
+      this.isLoading.set(false);
+    }
   }
 
   // --- Submits y Flujo ---

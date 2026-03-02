@@ -2,10 +2,13 @@ import { Component, inject, OnInit, signal, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router, ActivatedRoute, RouterLink } from '@angular/router';
-import { catchError, timer, Subscription, of } from 'rxjs';
+import { timer, Subscription } from 'rxjs';
 
 import { AuthService } from '../../../core/auth/auth.service';
-import { GuestPopupService } from '../../../core/services/guest-popup.service'; // Ajusta la ruta si es necesario
+import { GoogleAuthService } from '../../../core/auth/google-auth.service';
+import { FacebookAuthService } from '../../../core/auth/facebook-auth.service';
+import { GuestPopupService } from '../../../core/services/guest-popup.service';
+import { ToastService } from '../../../core/services/toast.service';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../../environments/enviroment';
 
@@ -19,28 +22,27 @@ import { environment } from '../../../../environments/enviroment';
 export class LoginComponent implements OnInit, OnDestroy {
   private fb = inject(FormBuilder);
   private authService = inject(AuthService);
+  private googleAuth = inject(GoogleAuthService);
+  private facebookAuth = inject(FacebookAuthService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private guestPopup = inject(GuestPopupService);
-  private http = inject(HttpClient); // Necesario temporalmente si no tienes verify2FA en el service
+  private toast = inject(ToastService);
+  private http = inject(HttpClient);
 
-  // Manejo de Estados con Signals
-  step = signal<number>(1); // 1 = Login normal, 2 = 2FA
+  step = signal<number>(1);
   isLoading = signal<boolean>(false);
   isPasswordVisible = signal<boolean>(false);
   isOAuthMode = signal<boolean>(false);
 
-  // Mensajes de UI
   errorMessage = signal<string | null>(null);
   resetSuccessMessage = signal<boolean>(false);
   countdown = signal<number>(0);
   private countdownSub?: Subscription;
 
-  // Datos temporales para 2FA
   private tempUserId = signal<number | null>(null);
   returnUrl: string = '/';
 
-  // Formularios
   loginForm: FormGroup = this.fb.group({
     email: ['', [Validators.required, Validators.email]],
     password: ['', [Validators.required]],
@@ -51,17 +53,17 @@ export class LoginComponent implements OnInit, OnDestroy {
   });
 
   ngOnInit() {
-    // Leer parámetros de la URL
+    // Inicializar Google SDK
+    this.googleAuth.initGoogleSignIn();
+
     this.route.queryParams.subscribe((params) => {
-      if (params['resetOk'] === 'true') {
-        this.resetSuccessMessage.set(true);
-      }
+      if (params['resetOk'] === 'true') this.resetSuccessMessage.set(true);
       this.returnUrl = params['returnUrl'] || '/';
     });
   }
 
   ngOnDestroy() {
-    if (this.countdownSub) this.countdownSub.unsubscribe();
+    this.countdownSub?.unsubscribe();
   }
 
   get f() {
@@ -75,13 +77,11 @@ export class LoginComponent implements OnInit, OnDestroy {
     this.isPasswordVisible.update((v) => !v);
   }
 
-  // --- FLUJO LOGIN ---
   onSubmit() {
     if (this.loginForm.invalid) {
       this.loginForm.markAllAsTouched();
       return;
     }
-
     this.isLoading.set(true);
     this.errorMessage.set(null);
     this.resetSuccessMessage.set(false);
@@ -91,8 +91,6 @@ export class LoginComponent implements OnInit, OnDestroy {
     this.authService.login({ email, password }).subscribe({
       next: (res: any) => {
         this.isLoading.set(false);
-
-        // Si el backend pide 2FA (devuelve requiere2FA = true y usuarioId)
         if (res.requires2FA || res.requiere2FA) {
           this.tempUserId.set(res.usuarioId);
           this.step.set(2);
@@ -107,51 +105,61 @@ export class LoginComponent implements OnInit, OnDestroy {
     });
   }
 
-  // --- FLUJO 2FA ---
   onTwoFactorSubmit() {
     if (this.twoFactorForm.invalid || !this.tempUserId()) return;
-
     this.isLoading.set(true);
     this.errorMessage.set(null);
 
-    const payload = {
-      usuarioId: this.tempUserId(),
-      codigo: this.twoFactorForm.value.codigo,
-    };
-
-    // Llamada directa (Idealmente deberías moverla a AuthService como verify2FA)
-    const url = environment.apiUrl.replace('/api', '/auth') + '/2fa/verificar';
+    const payload = { usuarioId: this.tempUserId(), codigo: this.twoFactorForm.value.codigo };
+    const url = `${environment.apiUrl}/auth/2fa/verificar`;
 
     this.http.post<any>(url, payload).subscribe({
       next: (res) => {
-        // Guardamos el token final
         localStorage.setItem('nexus_jwt', res.token);
         this.authService.loadCurrentUser().subscribe(() => {
           this.isLoading.set(false);
           this.loginExitoso();
         });
       },
-      error: (err) => {
+      error: () => {
         this.isLoading.set(false);
         this.errorMessage.set('Código incorrecto o expirado');
       },
     });
   }
 
-  // --- OAUTH ---
-  continuarConGoogle() {
-    this.isOAuthMode.set(true);
-    // authService.googleLogin(...)
+  // --- OAUTH REAL ---
+  async continuarConGoogle() {
+    this.isLoading.set(true);
+    this.errorMessage.set(null);
+    try {
+      await this.googleAuth.promptGoogleSignIn();
+      // El servicio ya navega y cierra popup internamente
+      this.isLoading.set(false);
+    } catch (err: any) {
+      this.isLoading.set(false);
+      if (typeof err === 'string' && !err.includes('canceló')) {
+        this.errorMessage.set(err);
+      }
+    }
   }
 
-  continuarConFacebook() {
-    this.isOAuthMode.set(true);
-    // authService.facebookLogin(...)
+  async continuarConFacebook() {
+    this.isLoading.set(true);
+    this.errorMessage.set(null);
+    try {
+      await this.facebookAuth.login();
+      this.isLoading.set(false);
+    } catch (err: any) {
+      this.isLoading.set(false);
+      if (typeof err === 'string' && !err.includes('canceló')) {
+        this.errorMessage.set(err);
+      }
+    }
   }
 
-  // --- HELPERS ---
   private loginExitoso() {
-    this.guestPopup.closePopup(); // Si viene del modal
+    this.guestPopup.closePopup();
     this.router.navigateByUrl(this.returnUrl);
   }
 
@@ -168,11 +176,9 @@ export class LoginComponent implements OnInit, OnDestroy {
   }
 
   private iniciarCountdown() {
-    this.countdown.set(60); // 60 segundos de bloqueo
+    this.countdown.set(60);
     this.errorMessage.set(`Demasiados intentos. Espera ${this.countdown()} segundos.`);
-
-    if (this.countdownSub) this.countdownSub.unsubscribe();
-
+    this.countdownSub?.unsubscribe();
     this.countdownSub = timer(1000, 1000).subscribe(() => {
       this.countdown.update((c) => c - 1);
       this.errorMessage.set(`Demasiados intentos. Espera ${this.countdown()} segundos.`);

@@ -2,77 +2,68 @@ import { Injectable, inject, NgZone } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from './auth.service';
 import { GuestPopupService } from '../services/guest-popup.service';
-import { environment } from '../../../environments/enviroment';
 
-// Declaramos la variable global del SDK de Facebook
 declare var FB: any;
 
 @Injectable({ providedIn: 'root' })
 export class FacebookAuthService {
-  private appId = environment.facebookAppId;
-
   private authService = inject(AuthService);
   private router = inject(Router);
   private ngZone = inject(NgZone);
   private guestPopup = inject(GuestPopupService);
 
-  constructor() {
-    this.initFacebookSdk();
-  }
-
   /**
-   * Configura el SDK de Facebook si ya está cargado en el index.html.
-   */
-  private initFacebookSdk(): void {
-    if ((window as any).fbAsyncInit) return; // Evita inicializar dos veces
-
-    (window as any).fbAsyncInit = () => {
-      FB.init({
-        appId: this.appId,
-        cookie: true, // Habilita las cookies para que el servidor pueda acceder a la sesión
-        xfbml: true, // Analiza los plugins sociales en la página
-        version: 'v19.0', // Usa la API Graph más reciente
-      });
-    };
-  }
-
-  /**
-   * Abre el popup nativo de Facebook para pedir permisos.
+   * Espera a que el SDK esté disponible y lanza el popup de Facebook.
    */
   login(): Promise<void> {
     return new Promise((resolve, reject) => {
-      if (typeof FB === 'undefined') {
-        reject('Facebook SDK no está cargado.');
-        return;
-      }
-
-      // Pedimos únicamente el perfil público y el email
-      FB.login(
-        (response: any) => {
-          this.ngZone.run(() => {
-            if (response.authResponse) {
-              // Mandamos el token a nuestro backend de Spring Boot
-              this.authService.facebookLogin(response.authResponse.accessToken).subscribe({
-                next: (res) => {
-                  if (res.esNuevoUsuario) {
-                    this.guestPopup.showOAuthTermsPopup();
-                  } else {
-                    this.router.navigate(['/']);
-                  }
-                  resolve();
-                },
-                error: (err) => {
-                  console.error('Error autenticando Facebook con el backend', err);
-                  reject(err);
-                },
+      this.waitForFB()
+        .then(() => {
+          FB.login(
+            (response: any) => {
+              this.ngZone.run(() => {
+                if (response?.authResponse?.accessToken) {
+                  this.authService.facebookLogin(response.authResponse.accessToken).subscribe({
+                    next: (res) => {
+                      if (res.esNuevoUsuario) {
+                        this.guestPopup.showOAuthTermsPopup();
+                      } else {
+                        this.guestPopup.closePopup();
+                        this.router.navigate(['/']);
+                      }
+                      resolve();
+                    },
+                    error: (err) => {
+                      console.error('Error Facebook login backend:', err);
+                      reject(err);
+                    },
+                  });
+                } else {
+                  reject('El usuario canceló el login de Facebook.');
+                }
               });
-            } else {
-              reject('El usuario canceló el login de Facebook o no autorizó los permisos.');
-            }
-          });
-        },
-        { scope: 'email,public_profile' },
-      );
+            },
+            { scope: 'email,public_profile' },
+          );
+        })
+        .catch(reject);
+    });
+  }
+
+  /** Espera hasta 5 segundos a que FB SDK esté disponible */
+  private waitForFB(maxMs = 5000): Promise<void> {
+    return new Promise((resolve, reject) => {
+      const start = Date.now();
+      const check = () => {
+        if (typeof FB !== 'undefined') {
+          resolve();
+        } else if (Date.now() - start > maxMs) {
+          reject('Facebook SDK no se cargó a tiempo. Comprueba tu conexión.');
+        } else {
+          setTimeout(check, 200);
+        }
+      };
+      check();
     });
   }
 }

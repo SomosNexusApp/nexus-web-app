@@ -1,77 +1,116 @@
 import { Injectable, inject, NgZone } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from './auth.service';
-// Asumimos que tienes un servicio para controlar tus modales globales
 import { GuestPopupService } from '../services/guest-popup.service';
 import { environment } from '../../../environments/enviroment';
 
-// Declaramos la variable global de Google GSI
 declare var google: any;
 
 @Injectable({ providedIn: 'root' })
 export class GoogleAuthService {
   private clientId = environment.googleClientId;
-
   private authService = inject(AuthService);
   private router = inject(Router);
   private ngZone = inject(NgZone);
   private guestPopup = inject(GuestPopupService);
 
+  private initialized = false;
+
   /**
-   * Inicializa el SDK de Google.
-   * Debe llamarse en el ngOnInit del componente donde vayas a mostrar el botón.
+   * Inicializa GSI. Llama desde ngOnInit del componente que muestre el botón.
+   * Es seguro llamarlo varias veces (guarda flag).
    */
   initGoogleSignIn(): void {
-    if (typeof google === 'undefined' || !google.accounts) {
-      console.warn('El script de Google GSI no se ha cargado en el index.html.');
-      return;
-    }
+    if (this.initialized) return;
 
-    google.accounts.id.initialize({
-      client_id: this.clientId,
-      // Usamos .bind(this) para no perder el contexto de la clase
-      callback: this.handleCredentialResponse.bind(this),
-      auto_select: false, // Evita auto-loguear sin que el usuario haga click
-      cancel_on_tap_outside: true,
-    });
+    const tryInit = () => {
+      if (typeof google === 'undefined' || !google?.accounts?.id) {
+        setTimeout(tryInit, 300); // Reintentar hasta que el script cargue
+        return;
+      }
+      google.accounts.id.initialize({
+        client_id: this.clientId,
+        callback: this.handleCredentialResponse.bind(this),
+        auto_select: false,
+        cancel_on_tap_outside: true,
+      });
+      this.initialized = true;
+    };
+
+    tryInit();
   }
 
   /**
-   * Muestra el prompt "One Tap" o el modal clásico de Google.
+   * Muestra el selector de cuenta de Google (One Tap o popup clásico).
+   * Devuelve una promesa que se resuelve cuando el usuario completa el flujo.
    */
-  promptGoogleSignIn(): Promise<string> {
+  promptGoogleSignIn(): Promise<void> {
     return new Promise((resolve, reject) => {
-      if (typeof google === 'undefined') {
-        reject('Google GSI SDK no disponible.');
+      if (typeof google === 'undefined' || !google?.accounts?.id) {
+        reject('Google SDK no disponible. Recarga la página.');
         return;
       }
 
+      // Re-inicializar por si el componente no llamó a initGoogleSignIn
+      if (!this.initialized) {
+        google.accounts.id.initialize({
+          client_id: this.clientId,
+          callback: (response: any) => {
+            this.handleCredentialResponseAndResolve(response, resolve, reject);
+          },
+          auto_select: false,
+        });
+      }
+
       google.accounts.id.prompt((notification: any) => {
-        if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
-          reject('El usuario cerró o saltó el popup de Google.');
+        if (notification.isNotDisplayed()) {
+          // One Tap bloqueado → abrir selector de cuenta clásico
+          google.accounts.id.renderButton(
+            document.createElement('div'), // elemento temporal
+            { theme: 'outline', size: 'large' },
+          );
+          reject('One Tap no disponible');
         }
       });
-      // El resolve exitoso se maneja en el callback de initialize()
     });
   }
 
-  /**
-   * Callback que ejecuta Google cuando el usuario se loguea correctamente en su ventana.
-   */
   private handleCredentialResponse(response: any): void {
-    // NgZone asegura que Angular detecte los cambios de UI que hagamos tras esta promesa externa
     this.ngZone.run(() => {
       this.authService.googleLogin(response.credential).subscribe({
         next: (res) => {
-          // Si es la primera vez que se loguea, el RGPD exige que acepte las políticas activamente
           if (res.esNuevoUsuario) {
             this.guestPopup.showOAuthTermsPopup();
           } else {
-            this.router.navigate(['/']); // Usuario existente, va al home
+            this.guestPopup.closePopup();
+            this.router.navigate(['/']);
           }
         },
         error: (err) => {
-          console.error('Error validando el token de Google en el backend', err);
+          console.error('Error Google login backend:', err);
+        },
+      });
+    });
+  }
+
+  private handleCredentialResponseAndResolve(
+    response: any,
+    resolve: () => void,
+    reject: (reason?: any) => void,
+  ): void {
+    this.ngZone.run(() => {
+      this.authService.googleLogin(response.credential).subscribe({
+        next: (res) => {
+          if (res.esNuevoUsuario) {
+            this.guestPopup.showOAuthTermsPopup();
+          } else {
+            this.guestPopup.closePopup();
+            this.router.navigate(['/']);
+          }
+          resolve();
+        },
+        error: (err) => {
+          reject(err);
         },
       });
     });

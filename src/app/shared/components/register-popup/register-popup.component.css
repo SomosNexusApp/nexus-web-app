@@ -222,3 +222,29 @@
 .font-bold {
   font-weight: 700;
 }
+
+/* En register-popup.component.css — añadir debajo de .btn-google */
+.btn-facebook {
+  width: 100%;
+  padding: 14px;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  border: none;
+  background: #1877f2;
+  color: #fff;
+}
+.btn-facebook:hover:not(:disabled) {
+  background: #0f5cce;
+  transform: translateY(-2px);
+}
+.btn-facebook:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

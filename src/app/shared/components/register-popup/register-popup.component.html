@@ -25,77 +25,48 @@
     <div class="benefits-container mb-6">
       <div class="benefit-item">
         <div class="benefit-icon blue">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="20"
-            height="20"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          >
-            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-          </svg>
+          <i class="fas fa-comments"></i>
         </div>
         <p>Chatea en tiempo real con vendedores y compradores.</p>
       </div>
-
       <div class="benefit-item">
         <div class="benefit-icon purple">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="20"
-            height="20"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          >
-            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
-          </svg>
+          <i class="fas fa-bolt"></i>
         </div>
         <p>Vota en chollos y ayuda a la comunidad.</p>
       </div>
-
       <div class="benefit-item">
         <div class="benefit-icon pink">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="20"
-            height="20"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          >
-            <path
-              d="M12 21l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.18L12 21z"
-            ></path>
-          </svg>
+          <i class="fas fa-heart"></i>
         </div>
         <p>Guarda favoritos y recibe alertas de precio.</p>
       </div>
     </div>
 
     <div class="actions-stack">
-      <button class="btn-primary" (click)="navegarA('/register')">Regístrate gratis</button>
-
-      <button class="btn-google" (click)="loginConGoogle()">
-        <img src="assets/icons/google.svg" alt="" width="18" />
-        Continuar con Google
+      <button class="btn-primary" (click)="navegarA('/register')">
+        <i class="fas fa-user-plus"></i> Regístrate gratis
       </button>
 
-      <div class="divider">
-        <span>o</span>
-      </div>
+      <button class="btn-google" (click)="loginConGoogle()" [disabled]="isLoadingOAuth()">
+        @if (!isLoadingOAuth()) {
+          <i class="fab fa-google" style="color: #ea4335"></i>
+          Continuar con Google
+        } @else {
+          <i class="fas fa-spinner fa-spin"></i> Conectando...
+        }
+      </button>
 
-      <button class="btn-secondary" (click)="navegarA('/login')">Ya tengo cuenta, Entrar</button>
+      <button class="btn-facebook" (click)="loginConFacebook()" [disabled]="isLoadingOAuth()">
+        <i class="fab fa-facebook-f" style="color: #fff"></i>
+        Continuar con Facebook
+      </button>
+
+      <div class="divider"><span>o</span></div>
+
+      <button class="btn-secondary" (click)="navegarA('/login')">
+        <i class="fas fa-sign-in-alt"></i> Ya tengo cuenta, Entrar
+      </button>
     </div>
 
     <div class="text-center mt-6">
