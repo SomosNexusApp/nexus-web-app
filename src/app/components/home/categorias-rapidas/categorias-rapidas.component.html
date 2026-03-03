@@ -1,0 +1,75 @@
+<section class="cats-wrap">
+  <div class="cats-inner">
+    <header class="cats-header">
+      <span class="eyebrow">Explorar</span>
+      <h2>¿Qué buscas hoy?</h2>
+    </header>
+
+    <div class="scroll-zone">
+      <div class="scroll-track">
+        @if (loading()) {
+          @for (s of skeletons; track $index) {
+            <div class="cat-pill sk">
+              <div class="pill-icon sk-block"></div>
+              <div class="pill-name sk-line"></div>
+            </div>
+          }
+        }
+
+        @if (!loading() && error()) {
+          <div class="inline-error">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.5"
+              stroke-linecap="round"
+            >
+              <circle cx="12" cy="12" r="10" />
+              <line x1="12" y1="8" x2="12" y2="12" />
+              <line x1="12" y1="16" x2="12.01" y2="16" />
+            </svg>
+            <span>No se pudieron cargar las categorías</span>
+          </div>
+        }
+
+        @if (!loading() && !error()) {
+          @for (cat of categorias(); track cat.id) {
+            <button
+              class="cat-pill"
+              (click)="navegar(cat.slug)"
+              [style.--c]="getAccentColor(cat)"
+              [attr.aria-label]="'Ver ' + cat.nombre"
+            >
+              <span class="pill-icon">
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.6"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path [attr.d]="getIconPath(cat)" />
+                </svg>
+              </span>
+              <span class="pill-name">{{ cat.nombre }}</span>
+              <svg
+                class="pill-arrow"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <line x1="5" y1="12" x2="19" y2="12" />
+                <polyline points="12 5 19 12 12 19" />
+              </svg>
+            </button>
+          }
+        }
+      </div>
+    </div>
+  </div>
+</section>

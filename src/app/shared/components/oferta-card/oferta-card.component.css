@@ -1,0 +1,277 @@
+/* DISEÑO PREMIUM OFERTA */
+.nexus-card {
+  display: flex;
+  flex-direction: column;
+  background-color: #121212;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  overflow: hidden;
+  text-decoration: none;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  position: relative;
+  height: 100%;
+}
+
+.offer-card:hover {
+  transform: translateY(-5px) scale(1.01);
+  border-color: var(--nexus-purple);
+  box-shadow:
+    0 14px 28px rgba(0, 0, 0, 0.8),
+    0 0 25px rgba(191, 90, 242, 0.2);
+}
+
+.img-wrapper {
+  position: relative;
+  width: 100%;
+  padding-top: 85%; /* Las ofertas suelen ser más apaisadas */
+  background-color: #1a1a1a;
+  overflow: hidden;
+}
+
+.object-cover {
+  object-fit: cover;
+  transition: transform 0.6s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.offer-card:hover .object-cover {
+  transform: scale(1.08);
+}
+
+.img-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(0, 0, 0, 0.3) 0%,
+    transparent 30%,
+    transparent 60%,
+    rgba(0, 0, 0, 0.8) 100%
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* BADGES DE OFERTA */
+.discount-badge {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  background: linear-gradient(135deg, #ff0844 0%, #ffb199 100%);
+  color: white;
+  font-weight: 900;
+  font-size: 0.95rem;
+  padding: 6px 12px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(255, 8, 68, 0.4);
+  z-index: 2;
+  letter-spacing: -0.5px;
+}
+
+.custom-badge {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 0.7rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  z-index: 2;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+}
+
+/* Colores dinámicos según tu Enum de Backend */
+.chollazo {
+  background: #ffd700;
+  color: #000;
+}
+.destacada {
+  background: var(--nexus-purple);
+  color: #fff;
+}
+.nueva {
+  background: var(--nexus-blue);
+  color: #fff;
+}
+.expira_hoy {
+  background: #ff453a;
+  color: #fff;
+  animation: blink 2s infinite;
+}
+.gratuita {
+  background: #32d74b;
+  color: #000;
+}
+
+@keyframes blink {
+  50% {
+    opacity: 0.7;
+  }
+}
+
+.store-badge {
+  position: absolute;
+  bottom: 12px;
+  left: 12px;
+  z-index: 2;
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+}
+
+/* BODY */
+.card-body {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+.product-title {
+  font-size: 1rem;
+  color: #fff;
+  margin: 0 0 8px 0;
+  line-height: 1.4;
+  font-weight: 500;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.coupon-info {
+  font-size: 0.75rem;
+  color: #32d74b;
+  font-weight: 600;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.price-container {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 16px;
+  margin-top: auto;
+}
+
+.new-price {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #ff453a; /* Rojo oferta */
+  font-family: 'Outfit', sans-serif;
+  letter-spacing: -0.5px;
+}
+
+.old-price {
+  font-size: 0.95rem;
+  color: #888;
+  text-decoration: line-through;
+  font-weight: 500;
+}
+
+/* FOOTER / METRICAS */
+.card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  padding-top: 12px;
+}
+
+.metrics-group {
+  display: flex;
+  gap: 12px;
+}
+
+.metric {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.8rem;
+  color: #aaa;
+  font-weight: 600;
+}
+
+.spark-metric {
+  color: #ffb199;
+}
+
+.spark-metric.hot {
+  color: #ffd700;
+  text-shadow: 0 0 10px rgba(255, 215, 0, 0.4);
+}
+.spark-metric.hot i {
+  animation: pulse 1.5s infinite;
+}
+
+.time-left {
+  font-size: 0.75rem;
+  color: #777;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.text-red-400 {
+  color: #fc8181;
+}
+
+/* SKELETON */
+.skeleton-img,
+.skeleton-text,
+.skeleton-footer {
+  background: linear-gradient(90deg, #181818 25%, #252525 50%, #181818 75%);
+  background-size: 200% 100%;
+  animation: pulse-sk 1.5s infinite ease-in-out;
+}
+.skeleton-img {
+  width: 100%;
+  padding-top: 85%;
+}
+.skeleton-text {
+  height: 14px;
+  border-radius: 6px;
+}
+.skeleton-text.price {
+  height: 30px;
+  border-radius: 8px;
+}
+.skeleton-footer {
+  height: 20px;
+  border-radius: 4px;
+  margin-top: auto;
+}
+.mb-2 {
+  margin-bottom: 8px;
+}
+.mb-4 {
+  margin-bottom: 16px;
+}
+.w-full {
+  width: 100%;
+}
+.w-2\/3 {
+  width: 66.66%;
+}
+.w-1\/2 {
+  width: 50%;
+}
+@keyframes pulse-sk {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}

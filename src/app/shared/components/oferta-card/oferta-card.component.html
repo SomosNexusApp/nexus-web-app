@@ -1,0 +1,73 @@
+@if (isSkeleton) {
+  <div class="nexus-card offer-card skeleton" aria-hidden="true">
+    <div class="skeleton-img"></div>
+    <div class="card-body">
+      <div class="skeleton-text title w-full mb-2"></div>
+      <div class="skeleton-text title w-2/3 mb-4"></div>
+      <div class="price-row mb-4">
+        <div class="skeleton-text price w-1/2"></div>
+      </div>
+      <div class="skeleton-footer"></div>
+    </div>
+  </div>
+} @else {
+  <a [routerLink]="['/oferta', oferta.id]" class="nexus-card offer-card scale-in">
+    <div class="img-wrapper">
+      <img [ngSrc]="coverImage" alt="{{ oferta.titulo }}" fill class="object-cover" />
+      <div class="img-overlay"></div>
+
+      @if (oferta.precioOferta < (oferta.precioOriginal || 0)) {
+        <div class="discount-badge">
+          -{{ oferta.precioOferta | discountPercent: oferta.precioOriginal }}%
+        </div>
+      }
+
+      @if (oferta.badge) {
+        <div class="custom-badge" [ngClass]="oferta.badge.toLowerCase()">
+          {{ oferta.badge.replace('_', ' ') }}
+        </div>
+      }
+
+      <div class="store-badge">
+        @if (oferta.tienda) {
+          <i class="fas" [ngClass]="oferta.esOnline ? 'fa-globe' : 'fa-store'"></i>
+          {{ oferta.tienda }}
+        } @else {
+          <i class="fas fa-user-tag"></i> Particular
+        }
+      </div>
+    </div>
+
+    <div class="card-body">
+      <p class="product-title" [title]="oferta.titulo">{{ oferta.titulo }}</p>
+
+      @if (oferta.codigoDescuento) {
+        <div class="coupon-info"><i class="fas fa-ticket-alt"></i> Con cupón</div>
+      }
+
+      <div class="price-container">
+        <span class="new-price">{{ oferta.precioOferta | currencyEs }}</span>
+        @if (oferta.precioOriginal) {
+          <span class="old-price">{{ oferta.precioOriginal | currencyEs }}</span>
+        }
+      </div>
+
+      <div class="card-footer">
+        <div class="metrics-group">
+          <div class="metric spark-metric" [class.hot]="oferta.sparkCount >= 50">
+            <i class="fas fa-bolt"></i> {{ oferta.sparkCount }}
+          </div>
+          <div class="metric"><i class="far fa-comment"></i> {{ oferta.numeroComentarios }}</div>
+        </div>
+
+        <div class="time-left">
+          @if (oferta.fechaExpiracion) {
+            <i class="far fa-clock text-red-400"></i> {{ oferta.fechaExpiracion | timeAgo }}
+          } @else {
+            <i class="far fa-calendar-alt"></i> {{ oferta.fechaPublicacion | timeAgo }}
+          }
+        </div>
+      </div>
+    </div>
+  </a>
+}

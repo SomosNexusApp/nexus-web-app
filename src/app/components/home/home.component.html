@@ -1,1 +1,33 @@
-<app-hero></app-hero>
+<!-- 1. Hero – slider 3D existente -->
+<app-hero />
+
+<!-- 2. Categorías rápidas – carga inmediata (above the fold) -->
+<app-categorias-rapidas />
+
+<!-- 3. Chollos del día -->
+@defer (on viewport) {
+  <app-chollos-dia />
+} @placeholder (minimum 200ms) {
+  <div style="height: 540px; background: #040408"></div>
+}
+
+<!-- 4. Productos recientes -->
+@defer (on viewport) {
+  <app-productos-recientes />
+} @placeholder (minimum 200ms) {
+  <div style="height: 640px; background: #06060a"></div>
+}
+
+<!-- 5. CTA Registro -->
+@defer (on viewport) {
+  <app-cta-registro />
+} @placeholder (minimum 100ms) {
+  <div style="height: 420px; background: #070710"></div>
+}
+
+<!-- 6. Ofertas por categoría -->
+@defer (on viewport) {
+  <app-ofertas-categoria />
+} @placeholder (minimum 200ms) {
+  <div style="height: 540px; background: #040408"></div>
+}

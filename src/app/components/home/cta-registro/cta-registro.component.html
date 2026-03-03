@@ -1,0 +1,133 @@
+@if (!authStore.isLoggedIn()) {
+  <section class="cta-wrap">
+    <!-- Background geometry -->
+    <div class="bg-grid" aria-hidden="true"></div>
+    <div class="bg-orb orb-a" aria-hidden="true"></div>
+    <div class="bg-orb orb-b" aria-hidden="true"></div>
+
+    <div class="cta-inner">
+      <!-- Trust badges -->
+      <div class="trust-row" role="list">
+        <div class="trust-item" role="listitem">
+          <span class="trust-icon">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.6"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+              <polyline points="9 12 11 14 15 10" />
+            </svg>
+          </span>
+          <span>Pagos seguros</span>
+        </div>
+
+        <div class="trust-sep" aria-hidden="true"></div>
+
+        <div class="trust-item" role="listitem">
+          <span class="trust-icon">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.6"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+            </svg>
+          </span>
+          <span>Chat integrado</span>
+        </div>
+
+        <div class="trust-sep" aria-hidden="true"></div>
+
+        <div class="trust-item" role="listitem">
+          <span class="trust-icon">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.6"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <polyline points="13 2 13 9 20 9" />
+              <polygon points="22 3 13 9 2 22 22 22" />
+            </svg>
+          </span>
+          <span>Publicación rápida</span>
+        </div>
+
+        <div class="trust-sep" aria-hidden="true"></div>
+
+        <div class="trust-item" role="listitem">
+          <span class="trust-icon">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.6"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <circle cx="12" cy="12" r="10" />
+              <path d="M12 8v4l3 3" />
+            </svg>
+          </span>
+          <span>100% gratis</span>
+        </div>
+      </div>
+
+      <!-- Headline -->
+      <h2 class="cta-headline">
+        Vende lo que ya no usas.<br />
+        <span class="headline-accent">Es gratis y tarda 2 minutos.</span>
+      </h2>
+
+      <p class="cta-sub">
+        Únete a miles de personas que compran y venden en Nexus cada día. Sin comisiones ocultas.
+      </p>
+
+      <!-- Actions -->
+      <div class="cta-actions">
+        <button class="btn-primary" (click)="goRegister()">
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+            <circle cx="9" cy="7" r="4" />
+            <line x1="19" y1="8" x2="19" y2="14" />
+            <line x1="22" y1="11" x2="16" y2="11" />
+          </svg>
+          Regístrate gratis
+        </button>
+
+        <button class="btn-ghost" (click)="goLogin()">
+          Ya tengo cuenta
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <line x1="5" y1="12" x2="19" y2="12" />
+            <polyline points="12 5 19 12 12 19" />
+          </svg>
+        </button>
+      </div>
+
+      <p class="cta-legal">Sin tarjeta de crédito · Sin compromisos · GDPR compliant</p>
+    </div>
+  </section>
+}
