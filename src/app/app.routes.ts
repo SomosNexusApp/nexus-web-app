@@ -45,11 +45,11 @@ export const routes: Routes = [
   },
 
   // // Public
-  // {
-  //   path: 'search',
-  //   loadComponent: () =>
-  //     import('./components/search/search.component').then((m) => m.SearchComponent),
-  // },
+  {
+    path: 'search',
+    loadComponent: () =>
+      import('./components/search/search.component').then((m) => m.SearchComponent),
+  },
   // {
   //   path: 'categorias/:slug',
   //   loadComponent: () =>
