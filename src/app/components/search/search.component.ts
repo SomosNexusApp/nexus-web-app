@@ -2,495 +2,488 @@ import {
   Component,
   OnInit,
   OnDestroy,
-  HostListener,
-  ChangeDetectionStrategy,
-  ChangeDetectorRef,
-  ElementRef,
   ViewChild,
+  ElementRef,
+  AfterViewInit,
+  inject,
+  ChangeDetectorRef,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormBuilder, FormGroup } from '@angular/forms';
-import { Router, ActivatedRoute } from '@angular/router';
+import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
-import { Subject, forkJoin, of, combineLatest, BehaviorSubject } from 'rxjs';
-import {
-  debounceTime,
-  distinctUntilChanged,
-  switchMap,
-  takeUntil,
-  catchError,
-  tap,
-  map,
-} from 'rxjs/operators';
+import { Subject, Subscription } from 'rxjs';
+import { debounceTime, distinctUntilChanged, takeUntil, catchError } from 'rxjs/operators';
 
-/* ─────────────────────────────── models ─────────────────────────────── */
-export type ResultType = 'TODOS' | 'PRODUCTO' | 'OFERTA' | 'VEHICULO';
-export type OrderBy = 'relevancia' | 'reciente' | 'precio_asc' | 'precio_desc' | 'valorado';
-
-export interface SearchResult {
-  id: number;
-  tipo: 'PRODUCTO' | 'OFERTA' | 'VEHICULO';
-  titulo: string;
-  precio?: number;
-  precioOriginal?: number;
-  imagenPrincipal?: string;
-  descripcion?: string;
-  tipoOferta?: string;
-  sparkScore?: number;
-  badge?: string;
-  estadoProducto?: string;
-  marca?: string;
-  modelo?: string;
-  anio?: number;
-  km?: number;
-  fechaPublicacion?: string;
-  descuento?: number;
-  ciudad?: string;
-}
-
-const API = '/api';
+import { SearchService, SearchParams, SearchResultItem } from '../../core/services/search.service';
+import { ProductoCardComponent } from '../../shared/components/producto-card/producto-card.component';
+import { OfertaCardComponent } from '../../shared/components/oferta-card/oferta-card.component';
+import { Categoria } from '../../models/categoria.model';
+import { environment } from '../../../environments/enviroment';
 
 @Component({
   selector: 'app-search',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    RouterModule,
+    ProductoCardComponent,
+    OfertaCardComponent,
+  ],
   templateUrl: './search.component.html',
   styleUrls: ['./search.component.css'],
-  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class SearchComponent implements OnInit, OnDestroy {
-  @ViewChild('sentinel') sentinel!: ElementRef;
+export class SearchComponent implements OnInit, AfterViewInit, OnDestroy {
+  // --- INYECCIÓN DE DEPENDENCIAS ---
+  private fb = inject(FormBuilder);
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
+  private searchService = inject(SearchService);
+  private http = inject(HttpClient);
+  private cdr = inject(ChangeDetectorRef); // Fundamental para evitar el error NG0100
 
-  /* ── state ── */
-  form!: FormGroup;
-  results: SearchResult[] = [];
-  totalResults = 0;
-  isLoading = false;
-  isLoadingMore = false;
-  showMobileFilters = false;
-  activeType: ResultType = 'TODOS';
-  marcas: string[] = [];
-  categorias: any[] = [];
+  // --- FORMULARIO Y ESTADOS ---
+  filterForm!: FormGroup;
 
-  currentPage = 0;
-  pageSize = 20;
-  hasMore = true;
-  searchTerm = '';
+  // Estado de resultados de búsqueda
+  resultados: SearchResultItem[] = [];
+  cargando = true;
+  cargandoMas = false;
+  totalResultados = 0;
+  busquedaRealizada = false;
 
+  // Paginación y Scroll Infinito
+  paginaActual = 0;
+  sizePorPagina = 20;
+  hayMasResultados = true;
+  @ViewChild('scrollAnchor') scrollAnchor!: ElementRef;
+  private observer!: IntersectionObserver;
+
+  // Estado UI
+  isMobileFiltersOpen = false;
+  esBusquedaVehiculo = false;
+  obteniendoUbicacion = false; // Para mostrar un spinner en el botón "Cerca de mí"
+
+  // Control de suscripciones (Memory Leak Prevention)
   private destroy$ = new Subject<void>();
-  private trigger$ = new BehaviorSubject<{ reset: boolean }>({ reset: true });
-  private observer?: IntersectionObserver;
+  private formSub!: Subscription;
 
-  readonly orderOptions: { value: OrderBy; label: string }[] = [
-    { value: 'relevancia', label: 'Relevancia' },
-    { value: 'reciente', label: 'Más reciente' },
-    { value: 'precio_asc', label: 'Precio ascendente' },
-    { value: 'precio_desc', label: 'Precio descendente' },
-    { value: 'valorado', label: 'Más valorado' },
-  ];
+  // Listas de datos dinámicos (APIs)
+  sugerenciasUbicacion: string[] = [];
+  mostrandoSugerenciasUbi = false;
+  marcasDisponibles: string[] = [];
+  modelosDisponibles: string[] = [];
+  categoriasDisponibles: Categoria[] = [];
 
-  readonly condiciones = [
-    { value: 'NUEVO', label: 'Nuevo' },
-    { value: 'COMO_NUEVO', label: 'Como nuevo' },
-    { value: 'MUY_BUEN_ESTADO', label: 'Muy buen estado' },
-    { value: 'BUEN_ESTADO', label: 'Buen estado' },
-    { value: 'ACEPTABLE', label: 'Aceptable' },
-  ];
+  // --- CICLO DE VIDA ---
 
-  readonly tiposVehiculo = ['COCHE', 'MOTO', 'FURGONETA', 'SCOOTER'];
-  readonly combustibles = ['GASOLINA', 'DIESEL', 'ELECTRICO', 'HIBRIDO'];
-  readonly cambios = ['MANUAL', 'AUTOMATICO'];
-
-  constructor(
-    private fb: FormBuilder,
-    private router: Router,
-    private route: ActivatedRoute,
-    private http: HttpClient,
-    private cdr: ChangeDetectorRef,
-  ) {}
-
-  /* ─────────────────────────── lifecycle ─────────────────────────── */
   ngOnInit(): void {
-    this.buildForm();
-    this.loadMarcas();
-    this.loadCategorias();
-
-    /* Init form from URL */
-    this.route.queryParams.pipe(takeUntil(this.destroy$)).subscribe((params) => {
-      this.searchTerm = params['q'] ?? '';
-      this.activeType = (params['tipo'] as ResultType) ?? 'TODOS';
-      this.patchFormFromParams(params);
-      this.resetAndSearch();
-    });
-
-    /* Watch form changes → update URL */
-    this.form.valueChanges
-      .pipe(
-        debounceTime(400),
-        distinctUntilChanged((a, b) => JSON.stringify(a) === JSON.stringify(b)),
-        takeUntil(this.destroy$),
-      )
-      .subscribe(() => this.syncUrl());
-
-    /* Actual search trigger */
-    this.trigger$
-      .pipe(
-        switchMap(({ reset }) => {
-          if (reset) {
-            this.currentPage = 0;
-            this.results = [];
-            this.hasMore = true;
-          }
-          this.isLoading = reset;
-          this.isLoadingMore = !reset;
-          this.cdr.markForCheck();
-          return this.fetchResults(this.currentPage);
-        }),
-        takeUntil(this.destroy$),
-      )
-      .subscribe((res) => {
-        if (res.reset) {
-          this.results = res.items;
-        } else {
-          this.results = [...this.results, ...res.items];
-        }
-        this.totalResults = res.total;
-        this.hasMore = this.results.length < res.total;
-        this.isLoading = false;
-        this.isLoadingMore = false;
-        this.cdr.markForCheck();
-        if (this.hasMore) this.setupIntersection();
-      });
+    this.initForm();
+    this.cargarCategorias();
+    this.cargarMarcas();
+    this.escucharCambiosURL();
+    this.escucharAutocompletados();
   }
 
-  ngAfterViewInit() {
-    this.setupIntersection();
+  ngAfterViewInit(): void {
+    this.setupIntersectionObserver();
   }
 
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
-    this.observer?.disconnect();
+    if (this.observer) this.observer.disconnect();
   }
 
-  /* ─────────────────────────── form build ─────────────────────────── */
-  private buildForm(): void {
-    this.form = this.fb.group({
+  // --- 1. INICIALIZACIÓN Y CONFIGURACIÓN ---
+
+  private initForm(): void {
+    this.filterForm = this.fb.group({
       q: [''],
       tipo: ['TODOS'],
-      ordenarPor: ['relevancia'],
-      precioMin: [null],
-      precioMax: [null],
-      condicion: [null],
+      categoria: [''],
+      precioMin: [''],
+      precioMax: [''],
+      condicion: [''],
       ubicacion: [''],
       conEnvio: [false],
-      categoria: [null],
-      // vehicle
-      tipoVehiculo: [null],
-      combustible: [null],
-      marca: [null],
-      anioMin: [null],
-      anioMax: [null],
-      kmMax: [null],
-      cambio: [null],
+      orden: ['relevancia'],
+
+      // --- FILTROS COMPLETOS DE VEHÍCULOS ---
+      marca: [''],
+      modelo: [''],
+      anioMin: [''],
+      anioMax: [''],
+      kmMax: [''],
+      combustible: [''],
+      cambio: [''],
+      potenciaMin: [''],
+      cilindradaMin: [''],
+      color: [''],
+      numeroPuertas: [''],
+      plazas: [''],
+      garantia: [false],
+      itv: [false],
+    });
+
+    // Detectar si el usuario cambia el tipo manualmente a VEHICULO para mostrar los filtros de motor
+    this.filterForm
+      .get('tipo')
+      ?.valueChanges.pipe(takeUntil(this.destroy$))
+      .subscribe((tipo) => {
+        this.esBusquedaVehiculo = tipo === 'VEHICULO';
+        // Si sale de la pestaña vehículos, podríamos limpiar los campos de motor para no enviar basura en la URL
+        if (!this.esBusquedaVehiculo) {
+          this.limpiarFiltrosMotor();
+        }
+        this.cdr.detectChanges(); // Previene NG0100
+      });
+
+    // Escuchar cualquier cambio en el formulario y sincronizar con la URL
+    this.formSub = this.filterForm.valueChanges
+      .pipe(
+        debounceTime(600), // Esperamos a que el usuario termine de escribir o mover el slider
+        distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)),
+        takeUntil(this.destroy$),
+      )
+      .subscribe((valores) => {
+        this.actualizarURL(valores);
+      });
+  }
+
+  // --- 2. CARGA DE DATOS ESTÁTICOS / API EXTERNA ---
+
+  private cargarCategorias(): void {
+    this.http
+      .get<Categoria[]>(`${environment.apiUrl}/categorias`)
+      .pipe(
+        takeUntil(this.destroy$),
+        catchError(() => []),
+      )
+      .subscribe((categorias) => {
+        this.categoriasDisponibles = categorias;
+        this.cdr.detectChanges();
+      });
+  }
+
+  private cargarMarcas(): void {
+    this.searchService
+      .getMarcasVehiculos()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((marcas) => {
+        this.marcasDisponibles = marcas;
+        this.cdr.detectChanges();
+      });
+  }
+
+  private cargarModelos(marca: string): void {
+    if (!marca) {
+      this.modelosDisponibles = [];
+      this.cdr.detectChanges();
+      return;
+    }
+    this.searchService
+      .getModelosPorMarca(marca)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((modelos) => {
+        this.modelosDisponibles = modelos;
+        this.cdr.detectChanges();
+      });
+  }
+
+  // --- 3. SINCRONIZACIÓN CON LA URL ---
+
+  private escucharCambiosURL(): void {
+    this.route.queryParams.pipe(takeUntil(this.destroy$)).subscribe((params) => {
+      // 1. Desactivamos la escucha del formulario temporalmente para no crear un bucle infinito
+      if (this.formSub) this.formSub.unsubscribe();
+
+      // 2. Comprobar si estamos en modo Vehículo por URL explícita
+      this.esBusquedaVehiculo =
+        params['tipo'] === 'VEHICULO' || this.router.url.includes('vehiculos');
+
+      // 3. Volcar los parámetros de la URL al formulario (conversión segura)
+      this.filterForm.patchValue(
+        {
+          q: params['q'] || '',
+          tipo: params['tipo'] || 'TODOS',
+          categoria: params['categoria'] ? Number(params['categoria']) : '',
+          precioMin: params['precioMin'] || '',
+          precioMax: params['precioMax'] || '',
+          condicion: params['condicion'] || '',
+          ubicacion: params['ubicacion'] || '',
+          conEnvio: params['conEnvio'] === 'true',
+          orden: params['orden'] || 'relevancia',
+
+          // Vehículos
+          marca: params['marca'] || '',
+          modelo: params['modelo'] || '',
+          anioMin: params['anioMin'] || '',
+          anioMax: params['anioMax'] || '',
+          kmMax: params['kmMax'] || '',
+          combustible: params['combustible'] || '',
+          cambio: params['cambio'] || '',
+          potenciaMin: params['potenciaMin'] || '',
+          cilindradaMin: params['cilindradaMin'] || '',
+          color: params['color'] || '',
+          numeroPuertas: params['numeroPuertas'] || '',
+          plazas: params['plazas'] || '',
+          garantia: params['garantia'] === 'true',
+          itv: params['itv'] === 'true',
+        },
+        { emitEvent: false },
+      ); // ¡Clave! emitEvent: false evita que se dispare valueChanges
+
+      // Si la URL traía marca, necesitamos cargar dinámicamente sus modelos
+      if (params['marca']) {
+        this.cargarModelos(params['marca']);
+      }
+
+      // 4. Reactivamos la escucha del formulario
+      this.formSub = this.filterForm.valueChanges
+        .pipe(
+          debounceTime(600),
+          distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)),
+          takeUntil(this.destroy$),
+        )
+        .subscribe((valores) => this.actualizarURL(valores));
+
+      // 5. Ejecutamos la búsqueda basada en la URL que acaba de cargar
+      this.realizarBusqueda(true);
     });
   }
 
-  private patchFormFromParams(p: any): void {
-    this.form.patchValue(
-      {
-        q: p['q'] ?? '',
-        tipo: p['tipo'] ?? 'TODOS',
-        ordenarPor: p['ordenarPor'] ?? 'relevancia',
-        precioMin: p['precioMin'] ? +p['precioMin'] : null,
-        precioMax: p['precioMax'] ? +p['precioMax'] : null,
-        condicion: p['condicion'] ?? null,
-        ubicacion: p['ubicacion'] ?? '',
-        conEnvio: p['conEnvio'] === 'true',
-        categoria: p['categoria'] ?? null,
-        tipoVehiculo: p['tipoVehiculo'] ?? null,
-        combustible: p['combustible'] ?? null,
-        marca: p['marca'] ?? null,
-        anioMin: p['anioMin'] ? +p['anioMin'] : null,
-        anioMax: p['anioMax'] ? +p['anioMax'] : null,
-        kmMax: p['kmMax'] ? +p['kmMax'] : null,
-        cambio: p['cambio'] ?? null,
-      },
-      { emitEvent: false },
-    );
-    this.activeType = (p['tipo'] as ResultType) ?? 'TODOS';
-  }
+  private actualizarURL(valoresFormulario: any): void {
+    const queryParams: any = {};
 
-  /* ─────────────────────────── url sync ─────────────────────────── */
-  private syncUrl(): void {
-    const v = this.form.value;
-    const qp: any = {};
-    Object.entries(v).forEach(([k, val]) => {
-      if (val !== null && val !== '' && val !== false) qp[k] = val;
+    // Limpieza de parámetros vacíos, nulos o falsos para mantener la URL limpia
+    Object.keys(valoresFormulario).forEach((key) => {
+      const value = valoresFormulario[key];
+      if (value !== null && value !== undefined && value !== '' && value !== false) {
+        queryParams[key] = value;
+      }
     });
-    this.router.navigate([], { queryParams: qp, replaceUrl: true });
+
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: queryParams,
+      queryParamsHandling: 'merge', // Respeta parámetros extra que pudiera haber
+      replaceUrl: false, // true = no guarda en el historial de navegación. false es mejor para buscadores.
+    });
   }
 
-  /* ─────────────────────────── fetch logic ─────────────────────────── */
-  private fetchResults(page: number) {
-    const v = this.form.value;
-    const tipo: ResultType = v.tipo ?? 'TODOS';
-    const reset = page === 0;
+  // --- 4. LÓGICA CORE DE BÚSQUEDA ---
 
-    const prodParams: any = { pagina: page, tamano: this.pageSize };
-    const ofertaParams: any = { pagina: page, tamañoPagina: this.pageSize };
-    const vehParams: any = { pagina: page, tamano: this.pageSize };
-
-    if (v.q) {
-      prodParams.busqueda = v.q;
-      ofertaParams.busqueda = v.q;
-      vehParams.q = v.q;
-    }
-    if (v.precioMin) {
-      prodParams.precioMin = v.precioMin;
-      ofertaParams.precioMin = v.precioMin;
-      vehParams.precioMin = v.precioMin;
-    }
-    if (v.precioMax) {
-      prodParams.precioMax = v.precioMax;
-      ofertaParams.precioMax = v.precioMax;
-      vehParams.precioMax = v.precioMax;
-    }
-    if (v.categoria) {
-      ofertaParams.categoria = v.categoria;
-    }
-    if (v.tipoVehiculo) {
-      vehParams.tipo = v.tipoVehiculo;
-    }
-    if (v.combustible) {
-      vehParams.combustible = v.combustible;
-    }
-    if (v.marca) {
-      vehParams.marca = v.marca;
-    }
-    if (v.anioMin) {
-      vehParams.anioMin = v.anioMin;
-    }
-    if (v.kmMax) {
-      vehParams.kmMax = v.kmMax;
-    }
-
-    const prod$ = this.http
-      .get<any>(`${API}/producto/filtrar`, { params: prodParams })
-      .pipe(catchError(() => of({ contenido: [], totalElementos: 0 })));
-    const oferta$ = this.http
-      .get<any>(`${API}/oferta/filtrar`, { params: ofertaParams })
-      .pipe(catchError(() => of({ ofertas: [], totalElementos: 0 })));
-    const veh$ = this.http
-      .get<any>(`${API}/vehiculo/filtrar`, { params: vehParams })
-      .pipe(catchError(() => of({ contenido: [], totalElementos: 0 })));
-
-    let combined$;
-
-    if (tipo === 'PRODUCTO') {
-      combined$ = prod$.pipe(
-        map((r) => ({
-          items: this.mapProductos(r.contenido ?? []),
-          total: r.totalElementos ?? 0,
-          reset,
-        })),
-      );
-    } else if (tipo === 'OFERTA') {
-      combined$ = oferta$.pipe(
-        map((r) => ({
-          items: this.mapOfertas(r.ofertas ?? []),
-          total: r.totalElementos ?? 0,
-          reset,
-        })),
-      );
-    } else if (tipo === 'VEHICULO') {
-      combined$ = veh$.pipe(
-        map((r) => ({
-          items: this.mapVehiculos(r.contenido ?? []),
-          total: r.totalElementos ?? 0,
-          reset,
-        })),
-      );
+  private realizarBusqueda(reiniciarPaginacion: boolean = false): void {
+    if (reiniciarPaginacion) {
+      this.cargando = true;
+      this.paginaActual = 0;
+      this.resultados = [];
+      this.hayMasResultados = true;
+      this.cdr.detectChanges(); // Previene NG0100
     } else {
-      combined$ = forkJoin([prod$, oferta$, veh$]).pipe(
-        map(([p, o, v]) => {
-          const all = [
-            ...this.mapProductos(p.contenido ?? []),
-            ...this.mapOfertas(o.ofertas ?? []),
-            ...this.mapVehiculos(v.contenido ?? []),
-          ].sort((a, b) => {
-            const da = a.fechaPublicacion ? new Date(a.fechaPublicacion).getTime() : 0;
-            const db = b.fechaPublicacion ? new Date(b.fechaPublicacion).getTime() : 0;
-            return db - da;
-          });
-          const total = (p.totalElementos ?? 0) + (o.totalElementos ?? 0) + (v.totalElementos ?? 0);
-          return { items: all, total, reset };
-        }),
-      );
+      this.cargandoMas = true;
     }
 
-    return combined$;
-  }
+    const params: SearchParams = {
+      ...this.filterForm.value,
+      page: this.paginaActual,
+      size: this.sizePorPagina,
+    };
 
-  /* ─────────────────── mappers ─────────────────── */
-  private mapProductos(arr: any[]): SearchResult[] {
-    return (arr ?? []).map((p) => ({
-      id: p.id,
-      tipo: 'PRODUCTO' as const,
-      titulo: p.titulo,
-      precio: p.precio,
-      imagenPrincipal: p.imagenPrincipal,
-      descripcion: p.descripcion,
-      estadoProducto: p.estadoProducto,
-      tipoOferta: p.tipoOferta,
-      fechaPublicacion: p.fechaPublicacion,
-      ciudad: p.ubicacion,
-    }));
-  }
+    this.searchService
+      .buscar(params)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (nuevosResultados) => {
+          // Si el backend devuelve menos del tamaño de página, ya no hay más resultados en BD
+          if (nuevosResultados.length < this.sizePorPagina) {
+            this.hayMasResultados = false;
+          }
 
-  private mapOfertas(arr: any[]): SearchResult[] {
-    return (arr ?? []).map((o) => ({
-      id: o.id,
-      tipo: 'OFERTA' as const,
-      titulo: o.titulo,
-      precio: o.precioOferta,
-      precioOriginal: o.precioOriginal,
-      imagenPrincipal: o.imagenPrincipal,
-      descripcion: o.descripcion,
-      sparkScore: o.sparkScore,
-      badge: o.badge,
-      fechaPublicacion: o.fechaPublicacion,
-      descuento:
-        o.precioOriginal && o.precioOferta
-          ? Math.round((1 - o.precioOferta / o.precioOriginal) * 100)
-          : undefined,
-    }));
-  }
+          if (reiniciarPaginacion) {
+            this.resultados = nuevosResultados;
+          } else {
+            // Concatena los resultados nuevos a los existentes (Scroll infinito)
+            this.resultados = [...this.resultados, ...nuevosResultados];
+          }
 
-  private mapVehiculos(arr: any[]): SearchResult[] {
-    return (arr ?? []).map((v) => ({
-      id: v.id,
-      tipo: 'VEHICULO' as const,
-      titulo: `${v.marca ?? ''} ${v.modelo ?? ''}`.trim() || v.titulo,
-      precio: v.precio,
-      imagenPrincipal: v.imagenPrincipal,
-      descripcion: v.descripcion,
-      marca: v.marca,
-      modelo: v.modelo,
-      anio: v.anio,
-      km: v.km,
-      fechaPublicacion: v.fechaPublicacion,
-    }));
-  }
+          this.totalResultados = this.resultados.length;
+          this.cargando = false;
+          this.cargandoMas = false;
+          this.busquedaRealizada = true;
 
-  /* ─────────────────── actions ─────────────────── */
-  setType(t: string): void {
-    this.activeType = t as ResultType;
-    this.form.patchValue({ tipo: t });
-    this.resetAndSearch();
-  }
-
-  resetAndSearch(): void {
-    this.trigger$.next({ reset: true });
-  }
-
-  loadMore(): void {
-    if (this.isLoadingMore || !this.hasMore) return;
-    this.currentPage++;
-    this.isLoadingMore = true;
-    this.fetchResults(this.currentPage).subscribe((res) => {
-      this.results = [...this.results, ...res.items];
-      this.isLoadingMore = false;
-      this.hasMore = this.results.length < res.total;
-      this.cdr.markForCheck();
-      if (this.hasMore) this.setupIntersection();
-    });
-  }
-
-  private loadMarcas(): void {
-    this.http
-      .get<string[]>(`${API}/vehiculo/marcas`)
-      .pipe(
-        catchError(() => of([])),
-        takeUntil(this.destroy$),
-      )
-      .subscribe((m) => {
-        this.marcas = m;
-        this.cdr.markForCheck();
+          this.cdr.detectChanges(); // Sincroniza la vista con los nuevos datos de forma segura
+        },
+        error: (err) => {
+          console.error('Error al realizar la búsqueda:', err);
+          this.cargando = false;
+          this.cargandoMas = false;
+          this.cdr.detectChanges();
+        },
       });
   }
 
-  private loadCategorias(): void {
-    this.http
-      .get<any[]>(`${API}/categorias`)
-      .pipe(
-        catchError(() => of([])),
-        takeUntil(this.destroy$),
-      )
-      .subscribe((c) => {
-        this.categorias = c;
-        this.cdr.markForCheck();
+  // --- 5. INTERSECTION OBSERVER (Scroll Infinito Nativo) ---
+
+  private setupIntersectionObserver(): void {
+    const options = {
+      root: null,
+      rootMargin: '150px', // Empieza a cargar 150px antes de llegar al pie de página (UX Fluida)
+      threshold: 0,
+    };
+
+    this.observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting && !this.cargando && !this.cargandoMas && this.hayMasResultados) {
+        this.paginaActual++;
+        this.realizarBusqueda(false); // false = es una página nueva, no reiniciar
+      }
+    }, options);
+
+    if (this.scrollAnchor) {
+      this.observer.observe(this.scrollAnchor.nativeElement);
+    }
+  }
+
+  // --- 6. AUTOCOMPLETADOS Y GEOLOCALIZACIÓN PREMIUM ---
+
+  private escucharAutocompletados(): void {
+    // Escucha el input de ubicación para llamar a Nominatim/OSM
+    this.filterForm
+      .get('ubicacion')
+      ?.valueChanges.pipe(debounceTime(400), distinctUntilChanged(), takeUntil(this.destroy$))
+      .subscribe((query) => {
+        if (query && query.length > 2 && !this.obteniendoUbicacion) {
+          this.searchService.buscarUbicacionExterna(query).subscribe((sugerencias) => {
+            this.sugerenciasUbicacion = sugerencias;
+            this.mostrandoSugerenciasUbi = sugerencias.length > 0;
+            this.cdr.detectChanges();
+          });
+        } else {
+          this.sugerenciasUbicacion = [];
+          this.mostrandoSugerenciasUbi = false;
+          this.cdr.detectChanges();
+        }
+      });
+
+    // Cargar modelos automáticamente si el usuario cambia la marca de vehículo
+    this.filterForm
+      .get('marca')
+      ?.valueChanges.pipe(distinctUntilChanged(), takeUntil(this.destroy$))
+      .subscribe((marca) => {
+        this.filterForm.patchValue({ modelo: '' }, { emitEvent: false });
+        if (marca) {
+          this.cargarModelos(marca);
+        } else {
+          this.modelosDisponibles = [];
+          this.cdr.detectChanges();
+        }
       });
   }
 
-  useGeolocation(): void {
-    if (!navigator.geolocation) return;
-    navigator.geolocation.getCurrentPosition((pos) => {
-      this.form.patchValue({ ubicacion: `${pos.coords.latitude},${pos.coords.longitude}` });
-    });
+  seleccionarUbicacion(ubicacion: string): void {
+    this.filterForm.patchValue({ ubicacion });
+    this.mostrandoSugerenciasUbi = false;
+    this.cdr.detectChanges();
   }
 
-  clearFilters(): void {
-    this.form.reset({ tipo: this.activeType, ordenarPor: 'relevancia', conEnvio: false });
-    this.resetAndSearch();
+  /**
+   * FUNCIONALIDAD PREMIUM: "Cerca de mí".
+   * Usa HTML5 Geolocation API y geocodificación inversa (Reverse Geocoding)
+   */
+  usarUbicacionActual(): void {
+    if (!navigator.geolocation) {
+      alert('Tu navegador no soporta geolocalización.');
+      return;
+    }
+
+    this.obteniendoUbicacion = true;
+    this.mostrandoSugerenciasUbi = false;
+    this.cdr.detectChanges();
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const lat = position.coords.latitude;
+        const lon = position.coords.longitude;
+
+        // Geocodificación Inversa usando Nominatim (Gratuito y sin API Key)
+        const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=10&addressdetails=1`;
+
+        this.http.get<any>(url).subscribe({
+          next: (res) => {
+            if (res && res.address) {
+              const ciudad =
+                res.address.city ||
+                res.address.town ||
+                res.address.village ||
+                res.address.county ||
+                'Tu ubicación';
+              this.filterForm.patchValue({ ubicacion: ciudad });
+            }
+            this.obteniendoUbicacion = false;
+            this.cdr.detectChanges();
+          },
+          error: () => {
+            this.obteniendoUbicacion = false;
+            // Fallback si falla la geocodificación
+            alert('No se pudo resolver el nombre de tu ciudad.');
+            this.cdr.detectChanges();
+          },
+        });
+      },
+      (error) => {
+        console.warn('Error obteniendo geolocalización:', error);
+        this.obteniendoUbicacion = false;
+        if (error.code === 1) alert('Debes dar permisos de ubicación a tu navegador.');
+        this.cdr.detectChanges();
+      },
+      { enableHighAccuracy: false, timeout: 10000, maximumAge: 60000 },
+    );
+  }
+
+  // --- 7. UTILIDADES DE LA UI ---
+
+  limpiarFiltros(): void {
+    this.filterForm.reset({
+      q: this.filterForm.get('q')?.value, // Mantenemos la palabra clave de búsqueda
+      tipo: 'TODOS',
+      conEnvio: false,
+      garantia: false,
+      itv: false,
+      orden: 'relevancia',
+    });
+    this.modelosDisponibles = [];
+    this.cdr.detectChanges();
+  }
+
+  limpiarFiltrosMotor(): void {
+    this.filterForm.patchValue({
+      marca: '',
+      modelo: '',
+      anioMin: '',
+      anioMax: '',
+      kmMax: '',
+      combustible: '',
+      cambio: '',
+      potenciaMin: '',
+      cilindradaMin: '',
+      color: '',
+      numeroPuertas: '',
+      plazas: '',
+      garantia: false,
+      itv: false,
+    });
   }
 
   toggleMobileFilters(): void {
-    this.showMobileFilters = !this.showMobileFilters;
-    this.cdr.markForCheck();
-  }
-
-  trackById(_: number, item: SearchResult): number {
-    return item.id;
-  }
-
-  get showVehicleFilters(): boolean {
-    return this.activeType === 'VEHICULO' || this.form.value.categoria === 'vehiculos';
-  }
-
-  get skeletonArray(): number[] {
-    return Array.from({ length: 12 });
-  }
-
-  /* ─────────────────── intersection observer ─────────────────── */
-  private setupIntersection(): void {
-    this.observer?.disconnect();
-    setTimeout(() => {
-      if (!this.sentinel?.nativeElement) return;
-      this.observer = new IntersectionObserver(
-        (entries) => {
-          if (entries[0].isIntersecting) {
-            this.observer?.disconnect();
-            this.loadMore();
-          }
-        },
-        { threshold: 0.1 },
-      );
-      this.observer.observe(this.sentinel.nativeElement);
-    }, 300);
-  }
-
-  formatPrice(n?: number): string {
-    if (n == null) return '—';
-    return new Intl.NumberFormat('es-ES', {
-      style: 'currency',
-      currency: 'EUR',
-      maximumFractionDigits: 0,
-    }).format(n);
-  }
-
-  formatKm(n?: number): string {
-    if (n == null) return '';
-    return new Intl.NumberFormat('es-ES').format(n) + ' km';
+    this.isMobileFiltersOpen = !this.isMobileFiltersOpen;
+    // Previene el scroll del body principal cuando el modal de filtros está abierto en móvil
+    if (this.isMobileFiltersOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    this.cdr.detectChanges();
   }
 }

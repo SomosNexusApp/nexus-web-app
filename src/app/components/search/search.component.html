@@ -1,477 +1,450 @@
-<div class="search-root" [class.filters-open]="showMobileFilters">
-  <!-- ══════════════════════ MOBILE FILTER BACKDROP ══════════════════════ -->
-  <div class="backdrop" [class.visible]="showMobileFilters" (click)="toggleMobileFilters()"></div>
+<div class="nx-search-wrapper">
+  <div class="nx-mobile-glass-header">
+    <div class="nx-mobile-header-info">
+      <h1 class="nx-mobile-title">
+        @if (filterForm.get('q')?.value) {
+          "{{ filterForm.get('q')?.value }}"
+        } @else {
+          Explorando {{ esBusquedaVehiculo ? 'Motor' : 'Catálogo' }}
+        }
+      </h1>
+      <span class="nx-mobile-results-badge">{{ totalResultados }} resultados</span>
+    </div>
 
-  <!-- ══════════════════════ SIDEBAR ══════════════════════ -->
-  <aside class="sidebar" [class.mobile-open]="showMobileFilters" [formGroup]="form">
-    <div class="sidebar-header">
-      <span class="sidebar-title">
-        <svg viewBox="0 0 24 24" class="icon">
-          <path d="M3 4h18v2.586l-7 7V19l-4 2v-7.414l-7-7V4z" />
-        </svg>
-        Filtros
-      </span>
-      <button class="btn-ghost btn-sm" (click)="clearFilters()">Limpiar</button>
+    <button class="nx-btn-icon-glass" (click)="toggleMobileFilters()" aria-label="Abrir filtros">
+      <i class="icon-sliders"></i>
+      <span>Filtros</span>
+    </button>
+  </div>
+
+  @if (isMobileFiltersOpen) {
+    <div class="nx-glass-overlay" (click)="toggleMobileFilters()"></div>
+  }
+
+  <aside class="nx-sidebar-glass" [class.nx-sidebar-open]="isMobileFiltersOpen">
+    <div class="nx-sidebar-header">
+      <div class="nx-sidebar-brand">
+        <i class="icon-filter"></i>
+        <h2>Filtros de búsqueda</h2>
+      </div>
       <button
-        class="btn-ghost btn-icon mobile-close"
+        class="nx-btn-close-glass"
         (click)="toggleMobileFilters()"
         aria-label="Cerrar filtros"
       >
-        <svg viewBox="0 0 24 24" class="icon"><path d="M18 6L6 18M6 6l12 12" /></svg>
+        <i class="icon-x"></i>
       </button>
     </div>
 
-    <!-- TYPE TABS -->
-    <div class="filter-section">
-      <label class="filter-label">Tipo de resultado</label>
-      <div class="type-grid">
-        <button
-          *ngFor="
-            let t of [
-              ['TODOS', 'Todos'],
-              ['PRODUCTO', 'Productos'],
-              ['OFERTA', 'Chollos'],
-              ['VEHICULO', 'Vehículos'],
-            ]
-          "
-          class="type-btn"
-          [class.active]="activeType === t[0]"
-          (click)="setType(t[0])"
-        >
-          <!-- icon -->
-          <svg *ngIf="t[0] === 'TODOS'" viewBox="0 0 24 24" class="icon">
-            <rect x="3" y="3" width="8" height="8" rx="1" />
-            <rect x="13" y="3" width="8" height="8" rx="1" />
-            <rect x="3" y="13" width="8" height="8" rx="1" />
-            <rect x="13" y="13" width="8" height="8" rx="1" />
-          </svg>
-          <svg *ngIf="t[0] === 'PRODUCTO'" viewBox="0 0 24 24" class="icon">
-            <path d="M6 2l1.5 4.5h9L18 2M3 7h18l-1.5 13H4.5L3 7z" />
-          </svg>
-          <svg *ngIf="t[0] === 'OFERTA'" viewBox="0 0 24 24" class="icon">
-            <path
-              d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"
+    <div class="nx-sidebar-scroll-container">
+      <form [formGroup]="filterForm" class="nx-filter-form">
+        <div class="nx-form-group">
+          <label class="nx-form-label">¿Qué estás buscando?</label>
+          <div class="nx-segmented-control">
+            <label class="nx-segment-item">
+              <input type="radio" formControlName="tipo" value="TODOS" />
+              <div class="nx-segment-btn"><i class="icon-globe"></i> Todo</div>
+            </label>
+            <label class="nx-segment-item">
+              <input type="radio" formControlName="tipo" value="PRODUCTO" />
+              <div class="nx-segment-btn"><i class="icon-box"></i> Productos</div>
+            </label>
+            <label class="nx-segment-item">
+              <input type="radio" formControlName="tipo" value="OFERTA" />
+              <div class="nx-segment-btn"><i class="icon-zap"></i> Chollos</div>
+            </label>
+            <label class="nx-segment-item">
+              <input type="radio" formControlName="tipo" value="VEHICULO" />
+              <div class="nx-segment-btn"><i class="icon-car"></i> Motor</div>
+            </label>
+          </div>
+        </div>
+
+        <div class="nx-form-group nx-relative">
+          <label class="nx-form-label">Ubicación</label>
+          <div class="nx-input-with-icon">
+            <i class="icon-map-pin nx-icon-left"></i>
+            <input
+              type="text"
+              formControlName="ubicacion"
+              class="nx-dark-input"
+              placeholder="Ciudad, provincia, código postal..."
+              autocomplete="off"
             />
-          </svg>
-          <svg *ngIf="t[0] === 'VEHICULO'" viewBox="0 0 24 24" class="icon">
-            <path
-              d="M5 17H3a2 2 0 01-2-2V9l3-5h14l3 5v6a2 2 0 01-2 2h-2m-8 0h6M7 17a2 2 0 100 4 2 2 0 000-4zm10 0a2 2 0 100 4 2 2 0 000-4z"
+
+            <button
+              type="button"
+              class="nx-btn-locate"
+              (click)="usarUbicacionActual()"
+              title="Usar mi ubicación actual"
+            >
+              @if (obteniendoUbicacion) {
+                <i class="icon-loader nx-spin"></i>
+              } @else {
+                <i class="icon-crosshair"></i>
+              }
+            </button>
+          </div>
+
+          @if (mostrandoSugerenciasUbi && sugerenciasUbicacion.length > 0) {
+            <div class="nx-autocomplete-dropdown">
+              <ul class="nx-dropdown-list">
+                @for (sug of sugerenciasUbicacion; track $index) {
+                  <li class="nx-dropdown-item" (click)="seleccionarUbicacion(sug)">
+                    <i class="icon-map"></i>
+                    <span>{{ sug }}</span>
+                  </li>
+                }
+              </ul>
+            </div>
+          }
+        </div>
+
+        <hr class="nx-divider-subtle" />
+
+        <div class="nx-form-group">
+          <label class="nx-form-label">Categoría</label>
+          <div class="nx-select-wrapper">
+            <i class="icon-layers nx-icon-left"></i>
+            <select formControlName="categoria" class="nx-dark-select">
+              <option value="">Cualquier categoría</option>
+              @for (cat of categoriasDisponibles; track $index) {
+                <option [value]="cat.id">{{ cat.nombre }}</option>
+              }
+            </select>
+            <i class="icon-chevron-down nx-icon-right"></i>
+          </div>
+        </div>
+
+        <div class="nx-form-group">
+          <label class="nx-form-label">Rango de precio (€)</label>
+          <div class="nx-dual-input-row">
+            <div class="nx-input-with-prefix">
+              <span class="nx-prefix">€</span>
+              <input
+                type="number"
+                formControlName="precioMin"
+                class="nx-dark-input"
+                placeholder="Mín"
+              />
+            </div>
+            <span class="nx-separator-line"></span>
+            <div class="nx-input-with-prefix">
+              <span class="nx-prefix">€</span>
+              <input
+                type="number"
+                formControlName="precioMax"
+                class="nx-dark-input"
+                placeholder="Máx"
+              />
+            </div>
+          </div>
+        </div>
+
+        <div class="nx-form-group">
+          <label class="nx-form-label">Condición del artículo</label>
+          <div class="nx-select-wrapper">
+            <select formControlName="condicion" class="nx-dark-select">
+              <option value="">Cualquier estado</option>
+              <option value="NUEVO">A estrenar (Nuevo)</option>
+              <option value="COMO_NUEVO">Como nuevo</option>
+              <option value="MUY_BUEN_ESTADO">Muy buen estado</option>
+              <option value="BUEN_ESTADO">Buen estado</option>
+              <option value="ACEPTABLE">Aceptable</option>
+            </select>
+            <i class="icon-chevron-down nx-icon-right"></i>
+          </div>
+        </div>
+
+        @if (!esBusquedaVehiculo) {
+          <div class="nx-form-group">
+            <label class="nx-toggle-switch-container">
+              <div class="nx-toggle-text">
+                <span class="nx-toggle-title">Admite envío</span>
+                <span class="nx-toggle-subtitle">Mostrar solo artículos con envío</span>
+              </div>
+              <div class="nx-switch">
+                <input type="checkbox" formControlName="conEnvio" />
+                <span class="nx-switch-slider"></span>
+              </div>
+            </label>
+          </div>
+        }
+
+        @if (esBusquedaVehiculo) {
+          <hr class="nx-divider-subtle" />
+
+          <div class="nx-motor-section-title">
+            <i class="icon-settings"></i> Especificaciones de Vehículo
+          </div>
+
+          <div class="nx-form-group">
+            <label class="nx-form-label">Marca</label>
+            <div class="nx-select-wrapper">
+              <select formControlName="marca" class="nx-dark-select">
+                <option value="">Cualquier marca</option>
+                @for (marca of marcasDisponibles; track $index) {
+                  <option [value]="marca">{{ marca }}</option>
+                }
+              </select>
+              <i class="icon-chevron-down nx-icon-right"></i>
+            </div>
+          </div>
+
+          <div class="nx-form-group">
+            <label class="nx-form-label">Modelo</label>
+            <div class="nx-select-wrapper" [class.nx-disabled]="!filterForm.get('marca')?.value">
+              <select formControlName="modelo" class="nx-dark-select">
+                <option value="">Cualquier modelo</option>
+                @for (modelo of modelosDisponibles; track $index) {
+                  <option [value]="modelo">{{ modelo }}</option>
+                }
+              </select>
+              <i class="icon-chevron-down nx-icon-right"></i>
+            </div>
+          </div>
+
+          <div class="nx-form-group">
+            <label class="nx-form-label">Año de matriculación</label>
+            <div class="nx-dual-input-row">
+              <input
+                type="number"
+                formControlName="anioMin"
+                class="nx-dark-input"
+                placeholder="Desde"
+              />
+              <span class="nx-separator-line"></span>
+              <input
+                type="number"
+                formControlName="anioMax"
+                class="nx-dark-input"
+                placeholder="Hasta"
+              />
+            </div>
+          </div>
+
+          <div class="nx-form-group">
+            <label class="nx-form-label">Kilometraje máximo</label>
+            <div class="nx-input-with-suffix">
+              <input
+                type="number"
+                formControlName="kmMax"
+                class="nx-dark-input"
+                placeholder="Ej: 150000"
+              />
+              <span class="nx-suffix">km</span>
+            </div>
+          </div>
+
+          <div class="nx-form-grid-2">
+            <div class="nx-form-group">
+              <label class="nx-form-label">Combustible</label>
+              <div class="nx-select-wrapper">
+                <select formControlName="combustible" class="nx-dark-select">
+                  <option value="">Todos</option>
+                  <option value="GASOLINA">Gasolina</option>
+                  <option value="DIESEL">Diésel</option>
+                  <option value="ELECTRICO">Eléctrico</option>
+                  <option value="HIBRIDO">Híbrido</option>
+                </select>
+                <i class="icon-chevron-down nx-icon-right"></i>
+              </div>
+            </div>
+
+            <div class="nx-form-group">
+              <label class="nx-form-label">Cambio</label>
+              <div class="nx-select-wrapper">
+                <select formControlName="cambio" class="nx-dark-select">
+                  <option value="">Todos</option>
+                  <option value="MANUAL">Manual</option>
+                  <option value="AUTOMATICO">Automático</option>
+                </select>
+                <i class="icon-chevron-down nx-icon-right"></i>
+              </div>
+            </div>
+          </div>
+
+          <div class="nx-form-grid-2">
+            <div class="nx-form-group">
+              <label class="nx-form-label">Potencia Mínima</label>
+              <div class="nx-input-with-suffix">
+                <input
+                  type="number"
+                  formControlName="potenciaMin"
+                  class="nx-dark-input"
+                  placeholder="Ej: 120"
+                />
+                <span class="nx-suffix">CV</span>
+              </div>
+            </div>
+
+            <div class="nx-form-group">
+              <label class="nx-form-label">Cilindrada Mínima</label>
+              <div class="nx-input-with-suffix">
+                <input
+                  type="number"
+                  formControlName="cilindradaMin"
+                  class="nx-dark-input"
+                  placeholder="Ej: 1900"
+                />
+                <span class="nx-suffix">cc</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="nx-form-grid-2">
+            <div class="nx-form-group">
+              <label class="nx-form-label">Puertas</label>
+              <input
+                type="number"
+                formControlName="numeroPuertas"
+                class="nx-dark-input"
+                placeholder="Ej: 5"
+              />
+            </div>
+
+            <div class="nx-form-group">
+              <label class="nx-form-label">Plazas</label>
+              <input
+                type="number"
+                formControlName="plazas"
+                class="nx-dark-input"
+                placeholder="Ej: 5"
+              />
+            </div>
+          </div>
+
+          <div class="nx-form-group">
+            <label class="nx-form-label">Color</label>
+            <input
+              type="text"
+              formControlName="color"
+              class="nx-dark-input"
+              placeholder="Ej: Blanco, Negro..."
             />
-          </svg>
-          {{ t[1] }}
-        </button>
-      </div>
+          </div>
+
+          <div class="nx-form-group">
+            <label class="nx-toggle-switch-container">
+              <div class="nx-toggle-text">
+                <span class="nx-toggle-title">Garantía incluida</span>
+              </div>
+              <div class="nx-switch">
+                <input type="checkbox" formControlName="garantia" />
+                <span class="nx-switch-slider"></span>
+              </div>
+            </label>
+          </div>
+
+          <div class="nx-form-group">
+            <label class="nx-toggle-switch-container">
+              <div class="nx-toggle-text">
+                <span class="nx-toggle-title">ITV en vigor</span>
+              </div>
+              <div class="nx-switch">
+                <input type="checkbox" formControlName="itv" />
+                <span class="nx-switch-slider"></span>
+              </div>
+            </label>
+          </div>
+        }
+      </form>
     </div>
 
-    <!-- PRICE RANGE -->
-    <div class="filter-section">
-      <label class="filter-label">Rango de precio</label>
-      <div class="price-range">
-        <div class="price-input-wrap">
-          <span class="price-symbol">€</span>
-          <input
-            type="number"
-            formControlName="precioMin"
-            placeholder="Mín"
-            class="input-price"
-            min="0"
-          />
-        </div>
-        <span class="price-separator">—</span>
-        <div class="price-input-wrap">
-          <span class="price-symbol">€</span>
-          <input
-            type="number"
-            formControlName="precioMax"
-            placeholder="Máx"
-            class="input-price"
-            min="0"
-          />
-        </div>
-      </div>
-    </div>
-
-    <!-- CONDITION (only products) -->
-    <div class="filter-section" *ngIf="activeType !== 'OFERTA' && activeType !== 'VEHICULO'">
-      <label class="filter-label">Condición</label>
-      <div class="chip-group">
-        <label *ngFor="let c of condiciones" class="chip">
-          <input type="radio" formControlName="condicion" [value]="c.value" />
-          <span>{{ c.label }}</span>
-        </label>
-        <label class="chip">
-          <input type="radio" formControlName="condicion" [value]="null" />
-          <span>Todas</span>
-        </label>
-      </div>
-    </div>
-
-    <!-- SHIPPING (only products) -->
-    <div class="filter-section" *ngIf="activeType === 'PRODUCTO' || activeType === 'TODOS'">
-      <label class="filter-label toggle-row">
-        Envío disponible
-        <span
-          class="toggle"
-          [class.on]="form.value.conEnvio"
-          (click)="form.patchValue({ conEnvio: !form.value.conEnvio })"
-        >
-          <span class="toggle-knob"></span>
-        </span>
-      </label>
-    </div>
-
-    <!-- CATEGORY -->
-    <div class="filter-section" *ngIf="categorias.length">
-      <label class="filter-label">Categoría</label>
-      <ul class="category-tree">
-        <li *ngFor="let cat of categorias" class="cat-item">
-          <button
-            class="cat-btn"
-            [class.active]="form.value.categoria === cat.slug"
-            (click)="
-              form.patchValue({ categoria: form.value.categoria === cat.slug ? null : cat.slug })
-            "
-          >
-            <svg viewBox="0 0 24 24" class="icon cat-icon"><path d="M9 5l7 7-7 7" /></svg>
-            {{ cat.nombre }}
-          </button>
-        </li>
-      </ul>
-    </div>
-
-    <!-- LOCATION -->
-    <div class="filter-section">
-      <label class="filter-label">Ubicación</label>
-      <div class="location-row">
-        <input
-          type="text"
-          formControlName="ubicacion"
-          placeholder="Ciudad o código postal"
-          class="input-base"
-        />
-        <button class="btn-icon-outline" (click)="useGeolocation()" title="Usar mi ubicación">
-          <svg viewBox="0 0 24 24" class="icon">
-            <circle cx="12" cy="12" r="3" />
-            <path d="M12 2v3m0 14v3M2 12h3m14 0h3" />
-          </svg>
-        </button>
-      </div>
-    </div>
-
-    <!-- ── VEHICLE FILTERS ── -->
-    <ng-container *ngIf="showVehicleFilters">
-      <div class="filter-divider">
-        <span>Vehículos</span>
-      </div>
-
-      <div class="filter-section">
-        <label class="filter-label">Tipo</label>
-        <div class="chip-group">
-          <label *ngFor="let t of tiposVehiculo" class="chip">
-            <input type="radio" formControlName="tipoVehiculo" [value]="t" />
-            <span>{{ t | titlecase }}</span>
-          </label>
-        </div>
-      </div>
-
-      <div class="filter-section">
-        <label class="filter-label">Combustible</label>
-        <div class="chip-group">
-          <label *ngFor="let c of combustibles" class="chip">
-            <input type="radio" formControlName="combustible" [value]="c" />
-            <span>{{ c | titlecase }}</span>
-          </label>
-        </div>
-      </div>
-
-      <div class="filter-section">
-        <label class="filter-label">Marca</label>
-        <select formControlName="marca" class="select-base">
-          <option [ngValue]="null">Todas las marcas</option>
-          <option *ngFor="let m of marcas" [value]="m">{{ m }}</option>
-        </select>
-      </div>
-
-      <div class="filter-section">
-        <label class="filter-label">Año desde / hasta</label>
-        <div class="price-range">
-          <input type="number" formControlName="anioMin" placeholder="2000" class="input-price" />
-          <span class="price-separator">—</span>
-          <input type="number" formControlName="anioMax" placeholder="2025" class="input-price" />
-        </div>
-      </div>
-
-      <div class="filter-section">
-        <label class="filter-label">Kilómetros máximo</label>
-        <input type="number" formControlName="kmMax" placeholder="200 000" class="input-base" />
-      </div>
-
-      <div class="filter-section">
-        <label class="filter-label">Cambio</label>
-        <div class="chip-group">
-          <label *ngFor="let c of cambios" class="chip">
-            <input type="radio" formControlName="cambio" [value]="c" />
-            <span>{{ c | titlecase }}</span>
-          </label>
-        </div>
-      </div>
-    </ng-container>
-
-    <!-- ORDER -->
-    <div class="filter-section">
-      <label class="filter-label">Ordenar por</label>
-      <select formControlName="ordenarPor" class="select-base">
-        <option *ngFor="let o of orderOptions" [value]="o.value">{{ o.label }}</option>
-      </select>
-    </div>
-
-    <div class="sidebar-apply">
-      <button class="btn-primary w-full" (click)="resetAndSearch(); showMobileFilters = false">
-        Aplicar filtros
+    <div class="nx-sidebar-footer">
+      <button type="button" class="nx-btn-clear-glass" (click)="limpiarFiltros()">
+        <i class="icon-refresh-cw"></i> Restablecer filtros
       </button>
     </div>
   </aside>
 
-  <!-- ══════════════════════ MAIN CONTENT ══════════════════════ -->
-  <main class="results-area">
-    <!-- Top bar -->
-    <header class="results-header">
-      <div class="results-meta">
-        <ng-container *ngIf="!isLoading; else loadingMeta">
-          <span class="results-count">
-            <span class="count-num">{{ totalResults | number }}</span>
-            resultado{{ totalResults !== 1 ? 's' : '' }}
-            <ng-container *ngIf="searchTerm">
-              para <em>"{{ searchTerm }}"</em>
-            </ng-container>
-          </span>
-        </ng-container>
-        <ng-template #loadingMeta>
-          <span class="skeleton-text w-200"></span>
-        </ng-template>
+  <main class="nx-main-results-area">
+    <header class="nx-results-header">
+      <div class="nx-results-title-block">
+        <h1 class="nx-h1-gradient">
+          @if (filterForm.get('q')?.value) {
+            Resultados para
+            <span class="nx-text-highlight">"{{ filterForm.get('q')?.value }}"</span>
+          } @else {
+            Explora el catálogo completo
+          }
+        </h1>
+        <p class="nx-results-subtitle">
+          Hemos encontrado {{ totalResultados }} coincidencias exactas para ti.
+        </p>
+      </div>
+
+      <div class="nx-sort-wrapper" [formGroup]="filterForm">
+        <label class="nx-sort-label"><i class="icon-bar-chart-2"></i> Ordenar por</label>
+        <div class="nx-select-wrapper nx-select-sort">
+          <select formControlName="orden" class="nx-dark-select">
+            <option value="relevancia">Mejor coincidencia</option>
+            <option value="reciente">Novedades primero</option>
+            <option value="precio_asc">Precio: de menor a mayor</option>
+            <option value="precio_desc">Precio: de mayor a menor</option>
+          </select>
+          <i class="icon-chevron-down nx-icon-right"></i>
+        </div>
       </div>
     </header>
 
-    <!-- ── SKELETON GRID ── -->
-    <div *ngIf="isLoading" class="results-grid">
-      <div *ngFor="let _ of skeletonArray" class="card-skeleton">
-        <div class="sk-img"></div>
-        <div class="sk-body">
-          <div class="sk-line w-80"></div>
-          <div class="sk-line w-60"></div>
-          <div class="sk-line w-40 sk-price"></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ── RESULTS GRID ── -->
-    <div *ngIf="!isLoading && results.length" class="results-grid">
-      <article
-        *ngFor="let item of results; trackBy: trackById"
-        class="result-card"
-        [class.card-oferta]="item.tipo === 'OFERTA'"
-        [class.card-vehiculo]="item.tipo === 'VEHICULO'"
-      >
-        <!-- Badge -->
-        <div class="result-badge" [ngClass]="'badge-' + item.tipo.toLowerCase()">
-          <svg *ngIf="item.tipo === 'PRODUCTO'" viewBox="0 0 24 24" class="icon">
-            <path d="M6 2l1.5 4.5h9L18 2M3 7h18l-1.5 13H4.5L3 7z" />
-          </svg>
-          <svg *ngIf="item.tipo === 'OFERTA'" viewBox="0 0 24 24" class="icon">
-            <path
-              d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"
-            />
-          </svg>
-          <svg *ngIf="item.tipo === 'VEHICULO'" viewBox="0 0 24 24" class="icon">
-            <path
-              d="M5 17H3a2 2 0 01-2-2V9l3-5h14l3 5v6a2 2 0 01-2 2h-2m-8 0h6M7 17a2 2 0 100 4 2 2 0 000-4zm10 0a2 2 0 100 4 2 2 0 000-4z"
-            />
-          </svg>
-          {{
-            item.tipo === 'OFERTA' ? 'Chollo' : item.tipo === 'VEHICULO' ? 'Vehículo' : 'Producto'
-          }}
-        </div>
-
-        <!-- Discount badge -->
-        <div *ngIf="item.descuento" class="discount-badge">-{{ item.descuento }}%</div>
-
-        <!-- Spark badge -->
-        <div *ngIf="item.badge" class="spark-badge">
-          <svg viewBox="0 0 24 24" class="icon">
-            <path d="M13 2L4.09 12.26 11 12l-2 10 8.91-10.26L11 12l2-10z" />
-          </svg>
-          {{ item.badge }}
-        </div>
-
-        <!-- Image -->
-        <div class="card-img-wrap">
-          <img
-            *ngIf="item.imagenPrincipal"
-            [src]="item.imagenPrincipal"
-            [alt]="item.titulo"
-            class="card-img"
-            loading="lazy"
-          />
-          <div *ngIf="!item.imagenPrincipal" class="card-img-placeholder">
-            <svg viewBox="0 0 24 24" class="icon icon-lg">
-              <rect x="3" y="3" width="18" height="18" rx="2" />
-              <circle cx="8.5" cy="8.5" r="1.5" />
-              <path d="M21 15l-5-5L5 21" />
-            </svg>
+    <div class="nx-premium-grid">
+      @if (cargando) {
+        @for (i of [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]; track $index) {
+          <div class="nx-skeleton-glass-card">
+            <div class="nx-skeleton-img"></div>
+            <div class="nx-skeleton-content">
+              <div class="nx-skeleton-line title"></div>
+              <div class="nx-skeleton-line subtitle"></div>
+              <div class="nx-skeleton-line price"></div>
+              <div class="nx-skeleton-footer">
+                <div class="nx-skeleton-circle"></div>
+                <div class="nx-skeleton-line short"></div>
+              </div>
+            </div>
           </div>
-        </div>
+        }
 
-        <!-- Body -->
-        <div class="card-body">
-          <h3 class="card-title">{{ item.titulo }}</h3>
-
-          <!-- Vehicle meta -->
-          <div *ngIf="item.tipo === 'VEHICULO'" class="card-meta-row">
-            <span *ngIf="item.anio" class="meta-chip">
-              <svg viewBox="0 0 24 24" class="icon">
-                <rect x="3" y="4" width="18" height="18" rx="2" />
-                <path d="M16 2v4M8 2v4M3 10h18" />
-              </svg>
-              {{ item.anio }}
-            </span>
-            <span *ngIf="item.km" class="meta-chip">
-              <svg viewBox="0 0 24 24" class="icon">
-                <circle cx="12" cy="12" r="10" />
-                <path d="M12 8v4l3 3" />
-              </svg>
-              {{ formatKm(item.km) }}
-            </span>
+      } @else if (resultados.length > 0) {
+        @for (item of resultados; track $index) {
+          <div class="nx-card-glass-wrapper">
+            @if (item.searchType === 'OFERTA') {
+              <div class="nx-badge-glass nx-badge-oferta"><i class="icon-zap"></i> Chollo</div>
+              <app-oferta-card [oferta]="$any(item)"></app-oferta-card>
+            } @else if (item.searchType === 'PRODUCTO') {
+              <div class="nx-badge-glass nx-badge-producto"><i class="icon-box"></i> Producto</div>
+              <app-producto-card [producto]="$any(item)"></app-producto-card>
+            } @else if (item.searchType === 'VEHICULO') {
+              <div class="nx-badge-glass nx-badge-vehiculo">
+                <i class="icon-truck"></i> Vehículo
+              </div>
+              <app-producto-card [producto]="$any(item)"></app-producto-card>
+            }
           </div>
+        }
 
-          <!-- Price row -->
-          <div class="card-price-row">
-            <span *ngIf="item.precioOriginal" class="price-original">{{
-              formatPrice(item.precioOriginal)
-            }}</span>
-            <span class="price-main">{{ formatPrice(item.precio) }}</span>
-            <span *ngIf="item.sparkScore" class="spark-score">
-              <svg viewBox="0 0 24 24" class="icon icon-spark">
-                <path d="M13 2L4.09 12.26 11 12l-2 10 8.91-10.26L11 12l2-10z" />
-              </svg>
-              {{ item.sparkScore }}
-            </span>
+      } @else if (busquedaRealizada) {
+        <div class="nx-empty-glass-state">
+          <div class="nx-empty-icon-circle">
+            <i class="icon-search"></i>
           </div>
-
-          <p *ngIf="item.ciudad" class="card-location">
-            <svg viewBox="0 0 24 24" class="icon">
-              <path
-                d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"
-              />
-            </svg>
-            {{ item.ciudad }}
+          <h2>No hay coincidencias</h2>
+          <p>
+            No hemos encontrado resultados que cumplan con todos tus filtros. Prueba a reducir las
+            restricciones o eliminar alguna palabra clave.
           </p>
+          <button class="nx-btn-primary-glow" (click)="limpiarFiltros()">
+            Ver todo el catálogo
+          </button>
         </div>
-      </article>
+      }
     </div>
 
-    <!-- ── LOAD MORE SKELETON ── -->
-    <div *ngIf="isLoadingMore" class="results-grid load-more-grid">
-      <div *ngFor="let _ of [1, 2, 3, 4]" class="card-skeleton">
-        <div class="sk-img"></div>
-        <div class="sk-body">
-          <div class="sk-line w-80"></div>
-          <div class="sk-line w-40 sk-price"></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ── SENTINEL for IntersectionObserver ── -->
-    <div #sentinel class="sentinel" aria-hidden="true"></div>
-
-    <!-- ── EMPTY STATE ── -->
-    <div *ngIf="!isLoading && !results.length" class="empty-state">
-      <div class="empty-illustration">
-        <svg viewBox="0 0 200 160" class="empty-svg">
-          <defs>
-            <linearGradient id="emptyGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stop-color="var(--color-primary)" stop-opacity="0.15" />
-              <stop offset="100%" stop-color="var(--color-accent)" stop-opacity="0.05" />
-            </linearGradient>
-          </defs>
-          <rect
-            x="20"
-            y="20"
-            width="160"
-            height="120"
-            rx="16"
-            fill="url(#emptyGrad)"
-            stroke="var(--color-border)"
-            stroke-width="1"
-          />
-          <!-- Magnifier -->
-          <circle
-            cx="90"
-            cy="72"
-            r="28"
-            fill="none"
-            stroke="var(--color-primary)"
-            stroke-width="3"
-            stroke-opacity="0.4"
-          />
-          <line
-            x1="110"
-            y1="92"
-            x2="130"
-            y2="112"
-            stroke="var(--color-primary)"
-            stroke-width="3"
-            stroke-linecap="round"
-            stroke-opacity="0.4"
-          />
-          <!-- Lines -->
-          <line
-            x1="76"
-            y1="65"
-            x2="104"
-            y2="65"
-            stroke="var(--color-primary)"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-opacity="0.3"
-          />
-          <line
-            x1="76"
-            y1="73"
-            x2="100"
-            y2="73"
-            stroke="var(--color-primary)"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-opacity="0.3"
-          />
-          <line
-            x1="76"
-            y1="81"
-            x2="95"
-            y2="81"
-            stroke="var(--color-primary)"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-opacity="0.3"
-          />
-        </svg>
-      </div>
-      <h2 class="empty-title">Sin resultados</h2>
-      <p class="empty-sub">
-        No encontramos nada para <em>"{{ searchTerm || 'tu búsqueda' }}"</em>. Prueba con otros
-        términos o ajusta los filtros.
-      </p>
-      <div class="empty-actions">
-        <button class="btn-primary" (click)="clearFilters()">Limpiar filtros</button>
-      </div>
+    <div #scrollAnchor class="nx-infinite-loader-zone">
+      @if (cargandoMas) {
+        <div class="nx-glow-spinner"></div>
+        <span>Cargando más resultados...</span>
+      }
     </div>
   </main>
-
-  <!-- ══════════════════════ MOBILE FAB ══════════════════════ -->
-  <button class="fab-filters" (click)="toggleMobileFilters()" aria-label="Mostrar filtros">
-    <svg viewBox="0 0 24 24" class="icon">
-      <path d="M3 4h18v2.586l-7 7V19l-4 2v-7.414l-7-7V4z" />
-    </svg>
-    Filtros
-  </button>
 </div>
