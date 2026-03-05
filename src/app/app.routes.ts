@@ -57,13 +57,13 @@ export const routes: Routes = [
   //       (m) => m.CategoriaDetailComponent,
   //     ),
   // },
-  // {
-  //   path: 'productos/:id',
-  //   loadComponent: () =>
-  //     import('./components/marketplace/producto-detail/producto-detail.component').then(
-  //       (m) => m.ProductoDetailComponent,
-  //     ),
-  // },
+  {
+    path: 'productos/:id',
+    loadComponent: () =>
+      import('./shared/components/marketplace/producto-detail/producto-detail.component').then(
+        (m) => m.ProductoDetailComponent,
+      ),
+  },
   // {
   //   path: 'ofertas/:id',
   //   loadComponent: () =>

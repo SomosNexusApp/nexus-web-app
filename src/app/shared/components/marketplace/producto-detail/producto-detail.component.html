@@ -1,0 +1,641 @@
+<!-- ═══════════════════════════════════════════════════ LOADING -->
+@if (cargando()) {
+  <div class="detail-loading">
+    <div class="loading-spinner"></div>
+    <p>Cargando producto…</p>
+  </div>
+}
+
+<!-- ═══════════════════════════════════════════════════ ERROR -->
+@if (error()) {
+  <div class="detail-error">
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="48"
+      height="48"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="1.5"
+    >
+      <circle cx="12" cy="12" r="10" />
+      <line x1="12" y1="8" x2="12" y2="12" />
+      <line x1="12" y1="16" x2="12.01" y2="16" />
+    </svg>
+    <p>{{ error() }}</p>
+    <button (click)="router.navigate(['/'])">Volver al inicio</button>
+  </div>
+}
+
+<!-- ═══════════════════════════════════════════════════ DETALLE -->
+@if (!cargando() && !error() && producto()) {
+  <div class="detail-page">
+    <!-- ── Breadcrumb ───────────────────────────────────────── -->
+    <nav class="breadcrumb">
+      <a routerLink="/">Inicio</a>
+      <span>/</span>
+      @if (producto()!.categoria) {
+        <a [routerLink]="['/search']" [queryParams]="{ categoria: producto()!.categoria!.slug }">
+          {{ producto()!.categoria!.nombre }}
+        </a>
+        <span>/</span>
+      }
+      <span class="breadcrumb__current">{{ producto()!.titulo }}</span>
+    </nav>
+
+    <!-- ── Layout 2 cols ────────────────────────────────────── -->
+    <div class="detail-grid">
+      <!-- ╔═══════════════════ GALERÍA ═════════════════════╗ -->
+      <section class="gallery-col">
+        <!-- Imagen principal -->
+        <div
+          class="gallery-main"
+          (mouseenter)="zoomActivo.set(true)"
+          (mouseleave)="zoomActivo.set(false)"
+        >
+          <img
+            [src]="imagenActiva()"
+            [alt]="producto()!.titulo"
+            class="gallery-main__img"
+            [class.zoom-active]="zoomActivo()"
+            (error)="$any($event.target).src = '/assets/placeholder-image.webp'"
+          />
+
+          <!-- Flechas navegación -->
+          @if (todasImagenes().length > 1) {
+            <button
+              class="gallery-arrow gallery-arrow--prev"
+              (click)="prevImagen()"
+              type="button"
+              aria-label="Anterior"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.5"
+              >
+                <polyline points="15 18 9 12 15 6" />
+              </svg>
+            </button>
+            <button
+              class="gallery-arrow gallery-arrow--next"
+              (click)="nextImagen()"
+              type="button"
+              aria-label="Siguiente"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.5"
+              >
+                <polyline points="9 18 15 12 9 6" />
+              </svg>
+            </button>
+            <div class="gallery-counter">
+              {{ imagenActivaIdx() + 1 }} / {{ todasImagenes().length }}
+            </div>
+          }
+        </div>
+
+        <!-- Miniaturas -->
+        @if (todasImagenes().length > 1) {
+          <div class="gallery-thumbs">
+            @for (img of todasImagenes().slice(0, 8); track trackByIdx($index)) {
+              <button
+                class="gallery-thumb"
+                [class.gallery-thumb--active]="imagenActivaIdx() === $index"
+                (click)="setImagenActiva($index)"
+                type="button"
+              >
+                <img [src]="img" [alt]="'Imagen ' + ($index + 1)" loading="lazy" />
+              </button>
+            }
+          </div>
+        }
+      </section>
+
+      <!-- ╔═══════════════════ INFO ════════════════════════╗ -->
+      <section class="info-col">
+        <!-- Título -->
+        <h1 class="detail-title">{{ producto()!.titulo }}</h1>
+
+        <!-- Precio + condición -->
+        <div class="price-condition-row">
+          @if (producto()!.tipoOferta === 'DONACION') {
+            <span class="detail-price text-green">GRATIS</span>
+          } @else if (producto()!.tipoOferta === 'INTERCAMBIO') {
+            <span class="detail-price text-purple">Intercambio</span>
+          } @else {
+            <span class="detail-price">{{ producto()!.precio | currencyEs }}</span>
+          }
+          @if (producto()!.condicion) {
+            <span class="cond-badge" [ngClass]="'cond-' + producto()!.condicion!.toLowerCase()">
+              {{ producto()!.condicion!.replace('_', ' ') }}
+            </span>
+          }
+          @if (producto()!.tipoOferta === 'DONACION') {
+            <span class="tipo-badge tipo-donacion">DONACIÓN GRATIS</span>
+          }
+          @if (producto()!.tipoOferta === 'INTERCAMBIO') {
+            <span class="tipo-badge tipo-intercambio">INTERCAMBIO</span>
+          }
+        </div>
+
+        <!-- Banners estado -->
+        @if (producto()!.estado === 'VENDIDO') {
+          <div class="estado-banner estado-vendido">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <circle cx="12" cy="12" r="10" />
+              <line x1="15" y1="9" x2="9" y2="15" />
+              <line x1="9" y1="9" x2="15" y2="15" />
+            </svg>
+            Este producto ya no está disponible
+          </div>
+        }
+        @if (producto()!.estado === 'RESERVADO') {
+          <div class="estado-banner estado-reservado">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <circle cx="12" cy="12" r="10" />
+              <line x1="12" y1="8" x2="12" y2="12" />
+              <line x1="12" y1="16" x2="12.01" y2="16" />
+            </svg>
+            En proceso de compra
+          </div>
+        }
+
+        <!-- Ubicación + fecha -->
+        <div class="meta-row">
+          <span class="meta-item">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+              <circle cx="12" cy="10" r="3" />
+            </svg>
+            {{ producto()!.ubicacion || 'España' }}
+          </span>
+          <span class="meta-sep">·</span>
+          <span class="meta-item">{{ producto()!.fechaPublicacion | timeAgo }}</span>
+          @if (producto()!.admiteEnvio) {
+            <span class="meta-sep">·</span>
+            <span class="meta-item envio-tag">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="13"
+                height="13"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <rect x="1" y="3" width="15" height="13" />
+                <polygon points="16 8 20 8 23 11 23 16 16 16 16 8" />
+                <circle cx="5.5" cy="18.5" r="2.5" />
+                <circle cx="18.5" cy="18.5" r="2.5" />
+              </svg>
+              Envío disponible
+              @if (producto()!.precioEnvio) {
+                ({{ producto()!.precioEnvio | currencyEs }})
+              }
+            </span>
+          }
+        </div>
+
+        <!-- ── BOTONES ─────────────────────────────────────── -->
+        <div class="actions-block">
+          <!-- Botones comprador logueado y no propietario -->
+          @if (puedeComprar()) {
+            <button class="btn btn-primary" (click)="comprarAhora()">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <circle cx="9" cy="21" r="1" />
+                <circle cx="20" cy="21" r="1" />
+                <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
+              </svg>
+              Comprar ahora
+            </button>
+            <button class="btn btn-secondary" (click)="abrirModalOferta()">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <line x1="12" y1="5" x2="12" y2="19" />
+                <line x1="5" y1="12" x2="19" y2="12" />
+              </svg>
+              Hacer oferta
+            </button>
+            <button class="btn btn-chat" (click)="irAlChat()">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+              </svg>
+              Chat con el vendedor
+            </button>
+            <button class="btn btn-fav" [class.active]="esFavorito()" (click)="toggleFavorito()">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                [attr.fill]="esFavorito() ? 'currentColor' : 'none'"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path
+                  d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"
+                />
+              </svg>
+              {{ esFavorito() ? 'Guardado' : 'Guardar' }}
+            </button>
+          }
+
+          <!-- Botones guest -->
+          @if (!isLoggedIn()) {
+            <button class="btn btn-primary" (click)="comprarAhora()">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <circle cx="9" cy="21" r="1" />
+                <circle cx="20" cy="21" r="1" />
+                <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
+              </svg>
+              Comprar ahora
+            </button>
+            <button class="btn btn-chat" (click)="irAlChat()">Chat con el vendedor</button>
+            <button class="btn btn-fav" (click)="toggleFavorito()">❤ Guardar</button>
+          }
+
+          <!-- Botones propietario -->
+          @if (esVendedorPropietario()) {
+            <a [routerLink]="['/publicar/editar', producto()!.id]" class="btn btn-secondary">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="15"
+                height="15"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+              </svg>
+              Editar anuncio
+            </a>
+            <button class="btn btn-warning" (click)="marcarVendido()">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="15"
+                height="15"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <polyline points="20 6 9 17 4 12" />
+              </svg>
+              Marcar como vendido
+            </button>
+            <button class="btn btn-danger" (click)="confirmarEliminar()">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="15"
+                height="15"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <polyline points="3 6 5 6 21 6" />
+                <path
+                  d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"
+                />
+              </svg>
+              Eliminar anuncio
+            </button>
+          }
+        </div>
+      </section>
+    </div>
+    <!-- /detail-grid -->
+
+    <!-- ═══════════════════ DESCRIPCIÓN ════════════════════ -->
+    <section class="detail-section">
+      <h2 class="section-title">Descripción</h2>
+      <div class="desc-text" [class.desc-expandida]="descExpandida()">
+        <p>{{ producto()!.descripcion }}</p>
+      </div>
+      @if (descLarga() && !descExpandida()) {
+        <button class="leer-mas-btn" (click)="descExpandida.set(true)">Leer más</button>
+      }
+
+      <!-- Detalles del producto -->
+      <div class="detail-specs">
+        @if (producto()!.marca) {
+          <div class="spec-item">
+            <span class="spec-label">Marca</span
+            ><span class="spec-value">{{ producto()!.marca }}</span>
+          </div>
+        }
+        @if (producto()!.modelo) {
+          <div class="spec-item">
+            <span class="spec-label">Modelo</span
+            ><span class="spec-value">{{ producto()!.modelo }}</span>
+          </div>
+        }
+        @if (producto()!.condicion) {
+          <div class="spec-item">
+            <span class="spec-label">Condición</span
+            ><span class="spec-value">{{ producto()!.condicion!.replace('_', ' ') }}</span>
+          </div>
+        }
+        @if (producto()!.talla) {
+          <div class="spec-item">
+            <span class="spec-label">Talla</span
+            ><span class="spec-value">{{ producto()!.talla }}</span>
+          </div>
+        }
+        @if (producto()!.color) {
+          <div class="spec-item">
+            <span class="spec-label">Color</span
+            ><span class="spec-value">{{ producto()!.color }}</span>
+          </div>
+        }
+        <div class="spec-item">
+          <span class="spec-label">Envío</span>
+          <span class="spec-value">{{ producto()!.admiteEnvio ? 'Sí' : 'No' }}</span>
+        </div>
+        @if (producto()!.admiteEnvio && producto()!.precioEnvio) {
+          <div class="spec-item">
+            <span class="spec-label">Precio envío</span>
+            <span class="spec-value">{{ producto()!.precioEnvio | currencyEs }}</span>
+          </div>
+        }
+      </div>
+    </section>
+
+    <!-- ═══════════════════ VENDEDOR ════════════════════════ -->
+    @if (vendedor()) {
+      <section class="detail-section">
+        <h2 class="section-title">Sobre el vendedor</h2>
+        <div class="vendedor-card">
+          <!-- Avatar + info básica -->
+          <div class="vendedor-header">
+            <div class="vendedor-avatar">
+              @if (vendedor()!.avatar) {
+                <img [src]="vendedor()!.avatar" [alt]="vendedor()!.nombre" />
+              } @else {
+                <span class="avatar-fallback">{{ getAvatarFallback(vendedor()!.nombre) }}</span>
+              }
+              @if (vendedor()!.esVerificado) {
+                <span class="verified-badge" title="Vendedor verificado">✓</span>
+              }
+            </div>
+            <div class="vendedor-info">
+              <p class="vendedor-nombre">{{ vendedor()!.nombre }} {{ vendedor()!.apellidos }}</p>
+              <p class="vendedor-username">&#64;{{ vendedor()!.user }}</p>
+              <!-- Estrellas -->
+              <div class="stars-row">
+                @for (star of starArray(); track trackByIdx($index)) {
+                  <svg
+                    class="star"
+                    [class.star--full]="star.full"
+                    [class.star--half]="star.half"
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    [attr.fill]="star.full ? '#fbbf24' : 'none'"
+                    stroke="#fbbf24"
+                    stroke-width="2"
+                  >
+                    <polygon
+                      points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"
+                    />
+                  </svg>
+                }
+                <span class="stars-count">({{ valoraciones().length }} valoraciones)</span>
+              </div>
+              <div class="vendedor-stats">
+                <span>{{ vendedor()!.totalVentas }} ventas</span>
+                @if (vendedor()!.fechaRegistro) {
+                  <span>·</span>
+                  <span>Miembro desde {{ vendedor()!.fechaRegistro | timeAgo }}</span>
+                }
+              </div>
+            </div>
+          </div>
+
+          <!-- Últimas valoraciones -->
+          @if (valoraciones().length > 0) {
+            <div class="valoraciones-list">
+              @for (v of valoraciones(); track v.id) {
+                <div class="valoracion-item">
+                  <div class="val-header">
+                    <div class="val-stars">
+                      @for (i of [1, 2, 3, 4, 5]; track i) {
+                        <svg
+                          width="12"
+                          height="12"
+                          viewBox="0 0 24 24"
+                          [attr.fill]="i <= v.puntuacion ? '#fbbf24' : 'none'"
+                          stroke="#fbbf24"
+                          stroke-width="2"
+                        >
+                          <polygon
+                            points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"
+                          />
+                        </svg>
+                      }
+                    </div>
+                    <span class="val-fecha">{{ v.fecha | timeAgo }}</span>
+                  </div>
+                  @if (v.comentario) {
+                    <p class="val-comentario">{{ v.comentario }}</p>
+                  }
+                </div>
+              }
+            </div>
+          }
+
+          <!-- Otros productos del vendedor -->
+          @if (productosVendedor().length > 0) {
+            <div class="vendedor-productos">
+              <p class="vendedor-prod-label">Otros anuncios del vendedor</p>
+              <div class="vendedor-prod-scroll">
+                @for (p of productosVendedor(); track p.id) {
+                  <div class="vendedor-prod-item">
+                    <app-producto-card [producto]="p" [showFavorito]="false" />
+                  </div>
+                }
+              </div>
+            </div>
+          }
+        </div>
+      </section>
+    }
+
+    <!-- ═══════════════════ RELACIONADOS ════════════════════ -->
+    @if (relacionados().length > 0) {
+      <section class="detail-section">
+        <h2 class="section-title">También te puede interesar</h2>
+        <div class="relacionados-grid">
+          @for (p of relacionados(); track p.id) {
+            <app-producto-card [producto]="p" />
+          }
+        </div>
+      </section>
+    }
+
+    <!-- ═══════════════════ REPORTAR ════════════════════════ -->
+    <div class="reportar-link">
+      <button class="reportar-btn" (click)="reportarAnuncio()">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="13"
+          height="13"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <path
+            d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"
+          />
+          <line x1="12" y1="9" x2="12" y2="13" />
+          <line x1="12" y1="17" x2="12.01" y2="17" />
+        </svg>
+        Reportar este anuncio
+      </button>
+    </div>
+  </div>
+  <!-- /detail-page -->
+}
+
+<!-- ═══════════════════ MODAL HACER OFERTA ══════════════════ -->
+@if (modalOfertaAbierto()) {
+  <div class="modal-overlay" (click)="modalOfertaAbierto.set(false)">
+    <div class="modal-box" (click)="$event.stopPropagation()">
+      <h3 class="modal-title">Hacer una oferta</h3>
+      <p class="modal-sub">
+        Precio actual: <strong>{{ producto()!.precio | currencyEs }}</strong>
+      </p>
+      <input
+        class="modal-input"
+        type="number"
+        placeholder="Tu precio (€)"
+        [ngModel]="precioOfertaInput()"
+        (ngModelChange)="precioOfertaInput.set($event)"
+        min="1"
+      />
+      <div class="modal-actions">
+        <button class="btn btn-secondary" (click)="modalOfertaAbierto.set(false)">Cancelar</button>
+        <button class="btn btn-primary" (click)="enviarOferta()" [disabled]="!precioOfertaInput()">
+          Enviar oferta
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- ═══════════════════ MODAL CONFIRMAR BORRAR ══════════════ -->
+@if (modalBorrarAbierto()) {
+  <div class="modal-overlay" (click)="modalBorrarAbierto.set(false)">
+    <div class="modal-box" (click)="$event.stopPropagation()">
+      <h3 class="modal-title">¿Eliminar anuncio?</h3>
+      <p class="modal-sub">Esta acción no se puede deshacer.</p>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" (click)="modalBorrarAbierto.set(false)">Cancelar</button>
+        <button class="btn btn-danger" (click)="eliminarProducto()">Sí, eliminar</button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- ═══════════════════ MODAL REPORTAR ══════════════════════ -->
+@if (modalReporteAbierto()) {
+  <div class="modal-overlay" (click)="modalReporteAbierto.set(false)">
+    <div class="modal-box" (click)="$event.stopPropagation()">
+      <h3 class="modal-title">Reportar anuncio</h3>
+      <select
+        class="modal-input"
+        [ngModel]="motivoReporte()"
+        (ngModelChange)="motivoReporte.set($event)"
+      >
+        <option value="">Selecciona un motivo…</option>
+        <option value="SPAM">Spam</option>
+        <option value="FRAUDE">Fraude</option>
+        <option value="CONTENIDO_INAPROPIADO">Contenido inapropiado</option>
+        <option value="INFORMACION_FALSA">Información falsa</option>
+      </select>
+      <textarea
+        class="modal-input modal-textarea"
+        placeholder="Descripción adicional (opcional)"
+        rows="3"
+        [ngModel]="descReporte()"
+        (ngModelChange)="descReporte.set($event)"
+      ></textarea>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" (click)="modalReporteAbierto.set(false)">Cancelar</button>
+        <button class="btn btn-danger" (click)="enviarReporte()" [disabled]="!motivoReporte()">
+          Enviar reporte
+        </button>
+      </div>
+    </div>
+  </div>
+}

@@ -1,0 +1,128 @@
+@if (isSkeleton) {
+  <div class="veh-card skeleton" aria-hidden="true">
+    <div class="skeleton-img"></div>
+    <div class="card-body">
+      <div class="skeleton-text w-3-4 mb-2"></div>
+      <div class="skeleton-text price w-1-3 mb-3"></div>
+      <div class="chips-row mb-2">
+        <div class="skeleton-text chip"></div>
+        <div class="skeleton-text chip"></div>
+        <div class="skeleton-text chip"></div>
+      </div>
+      <div class="skeleton-text w-1-2"></div>
+    </div>
+  </div>
+} @else {
+  <div
+    class="veh-card scale-in"
+    (click)="navigateToDetail()"
+    role="article"
+    [attr.aria-label]="vehiculo.titulo"
+    style="cursor: pointer"
+  >
+    <div class="img-wrapper">
+      <img
+        [ngSrc]="coverImage"
+        [alt]="vehiculo.titulo"
+        fill
+        class="object-cover"
+        loading="lazy"
+        (error)="$any($event.target).src = '/assets/placeholder-vehicle.webp'"
+      />
+      <div class="img-overlay"></div>
+
+      <!-- Badge tipo vehículo -->
+      <span class="tipo-badge"> {{ tipoEmoji }} {{ tipoLabel }} </span>
+
+      <!-- Badge estado -->
+      @if (vehiculo.estadoVehiculo === 'VENDIDO') {
+        <div class="estado-overlay">
+          <span class="estado-text">VENDIDO</span>
+        </div>
+      } @else if (vehiculo.estadoVehiculo === 'RESERVADO') {
+        <span class="reservado-badge">RESERVADO</span>
+      }
+    </div>
+
+    <div class="card-body">
+      <h3 class="veh-title" [title]="vehiculo.titulo">{{ vehiculo.titulo }}</h3>
+      <p class="veh-price">{{ vehiculo.precio | currencyEs }}</p>
+
+      <!-- Chips: año · km · combustible -->
+      <div class="chips-row">
+        @if (vehiculo.anio) {
+          <span class="chip">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="11"
+              height="11"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <rect x="3" y="4" width="18" height="18" rx="2" />
+              <line x1="16" y1="2" x2="16" y2="6" />
+              <line x1="8" y1="2" x2="8" y2="6" />
+              <line x1="3" y1="10" x2="21" y2="10" />
+            </svg>
+            {{ vehiculo.anio }}
+          </span>
+        }
+        @if (vehiculo.kilometros) {
+          <span class="chip">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="11"
+              height="11"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <circle cx="12" cy="12" r="10" />
+              <polyline points="12 6 12 12 16 14" />
+            </svg>
+            {{ kmFormateados }}
+          </span>
+        }
+        @if (vehiculo.combustible) {
+          <span class="chip">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="11"
+              height="11"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path d="M3 22V8l7-6 7 6v14" />
+              <path d="M17 22v-6h4v6" />
+              <line x1="10" y1="22" x2="10" y2="12" />
+              <line x1="14" y1="12" x2="14" y2="22" />
+            </svg>
+            {{ vehiculo.combustible }}
+          </span>
+        }
+      </div>
+
+      <!-- Ubicación -->
+      <div class="veh-location">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="12"
+          height="12"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+          <circle cx="12" cy="10" r="3" />
+        </svg>
+        {{ vehiculo.ubicacion || 'España' }}
+      </div>
+    </div>
+  </div>
+}

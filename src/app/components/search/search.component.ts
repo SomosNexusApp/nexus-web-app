@@ -17,8 +17,8 @@ import { Subject, Subscription } from 'rxjs';
 import { debounceTime, distinctUntilChanged, takeUntil, catchError } from 'rxjs/operators';
 
 import { SearchService, SearchParams, SearchResultItem } from '../../core/services/search.service';
-import { ProductoCardComponent } from '../../shared/components/producto-card/producto-card.component';
-import { OfertaCardComponent } from '../../shared/components/oferta-card/oferta-card.component';
+import { ProductoCardComponent } from '../../shared/components/marketplace/product-card/producto-card.component';
+import { OfertaCardComponent } from '../../shared/components/marketplace/oferta-card/oferta-card.component';
 import { Categoria } from '../../models/categoria.model';
 import { environment } from '../../../environments/enviroment';
 
