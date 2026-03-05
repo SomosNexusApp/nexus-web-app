@@ -7,6 +7,7 @@ import {
   AfterViewInit,
   inject,
   ChangeDetectorRef,
+  signal,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
@@ -20,6 +21,23 @@ import { ProductoCardComponent } from '../../shared/components/producto-card/pro
 import { OfertaCardComponent } from '../../shared/components/oferta-card/oferta-card.component';
 import { Categoria } from '../../models/categoria.model';
 import { environment } from '../../../environments/enviroment';
+
+/** Slugs/palabras que activan modo vehículo automáticamente */
+const VEHICLE_SLUGS = [
+  'vehiculo',
+  'vehiculos',
+  'motor',
+  'coches',
+  'coche',
+  'motos',
+  'moto',
+  'furgoneta',
+  'camion',
+  'caravana',
+  'autobus',
+  'quad',
+  'barco',
+];
 
 @Component({
   selector: 'app-search',
@@ -35,48 +53,51 @@ import { environment } from '../../../environments/enviroment';
   styleUrls: ['./search.component.css'],
 })
 export class SearchComponent implements OnInit, AfterViewInit, OnDestroy {
-  // --- INYECCIÓN DE DEPENDENCIAS ---
+  // ── Inyección ──────────────────────────────────────────────────────
   private fb = inject(FormBuilder);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private searchService = inject(SearchService);
   private http = inject(HttpClient);
-  private cdr = inject(ChangeDetectorRef); // Fundamental para evitar el error NG0100
+  private cdr = inject(ChangeDetectorRef);
 
-  // --- FORMULARIO Y ESTADOS ---
+  // ── Formulario ─────────────────────────────────────────────────────
   filterForm!: FormGroup;
 
-  // Estado de resultados de búsqueda
+  // ── Estado de resultados ───────────────────────────────────────────
   resultados: SearchResultItem[] = [];
   cargando = true;
   cargandoMas = false;
   totalResultados = 0;
   busquedaRealizada = false;
 
-  // Paginación y Scroll Infinito
+  // ── Paginación / scroll infinito ───────────────────────────────────
   paginaActual = 0;
   sizePorPagina = 20;
   hayMasResultados = true;
   @ViewChild('scrollAnchor') scrollAnchor!: ElementRef;
   private observer!: IntersectionObserver;
 
-  // Estado UI
+  // ── Estado UI ──────────────────────────────────────────────────────
   isMobileFiltersOpen = false;
   esBusquedaVehiculo = false;
-  obteniendoUbicacion = false; // Para mostrar un spinner en el botón "Cerca de mí"
+  obteniendoUbicacion = false;
+  categoriaNombreActual = signal<string>('');
 
-  // Control de suscripciones (Memory Leak Prevention)
+  // ── Suscripciones ──────────────────────────────────────────────────
   private destroy$ = new Subject<void>();
   private formSub!: Subscription;
 
-  // Listas de datos dinámicos (APIs)
+  // ── Listas dinámicas ───────────────────────────────────────────────
   sugerenciasUbicacion: string[] = [];
   mostrandoSugerenciasUbi = false;
   marcasDisponibles: string[] = [];
   modelosDisponibles: string[] = [];
   categoriasDisponibles: Categoria[] = [];
 
-  // --- CICLO DE VIDA ---
+  // ═══════════════════════════════════════════════════════════════════
+  // CICLO DE VIDA
+  // ═══════════════════════════════════════════════════════════════════
 
   ngOnInit(): void {
     this.initForm();
@@ -94,9 +115,12 @@ export class SearchComponent implements OnInit, AfterViewInit, OnDestroy {
     this.destroy$.next();
     this.destroy$.complete();
     if (this.observer) this.observer.disconnect();
+    document.body.style.overflow = '';
   }
 
-  // --- 1. INICIALIZACIÓN Y CONFIGURACIÓN ---
+  // ═══════════════════════════════════════════════════════════════════
+  // 1. FORMULARIO
+  // ═══════════════════════════════════════════════════════════════════
 
   private initForm(): void {
     this.filterForm = this.fb.group({
@@ -109,8 +133,6 @@ export class SearchComponent implements OnInit, AfterViewInit, OnDestroy {
       ubicacion: [''],
       conEnvio: [false],
       orden: ['relevancia'],
-
-      // --- FILTROS COMPLETOS DE VEHÍCULOS ---
       marca: [''],
       modelo: [''],
       anioMin: [''],
@@ -127,32 +149,32 @@ export class SearchComponent implements OnInit, AfterViewInit, OnDestroy {
       itv: [false],
     });
 
-    // Detectar si el usuario cambia el tipo manualmente a VEHICULO para mostrar los filtros de motor
+    // Tipo cambia manualmente → toggle filtros motor
     this.filterForm
       .get('tipo')
       ?.valueChanges.pipe(takeUntil(this.destroy$))
       .subscribe((tipo) => {
-        this.esBusquedaVehiculo = tipo === 'VEHICULO';
-        // Si sale de la pestaña vehículos, podríamos limpiar los campos de motor para no enviar basura en la URL
-        if (!this.esBusquedaVehiculo) {
-          this.limpiarFiltrosMotor();
+        const esV = tipo === 'VEHICULO';
+        if (this.esBusquedaVehiculo !== esV) {
+          this.esBusquedaVehiculo = esV;
+          if (!esV) this.limpiarFiltrosMotor();
+          this.cdr.detectChanges();
         }
-        this.cdr.detectChanges(); // Previene NG0100
       });
 
-    // Escuchar cualquier cambio en el formulario y sincronizar con la URL
+    // Cambios del form → actualizar URL
     this.formSub = this.filterForm.valueChanges
       .pipe(
-        debounceTime(600), // Esperamos a que el usuario termine de escribir o mover el slider
-        distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)),
+        debounceTime(600),
+        distinctUntilChanged((p, c) => JSON.stringify(p) === JSON.stringify(c)),
         takeUntil(this.destroy$),
       )
-      .subscribe((valores) => {
-        this.actualizarURL(valores);
-      });
+      .subscribe((v) => this.actualizarURL(v));
   }
 
-  // --- 2. CARGA DE DATOS ESTÁTICOS / API EXTERNA ---
+  // ═══════════════════════════════════════════════════════════════════
+  // 2. CARGA DE DATOS ESTÁTICOS
+  // ═══════════════════════════════════════════════════════════════════
 
   private cargarCategorias(): void {
     this.http
@@ -161,8 +183,12 @@ export class SearchComponent implements OnInit, AfterViewInit, OnDestroy {
         takeUntil(this.destroy$),
         catchError(() => []),
       )
-      .subscribe((categorias) => {
-        this.categoriasDisponibles = categorias;
+      .subscribe((cats) => {
+        this.categoriasDisponibles = cats;
+        // Si ya hay un param de categoría activo, actualizar el título ahora
+        // que tenemos los nombres disponibles
+        const slugActual = this.filterForm.get('categoria')?.value;
+        if (slugActual) this.actualizarTituloCat(slugActual);
         this.cdr.detectChanges();
       });
   }
@@ -192,31 +218,40 @@ export class SearchComponent implements OnInit, AfterViewInit, OnDestroy {
       });
   }
 
-  // --- 3. SINCRONIZACIÓN CON LA URL ---
+  // ═══════════════════════════════════════════════════════════════════
+  // 3. SINCRONIZACIÓN URL ↔ FORMULARIO
+  // ═══════════════════════════════════════════════════════════════════
 
   private escucharCambiosURL(): void {
     this.route.queryParams.pipe(takeUntil(this.destroy$)).subscribe((params) => {
-      // 1. Desactivamos la escucha del formulario temporalmente para no crear un bucle infinito
       if (this.formSub) this.formSub.unsubscribe();
 
-      // 2. Comprobar si estamos en modo Vehículo por URL explícita
-      this.esBusquedaVehiculo =
-        params['tipo'] === 'VEHICULO' || this.router.url.includes('vehiculos');
+      const tipoParam = params['tipo'] || 'TODOS';
+      const categoriaParam = params['categoria'] || '';
 
-      // 3. Volcar los parámetros de la URL al formulario (conversión segura)
+      // ── Detectar modo vehículo ──────────────────────────────
+      const esVehiculoPorTipo = tipoParam === 'VEHICULO';
+      const esVehiculoPorCat = this.slugEsVehiculo(categoriaParam);
+      this.esBusquedaVehiculo = esVehiculoPorTipo || esVehiculoPorCat;
+
+      // Si la categoría es de motor, forzar tipo VEHICULO
+      const tipoFinal = this.esBusquedaVehiculo ? 'VEHICULO' : tipoParam;
+
+      // ── Título dinámico ─────────────────────────────────────
+      this.actualizarTituloCat(categoriaParam);
+
+      // ── Volcar URL → form ───────────────────────────────────
       this.filterForm.patchValue(
         {
           q: params['q'] || '',
-          tipo: params['tipo'] || 'TODOS',
-          categoria: params['categoria'] ? Number(params['categoria']) : '',
+          tipo: tipoFinal,
+          categoria: categoriaParam, // slug string, nunca Number
           precioMin: params['precioMin'] || '',
           precioMax: params['precioMax'] || '',
           condicion: params['condicion'] || '',
           ubicacion: params['ubicacion'] || '',
           conEnvio: params['conEnvio'] === 'true',
           orden: params['orden'] || 'relevancia',
-
-          // Vehículos
           marca: params['marca'] || '',
           modelo: params['modelo'] || '',
           anioMin: params['anioMin'] || '',
@@ -233,91 +268,99 @@ export class SearchComponent implements OnInit, AfterViewInit, OnDestroy {
           itv: params['itv'] === 'true',
         },
         { emitEvent: false },
-      ); // ¡Clave! emitEvent: false evita que se dispare valueChanges
+      );
 
-      // Si la URL traía marca, necesitamos cargar dinámicamente sus modelos
-      if (params['marca']) {
-        this.cargarModelos(params['marca']);
-      }
+      if (params['marca']) this.cargarModelos(params['marca']);
 
-      // 4. Reactivamos la escucha del formulario
+      // Reactivar escucha del form
       this.formSub = this.filterForm.valueChanges
         .pipe(
           debounceTime(600),
-          distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)),
+          distinctUntilChanged((p, c) => JSON.stringify(p) === JSON.stringify(c)),
           takeUntil(this.destroy$),
         )
-        .subscribe((valores) => this.actualizarURL(valores));
+        .subscribe((v) => this.actualizarURL(v));
 
-      // 5. Ejecutamos la búsqueda basada en la URL que acaba de cargar
       this.realizarBusqueda(true);
     });
   }
 
-  private actualizarURL(valoresFormulario: any): void {
+  private actualizarURL(valores: any): void {
     const queryParams: any = {};
-
-    // Limpieza de parámetros vacíos, nulos o falsos para mantener la URL limpia
-    Object.keys(valoresFormulario).forEach((key) => {
-      const value = valoresFormulario[key];
-      if (value !== null && value !== undefined && value !== '' && value !== false) {
-        queryParams[key] = value;
+    Object.keys(valores).forEach((key) => {
+      const v = valores[key];
+      if (v !== null && v !== undefined && v !== '' && v !== false) {
+        queryParams[key] = v;
       }
     });
-
     this.router.navigate([], {
       relativeTo: this.route,
-      queryParams: queryParams,
-      queryParamsHandling: 'merge', // Respeta parámetros extra que pudiera haber
-      replaceUrl: false, // true = no guarda en el historial de navegación. false es mejor para buscadores.
+      queryParams,
+      queryParamsHandling: 'merge',
+      replaceUrl: false,
     });
   }
 
-  // --- 4. LÓGICA CORE DE BÚSQUEDA ---
+  // ═══════════════════════════════════════════════════════════════════
+  // 4. BÚSQUEDA CORE
+  // ═══════════════════════════════════════════════════════════════════
 
-  private realizarBusqueda(reiniciarPaginacion: boolean = false): void {
-    if (reiniciarPaginacion) {
+  private realizarBusqueda(reiniciar = false): void {
+    if (reiniciar) {
       this.cargando = true;
       this.paginaActual = 0;
       this.resultados = [];
       this.hayMasResultados = true;
-      this.cdr.detectChanges(); // Previene NG0100
+      this.cdr.detectChanges();
     } else {
       this.cargandoMas = true;
     }
 
+    const fv = this.filterForm.value;
+
     const params: SearchParams = {
-      ...this.filterForm.value,
+      q: fv.q,
+      tipo: fv.tipo,
+      categoria: fv.categoria || undefined,
+      precioMin: fv.precioMin || undefined,
+      precioMax: fv.precioMax || undefined,
+      condicion: fv.condicion || undefined,
+      ubicacion: fv.ubicacion || undefined,
+      conEnvio: fv.conEnvio || undefined,
+      orden: fv.orden,
       page: this.paginaActual,
       size: this.sizePorPagina,
+      marca: fv.marca || undefined,
+      modelo: fv.modelo || undefined,
+      anioMin: fv.anioMin || undefined,
+      anioMax: fv.anioMax || undefined,
+      kmMax: fv.kmMax || undefined,
+      combustible: fv.combustible || undefined,
+      cambio: fv.cambio || undefined,
+      potenciaMin: fv.potenciaMin || undefined,
+      cilindradaMin: fv.cilindradaMin || undefined,
+      color: fv.color || undefined,
+      numeroPuertas: fv.numeroPuertas || undefined,
+      plazas: fv.plazas || undefined,
+      garantia: fv.garantia || undefined,
+      itv: fv.itv || undefined,
     };
 
     this.searchService
       .buscar(params)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: (nuevosResultados) => {
-          // Si el backend devuelve menos del tamaño de página, ya no hay más resultados en BD
-          if (nuevosResultados.length < this.sizePorPagina) {
-            this.hayMasResultados = false;
-          }
-
-          if (reiniciarPaginacion) {
-            this.resultados = nuevosResultados;
-          } else {
-            // Concatena los resultados nuevos a los existentes (Scroll infinito)
-            this.resultados = [...this.resultados, ...nuevosResultados];
-          }
-
-          this.totalResultados = this.resultados.length;
+        next: ({ items, total }) => {
+          this.totalResultados = total;
+          this.resultados = reiniciar ? items : [...this.resultados, ...items];
+          this.hayMasResultados = this.resultados.length < total;
           this.cargando = false;
           this.cargandoMas = false;
           this.busquedaRealizada = true;
-
-          this.cdr.detectChanges(); // Sincroniza la vista con los nuevos datos de forma segura
+          this.cdr.detectChanges();
         },
         error: (err) => {
-          console.error('Error al realizar la búsqueda:', err);
+          console.error('Error en búsqueda:', err);
           this.cargando = false;
           this.cargandoMas = false;
           this.cdr.detectChanges();
@@ -325,31 +368,29 @@ export class SearchComponent implements OnInit, AfterViewInit, OnDestroy {
       });
   }
 
-  // --- 5. INTERSECTION OBSERVER (Scroll Infinito Nativo) ---
+  // ═══════════════════════════════════════════════════════════════════
+  // 5. SCROLL INFINITO
+  // ═══════════════════════════════════════════════════════════════════
 
   private setupIntersectionObserver(): void {
-    const options = {
-      root: null,
-      rootMargin: '150px', // Empieza a cargar 150px antes de llegar al pie de página (UX Fluida)
-      threshold: 0,
-    };
-
-    this.observer = new IntersectionObserver(([entry]) => {
-      if (entry.isIntersecting && !this.cargando && !this.cargandoMas && this.hayMasResultados) {
-        this.paginaActual++;
-        this.realizarBusqueda(false); // false = es una página nueva, no reiniciar
-      }
-    }, options);
-
-    if (this.scrollAnchor) {
-      this.observer.observe(this.scrollAnchor.nativeElement);
-    }
+    this.observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && !this.cargando && !this.cargandoMas && this.hayMasResultados) {
+          this.paginaActual++;
+          this.realizarBusqueda(false);
+        }
+      },
+      { root: null, rootMargin: '150px', threshold: 0 },
+    );
+    if (this.scrollAnchor) this.observer.observe(this.scrollAnchor.nativeElement);
   }
 
-  // --- 6. AUTOCOMPLETADOS Y GEOLOCALIZACIÓN PREMIUM ---
+  // ═══════════════════════════════════════════════════════════════════
+  // 6. AUTOCOMPLETADOS Y GEOLOCALIZACIÓN
+  // ═══════════════════════════════════════════════════════════════════
 
   private escucharAutocompletados(): void {
-    // Escucha el input de ubicación para llamar a Nominatim/OSM
+    // Ubicación → Nominatim
     this.filterForm
       .get('ubicacion')
       ?.valueChanges.pipe(debounceTime(400), distinctUntilChanged(), takeUntil(this.destroy$))
@@ -367,7 +408,7 @@ export class SearchComponent implements OnInit, AfterViewInit, OnDestroy {
         }
       });
 
-    // Cargar modelos automáticamente si el usuario cambia la marca de vehículo
+    // Marca → cargar modelos
     this.filterForm
       .get('marca')
       ?.valueChanges.pipe(distinctUntilChanged(), takeUntil(this.destroy$))
@@ -380,6 +421,25 @@ export class SearchComponent implements OnInit, AfterViewInit, OnDestroy {
           this.cdr.detectChanges();
         }
       });
+
+    // Categoría → detectar si es de vehículos (ahora slug, no id)
+    this.filterForm
+      .get('categoria')
+      ?.valueChanges.pipe(distinctUntilChanged(), takeUntil(this.destroy$))
+      .subscribe((slug) => {
+        // Actualizar título
+        this.actualizarTituloCat(slug || '');
+
+        // Forzar modo motor si el slug es de vehículos
+        if (this.slugEsVehiculo(slug)) {
+          this.filterForm.patchValue({ tipo: 'VEHICULO' }, { emitEvent: false });
+          this.esBusquedaVehiculo = true;
+          this.cdr.detectChanges();
+        } else if (slug === '' && this.filterForm.get('tipo')?.value === 'VEHICULO') {
+          // Si borran la categoría y el tipo era VEHICULO solo por la categoría,
+          // no lo reseteamos — el usuario puede haberlo elegido manualmente
+        }
+      });
   }
 
   seleccionarUbicacion(ubicacion: string): void {
@@ -388,31 +448,21 @@ export class SearchComponent implements OnInit, AfterViewInit, OnDestroy {
     this.cdr.detectChanges();
   }
 
-  /**
-   * FUNCIONALIDAD PREMIUM: "Cerca de mí".
-   * Usa HTML5 Geolocation API y geocodificación inversa (Reverse Geocoding)
-   */
   usarUbicacionActual(): void {
     if (!navigator.geolocation) {
       alert('Tu navegador no soporta geolocalización.');
       return;
     }
-
     this.obteniendoUbicacion = true;
     this.mostrandoSugerenciasUbi = false;
     this.cdr.detectChanges();
 
     navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const lat = position.coords.latitude;
-        const lon = position.coords.longitude;
-
-        // Geocodificación Inversa usando Nominatim (Gratuito y sin API Key)
-        const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=10&addressdetails=1`;
-
+      (pos) => {
+        const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${pos.coords.latitude}&lon=${pos.coords.longitude}&zoom=10&addressdetails=1`;
         this.http.get<any>(url).subscribe({
           next: (res) => {
-            if (res && res.address) {
+            if (res?.address) {
               const ciudad =
                 res.address.city ||
                 res.address.town ||
@@ -426,27 +476,57 @@ export class SearchComponent implements OnInit, AfterViewInit, OnDestroy {
           },
           error: () => {
             this.obteniendoUbicacion = false;
-            // Fallback si falla la geocodificación
             alert('No se pudo resolver el nombre de tu ciudad.');
             this.cdr.detectChanges();
           },
         });
       },
-      (error) => {
-        console.warn('Error obteniendo geolocalización:', error);
+      (err) => {
         this.obteniendoUbicacion = false;
-        if (error.code === 1) alert('Debes dar permisos de ubicación a tu navegador.');
+        if (err.code === 1) alert('Debes dar permisos de ubicación a tu navegador.');
         this.cdr.detectChanges();
       },
       { enableHighAccuracy: false, timeout: 10000, maximumAge: 60000 },
     );
   }
 
-  // --- 7. UTILIDADES DE LA UI ---
+  // ═══════════════════════════════════════════════════════════════════
+  // 7. HELPERS
+  // ═══════════════════════════════════════════════════════════════════
+
+  /** Devuelve true si el slug corresponde a la categoría de motor */
+  private slugEsVehiculo(slug: string): boolean {
+    if (!slug) return false;
+    const lower = slug.toLowerCase();
+    return VEHICLE_SLUGS.some((kw) => lower.includes(kw));
+  }
+
+  /**
+   * Rellena `categoriaNombreActual` con el nombre bonito de la categoría.
+   * Busca en las categorías cargadas por slug; si aún no están cargadas,
+   * capitaliza el slug como fallback y se sobreescribirá en `cargarCategorias`.
+   */
+  private actualizarTituloCat(slug: string): void {
+    if (!slug) {
+      this.categoriaNombreActual.set('');
+      return;
+    }
+    const cat = this.categoriasDisponibles.find(
+      (c: any) => (c.slug || '').toLowerCase() === slug.toLowerCase(),
+    );
+    this.categoriaNombreActual.set(
+      cat ? (cat as any).nombre : slug.charAt(0).toUpperCase() + slug.slice(1),
+    );
+  }
+
+  // ═══════════════════════════════════════════════════════════════════
+  // 8. UTILIDADES UI
+  // ═══════════════════════════════════════════════════════════════════
 
   limpiarFiltros(): void {
+    const q = this.filterForm.get('q')?.value;
     this.filterForm.reset({
-      q: this.filterForm.get('q')?.value, // Mantenemos la palabra clave de búsqueda
+      q,
       tipo: 'TODOS',
       conEnvio: false,
       garantia: false,
@@ -454,36 +534,37 @@ export class SearchComponent implements OnInit, AfterViewInit, OnDestroy {
       orden: 'relevancia',
     });
     this.modelosDisponibles = [];
+    this.esBusquedaVehiculo = false;
+    this.categoriaNombreActual.set('');
     this.cdr.detectChanges();
   }
 
   limpiarFiltrosMotor(): void {
-    this.filterForm.patchValue({
-      marca: '',
-      modelo: '',
-      anioMin: '',
-      anioMax: '',
-      kmMax: '',
-      combustible: '',
-      cambio: '',
-      potenciaMin: '',
-      cilindradaMin: '',
-      color: '',
-      numeroPuertas: '',
-      plazas: '',
-      garantia: false,
-      itv: false,
-    });
+    this.filterForm.patchValue(
+      {
+        marca: '',
+        modelo: '',
+        anioMin: '',
+        anioMax: '',
+        kmMax: '',
+        combustible: '',
+        cambio: '',
+        potenciaMin: '',
+        cilindradaMin: '',
+        color: '',
+        numeroPuertas: '',
+        plazas: '',
+        garantia: false,
+        itv: false,
+      },
+      { emitEvent: false },
+    );
+    this.modelosDisponibles = [];
   }
 
   toggleMobileFilters(): void {
     this.isMobileFiltersOpen = !this.isMobileFiltersOpen;
-    // Previene el scroll del body principal cuando el modal de filtros está abierto en móvil
-    if (this.isMobileFiltersOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
-    }
+    document.body.style.overflow = this.isMobileFiltersOpen ? 'hidden' : '';
     this.cdr.detectChanges();
   }
 }

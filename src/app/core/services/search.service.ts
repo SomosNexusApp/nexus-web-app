@@ -12,30 +12,36 @@ export interface SearchParams {
   q?: string;
   tipo?: 'TODOS' | 'PRODUCTO' | 'OFERTA' | 'VEHICULO';
   categoria?: number | string;
-  precioMin?: number;
-  precioMax?: number;
+  precioMin?: number | string;
+  precioMax?: number | string;
   condicion?: string;
   ubicacion?: string;
   conEnvio?: boolean;
   orden?: string;
   page?: number;
   size?: number;
-  // Específicos de Vehículos
+  // Vehículos
   marca?: string;
   modelo?: string;
-  anioMin?: number;
-  anioMax?: number;
-  kmMax?: number;
+  anioMin?: number | string;
+  anioMax?: number | string;
+  kmMax?: number | string;
   combustible?: string;
   cambio?: string;
   tipoVehiculo?: string;
-  potenciaMin?: number;
-  cilindradaMin?: number;
+  potenciaMin?: number | string;
+  cilindradaMin?: number | string;
   color?: string;
-  numeroPuertas?: number;
-  plazas?: number;
+  numeroPuertas?: number | string;
+  plazas?: number | string;
   garantia?: boolean;
   itv?: boolean;
+}
+
+/** Lo que devuelve buscar() al componente */
+export interface SearchResult {
+  items: SearchResultItem[];
+  total: number;
 }
 
 export type SearchResultItem =
@@ -43,9 +49,7 @@ export type SearchResultItem =
   | (Oferta & { searchType: 'OFERTA' })
   | (Vehiculo & { searchType: 'VEHICULO' });
 
-@Injectable({
-  providedIn: 'root',
-})
+@Injectable({ providedIn: 'root' })
 export class SearchService {
   private http = inject(HttpClient);
   private apiUrl = environment.apiUrl;
@@ -53,134 +57,205 @@ export class SearchService {
   private marcasCache: string[] = [];
   private modelosCache: { [marca: string]: string[] } = {};
 
-  buscar(params: SearchParams): Observable<SearchResultItem[]> {
-    const httpParams = this.buildHttpParams(params);
+  // ─── MÉTODO PÚBLICO PRINCIPAL ───────────────────────────────────────────────
+
+  buscar(params: SearchParams): Observable<SearchResult> {
     const tipo = params.tipo || 'TODOS';
 
-    // Llamadas corregidas a los endpoints Singulares + /filtrar
-    // Y lectura del campo "contenido" del Pageable de Spring Boot
-    const reqProductos = this.http
-      .get<any>(`${this.apiUrl}/producto/filtrar`, { params: httpParams })
-      .pipe(
-        map((res) => {
-          const lista = res.contenido || res || [];
-          return lista.map((p: any) => ({ ...p, searchType: 'PRODUCTO' as const }));
-        }),
-        catchError(() => of([] as SearchResultItem[])),
-      );
+    if (tipo === 'PRODUCTO') return this.buscarProductos(params);
+    if (tipo === 'OFERTA') return this.buscarOfertas(params);
+    if (tipo === 'VEHICULO') return this.buscarVehiculos(params);
 
-    const reqOfertas = this.http
-      .get<any>(`${this.apiUrl}/oferta/filtrar`, { params: httpParams })
-      .pipe(
-        map((res) => {
-          const lista = res.contenido || res || [];
-          return lista.map((o: any) => ({ ...o, searchType: 'OFERTA' as const }));
-        }),
-        catchError(() => of([] as SearchResultItem[])),
-      );
-
-    const reqVehiculos = this.http
-      .get<any>(`${this.apiUrl}/vehiculo/filtrar`, { params: httpParams })
-      .pipe(
-        map((res) => {
-          const lista = res.contenido || res || [];
-          return lista.map((v: any) => ({ ...v, searchType: 'VEHICULO' as const }));
-        }),
-        catchError(() => of([] as SearchResultItem[])),
-      );
-
-    if (tipo === 'PRODUCTO') return reqProductos;
-    if (tipo === 'OFERTA') return reqOfertas;
-    if (tipo === 'VEHICULO') return reqVehiculos;
-
+    // TODOS → paralelo con forkJoin
     return forkJoin({
-      productos: reqProductos,
-      ofertas: reqOfertas,
-      vehiculos: reqVehiculos,
+      productos: this.buscarProductos(params),
+      ofertas: this.buscarOfertas(params),
+      vehiculos: this.buscarVehiculos(params),
     }).pipe(
-      map(({ productos, ofertas, vehiculos }) => {
-        const mezclados: SearchResultItem[] = [...productos, ...ofertas, ...vehiculos];
-        return this.ordenarResultados(mezclados, params.orden);
-      }),
+      map(({ productos, ofertas, vehiculos }) => ({
+        items: this.ordenarResultados(
+          [...productos.items, ...ofertas.items, ...vehiculos.items],
+          params.orden,
+        ),
+        total: productos.total + ofertas.total + vehiculos.total,
+      })),
     );
   }
 
-  private buildHttpParams(params: SearchParams): HttpParams {
-    let httpParams = new HttpParams();
+  // ─── BÚSQUEDAS POR TIPO ─────────────────────────────────────────────────────
 
-    // Mapeo básico común
-    const baseParams: any = {
-      busqueda: params.q || '',
-      pagina: params.page || 0,
-      tamano: params.size || 20,
-      precioMin: params.precioMin || '',
-      precioMax: params.precioMax || '',
-      ubicacion: params.ubicacion || '',
-      categoria: params.categoria || '',
-      orden: params.orden || 'relevancia',
-    };
+  /**
+   * GET /producto/filtrar
+   * Params backend: categoria, precioMin, precioMax, busqueda, ubicacion,
+   *                 conEnvio, orden, garantia, itv, pagina, tamano
+   * Respuesta:      { contenido, totalElementos, totalPaginas, paginaActual }
+   */
+  private buscarProductos(params: SearchParams): Observable<SearchResult> {
+    let p = new HttpParams()
+      .set('pagina', String(params.page ?? 0))
+      .set('tamano', String(params.size ?? 20));
 
-    // Filtros que SOLO deben ir si el tipo es VEHICULO
-    if (params.tipo === 'VEHICULO') {
-      baseParams.marca = params.marca || '';
-      baseParams.combustible = params.combustible || '';
-      baseParams.garantia = params.garantia || false;
-      baseParams.itv = params.itv || false;
-    } else {
-      // Filtros que SOLO deben ir si NO es VEHICULO
-      baseParams.conEnvio = params.conEnvio || false;
+    if (params.q) p = p.set('busqueda', params.q);
+    if (params.categoria) p = p.set('categoria', String(params.categoria));
+    if (this.hasValue(params.precioMin)) p = p.set('precioMin', String(params.precioMin));
+    if (this.hasValue(params.precioMax)) p = p.set('precioMax', String(params.precioMax));
+    if (params.ubicacion) p = p.set('ubicacion', params.ubicacion);
+    if (params.conEnvio) p = p.set('conEnvio', 'true');
+    if (params.orden) p = p.set('orden', params.orden);
+
+    return this.http.get<any>(`${this.apiUrl}/producto/filtrar`, { params: p }).pipe(
+      map((res) => {
+        const lista: any[] = res?.contenido ?? (Array.isArray(res) ? res : []);
+        return {
+          items: lista.map((item: any) => ({ ...item, searchType: 'PRODUCTO' as const })),
+          total: res?.totalElementos ?? lista.length,
+        };
+      }),
+      catchError(() => of({ items: [], total: 0 })),
+    );
+  }
+
+  /**
+   * GET /oferta/filtrar
+   * Params backend: categoria, tienda, precioMin, precioMax, busqueda,
+   *                 soloActivas, ordenarPor, direccion, pagina, tamañoPagina
+   * Respuesta:      { ofertas, paginaActual, totalPaginas, totalElementos }
+   */
+  private buscarOfertas(params: SearchParams): Observable<SearchResult> {
+    const { ordenarPor, direccion } = this.mapOrdenToOferta(params.orden);
+
+    let p = new HttpParams()
+      .set('pagina', String(params.page ?? 0))
+      .set('tamañoPagina', String(params.size ?? 20))
+      .set('soloActivas', 'true')
+      .set('ordenarPor', ordenarPor)
+      .set('direccion', direccion);
+
+    if (params.q) p = p.set('busqueda', params.q);
+    if (params.categoria) p = p.set('categoria', String(params.categoria));
+    if (this.hasValue(params.precioMin)) p = p.set('precioMin', String(params.precioMin));
+    if (this.hasValue(params.precioMax)) p = p.set('precioMax', String(params.precioMax));
+
+    return this.http.get<any>(`${this.apiUrl}/oferta/filtrar`, { params: p }).pipe(
+      map((res) => {
+        // ⚠️ El backend devuelve la lista bajo la clave "ofertas", no "contenido"
+        const lista: any[] = res?.ofertas ?? res?.contenido ?? (Array.isArray(res) ? res : []);
+        return {
+          items: lista.map((item: any) => ({ ...item, searchType: 'OFERTA' as const })),
+          total: res?.totalElementos ?? lista.length,
+        };
+      }),
+      catchError(() => of({ items: [], total: 0 })),
+    );
+  }
+
+  /**
+   * GET /vehiculo/filtrar
+   * Params backend: tipo, marca, modelo, precioMin, precioMax, anioMin, anioMax,
+   *                 kmMax, combustible, cambio, busqueda, potenciaMin, cilindradaMin,
+   *                 color, numeroPuertas, plazas, garantia, itv, pagina, tamano
+   * Respuesta:      { contenido, paginaActual, totalPaginas, totalElementos }
+   */
+  private buscarVehiculos(params: SearchParams): Observable<SearchResult> {
+    let p = new HttpParams()
+      .set('pagina', String(params.page ?? 0))
+      .set('tamano', String(params.size ?? 20));
+
+    if (params.q) p = p.set('busqueda', params.q);
+    if (params.tipoVehiculo) p = p.set('tipo', params.tipoVehiculo);
+    if (params.marca) p = p.set('marca', params.marca);
+    if (params.modelo) p = p.set('modelo', params.modelo);
+    if (params.combustible) p = p.set('combustible', params.combustible);
+    if (params.cambio) p = p.set('cambio', params.cambio);
+    if (params.color) p = p.set('color', params.color);
+    if (this.hasValue(params.precioMin)) p = p.set('precioMin', String(params.precioMin));
+    if (this.hasValue(params.precioMax)) p = p.set('precioMax', String(params.precioMax));
+    if (this.hasValue(params.anioMin)) p = p.set('anioMin', String(params.anioMin));
+    if (this.hasValue(params.anioMax)) p = p.set('anioMax', String(params.anioMax));
+    if (this.hasValue(params.kmMax)) p = p.set('kmMax', String(params.kmMax));
+    if (this.hasValue(params.potenciaMin)) p = p.set('potenciaMin', String(params.potenciaMin));
+    if (this.hasValue(params.cilindradaMin))
+      p = p.set('cilindradaMin', String(params.cilindradaMin));
+    if (this.hasValue(params.numeroPuertas))
+      p = p.set('numeroPuertas', String(params.numeroPuertas));
+    if (this.hasValue(params.plazas)) p = p.set('plazas', String(params.plazas));
+    if (params.garantia === true) p = p.set('garantia', 'true');
+    if (params.itv === true) p = p.set('itv', 'true');
+
+    return this.http.get<any>(`${this.apiUrl}/vehiculo/filtrar`, { params: p }).pipe(
+      map((res) => {
+        const lista: any[] = res?.contenido ?? (Array.isArray(res) ? res : []);
+        return {
+          items: lista.map((item: any) => ({ ...item, searchType: 'VEHICULO' as const })),
+          total: res?.totalElementos ?? lista.length,
+        };
+      }),
+      catchError(() => of({ items: [], total: 0 })),
+    );
+  }
+
+  // ─── HELPERS ────────────────────────────────────────────────────────────────
+
+  /** Valor no vacío y no nulo */
+  private hasValue(v: any): boolean {
+    return v !== null && v !== undefined && v !== '' && v !== 0;
+  }
+
+  /** Mapea el orden del frontend a los parámetros que acepta OfertaController */
+  private mapOrdenToOferta(orden?: string): { ordenarPor: string; direccion: string } {
+    switch (orden) {
+      case 'precio_asc':
+        return { ordenarPor: 'precioOferta', direccion: 'asc' };
+      case 'precio_desc':
+        return { ordenarPor: 'precioOferta', direccion: 'desc' };
+      case 'reciente':
+        return { ordenarPor: 'fechaPublicacion', direccion: 'desc' };
+      case 'spark':
+        return { ordenarPor: 'sparkScore', direccion: 'desc' };
+      default:
+        return { ordenarPor: 'fechaPublicacion', direccion: 'desc' };
     }
-
-    Object.entries(baseParams).forEach(([key, value]) => {
-      if (value !== null && value !== undefined && value !== '') {
-        httpParams = httpParams.set(key, value.toString());
-      }
-    });
-
-    return httpParams;
   }
 
   private ordenarResultados(items: SearchResultItem[], orden?: string): SearchResultItem[] {
     switch (orden) {
       case 'precio_asc':
-        return items.sort((a, b) => this.getPrecio(a) - this.getPrecio(b));
+        return [...items].sort((a, b) => this.getPrecio(a) - this.getPrecio(b));
       case 'precio_desc':
-        return items.sort((a, b) => this.getPrecio(b) - this.getPrecio(a));
+        return [...items].sort((a, b) => this.getPrecio(b) - this.getPrecio(a));
       case 'reciente':
-        return items.sort(
+        return [...items].sort(
           (a, b) =>
-            new Date(b.fechaPublicacion || 0).getTime() -
-            new Date(a.fechaPublicacion || 0).getTime(),
+            new Date((b as any).fechaPublicacion || 0).getTime() -
+            new Date((a as any).fechaPublicacion || 0).getTime(),
         );
-      case 'relevancia':
       default:
         return items;
     }
   }
 
   private getPrecio(item: SearchResultItem): number {
-    if (item.searchType === 'OFERTA') return item.precioOferta || item.precioOriginal || 0;
-    return item.precio || 0;
+    if (item.searchType === 'OFERTA') {
+      return (item as any).precioOferta ?? (item as any).precioOriginal ?? 0;
+    }
+    return (item as any).precio ?? 0;
   }
 
-  // --- Integraciones APIs Externas ---
+  // ─── APIs EXTERNAS ───────────────────────────────────────────────────────────
+
   buscarUbicacionExterna(query: string): Observable<string[]> {
     if (!query || query.length < 3) return of([]);
     const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&countrycodes=es&format=json&addressdetails=1&limit=5`;
     return this.http.get<any[]>(url).pipe(
-      map((resultados: any[]) => {
+      map((resultados) => {
         const lista = resultados.map((res) => {
-          const address = res.address;
+          const addr = res.address;
           const localidad =
-            address.city ||
-            address.town ||
-            address.village ||
-            address.municipality ||
-            'Desconocido';
-          const provincia = address.county || address.province || address.state || '';
+            addr.city || addr.town || addr.village || addr.municipality || 'Desconocido';
+          const provincia = addr.county || addr.province || addr.state || '';
           return `${localidad}, ${provincia}`.trim().replace(/,\s*$/, '');
         });
-        return Array.from(new Set(lista));
+        return Array.from(new Set(lista)) as string[];
       }),
       catchError(() => of([])),
     );
@@ -203,14 +278,14 @@ export class SearchService {
 
   getModelosPorMarca(marca: string): Observable<string[]> {
     if (!marca) return of([]);
-    const marcaFormat = marca.toLowerCase();
-    if (this.modelosCache[marcaFormat]) return of(this.modelosCache[marcaFormat]);
-    const url = `https://vpic.nhtsa.dot.gov/api/vehicles/GetModelsForMake/${encodeURIComponent(marcaFormat)}?format=json`;
+    const key = marca.toLowerCase();
+    if (this.modelosCache[key]) return of(this.modelosCache[key]);
+    const url = `https://vpic.nhtsa.dot.gov/api/vehicles/GetModelsForMake/${encodeURIComponent(key)}?format=json`;
     return this.http.get<any>(url).pipe(
       map((res) => {
         const modelos = res.Results.map((item: any) => this.capitalize(item.Model_Name)).sort();
-        this.modelosCache[marcaFormat] = Array.from(new Set(modelos)) as string[];
-        return this.modelosCache[marcaFormat];
+        this.modelosCache[key] = Array.from(new Set(modelos)) as string[];
+        return this.modelosCache[key];
       }),
       catchError(() => of([])),
     );

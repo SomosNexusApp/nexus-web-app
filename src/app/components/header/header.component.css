@@ -196,6 +196,13 @@
   transform: scale(1.05);
 }
 
+/* antes: hr.dropdown-divider */
+.dropdown-divider {
+  height: 1px;
+  background: #f1f5f9;
+  margin: 6px 0;
+}
+
 /* Invitado: Botones Texto */
 .guest-buttons {
   display: flex;

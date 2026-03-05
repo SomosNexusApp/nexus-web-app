@@ -1,72 +1,109 @@
-import { Component, inject, OnInit, signal, HostListener } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy, signal, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule, Router, ActivatedRoute } from '@angular/router';
+import { RouterModule, Router, NavigationEnd } from '@angular/router';
 import { ReactiveFormsModule, FormControl } from '@angular/forms';
-import { debounceTime, distinctUntilChanged } from 'rxjs';
+import { debounceTime, distinctUntilChanged, filter, Subject, takeUntil } from 'rxjs';
 
-// Servicios reales
 import { AuthStore } from '../../core/auth/auth-store';
 import { AuthService } from '../../core/auth/auth.service';
 import { GuestPopupService } from '../../core/services/guest-popup.service';
+import { CategoriaPanelComponent } from '../../shared/components/categoria-panel/categoria-panel.component';
+
+interface NavLink {
+  label: string;
+  route: string;
+  queryParams?: Record<string, string>;
+  icon: string;
+}
 
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [CommonModule, RouterModule, ReactiveFormsModule],
+  imports: [CommonModule, RouterModule, ReactiveFormsModule, CategoriaPanelComponent],
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.css'],
 })
-export class HeaderComponent implements OnInit {
-  // Inyecciones de servicios
+export class HeaderComponent implements OnInit, OnDestroy {
   private authStore = inject(AuthStore);
   private authService = inject(AuthService);
   private guestPopup = inject(GuestPopupService);
   private router = inject(Router);
-  private route = inject(ActivatedRoute);
 
-  // Signals del Store (Reactividad pura)
+  private destroy$ = new Subject<void>();
+
+  // Signals del store
   readonly isLoggedIn = this.authStore.isLoggedIn;
   readonly usuario = this.authStore.user;
 
-  // Mock de notificaciones (se conectará a NotificationService más adelante)
+  // UI state
   readonly notifCount = signal(3);
+  readonly isUserDropdownOpen = signal(false);
 
-  // Estados de la interfaz
-  isUserDropdownOpen = signal(false);
-  isCategoriasPanelOpen = signal(false);
-
-  // Control del buscador
+  // Buscador
   searchControl = new FormControl('');
 
-  navLinks = [
-    { label: 'Categorías', route: '/categorias' },
-    { label: 'Ofertas Flash', route: '/ofertas' },
-    { label: 'Vehículos', route: '/vehiculos' },
-    { label: 'Cerca de ti', route: '/cerca' },
+  // Categorias
+  readonly isCategoriasPanelOpen = signal(false);
+
+  navLinks: NavLink[] = [
+    { label: 'Categorías', route: '/categorias', icon: 'grid' },
+    { label: 'Ofertas Flash', route: '/ofertas', icon: 'flash' },
+    {
+      label: 'Vehículos',
+      route: '/search',
+      queryParams: { tipo: 'VEHICULO' }, // ← va directo al buscador con filtros de vehículo
+      icon: 'car',
+    },
+    { label: 'Cerca de ti', route: '/cerca', icon: 'pin' },
   ];
 
   ngOnInit() {
-    // Sincronizar buscador con la URL si ya hay una búsqueda activa
-    this.route.queryParams.subscribe((params) => {
-      if (params['q']) {
-        this.searchControl.setValue(params['q'], { emitEvent: false });
-      }
-    });
-
-    // Lógica de búsqueda con debounce (300ms)
-    this.searchControl.valueChanges
-      .pipe(debounceTime(300), distinctUntilChanged())
-      .subscribe((value) => {
-        this.ejecutarBusqueda(value || '');
+    // ── Sincronizar input con la URL al navegar ──────────────────────────────
+    // Usamos Router.events porque el Header está en el app-shell (fuera del outlet)
+    // y ActivatedRoute allí apunta a la ruta raíz, no a la ruta activa hija.
+    this.router.events
+      .pipe(
+        filter((e): e is NavigationEnd => e instanceof NavigationEnd),
+        takeUntil(this.destroy$),
+      )
+      .subscribe(() => {
+        const urlTree = this.router.parseUrl(this.router.url);
+        const q = (urlTree.queryParams['q'] as string) ?? '';
+        // Solo actualizar si el valor es diferente para no re-disparar valueChanges
+        if (this.searchControl.value !== q) {
+          this.searchControl.setValue(q, { emitEvent: false });
+        }
       });
+
+    // ── Búsqueda con debounce ────────────────────────────────────────────────
+    this.searchControl.valueChanges
+      .pipe(debounceTime(400), distinctUntilChanged(), takeUntil(this.destroy$))
+      .subscribe((value) => {
+        this.ejecutarBusqueda(value ?? '');
+      });
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  toggleCategoriasPanel(): void {
+    this.isCategoriasPanelOpen.update((v) => !v);
   }
 
   ejecutarBusqueda(query: string) {
     const q = query.trim();
     if (q) {
-      this.router.navigate(['/search'], { queryParams: { q }, queryParamsHandling: 'merge' });
-    } else if (this.router.url.includes('/search')) {
-      this.router.navigate(['/search'], { queryParams: { q: null }, queryParamsHandling: 'merge' });
+      // Navegar a search preservando sólo 'q' y limpiando filtros anteriores
+      // (si quieres preservar otros queryParams, cambia a 'merge')
+      this.router.navigate(['/search'], { queryParams: { q } });
+    } else if (this.router.url.startsWith('/search')) {
+      // Si estamos en search y vaciamos el input, limpiar q
+      this.router.navigate(['/search'], {
+        queryParams: { q: null },
+        queryParamsHandling: 'merge',
+      });
     }
   }
 
@@ -74,7 +111,7 @@ export class HeaderComponent implements OnInit {
     this.searchControl.setValue('');
   }
 
-  // --- Acciones de Usuario ---
+  // ── Dropdown usuario ────────────────────────────────────────────────────────
 
   toggleUserDropdown(event: Event) {
     event.stopPropagation();
@@ -86,9 +123,10 @@ export class HeaderComponent implements OnInit {
     this.isUserDropdownOpen.set(false);
   }
 
+  // ── Acciones ────────────────────────────────────────────────────────────────
+
   onPublicarClick() {
     if (this.isLoggedIn()) {
-      // Aquí abrirías el PublicarSelectorModal
       console.log('Abriendo selector de publicación...');
     } else {
       this.guestPopup.showPopup('Para publicar necesitas una cuenta');
@@ -110,15 +148,23 @@ export class HeaderComponent implements OnInit {
   }
 
   getIniciales(nombre?: string, apellidos?: string): string {
-    let iniciales = '';
-    if (nombre) {
-      iniciales += nombre.charAt(0).toUpperCase();
-    }
-    if (apellidos) {
-      iniciales += apellidos.charAt(0).toUpperCase();
-    }
+    let i = '';
+    if (nombre) i += nombre.charAt(0).toUpperCase();
+    if (apellidos) i += apellidos.charAt(0).toUpperCase();
+    return i || 'U';
+  }
 
-    // si no hay letra pa nadie
-    return iniciales || 'U';
+  /** Indica si un navLink está activo (incluyendo queryParams para Vehículos). */
+  isNavActive(link: NavLink): boolean {
+    const url = this.router.url;
+    if (link.queryParams) {
+      // Para Vehículos: activo si estamos en /search?tipo=VEHICULO
+      const tree = this.router.parseUrl(url);
+      return (
+        url.startsWith(link.route) &&
+        Object.entries(link.queryParams).every(([k, v]) => tree.queryParams[k] === v)
+      );
+    }
+    return url.startsWith(link.route);
   }
 }

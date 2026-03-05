@@ -1,16 +1,18 @@
 <div class="nx-search-wrapper">
+  <!-- MOBILE GLASS HEADER -->
   <div class="nx-mobile-glass-header">
     <div class="nx-mobile-header-info">
       <h1 class="nx-mobile-title">
         @if (filterForm.get('q')?.value) {
           "{{ filterForm.get('q')?.value }}"
+        } @else if (categoriaNombreActual()) {
+          {{ categoriaNombreActual() }}
         } @else {
           Explorando {{ esBusquedaVehiculo ? 'Motor' : 'Catálogo' }}
         }
       </h1>
       <span class="nx-mobile-results-badge">{{ totalResultados }} resultados</span>
     </div>
-
     <button class="nx-btn-icon-glass" (click)="toggleMobileFilters()" aria-label="Abrir filtros">
       <i class="icon-sliders"></i>
       <span>Filtros</span>
@@ -21,6 +23,7 @@
     <div class="nx-glass-overlay" (click)="toggleMobileFilters()"></div>
   }
 
+  <!-- SIDEBAR FILTROS -->
   <aside class="nx-sidebar-glass" [class.nx-sidebar-open]="isMobileFiltersOpen">
     <div class="nx-sidebar-header">
       <div class="nx-sidebar-brand">
@@ -38,6 +41,7 @@
 
     <div class="nx-sidebar-scroll-container">
       <form [formGroup]="filterForm" class="nx-filter-form">
+        <!-- Tipo -->
         <div class="nx-form-group">
           <label class="nx-form-label">¿Qué estás buscando?</label>
           <div class="nx-segmented-control">
@@ -60,6 +64,7 @@
           </div>
         </div>
 
+        <!-- Ubicación -->
         <div class="nx-form-group nx-relative">
           <label class="nx-form-label">Ubicación</label>
           <div class="nx-input-with-icon">
@@ -71,7 +76,6 @@
               placeholder="Ciudad, provincia, código postal..."
               autocomplete="off"
             />
-
             <button
               type="button"
               class="nx-btn-locate"
@@ -85,7 +89,6 @@
               }
             </button>
           </div>
-
           @if (mostrandoSugerenciasUbi && sugerenciasUbicacion.length > 0) {
             <div class="nx-autocomplete-dropdown">
               <ul class="nx-dropdown-list">
@@ -100,22 +103,24 @@
           }
         </div>
 
-        <hr class="nx-divider-subtle" />
+        <div class="nx-divider-subtle"></div>
 
+        <!-- Categoría — value es slug (string), no id -->
         <div class="nx-form-group">
           <label class="nx-form-label">Categoría</label>
           <div class="nx-select-wrapper">
             <i class="icon-layers nx-icon-left"></i>
             <select formControlName="categoria" class="nx-dark-select">
               <option value="">Cualquier categoría</option>
-              @for (cat of categoriasDisponibles; track $index) {
-                <option [value]="cat.id">{{ cat.nombre }}</option>
+              @for (cat of categoriasDisponibles; track cat.id) {
+                <option [value]="cat.slug">{{ cat.nombre }}</option>
               }
             </select>
             <i class="icon-chevron-down nx-icon-right"></i>
           </div>
         </div>
 
+        <!-- Precio -->
         <div class="nx-form-group">
           <label class="nx-form-label">Rango de precio (€)</label>
           <div class="nx-dual-input-row">
@@ -141,6 +146,7 @@
           </div>
         </div>
 
+        <!-- Condición -->
         <div class="nx-form-group">
           <label class="nx-form-label">Condición del artículo</label>
           <div class="nx-select-wrapper">
@@ -156,6 +162,7 @@
           </div>
         </div>
 
+        <!-- Envío — solo si no es vehículo -->
         @if (!esBusquedaVehiculo) {
           <div class="nx-form-group">
             <label class="nx-toggle-switch-container">
@@ -171,9 +178,9 @@
           </div>
         }
 
+        <!-- ══ FILTROS DE MOTOR ══════════════════════════════════════ -->
         @if (esBusquedaVehiculo) {
-          <hr class="nx-divider-subtle" />
-
+          <div class="nx-divider-subtle"></div>
           <div class="nx-motor-section-title">
             <i class="icon-settings"></i> Especificaciones de Vehículo
           </div>
@@ -250,7 +257,6 @@
                 <i class="icon-chevron-down nx-icon-right"></i>
               </div>
             </div>
-
             <div class="nx-form-group">
               <label class="nx-form-label">Cambio</label>
               <div class="nx-select-wrapper">
@@ -277,7 +283,6 @@
                 <span class="nx-suffix">CV</span>
               </div>
             </div>
-
             <div class="nx-form-group">
               <label class="nx-form-label">Cilindrada Mínima</label>
               <div class="nx-input-with-suffix">
@@ -302,7 +307,6 @@
                 placeholder="Ej: 5"
               />
             </div>
-
             <div class="nx-form-group">
               <label class="nx-form-label">Plazas</label>
               <input
@@ -358,6 +362,7 @@
     </div>
   </aside>
 
+  <!-- ÁREA DE RESULTADOS -->
   <main class="nx-main-results-area">
     <header class="nx-results-header">
       <div class="nx-results-title-block">
@@ -365,13 +370,15 @@
           @if (filterForm.get('q')?.value) {
             Resultados para
             <span class="nx-text-highlight">"{{ filterForm.get('q')?.value }}"</span>
+          } @else if (categoriaNombreActual()) {
+            {{ categoriaNombreActual() }}
           } @else {
             Explora el catálogo completo
           }
         </h1>
-        <p class="nx-results-subtitle">
+        <span class="nx-results-subtitle">
           Hemos encontrado {{ totalResultados }} coincidencias exactas para ti.
-        </p>
+        </span>
       </div>
 
       <div class="nx-sort-wrapper" [formGroup]="filterForm">
@@ -404,7 +411,6 @@
             </div>
           </div>
         }
-
       } @else if (resultados.length > 0) {
         @for (item of resultados; track $index) {
           <div class="nx-card-glass-wrapper">
@@ -422,17 +428,16 @@
             }
           </div>
         }
-
       } @else if (busquedaRealizada) {
         <div class="nx-empty-glass-state">
           <div class="nx-empty-icon-circle">
             <i class="icon-search"></i>
           </div>
           <h2>No hay coincidencias</h2>
-          <p>
+          <span>
             No hemos encontrado resultados que cumplan con todos tus filtros. Prueba a reducir las
             restricciones o eliminar alguna palabra clave.
-          </p>
+          </span>
           <button class="nx-btn-primary-glow" (click)="limpiarFiltros()">
             Ver todo el catálogo
           </button>
