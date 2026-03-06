@@ -35,14 +35,7 @@
       <!-- Skeleton state -->
       @if (loading()) {
         @for (s of skeletons; track $index) {
-          <div class="card sk-card">
-            <div class="card-img sk-block"></div>
-            <div class="card-body">
-              <div class="sk-line" style="width: 55%; height: 9px"></div>
-              <div class="sk-line" style="width: 90%; height: 11px; margin-top: 6px"></div>
-              <div class="sk-line" style="width: 40%; height: 14px; margin-top: 10px"></div>
-            </div>
-          </div>
+          <app-oferta-card [isSkeleton]="true"></app-oferta-card>
         }
       }
 
@@ -85,82 +78,7 @@
       <!-- Offer cards -->
       @if (!loading() && !error()) {
         @for (oferta of ofertas(); track oferta.id) {
-          <article
-            class="card"
-            (click)="goToOffer(oferta.id)"
-            role="button"
-            [attr.tabindex]="0"
-            (keydown.enter)="goToOffer(oferta.id)"
-          >
-            <!-- Image -->
-            <div class="card-img">
-              @if (oferta.imagenPrincipal) {
-                <img
-                  [src]="oferta.imagenPrincipal"
-                  [alt]="oferta.titulo"
-                  class="img"
-                  loading="lazy"
-                  decoding="async"
-                />
-              } @else {
-                <div class="img-empty">
-                  <svg
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="1"
-                    stroke-linecap="round"
-                  >
-                    <rect x="3" y="3" width="18" height="18" rx="2" />
-                    <circle cx="8.5" cy="8.5" r="1.5" />
-                    <polyline points="21 15 16 10 5 21" />
-                  </svg>
-                </div>
-              }
-
-              <!-- Badge -->
-              @if (oferta.badge) {
-                <span class="badge" [class]="badgeMod(oferta.badge)">{{
-                  badgeLabel(oferta.badge)
-                }}</span>
-              }
-
-              <!-- Discount % -->
-              @if (hasDiscount(oferta)) {
-                <span class="disc-pill"
-                  >−{{ oferta.precioOferta | discountPercent: oferta.precioOriginal! }}%</span
-                >
-              }
-
-              <div class="img-scrim"></div>
-            </div>
-
-            <!-- Body -->
-            <div class="card-body">
-              @if (oferta.tienda) {
-                <span class="store">{{ oferta.tienda }}</span>
-              }
-              <h3 class="card-title">{{ oferta.titulo }}</h3>
-
-              <div class="price-row">
-                <span class="price-now">{{ oferta.precioOferta | currencyEs }}</span>
-                @if (oferta.precioOriginal) {
-                  <span class="price-was">{{ oferta.precioOriginal | currencyEs }}</span>
-                }
-              </div>
-
-              <footer class="card-foot">
-                <div class="spark">
-                  <svg viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z" />
-                  </svg>
-                  {{ oferta.sparkCount }}
-                </div>
-                <span class="dot"></span>
-                <span class="ago">{{ oferta.fechaPublicacion | timeAgo }}</span>
-              </footer>
-            </div>
-          </article>
+          <app-oferta-card [oferta]="$any(oferta)"></app-oferta-card>
         }
       }
     </div>

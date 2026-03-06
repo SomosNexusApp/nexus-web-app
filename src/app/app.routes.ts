@@ -79,19 +79,15 @@ export const routes: Routes = [
   //     ),
   // },
 
-  // // Protected - User Actions
-  // {
-  //   path: 'publicar',
-  //   loadComponent: () =>
-  //     import('./components/marketplace/publish/publish.component').then((m) => m.PublishComponent),
-  //   canActivate: [authGuard],
-  // },
-  // {
-  //   path: 'checkout/:productoId',
-  //   loadComponent: () =>
-  //     import('./components/compras/checkout/checkout.component').then((m) => m.CheckoutComponent),
-  //   canActivate: [authGuard],
-  // },
+  {
+    path: 'publicar',
+    loadComponent: () =>
+      import('./components/marketplace/publish-producto/publish-producto.component').then(
+        (m) => m.PublishProductoComponent,
+      ),
+    canActivate: [authGuard],
+  },
+
   // {
   //   path: 'compras/:id',
   //   loadComponent: () =>

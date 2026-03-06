@@ -87,13 +87,13 @@ export class SearchService {
   /**
    * GET /producto/filtrar
    * Params backend: categoria, precioMin, precioMax, busqueda, ubicacion,
-   *                 conEnvio, orden, garantia, itv, pagina, tamano
+   *                 conEnvio, orden, garantia, itv, page, size
    * Respuesta:      { contenido, totalElementos, totalPaginas, paginaActual }
    */
   private buscarProductos(params: SearchParams): Observable<SearchResult> {
     let p = new HttpParams()
-      .set('pagina', String(params.page ?? 0))
-      .set('tamano', String(params.size ?? 20));
+      .set('page', String(params.page ?? 0))
+      .set('size', String(params.size ?? 20));
 
     if (params.q) p = p.set('busqueda', params.q);
     if (params.categoria) p = p.set('categoria', String(params.categoria));
@@ -118,15 +118,15 @@ export class SearchService {
   /**
    * GET /oferta/filtrar
    * Params backend: categoria, tienda, precioMin, precioMax, busqueda,
-   *                 soloActivas, ordenarPor, direccion, pagina, tamañoPagina
+   *                 soloActivas, ordenarPor, direccion, page, size
    * Respuesta:      { ofertas, paginaActual, totalPaginas, totalElementos }
    */
   private buscarOfertas(params: SearchParams): Observable<SearchResult> {
     const { ordenarPor, direccion } = this.mapOrdenToOferta(params.orden);
 
     let p = new HttpParams()
-      .set('pagina', String(params.page ?? 0))
-      .set('tamañoPagina', String(params.size ?? 20))
+      .set('page', String(params.page ?? 0))
+      .set('size', String(params.size ?? 20))
       .set('soloActivas', 'true')
       .set('ordenarPor', ordenarPor)
       .set('direccion', direccion);
@@ -138,7 +138,6 @@ export class SearchService {
 
     return this.http.get<any>(`${this.apiUrl}/oferta/filtrar`, { params: p }).pipe(
       map((res) => {
-        // ⚠️ El backend devuelve la lista bajo la clave "ofertas", no "contenido"
         const lista: any[] = res?.ofertas ?? res?.contenido ?? (Array.isArray(res) ? res : []);
         return {
           items: lista.map((item: any) => ({ ...item, searchType: 'OFERTA' as const })),
@@ -153,13 +152,13 @@ export class SearchService {
    * GET /vehiculo/filtrar
    * Params backend: tipo, marca, modelo, precioMin, precioMax, anioMin, anioMax,
    *                 kmMax, combustible, cambio, busqueda, potenciaMin, cilindradaMin,
-   *                 color, numeroPuertas, plazas, garantia, itv, pagina, tamano
+   *                 color, numeroPuertas, plazas, garantia, itv, page, size
    * Respuesta:      { contenido, paginaActual, totalPaginas, totalElementos }
    */
   private buscarVehiculos(params: SearchParams): Observable<SearchResult> {
     let p = new HttpParams()
-      .set('pagina', String(params.page ?? 0))
-      .set('tamano', String(params.size ?? 20));
+      .set('page', String(params.page ?? 0))
+      .set('size', String(params.size ?? 20));
 
     if (params.q) p = p.set('busqueda', params.q);
     if (params.tipoVehiculo) p = p.set('tipo', params.tipoVehiculo);
@@ -258,6 +257,17 @@ export class SearchService {
         return Array.from(new Set(lista)) as string[];
       }),
       catchError(() => of([])),
+    );
+  }
+
+  obtenerCiudadDesdeCoords(lat: number, lon: number): Observable<string> {
+    const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=10&addressdetails=1`;
+    return this.http.get<any>(url).pipe(
+      map(res => {
+        if (!res?.address) return 'Ubicación desconocida';
+        return res.address.city || res.address.town || res.address.village || res.address.county || 'Tu ubicación';
+      }),
+      catchError(() => of('Tu ubicación'))
     );
   }
 

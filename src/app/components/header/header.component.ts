@@ -127,7 +127,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   onPublicarClick() {
     if (this.isLoggedIn()) {
-      console.log('Abriendo selector de publicación...');
+      this.router.navigate(['/publicar']);
     } else {
       this.guestPopup.showPopup('Para publicar necesitas una cuenta');
     }

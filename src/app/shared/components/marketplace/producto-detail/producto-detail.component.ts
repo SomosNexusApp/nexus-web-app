@@ -7,7 +7,7 @@ import {
   computed,
   ChangeDetectionStrategy,
 } from '@angular/core';
-import { CommonModule, NgOptimizedImage } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
@@ -29,7 +29,6 @@ import { environment } from '../../../../../environments/enviroment';
   imports: [
     CommonModule,
     RouterModule,
-    NgOptimizedImage,
     FormsModule,
     TimeAgoPipe,
     CurrencyEsPipe,

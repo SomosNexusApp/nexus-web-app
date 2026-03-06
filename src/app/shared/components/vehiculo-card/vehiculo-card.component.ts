@@ -3,27 +3,22 @@ import { CommonModule, NgOptimizedImage } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { CurrencyEsPipe } from '../../pipes/currency-es.pipe';
 import { SkeletonCardComponent } from '../skeleton-card/skeleton-card.component';
-import { Vehiculo } from '../../../models/vehiculo.model';
+import { CoverImagePipe } from '../../pipes/cover-image.pipe';
+import { MarketplaceItem } from '../../../models/marketplace-item.model';
 
 @Component({
   selector: 'app-vehiculo-card',
   standalone: true,
-  imports: [CommonModule, RouterModule, NgOptimizedImage, CurrencyEsPipe, SkeletonCardComponent],
+  imports: [CommonModule, RouterModule, NgOptimizedImage, CurrencyEsPipe, SkeletonCardComponent, CoverImagePipe],
   templateUrl: './vehiculo-card.component.html',
   styleUrls: ['./vehiculo-card.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class VehiculoCardComponent {
-  @Input() vehiculo!: Vehiculo;
+  @Input() vehiculo!: MarketplaceItem;
   @Input() isSkeleton = false;
 
   private router = inject(Router);
-
-  get coverImage(): string {
-    if (this.vehiculo?.imagenPrincipal) return this.vehiculo.imagenPrincipal;
-    if (this.vehiculo?.galeriaImagenes?.length) return this.vehiculo.galeriaImagenes[0];
-    return '/assets/placeholder-vehicle.webp';
-  }
 
   get tipoEmoji(): string {
     const map: Record<string, string> = {
@@ -33,7 +28,8 @@ export class VehiculoCardComponent {
       SCOOTER: '🛵',
       OTRO: '🚘',
     };
-    return this.vehiculo?.tipoVehiculo ? (map[this.vehiculo.tipoVehiculo] ?? '🚘') : '🚘';
+    const tipo = (this.vehiculo as any).tipoVehiculo;
+    return tipo ? (map[tipo] ?? '🚘') : '🚘';
   }
 
   get tipoLabel(): string {
@@ -44,17 +40,17 @@ export class VehiculoCardComponent {
       SCOOTER: 'Scooter',
       OTRO: 'Vehículo',
     };
-    return this.vehiculo?.tipoVehiculo
-      ? (map[this.vehiculo.tipoVehiculo] ?? 'Vehículo')
-      : 'Vehículo';
+    const tipo = (this.vehiculo as any).tipoVehiculo;
+    return tipo ? (map[tipo] ?? 'Vehículo') : 'Vehículo';
   }
 
   get kmFormateados(): string {
-    if (!this.vehiculo?.kilometros) return '—';
-    return new Intl.NumberFormat('es-ES').format(this.vehiculo.kilometros) + ' km';
+    const km = (this.vehiculo as any).kilometros;
+    if (!km) return '—';
+    return new Intl.NumberFormat('es-ES').format(km) + ' km';
   }
 
   navigateToDetail(): void {
-    this.router.navigate(['/vehiculos', this.vehiculo.id]);
+    this.router.navigate(['/search'], { queryParams: { q: this.vehiculo.titulo, tipo: 'VEHICULO' } });
   }
 }
