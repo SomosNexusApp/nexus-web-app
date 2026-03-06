@@ -2,16 +2,16 @@
   <app-skeleton-card variant="oferta"></app-skeleton-card>
 } @else {
   <div
-    class="oferta-card scale-in"
+    class="nexus-card scale-in"
     (click)="navigateToDetail()"
     role="article"
-    style="cursor: pointer"
+    [attr.aria-label]="oferta.titulo"
+    tabindex="0"
   >
     <div class="img-wrapper">
       <img
-        [ngSrc]="oferta | coverImage"
+        [src]="oferta | coverImage"
         [alt]="oferta.titulo"
-        fill
         class="object-cover"
         loading="lazy"
         (error)="$any($event.target).src = '/assets/placeholder-image.webp'"
@@ -19,34 +19,33 @@
       <div class="img-overlay"></div>
 
       @if (discountPercent > 0) {
-        <div class="discount-badge">-{{ discountPercent }}%</div>
+        <span class="discount-badge">-{{ discountPercent }}%</span>
       }
 
       @if ($any(oferta).badge) {
-        <div class="type-badge" [ngClass]="$any(oferta).badge.toLowerCase()">
+        <span class="type-badge" [ngClass]="$any(oferta).badge.toLowerCase()">
           {{ badgeEmoji }} {{ badgeLabel }}
-        </div>
+        </span>
       }
-
-      <div class="store-badge">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="11"
-          height="11"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-        >
-          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
-          <polyline points="9 22 9 12 15 12 15 22" />
-        </svg>
-        {{ $any(oferta).tienda || 'Particular' }}
-      </div>
     </div>
 
     <div class="card-body">
-      <p class="oferta-title" [title]="oferta.titulo">{{ oferta.titulo }}</p>
+      <div class="store-row">
+        <span class="store-badge">
+          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          {{ $any(oferta).tienda || 'Particular' }}
+        </span>
+        @if (expiraProxima && countdown()) {
+          <span class="countdown">
+            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            {{ countdown() }}
+          </span>
+        } @else {
+          <span class="pub-time">{{ oferta.fechaPublicacion | timeAgo }}</span>
+        }
+      </div>
+
+      <h3 class="oferta-title" [title]="oferta.titulo">{{ oferta.titulo }}</h3>
 
       <div class="price-row">
         <span class="price-new">{{ oferta.precioOferta || oferta.precio | currencyEs }}</span>
@@ -56,45 +55,33 @@
       </div>
 
       @if ($any(oferta).codigoDescuento) {
-        <div class="codigo-chip" (click)="copiarCodigo($event)">
-          <span
-            >Código: <strong>{{ $any(oferta).codigoDescuento }}</strong></span
-          >
-          @if (copiado()) {
-            <span class="copiado-tag">✓ Copiado</span>
-          }
+        <div class="codigo-chip-wrapper">
+          <button class="codigo-chip" (click)="copiarCodigo($event)" [class.copied]="copiado()" type="button" aria-label="Copiar cupón">
+            <svg class="coupon-icon" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 12H16c-.7 2-3 3-4.5 1.5c-1.5 1.5-3.8.5-4.5-1.5H2v-2h5c.7-2 3-3 4.5-1.5c1.5-1.5 3.8-.5 4.5 1.5h5.5v2z"/></svg>
+            <span class="codigo-text">{{ copiado() ? '¡Copiado!' : $any(oferta).codigoDescuento }}</span>
+          </button>
         </div>
       }
 
-      <div class="spark-bar-row">
-        <span class="spark-bar-icon">🔥</span>
-        <span class="spark-bar-count">{{ sparkCount() }}</span>
-        <div class="spark-bar-track">
-          <div class="spark-bar-fill" [style.width.%]="sparkTempWidth"></div>
+      <div class="card-footer">
+        <div class="spark-bar-container" title="Termómetro de la oferta">
+          <div class="spark-icons">
+            <span class="fire-icon">🔥</span>
+          </div>
+          <div class="spark-bar-track">
+            <div class="spark-bar-fill" [style.width.%]="sparkTempWidth"></div>
+          </div>
+          <span class="spark-score-text">{{ sparkCount() }}°</span>
         </div>
-      </div>
 
-      <div class="vote-row">
-        <button
-          class="vote-btn spark-btn"
-          [class.active]="miVoto() === true"
-          (click)="votar(true, $event)"
-        >
-          🔥 <span>{{ sparkCount() }}</span>
-        </button>
-        <button
-          class="vote-btn drip-btn"
-          [class.active]="miVoto() === false"
-          (click)="votar(false, $event)"
-        >
-          ❄️ <span>{{ dripCount() }}</span>
-        </button>
-
-        @if (expiraProxima && countdown()) {
-          <span class="countdown">⏰ {{ countdown() }}</span>
-        } @else {
-          <span class="pub-time">{{ oferta.fechaPublicacion | timeAgo }}</span>
-        }
+        <div class="vote-actions">
+          <button class="vote-btn spark-btn" [class.active]="miVoto() === true" (click)="votar(true, $event)" aria-label="Dar Spark">
+            🔥
+          </button>
+          <button class="vote-btn drip-btn" [class.active]="miVoto() === false" (click)="votar(false, $event)" aria-label="Dar Drip">
+            ❄️
+          </button>
+        </div>
       </div>
     </div>
   </div>

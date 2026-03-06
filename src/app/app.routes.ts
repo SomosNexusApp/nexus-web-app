@@ -82,8 +82,15 @@ export const routes: Routes = [
   {
     path: 'publicar',
     loadComponent: () =>
-      import('./components/marketplace/publish-producto/publish-producto.component').then(
-        (m) => m.PublishProductoComponent,
+      import('./components/marketplace/publish-producto/publish-producto.component').then((m) => m.PublishProductoComponent,
+      ),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'publicar/oferta',
+    loadComponent: () =>
+      import('./components/marketplace/publish-oferta/publish-oferta.component').then(
+        (m) => m.PublishOfertaComponent
       ),
     canActivate: [authGuard],
   },
