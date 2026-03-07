@@ -4,6 +4,7 @@ import { Router, RouterModule } from '@angular/router';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { environment } from '../../../../environments/enviroment';
 import { OfertaCardComponent } from '../../../shared/components/marketplace/oferta-card/oferta-card.component';
+import { AuthStore } from '../../../../app/core/auth/auth-store';
 
 export interface Categoria {
   id: number;
@@ -22,6 +23,7 @@ export interface Categoria {
 export class OfertasCategoriaComponent implements OnInit {
   private http = inject(HttpClient);
   private router = inject(Router);
+  private authStore = inject(AuthStore);
 
   categorias = signal<Categoria[]>([]);
   activeSlug = signal<string>('');
@@ -65,11 +67,14 @@ export class OfertasCategoriaComponent implements OnInit {
     this.loadingItems.set(true);
     this.errorItems.set(false);
 
-    const params = new HttpParams()
+    let params = new HttpParams()
       .set('categoria', slug)
       .set('soloActivas', 'true')
       .set('page', '0')
       .set('size', '6');
+
+    const usuarioId = this.authStore.user()?.id;
+    if (usuarioId) params = params.set('usuarioId', String(usuarioId));
 
     this.http.get<any>(`${environment.apiUrl}/oferta/filtrar`, { params }).subscribe({
       next: (res) => {

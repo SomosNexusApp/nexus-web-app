@@ -59,18 +59,18 @@ export class SearchService {
 
   // ─── MÉTODO PÚBLICO PRINCIPAL ───────────────────────────────────────────────
 
-  buscar(params: SearchParams): Observable<SearchResult> {
+  buscar(params: SearchParams, usuarioId?: number): Observable<SearchResult> {
     const tipo = params.tipo || 'TODOS';
 
-    if (tipo === 'PRODUCTO') return this.buscarProductos(params);
-    if (tipo === 'OFERTA') return this.buscarOfertas(params);
-    if (tipo === 'VEHICULO') return this.buscarVehiculos(params);
+    if (tipo === 'PRODUCTO') return this.buscarProductos(params, usuarioId);
+    if (tipo === 'OFERTA') return this.buscarOfertas(params, usuarioId);
+    if (tipo === 'VEHICULO') return this.buscarVehiculos(params, usuarioId);
 
     // TODOS → paralelo con forkJoin
     return forkJoin({
-      productos: this.buscarProductos(params),
-      ofertas: this.buscarOfertas(params),
-      vehiculos: this.buscarVehiculos(params),
+      productos: this.buscarProductos(params, usuarioId),
+      ofertas: this.buscarOfertas(params, usuarioId),
+      vehiculos: this.buscarVehiculos(params, usuarioId),
     }).pipe(
       map(({ productos, ofertas, vehiculos }) => ({
         items: this.ordenarResultados(
@@ -84,13 +84,7 @@ export class SearchService {
 
   // ─── BÚSQUEDAS POR TIPO ─────────────────────────────────────────────────────
 
-  /**
-   * GET /producto/filtrar
-   * Params backend: categoria, precioMin, precioMax, busqueda, ubicacion,
-   *                 conEnvio, orden, garantia, itv, page, size
-   * Respuesta:      { contenido, totalElementos, totalPaginas, paginaActual }
-   */
-  private buscarProductos(params: SearchParams): Observable<SearchResult> {
+  private buscarProductos(params: SearchParams, usuarioId?: number): Observable<SearchResult> {
     let p = new HttpParams()
       .set('page', String(params.page ?? 0))
       .set('size', String(params.size ?? 20));
@@ -102,6 +96,7 @@ export class SearchService {
     if (params.ubicacion) p = p.set('ubicacion', params.ubicacion);
     if (params.conEnvio) p = p.set('conEnvio', 'true');
     if (params.orden) p = p.set('orden', params.orden);
+    if (usuarioId) p = p.set('usuarioId', String(usuarioId));
 
     return this.http.get<any>(`${this.apiUrl}/producto/filtrar`, { params: p }).pipe(
       map((res) => {
@@ -115,13 +110,7 @@ export class SearchService {
     );
   }
 
-  /**
-   * GET /oferta/filtrar
-   * Params backend: categoria, tienda, precioMin, precioMax, busqueda,
-   *                 soloActivas, ordenarPor, direccion, page, size
-   * Respuesta:      { ofertas, paginaActual, totalPaginas, totalElementos }
-   */
-  private buscarOfertas(params: SearchParams): Observable<SearchResult> {
+  private buscarOfertas(params: SearchParams, usuarioId?: number): Observable<SearchResult> {
     const { ordenarPor, direccion } = this.mapOrdenToOferta(params.orden);
 
     let p = new HttpParams()
@@ -135,6 +124,7 @@ export class SearchService {
     if (params.categoria) p = p.set('categoria', String(params.categoria));
     if (this.hasValue(params.precioMin)) p = p.set('precioMin', String(params.precioMin));
     if (this.hasValue(params.precioMax)) p = p.set('precioMax', String(params.precioMax));
+    if (usuarioId) p = p.set('usuarioId', String(usuarioId));
 
     return this.http.get<any>(`${this.apiUrl}/oferta/filtrar`, { params: p }).pipe(
       map((res) => {
@@ -148,14 +138,7 @@ export class SearchService {
     );
   }
 
-  /**
-   * GET /vehiculo/filtrar
-   * Params backend: tipo, marca, modelo, precioMin, precioMax, anioMin, anioMax,
-   *                 kmMax, combustible, cambio, busqueda, potenciaMin, cilindradaMin,
-   *                 color, numeroPuertas, plazas, garantia, itv, page, size
-   * Respuesta:      { contenido, paginaActual, totalPaginas, totalElementos }
-   */
-  private buscarVehiculos(params: SearchParams): Observable<SearchResult> {
+  private buscarVehiculos(params: SearchParams, usuarioId?: number): Observable<SearchResult> {
     let p = new HttpParams()
       .set('page', String(params.page ?? 0))
       .set('size', String(params.size ?? 20));
@@ -180,6 +163,7 @@ export class SearchService {
     if (this.hasValue(params.plazas)) p = p.set('plazas', String(params.plazas));
     if (params.garantia === true) p = p.set('garantia', 'true');
     if (params.itv === true) p = p.set('itv', 'true');
+    if (usuarioId) p = p.set('usuarioId', String(usuarioId));
 
     return this.http.get<any>(`${this.apiUrl}/vehiculo/filtrar`, { params: p }).pipe(
       map((res) => {

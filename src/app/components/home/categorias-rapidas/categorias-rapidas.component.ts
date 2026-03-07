@@ -47,7 +47,7 @@ export class CategoriasRapidasComponent implements OnInit {
   }
 
   getIconPath(cat: Categoria): string {
-    return getCategoryIconPath(cat.slug ?? cat.nombre);
+    return getCategoryIconPath(cat.icono, cat.slug ?? cat.nombre);
   }
 
   getAccentColor(cat: Categoria): string {

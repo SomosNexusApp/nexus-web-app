@@ -4,6 +4,7 @@ import { Router, RouterModule } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../../environments/enviroment';
 import { OfertaCardComponent } from '../../../shared/components/marketplace/oferta-card/oferta-card.component';
+import { AuthStore } from '../../../../app/core/auth/auth-store';
 
 export interface OfertaSimple {
   id: number;
@@ -29,6 +30,7 @@ export interface OfertaSimple {
 export class ChollosDiaComponent implements OnInit {
   private http = inject(HttpClient);
   private router = inject(Router);
+  private authStore = inject(AuthStore);
 
   ofertas = signal<OfertaSimple[]>([]);
   loading = signal(true);
@@ -37,7 +39,11 @@ export class ChollosDiaComponent implements OnInit {
   readonly skeletons = Array(8).fill(0);
 
   ngOnInit() {
-    this.http.get<any>(`${environment.apiUrl}/oferta/trending`).subscribe({
+    const usuarioId = this.authStore.user()?.id;
+    let url = `${environment.apiUrl}/oferta/trending`;
+    if (usuarioId) url += `?usuarioId=${usuarioId}`;
+
+    this.http.get<any>(url).subscribe({
       next: (res) => {
         const list = Array.isArray(res) ? res : (res?.content ?? res?.ofertas ?? res?.data ?? []);
         this.ofertas.set(list.slice(0, 8));

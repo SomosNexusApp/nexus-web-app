@@ -6,20 +6,24 @@
     (click)="navigateToDetail()"
     role="article"
     [attr.aria-label]="vehiculo.titulo"
-    style="cursor: pointer"
+    tabindex="0"
   >
     <div class="img-wrapper">
       <img
-        [ngSrc]="vehiculo | coverImage: '/assets/placeholder-vehicle.webp'"
+        [src]="vehiculo | coverImage"
         [alt]="vehiculo.titulo"
-        fill
         class="object-cover"
         loading="lazy"
-        (error)="$any($event.target).src = '/assets/placeholder-vehicle.webp'"
+        (error)="$any($event.target).src = 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?q=80&w=1000&auto=format&fit=crop'"
       />
       <div class="img-overlay"></div>
 
-      <span class="tipo-badge"> {{ tipoEmoji }} {{ tipoLabel }} </span>
+      <span class="tipo-badge">
+        <svg class="badge-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path [attr.d]="tipoIconPath"></path>
+        </svg>
+        {{ tipoLabel }}
+      </span>
 
       @if ($any(vehiculo).estadoVehiculo === 'VENDIDO') {
         <div class="estado-overlay">
@@ -36,26 +40,27 @@
 
       <div class="chips-row">
         @if ($any(vehiculo).anio) {
-          <span class="chip">📅 {{ $any(vehiculo).anio }}</span>
+          <span class="chip">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            {{ $any(vehiculo).anio }}
+          </span>
         }
-        @if ($any(vehiculo).kilometros) {
-          <span class="chip">🛣️ {{ kmFormateados }}</span>
+        @if ($any(vehiculo).kilometros || $any(vehiculo).kilometros === 0) {
+          <span class="chip">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="m12 12 4-4"/></svg>
+            {{ kmFormateados }}
+          </span>
         }
         @if ($any(vehiculo).combustible) {
-          <span class="chip">⛽ {{ $any(vehiculo).combustible }}</span>
+          <span class="chip">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 22V2h11l7 7v13H3z"/><path d="M14 2v7h7"/><path d="M7 13h10"/><path d="M7 17h10"/><path d="M7 9h3"/></svg>
+            {{ $any(vehiculo).combustible }}
+          </span>
         }
       </div>
 
       <div class="veh-location">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="12"
-          height="12"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-        >
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
           <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
           <circle cx="12" cy="10" r="3" />
         </svg>

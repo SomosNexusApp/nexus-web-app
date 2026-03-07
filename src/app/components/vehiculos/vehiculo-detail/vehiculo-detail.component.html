@@ -1,0 +1,167 @@
+<div class="detail-container animate-fade-in" *ngIf="!cargando() && vehiculo()">
+  <div class="detail-grid">
+    
+    <!-- GALERÍA -->
+    <div class="media-section">
+      <div class="main-img">
+        <img [src]="imgPrincipal() || '/assets/placeholder-image.webp'">
+        <div class="status-badge" [ngClass]="vehiculo().estadoVehiculo?.toLowerCase()">{{ vehiculo().estadoVehiculo }}</div>
+      </div>
+      <div class="thumbnails" *ngIf="vehiculo().galeriaImagenes?.length > 0">
+        <img [src]="vehiculo().imagenPrincipal" (click)="imgPrincipal.set(vehiculo().imagenPrincipal)" [class.active]="imgPrincipal() === vehiculo().imagenPrincipal">
+        @for (img of vehiculo().galeriaImagenes; track img) {
+          <img [src]="img" (click)="imgPrincipal.set(img)" [class.active]="imgPrincipal() === img">
+        }
+      </div>
+    </div>
+
+    <!-- INFO -->
+    <div class="info-section">
+      <div class="header-info">
+        <h1 class="title">{{ vehiculo().titulo }}</h1>
+        <div class="price">{{ vehiculo().precio | currencyEs }}</div>
+        <div class="location">📍 {{ vehiculo().ubicacion }}</div>
+      </div>
+
+      <div class="actions">
+        <button class="btn-chat" (click)="contactar()">💬 Contactar con el vendedor</button>
+        <button class="btn-fav">❤️ Guardar</button>
+      </div>
+
+      <div class="info-banner">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+        <p>Los vehículos se entregan en persona. Contacta con el vendedor para acordar los detalles.</p>
+      </div>
+
+      <!-- FICHA TÉCNICA -->
+      <div class="specs-box">
+        <h3>Ficha técnica</h3>
+        <div class="specs-grid">
+          <div class="spec-item"><span>Marca</span><strong>{{ vehiculo().marca }}</strong></div>
+          <div class="spec-item"><span>Modelo</span><strong>{{ vehiculo().modelo }}</strong></div>
+          <div class="spec-item"><span>Año</span><strong>{{ vehiculo().anio }}</strong></div>
+          <div class="spec-item"><span>Kilómetros</span><strong>{{ vehiculo().kilometros | number:'1.0-0':'es-ES' }} km</strong></div>
+          <div class="spec-item"><span>Motor</span><strong>{{ vehiculo().combustible }}</strong></div>
+          <div class="spec-item"><span>Cambio</span><strong>{{ vehiculo().cambio }}</strong></div>
+          <div class="spec-item"><span>Potencia</span><strong>{{ vehiculo().potencia }} CV</strong></div>
+          <div class="spec-item"><span>Color</span><strong>{{ vehiculo().color }}</strong></div>
+          <div class="spec-item"><span>Plazas</span><strong>{{ vehiculo().plazas }}</strong></div>
+          <div class="spec-item"><span>ITV</span><strong>{{ vehiculo().itv ? 'SÍ' : 'NO' }}</strong></div>
+          <div class="spec-item"><span>Garantía</span><strong>{{ vehiculo().garantia ? 'SÍ' : 'NO' }}</strong></div>
+        </div>
+      </div>
+
+      <div class="description">
+        <h3>Descripción</h3>
+        <p>{{ vehiculo().descripcion }}</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- VENDEDOR -->
+  <section class="seller-section">
+    <div class="seller-card">
+      <img [src]="vehiculo().publicador?.avatar || 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + vehiculo().publicador?.user">
+      <div class="seller-info">
+        <h4>{{ vehiculo().publicador?.nombreComercial || vehiculo().publicador?.user }}</h4>
+        <div class="seller-meta">
+          <span>⭐ {{ vehiculo().publicador?.reputacion || 'Nuevo' }}</span>
+          <span>📦 {{ vehiculo().publicador?.totalVentas || 0 }} ventas</span>
+        </div>
+      </div>
+      <button class="btn-profile">Ver perfil</button>
+    </div>
+  </section>
+
+  <!-- SIMILARES -->
+  @if (similares().length > 0) {
+    <section class="similar-section">
+      <h3>Otros vehículos del vendedor</h3>
+      <div class="similar-grid">
+        @for (s of similares(); track s.id) {
+          <div class="mini-card" [routerLink]="['/vehiculos', s.id]">
+            <img [src]="s.imagenPrincipal">
+            <div class="mini-info">
+              <h5>{{ s.titulo }}</h5>
+              <span class="mini-price">{{ s.precio | currencyEs }}</span>
+            </div>
+          </div>
+        }
+      </div>
+    </section>
+  }
+
+  <!-- SECCIÓN COMENTARIOS -->
+  <section class="comments-area">
+    <div class="comments-header">
+      <h3>Preguntas y Comentarios ({{ comentarios().length }})</h3>
+      @if (authStore.isLoggedIn()) {
+        <button class="btn-toggle-poll" (click)="mostrandoCreadorEncuesta.set(!mostrandoCreadorEncuesta())">
+          {{ mostrandoCreadorEncuesta() ? 'Quitar Encuesta' : 'Crear Encuesta' }}
+        </button>
+      }
+    </div>
+    
+    @if (authStore.isLoggedIn()) {
+      <div class="comment-input-wrap">
+        <div class="format-toolbar">
+          <button (click)="formatText('bold')">B</button>
+          <button (click)="formatText('italic')">I</button>
+          <button (click)="formatText('list')">List</button>
+          <button (click)="formatText('header')">H</button>
+        </div>
+        <textarea [(ngModel)]="nuevoComentario" placeholder="Haz una pregunta al vendedor..."></textarea>
+        
+        @if (mostrandoCreadorEncuesta()) {
+          <div class="poll-creator animate-fade-in">
+            <input type="text" [(ngModel)]="preguntaEncuesta" placeholder="Ej: ¿Qué os parece el precio?">
+            <div class="poll-options-grid">
+              @for (opt of opcionesEncuesta; track $index; let i = $index) {
+                <input type="text" [(ngModel)]="opcionesEncuesta[i]" [placeholder]="'Opción ' + (i+1)">
+              }
+              <button *ngIf="opcionesEncuesta.length < 5" (click)="addPollOption()">+</button>
+            </div>
+          </div>
+        }
+        <button class="btn-comment" (click)='publicarComentario()' [disabled]="enviandoComentario()">Publicar</button>
+      </div>
+    }
+
+    <div class="comments-list">
+      @for (c of comentarios(); track c.id) {
+        <div class="comment-card">
+          <img [src]="c.actor?.avatar || 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + c.actor?.user" class="user-avatar">
+          <div class="comment-body">
+            <div class="comment-header">
+              <span class="user">{{ c.actor?.user }}</span>
+              <div class="comment-actions" *ngIf="authStore.user()?.id === c.actor?.id">
+                <button (click)="iniciarEdicion(c)">✏️</button>
+                <button (click)="eliminarComentario(c.id)">🗑️</button>
+              </div>
+            </div>
+            
+            @if (editandoId() === c.id) {
+              <div class="edit-area">
+                <textarea [(ngModel)]="textoEditando"></textarea>
+                <button (click)="guardarEdicion()">Guardar</button>
+              </div>
+            } @else {
+              <div class="text" [innerHTML]="parseMarkdown(c.texto)"></div>
+              @if (c.poll) {
+                <div class="poll-display">
+                  <p>{{ c.poll.question }}</p>
+                  @for (opt of c.poll.options; track $index; let i = $index) {
+                    <div class="poll-opt-row" (click)="votarEncuesta(c, i)">
+                      <div class="poll-bar" [style.width.%]="c.poll.totalVotes > 0 ? (opt.votes/c.poll.totalVotes*100) : 0"></div>
+                      <span>{{ opt.text }} ({{ opt.votes }})</span>
+                    </div>
+                  }
+                </div>
+              }
+            }
+          </div>
+        </div>
+      }
+    </div>
+  </section>
+</div>

@@ -10,11 +10,11 @@
   >
     <div class="img-wrapper">
       <img
-        [src]="oferta | coverImage"
+        [src]="oferta.imagenPrincipal || 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=1000&auto=format&fit=crop'"
         [alt]="oferta.titulo"
         class="object-cover"
         loading="lazy"
-        (error)="$any($event.target).src = '/assets/placeholder-image.webp'"
+        (error)="$any($event.target).src = 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=1000&auto=format&fit=crop'"
       />
       <div class="img-overlay"></div>
 
@@ -32,12 +32,12 @@
     <div class="card-body">
       <div class="store-row">
         <span class="store-badge">
-          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
           {{ $any(oferta).tienda || 'Particular' }}
         </span>
         @if (expiraProxima && countdown()) {
           <span class="countdown">
-            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
             {{ countdown() }}
           </span>
         } @else {
@@ -68,15 +68,21 @@
           <div class="spark-bar-track">
             <div class="spark-bar-fill" [style.width.%]="sparkTempWidth"></div>
           </div>
-          <span class="spark-score-text">{{ sparkCount() }}°</span>
+          <span class="spark-score-text">{{ sparkScore() }}º</span>
         </div>
 
         <div class="vote-actions">
-          <button class="vote-btn spark-btn" [class.active]="miVoto() === true" (click)="votar(true, $event)">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+          <button class="vote-btn spark-btn" 
+                  [class.active]="miVoto() === 'SPARK'" 
+                  (click)="votar(true, $event)" 
+                  [disabled]="votando()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
           </button>
-          <button class="vote-btn drip-btn" [class.active]="miVoto() === false" (click)="votar(false, $event)">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M5 5l14 14M2 12h20M5 19l14-14"/></svg>
+          <button class="vote-btn drip-btn" 
+                  [class.active]="miVoto() === 'DRIP'" 
+                  (click)="votar(false, $event)" 
+                  [disabled]="votando()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2v20M5 5l14 14M2 12h20M5 19l14-14"/></svg>
           </button>
         </div>
       </div>

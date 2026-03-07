@@ -17,6 +17,7 @@ import { Subject, Subscription } from 'rxjs';
 import { debounceTime, distinctUntilChanged, takeUntil, catchError } from 'rxjs/operators';
 
 import { SearchService, SearchParams, SearchResultItem } from '../../core/services/search.service';
+import { AuthStore } from '../../core/auth/auth-store';
 import { ProductoCardComponent } from '../../shared/components/marketplace/product-card/producto-card.component';
 import { OfertaCardComponent } from '../../shared/components/marketplace/oferta-card/oferta-card.component';
 import { VehiculoCardComponent } from '../../shared/components/vehiculo-card/vehiculo-card.component';
@@ -59,6 +60,7 @@ export class SearchComponent implements OnInit, AfterViewInit, OnDestroy {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private searchService = inject(SearchService);
+  private authStore = inject(AuthStore);
   private http = inject(HttpClient);
   private cdr = inject(ChangeDetectorRef);
 
@@ -270,8 +272,10 @@ export class SearchComponent implements OnInit, AfterViewInit, OnDestroy {
       conEnvio: fv.conEnvio || undefined,
     };
 
+    const usuarioId = this.authStore.user()?.id;
+
     this.searchService
-      .buscar(params)
+      .buscar(params, usuarioId)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: ({ items, total }) => {

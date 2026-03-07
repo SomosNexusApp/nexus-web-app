@@ -6,15 +6,19 @@ import {
   signal,
   OnInit,
   OnDestroy,
+  OnChanges,
+  SimpleChanges
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { CurrencyEsPipe } from '../../../pipes/currency-es.pipe';
 import { TimeAgoPipe } from '../../../pipes/time-ago.pipe';
 import { SkeletonCardComponent } from '../../skeleton-card/skeleton-card.component';
 import { CoverImagePipe } from '../../../pipes/cover-image.pipe';
 import { MarketplaceItem } from '../../../../models/marketplace-item.model';
+import { environment } from '../../../../../environments/enviroment';
+import { AuthStore } from '../../../../core/auth/auth-store';
 
 @Component({
   selector: 'app-oferta-card',
@@ -31,16 +35,17 @@ import { MarketplaceItem } from '../../../../models/marketplace-item.model';
   styleUrls: ['./oferta-card.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class OfertaCardComponent implements OnInit, OnDestroy {
+export class OfertaCardComponent implements OnInit, OnDestroy, OnChanges {
   @Input() oferta!: MarketplaceItem;
   @Input() isSkeleton = false;
 
   private router = inject(Router);
   private http = inject(HttpClient);
+  private authStore = inject(AuthStore);
 
-  sparkCount = signal(0);
-  dripCount = signal(0);
-  miVoto = signal<boolean | null>(null);
+  // Estados locales para reactividad inmediata
+  sparkScore = signal(0);
+  miVoto = signal<string | null>(null); // 'SPARK', 'DRIP' o 'NONE'
   votando = signal(false);
   copiado = signal(false);
   countdown = signal('');
@@ -48,13 +53,13 @@ export class OfertaCardComponent implements OnInit, OnDestroy {
   private countdownInterval?: ReturnType<typeof setInterval>;
 
   get isLoggedIn(): boolean {
-    return true; // Simplificado para que funcionen los botones en preview
+    return this.authStore.isLoggedIn();
   }
 
   get discountPercent(): number {
     const orig = this.oferta?.precioOriginal;
     const off = this.oferta?.precioOferta || this.oferta?.precio;
-    if (!orig || !off || orig <= 0) return 0;
+    if (!orig || !off || orig <= off) return 0;
     return Math.round(((orig - off) / orig) * 100);
   }
 
@@ -72,8 +77,10 @@ export class OfertaCardComponent implements OnInit, OnDestroy {
   }
 
   get sparkTempWidth(): number {
-    const total = this.sparkCount() + this.dripCount();
-    return total === 0 ? 0 : Math.round((this.sparkCount() / total) * 100);
+    const score = this.sparkScore();
+    if (score <= 0) return 0;
+    if (score >= 100) return 100;
+    return score;
   }
 
   get expiraProxima(): boolean {
@@ -89,17 +96,16 @@ export class OfertaCardComponent implements OnInit, OnDestroy {
     }
   }
 
-  // Permite actualizar el estado si la oferta cambia (importante para preview)
-  ngOnChanges(): void {
-    if (this.oferta) {
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['oferta'] && this.oferta) {
       this.updateState();
     }
   }
 
   private updateState(): void {
-    this.sparkCount.set((this.oferta as any).sparkCount ?? 0);
-    this.dripCount.set((this.oferta as any).dripCount ?? 0);
-    this.miVoto.set((this.oferta as any).miVoto ?? null);
+    this.sparkScore.set((this.oferta as any).sparkScore ?? 0);
+    this.miVoto.set((this.oferta as any).miVoto || 'NONE');
+    
     if (this.countdownInterval) clearInterval(this.countdownInterval);
     if ((this.oferta as any).fechaExpiracion) this.startCountdown();
   }
@@ -126,11 +132,41 @@ export class OfertaCardComponent implements OnInit, OnDestroy {
     this.countdownInterval = setInterval(update, 1000);
   }
 
-  votar(tipo: boolean, event: MouseEvent): void {
+  votar(esSpark: boolean, event: MouseEvent): void {
     event.stopPropagation();
     event.preventDefault();
-    if (this.votando()) return;
-    this.miVoto.set(tipo);
+
+    if (!this.isLoggedIn) {
+      alert('Inicia sesión para votar ofertas.');
+      return;
+    }
+
+    if (this.votando() || this.oferta.id === 9999) return;
+
+    const usuarioId = this.authStore.user()?.id;
+    if (!usuarioId) return;
+
+    this.votando.set(true);
+
+    const params = new HttpParams()
+      .set('usuarioId', usuarioId.toString())
+      .set('esSpark', esSpark.toString());
+
+    this.http.post(`${environment.apiUrl}/oferta/${this.oferta.id}/votar`, {}, { params }).subscribe({
+      next: (res: any) => {
+        this.sparkScore.set(res.sparkScore);
+        this.miVoto.set(res.miVoto);
+        this.votando.set(false);
+        // Sincronizar objeto original
+        (this.oferta as any).sparkScore = res.sparkScore;
+        (this.oferta as any).badge = res.badge;
+        (this.oferta as any).miVoto = res.miVoto;
+      },
+      error: (err) => {
+        console.error('Error al votar:', err);
+        this.votando.set(false);
+      }
+    });
   }
 
   copiarCodigo(event: MouseEvent): void {
@@ -145,7 +181,7 @@ export class OfertaCardComponent implements OnInit, OnDestroy {
   }
 
   navigateToDetail(): void {
-    if (this.oferta.id === 9999) return; // No navegar en preview
-    this.router.navigate(['/search'], { queryParams: { q: this.oferta.titulo, tipo: 'OFERTA' } });
+    if (this.oferta.id === 9999) return; 
+    this.router.navigate(['/ofertas', this.oferta.id]);
   }
 }

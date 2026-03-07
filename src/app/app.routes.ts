@@ -64,20 +64,20 @@ export const routes: Routes = [
         (m) => m.ProductoDetailComponent,
       ),
   },
-  // {
-  //   path: 'ofertas/:id',
-  //   loadComponent: () =>
-  //     import('./components/ofertas/oferta-detail/oferta-detail.component').then(
-  //       (m) => m.OfertaDetailComponent,
-  //     ),
-  // },
-  // {
-  //   path: 'vehiculos/:id',
-  //   loadComponent: () =>
-  //     import('./components/vehiculos/vehiculo-detail/vehiculo-detail.component').then(
-  //       (m) => m.VehiculoDetailComponent,
-  //     ),
-  // },
+  {
+    path: 'ofertas/:id',
+    loadComponent: () =>
+      import('./components/ofertas/oferta-detail/oferta-detail.component').then(
+        (m) => m.OfertaDetailComponent,
+      ),
+  },
+  {
+    path: 'vehiculos/:id',
+    loadComponent: () =>
+      import('./components/vehiculos/vehiculo-detail/vehiculo-detail.component').then(
+        (m) => m.VehiculoDetailComponent,
+      ),
+  },
 
   {
     path: 'publicar',

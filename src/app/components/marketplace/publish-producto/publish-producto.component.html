@@ -1,305 +1,221 @@
-<div class="publish-container">
+<div class="publish-container" [class.selection-mode]="currentStep() === 0">
   <header class="publish-header">
-    <div class="progress-bar">
-      <div class="progress-fill" [style.width.%]="(currentStep() / 4) * 100"></div>
-    </div>
-    <div class="steps-info">
-      <span class="step-count">Paso {{ currentStep() }} de 4</span>
+    @if (currentStep() > 0) {
+      <div class="progress-bar">
+        <div class="progress-fill" [style.width.%]="(currentStep() / 4) * 100"></div>
+      </div>
+    }
+    <div class="header-content">
+      @if (currentStep() > 0) {
+        <span class="step-count">Paso {{ currentStep() }} de 4</span>
+      }
       <h1 class="step-title">
-        @if (currentStep() === 0) {
-          ¿Qué quieres publicar?
-        } @else if (currentStep() === 1) {
-          Categoría y Estado
-        } @else if (currentStep() === 2) {
-          Fotos y Detalles
-        } @else if (currentStep() === 3) {
-          Precio y Envío
-        } @else if (currentStep() === 4) {
-          Revisión final
-        }
+        @if (currentStep() === 0) { ¿Qué vas a publicar hoy? }
+        @if (currentStep() === 1) { Detalles básicos }
+        @if (currentStep() === 2) { Fotos y descripción }
+        @if (currentStep() === 3) { Precio y ubicación }
+        @if (currentStep() === 4) { Revisión final }
       </h1>
+      @if (currentStep() === 0) {
+        <p class="step-subtitle">Elige el tipo de anuncio para empezar a vender en Nexus</p>
+      }
     </div>
   </header>
 
-  <main class="publish-content">
-    <div class="form-area">
-      <!-- PASO 0: SELECTOR TIPO -->
+  <main class="publish-content" [class.grid-layout]="currentStep() > 0">
+    <div class="form-area animate-fade-in">
+
+      <!-- PASO 0: SELECTOR PREMIUM -->
       @if (currentStep() === 0) {
-        <div class="step-0-grid animate-fade-in">
-          <button class="type-card" (click)="setStep0('PRODUCTO')">
-            <div class="icon-circle box">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path
-                  d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"
-                />
-                <path d="m3.3 7 8.7 5 8.7-5" />
-                <path d="M12 22V12" />
-              </svg>
+        <div class="selection-grid">
+          <div class="select-card product" (click)="setStep0('PRODUCTO')">
+            <div class="card-glow"></div>
+            <div class="card-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v3m18 0v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8m18 0-9 6-9-6"/></svg>
             </div>
-            <div class="type-info">
+            <div class="card-info">
               <h3>Producto</h3>
-              <p>Vende objetos de segunda mano.</p>
+              <p>Ropa, gadgets, hogar y mucho más.</p>
             </div>
-          </button>
-          <button class="type-card" (click)="setStep0('SERVICIO')">
-            <div class="icon-circle tool">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path
-                  d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.7a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.7z"
-                />
-              </svg>
+            <div class="card-arrow">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
             </div>
-            <div class="type-info">
-              <h3>Servicio</h3>
-              <p>Ofrece tus servicios profesionales.</p>
+          </div>
+
+          <div class="select-card vehicle" (click)="setStep0('VEHICULO')">
+            <div class="card-glow"></div>
+            <div class="card-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12.4V16c0 .6.4 1 1 1h2"/><circle cx="7" cy="17" r="2"/><path d="M9 17h6"/><circle cx="17" cy="17" r="2"/></svg>
             </div>
-          </button>
-          <button class="type-card" (click)="setStep0('VEHICULO')">
-            <div class="icon-circle car">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path
-                  d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"
-                />
-                <circle cx="7" cy="17" r="2" />
-                <path d="M9 17h6" />
-                <circle cx="17" cy="17" r="2" />
-              </svg>
-            </div>
-            <div class="type-info">
+            <div class="card-info">
               <h3>Vehículo</h3>
-              <p>Coches, motos y motor.</p>
+              <p>Coches, motos y furgonetas.</p>
             </div>
-          </button>
-          <button class="type-card" (click)="setStep0('OFERTA')">
-            <div class="icon-circle tag">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="m15 5 4 4" />
-                <path
-                  d="M20.38 3.46L16 2.14a2 2 0 0 0-1.63.58L2.84 14.26a2.04 2.04 0 0 0 0 2.89l5.94 5.9a2.04 2.04 0 0 0 2.89 0L23.19 11.6a2 2 0 0 0 .58-1.62L22.45 5.6a4 4 0 0 0-2.07-2.14z"
-                />
-                <circle cx="16.5" cy="7.5" r=".5" fill="currentColor" />
-              </svg>
+            <div class="card-arrow">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
             </div>
-            <div class="type-info">
-              <h3>Oferta</h3>
-              <p>Chollos y promociones.</p>
+          </div>
+
+          <div class="select-card offer" (click)="setStep0('OFERTA')">
+            <div class="card-glow"></div>
+            <div class="card-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
             </div>
-          </button>
+            <div class="card-info">
+              <h3>Oferta o Chollo</h3>
+              <p>Comparte descuentos de otras tiendas.</p>
+            </div>
+            <div class="card-arrow">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </div>
+          </div>
+
+          <div class="select-card service" (click)="setStep0('SERVICIO')">
+            <div class="card-glow"></div>
+            <div class="card-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            </div>
+            <div class="card-info">
+              <h3>Servicio</h3>
+              <p>Ofrece tus habilidades profesionales o trabajos.</p>
+            </div>
+            <div class="card-arrow">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </div>
+          </div>
         </div>
       }
 
       <!-- PASO 1: CATEGORÍA Y CONDICIÓN -->
       @if (currentStep() === 1) {
-        <div class="step-content animate-fade-in" [formGroup]="step1Form">
-          <section class="form-section">
-            <label class="section-label">Categoría</label>
-            <div class="category-tree">
-              @for (cat of categorias(); track cat.id) {
-                <button
-                  class="cat-item"
-                  [class.selected]="selectedCategory()?.id === cat.id"
-                  (click)="selectCategory(cat)"
-                >
-                  <span class="cat-name">{{ cat.nombre }}</span>
-                </button>
-              }
-            </div>
-          </section>
-          <section class="form-section">
-            <label class="section-label">Estado del producto</label>
-            <div class="condition-grid">
-              @for (c of CONDICIONES; track c.val) {
-                <label
-                  class="condition-card"
-                  [class.active]="step1Value()?.condicion === c.val"
-                >
-                  <input
-                    type="radio"
-                    formControlName="condicion"
-                    [value]="c.val"
-                    class="hidden-radio"
-                  />
-                  <span class="cond-label">{{ c.label }}</span>
-                  <span class="cond-desc">{{ c.desc }}</span>
-                </label>
-              }
-            </div>
-          </section>
-        </div>
+        <form [formGroup]="step1Form" class="step-form">
+          <label class="section-label">Categoría del producto</label>
+          <div class="category-grid">
+            @for (cat of categorias(); track cat.id) {
+              <button type="button" class="cat-card" [class.active]="selectedCategory()?.id === cat.id" (click)="selectCategory(cat)">
+                <div class="cat-icon-wrapper">
+                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path [attr.d]="getIconPath(cat)"></path>
+                   </svg>
+                </div>
+                <span class="cat-name">{{ cat.nombre }}</span>
+              </button>
+            }
+          </div>
+
+          <label class="section-label mt-40">Estado del producto</label>
+          <div class="condition-grid">
+            @for (c of CONDICIONES; track c.val) {
+              <div class="condition-card" [class.active]="step1Form.get('condicion')?.value === c.val" (click)="step1Form.patchValue({condicion: c.val})">
+                <span class="cond-label">{{ c.label }}</span>
+                <p class="cond-desc">{{ c.desc }}</p>
+              </div>
+            }
+          </div>
+        </form>
       }
 
-      <!-- PASO 2: IMÁGENES Y DATOS -->
+      <!-- PASO 2: FOTOS Y TÍTULO -->
       @if (currentStep() === 2) {
-        <div class="step-content animate-fade-in" [formGroup]="step2Form">
-          <section class="form-section">
-            <label class="section-label">Imágenes ({{ images().length }}/8)</label>
-            <div class="upload-zone" (click)="fileInput.click()">
-              <svg
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                class="upload-icon"
-              >
-                <rect width="18" height="18" x="3" y="3" rx="2" ry="2" />
-                <circle cx="9" cy="9" r="2" />
-                <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" />
-              </svg>
-              <p>Haz clic para subir fotos</p>
-              <input
-                #fileInput
-                type="file"
-                (change)="onFileSelected($event)"
-                multiple
-                accept="image/*"
-                class="hidden"
-              />
-            </div>
+        <form [formGroup]="step2Form" class="step-form">
+          <label class="section-label">Imágenes (Mín 1)</label>
+          <div class="upload-zone" (click)="fileInput.click()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            <p>Haz clic para subir fotos</p>
+            <input #fileInput type="file" multiple (change)="onFileSelected($event)" accept="image/*" class="hidden">
+          </div>
+          @if (images().length > 0) {
             <div class="image-grid">
               @for (img of images(); track img.url; let i = $index) {
-                <div class="image-preview">
-                  <img [src]="img.url" class="thumb" />
-                  @if (img.isPrincipal) {
-                    <span class="principal-badge">Portada</span>
-                  }
-                  <div class="preview-actions">
-                    <button class="btn-move" (click)="moveImage(i, -1)" [disabled]="i === 0">
-                      ◀
-                    </button>
-                    <button
-                      class="btn-move"
-                      (click)="moveImage(i, 1)"
-                      [disabled]="i === images().length - 1"
-                    >
-                      ▶
-                    </button>
-                    <button class="btn-remove" (click)="removeImage(i)">✕</button>
-                  </div>
+                <div class="image-preview" [class.is-principal]="img.isPrincipal">
+                  <img [src]="img.url">
+                  <button type="button" class="btn-remove-img" (click)="removeImage(i)">✕</button>
                 </div>
               }
             </div>
-          </section>
-          <div class="input-group">
-            <label>Título</label>
-            <input type="text" formControlName="titulo" placeholder="¿Qué vendes?" />
+          }
+
+          <div class="input-group mt-40">
+            <label>Título del anuncio *</label>
+            <input type="text" formControlName="titulo" placeholder="Ej: Bicicleta de montaña casi nueva">
           </div>
           <div class="input-group">
-            <label>Descripción</label>
-            <textarea
-              formControlName="descripcion"
-              rows="4"
-              placeholder="Detalla tu producto..."
-            ></textarea>
+            <label>Descripción detallada *</label>
+            <textarea formControlName="descripcion" rows="6" placeholder="Detalla las características, mantenimiento..."></textarea>
           </div>
-        </div>
+        </form>
       }
 
-      <!-- PASO 3: PRECIO, ENVÍO Y PESO -->
+      <!-- PASO 3: PRECIO Y UBICACIÓN -->
       @if (currentStep() === 3) {
-        <div class="step-content animate-fade-in" [formGroup]="step3Form">
-          <div class="price-box">
+        <form [formGroup]="step3Form" class="step-form">
+          <div class="price-section">
             <div class="input-group">
-              <label>Precio (€)</label>
-              <input type="number" formControlName="precio" class="price-input" />
+              <label>Precio (€) *</label>
+              <div class="input-currency"><input type="number" formControlName="precio"><span>€</span></div>
             </div>
-            <label class="checkbox-label">
-              <input type="checkbox" formControlName="precioNegociable" />
-              <span>Precio negociable</span>
+            <label class="toggle-container">
+              <input type="checkbox" formControlName="precioNegociable">
+              <span class="toggle-slider"></span>
+              <span class="toggle-label">Precio negociable</span>
             </label>
           </div>
 
-          <div class="input-group">
-            <label>¿Haces envíos?</label>
-            <select formControlName="envio" class="dark-select">
-              <option value="NO">No, solo entrega en mano</option>
-              <option value="SI">Sí, hago envíos</option>
-            </select>
-          </div>
-
-          @if (step3Form.get('envio')?.value === 'SI') {
-            <div class="input-group animate-fade-in">
-              <label>Peso aproximado (kg)</label>
-              <input type="number" formControlName="peso" placeholder="Ej: 1.5" />
-              <small class="help-text">Necesario para calcular la tarifa de envío.</small>
-            </div>
-          }
-
-          <div class="input-group location-group">
-            <label>Ubicación</label>
-            <div class="location-input-wrapper">
-              <input
-                type="text"
-                formControlName="ubicacion"
-                placeholder="Busca tu ciudad..."
-                autocomplete="off"
-              />
-              <button class="btn-locate" (click)="useLocation()" [disabled]="buscandoUbi()">
-                @if (buscandoUbi()) {
-                  <span class="spinner-small"></span>
-                } @else {
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
-                    <circle cx="12" cy="10" r="3" />
-                  </svg>
-                }
-              </button>
+          <div class="input-group mt-40">
+            <label>Ubicación *</label>
+            <div class="input-with-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+              <input type="text" formControlName="ubicacion" placeholder="Busca tu ciudad...">
             </div>
             @if (sugerenciasUbi().length > 0) {
-              <div class="ubi-dropdown">
+              <div class="autocomplete-dropdown">
                 @for (u of sugerenciasUbi(); track u) {
-                  <div class="ubi-item" (click)="selectUbi(u)">{{ u }}</div>
+                  <div class="dropdown-item" (click)="selectUbi(u)">{{ u }}</div>
                 }
               </div>
             }
           </div>
-        </div>
+        </form>
       }
 
       <!-- PASO 4: REVISIÓN -->
       @if (currentStep() === 4) {
-        <div class="step-content animate-fade-in review-step">
-          <div class="success-icon-wrap">
-            <svg viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="3">
-              <path d="M20 6L9 17l-5-5" />
-            </svg>
-          </div>
-          <h2>¡Todo listo para publicar!</h2>
-          <p>Tu anuncio se verá así en Nexus. Revísalo una última vez.</p>
-          <div class="resumen-final">
+        <div class="review-area">
+          <h2>Casi listo. Revisa tu anuncio</h2>
+          <div class="review-summary">
+            <p><strong>Título:</strong> {{ step2Form.value.titulo }}</p>
             <p><strong>Categoría:</strong> {{ selectedCategory()?.nombre }}</p>
+            <p><strong>Precio:</strong> {{ step3Form.value.precio | currency:'EUR' }}</p>
             <p><strong>Ubicación:</strong> {{ step3Form.value.ubicacion }}</p>
-            @if (step3Form.value.envio === 'SI') {
-              <p><strong>Envío:</strong> Disponible ({{ step3Form.value.peso }}kg)</p>
-            }
           </div>
         </div>
       }
 
+      <!-- FOOTER NAVEGACIÓN -->
       @if (currentStep() > 0) {
         <footer class="publish-footer">
-          <button class="btn-secondary" (click)="prevStep()">Atrás</button>
+          <button type="button" class="btn-secondary" (click)="prevStep()">Atrás</button>
           @if (currentStep() < 4) {
-            <button class="btn-primary" [disabled]="!canAdvance()" (click)="nextStep()">
-              Siguiente
-            </button>
+            <button type="button" class="btn-primary" (click)="nextStep()" [disabled]="!canAdvance()">Continuar</button>
           } @else {
-            <button class="btn-success" [disabled]="uploading()" (click)="onSubmit()">
-              {{ uploading() ? 'Publicando...' : 'Confirmar y Publicar' }}
+            <button type="button" class="btn-success" (click)="onSubmit()" [disabled]="uploading()">
+              {{ uploading() ? 'Publicando...' : 'Publicar anuncio' }}
             </button>
           }
         </footer>
       }
     </div>
 
-    <!-- PREVIEW STICKY -->
-    <aside class="preview-area" [class.visible]="currentStep() > 1">
-      <div class="sticky-preview">
-        <span class="preview-tag">Vista previa en tiempo real</span>
-        <app-producto-card
-          [producto]="$any(previewProduct())"
-          [showFavorito]="false"
-        ></app-producto-card>
-      </div>
-    </aside>
+    <!-- PREVIEW COL (OCULTA EN STEP 0) -->
+    @if (currentStep() > 0) {
+      <aside class="preview-column">
+        <div class="sticky-preview">
+          <span class="preview-label">Vista previa</span>
+          <div class="preview-card-container">
+            <app-producto-card [producto]="$any(previewProduct())"></app-producto-card>
+          </div>
+        </div>
+      </aside>
+    }
   </main>
 </div>
