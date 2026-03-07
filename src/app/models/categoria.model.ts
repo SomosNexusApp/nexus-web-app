@@ -8,5 +8,5 @@ export interface Categoria {
   orden: number;
   activa: boolean;
   parent?: Categoria;
-  hijos?: Categoria[]; // En tu backend se llama 'hijos', no 'children'
+  hijos?: Categoria[]; 
 }

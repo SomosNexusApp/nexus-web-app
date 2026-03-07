@@ -7,7 +7,7 @@ import {
   OnInit,
   OnDestroy,
 } from '@angular/core';
-import { CommonModule, NgOptimizedImage } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { CurrencyEsPipe } from '../../../pipes/currency-es.pipe';
@@ -22,13 +22,13 @@ import { MarketplaceItem } from '../../../../models/marketplace-item.model';
   imports: [
     CommonModule,
     RouterModule,
-    NgOptimizedImage,
     CurrencyEsPipe,
     TimeAgoPipe,
     SkeletonCardComponent,
     CoverImagePipe,
   ],
   templateUrl: './oferta-card.component.html',
+  styleUrls: ['./oferta-card.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class OfertaCardComponent implements OnInit, OnDestroy {
@@ -48,26 +48,14 @@ export class OfertaCardComponent implements OnInit, OnDestroy {
   private countdownInterval?: ReturnType<typeof setInterval>;
 
   get isLoggedIn(): boolean {
-    return false;
+    return true; // Simplificado para que funcionen los botones en preview
   }
 
   get discountPercent(): number {
     const orig = this.oferta?.precioOriginal;
     const off = this.oferta?.precioOferta || this.oferta?.precio;
     if (!orig || !off || orig <= 0) return 0;
-    return Math.round((1 - off / orig) * 100);
-  }
-
-  get badgeEmoji(): string {
-    const map: Record<string, string> = {
-      CHOLLAZO: '🔥',
-      EXPIRA_HOY: '⏰',
-      GRATUITA: '🎁',
-      NUEVA: '⭐',
-      DESTACADA: '💎',
-      PORCENTAJE: '%',
-    };
-    return (this.oferta as any)?.badge ? (map[(this.oferta as any).badge] ?? '') : '';
+    return Math.round(((orig - off) / orig) * 100);
   }
 
   get badgeLabel(): string {
@@ -79,9 +67,8 @@ export class OfertaCardComponent implements OnInit, OnDestroy {
       DESTACADA: 'DESTACADA',
       PORCENTAJE: 'OFERTA',
     };
-    return (this.oferta as any)?.badge
-      ? (map[(this.oferta as any).badge] ?? (this.oferta as any).badge)
-      : '';
+    const b = (this.oferta as any)?.badge;
+    return b ? (map[b] || b) : '';
   }
 
   get sparkTempWidth(): number {
@@ -98,11 +85,23 @@ export class OfertaCardComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     if (this.oferta) {
-      this.sparkCount.set((this.oferta as any).sparkCount ?? 0);
-      this.dripCount.set((this.oferta as any).dripCount ?? 0);
-      this.miVoto.set((this.oferta as any).miVoto ?? null);
-      if ((this.oferta as any).fechaExpiracion) this.startCountdown();
+      this.updateState();
     }
+  }
+
+  // Permite actualizar el estado si la oferta cambia (importante para preview)
+  ngOnChanges(): void {
+    if (this.oferta) {
+      this.updateState();
+    }
+  }
+
+  private updateState(): void {
+    this.sparkCount.set((this.oferta as any).sparkCount ?? 0);
+    this.dripCount.set((this.oferta as any).dripCount ?? 0);
+    this.miVoto.set((this.oferta as any).miVoto ?? null);
+    if (this.countdownInterval) clearInterval(this.countdownInterval);
+    if ((this.oferta as any).fechaExpiracion) this.startCountdown();
   }
 
   ngOnDestroy(): void {
@@ -130,11 +129,8 @@ export class OfertaCardComponent implements OnInit, OnDestroy {
   votar(tipo: boolean, event: MouseEvent): void {
     event.stopPropagation();
     event.preventDefault();
-    if (!this.isLoggedIn || this.votando()) return;
-    this.votando.set(true);
-    // Lógica simplificada para el ejemplo
+    if (this.votando()) return;
     this.miVoto.set(tipo);
-    this.votando.set(false);
   }
 
   copiarCodigo(event: MouseEvent): void {
@@ -149,6 +145,7 @@ export class OfertaCardComponent implements OnInit, OnDestroy {
   }
 
   navigateToDetail(): void {
+    if (this.oferta.id === 9999) return; // No navegar en preview
     this.router.navigate(['/search'], { queryParams: { q: this.oferta.titulo, tipo: 'OFERTA' } });
   }
 }

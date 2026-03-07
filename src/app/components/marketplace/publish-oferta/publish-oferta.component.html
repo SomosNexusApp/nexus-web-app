@@ -1,248 +1,124 @@
-<div class="publish-layout">
-  <div class="publish-header-container">
-    <header class="publish-header">
-      <button class="btn-back" routerLink="/publicar" title="Volver al inicio" aria-label="Volver">
-        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
-      </button>
-      <div class="header-titles">
-        <span class="step-count">Marketplace Nexus</span>
-        <h1 class="step-title">Publicar una Oferta</h1>
-      </div>
-    </header>
-  </div>
+<div class="publish-container">
+  <header class="publish-header">
+    <div class="header-content">
+      <span class="step-count">Marketplace Nexus</span>
+      <h1 class="step-title">Publicar una Oferta</h1>
+    </div>
+  </header>
 
   <main class="publish-content">
-    <!-- COLUMNA IZQUIERDA: FORMULARIO -->
-    <div class="form-column">
+    <div class="form-area animate-fade-in">
       <form [formGroup]="ofertaForm" (ngSubmit)="onSubmit()" class="nexus-form">
         
-        <!-- SECCIÓN 1: ENLACE -->
+        <!-- ENLACE CON ESTILO MEJORADO -->
         <section class="form-section highlight-section">
-          <div class="section-header">
-            <div class="icon-box"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></div>
-            <h2>Enlace de la oferta</h2>
-          </div>
+          <label class="section-label">Enlace de la oferta</label>
           <div class="url-verify-group">
-            <div class="input-with-icon">
-              <input type="url" formControlName="urlOferta" placeholder="https://www.tienda.com/producto-rebajado" autocomplete="off">
+            <div class="input-with-icon" [class.error]="getErrorMessage('urlOferta')">
+              <svg class="input-leading-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+              <input type="url" formControlName="urlOferta" placeholder="Pega el link aquí..." (blur)="verifyLink()">
               @if (verificandoLink()) {
-                <div class="spinner-small input-spinner"></div>
+                <div class="spinner-small verified-badge"></div>
               } @else if (linkVerificado()) {
                 <div class="verified-badge">
-                  @if (favicon()) {
-                    <img [src]="favicon()" alt="Tienda" class="favicon-mini">
-                  } @else {
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-                  }
+                  @if (favicon()) { <img [src]="favicon()" class="favicon-mini"> }
+                  @else { <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg> }
                 </div>
               }
             </div>
             <button type="button" class="btn-verify" (click)="verifyLink()" [disabled]="verificandoLink() || ofertaForm.get('urlOferta')?.invalid">
-              <span>Escanear URL</span>
+              Escanear
             </button>
           </div>
-          @if (ofertaForm.get('urlOferta')?.touched && ofertaForm.get('urlOferta')?.invalid) {
-            <p class="error-text">Introduce una dirección web válida para continuar.</p>
-          }
+          <span class="error-msg">{{ getErrorMessage('urlOferta') }}</span>
         </section>
 
-        <!-- SECCIÓN 2: DETALLES -->
+        <!-- DETALLES -->
         <section class="form-section">
-          <div class="section-header">
-            <div class="icon-box"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg></div>
-            <h2>Información principal</h2>
-          </div>
-          <div class="input-group">
+          <div class="input-group" [class.error]="getErrorMessage('titulo')">
             <label>Título impactante *</label>
-            <input type="text" formControlName="titulo" placeholder="Ej: PlayStation 5 Slim al precio más bajo">
-            <span class="char-count">{{ ofertaForm.get('titulo')?.value?.length || 0 }}/100</span>
+            <input type="text" formControlName="titulo" placeholder="Ej: Monitor Gaming 4K 144Hz">
+            <span class="error-msg">{{ getErrorMessage('titulo') }}</span>
           </div>
-          
-          <div class="input-group">
-            <label>Descripción detallada (Opcional)</label>
-            <textarea formControlName="descripcion" rows="4" placeholder="Explica las características, cómo conseguir el descuento, si hay stock limitado..."></textarea>
-            <span class="char-count">{{ ofertaForm.get('descripcion')?.value?.length || 0 }}/500</span>
+          <div class="input-group" [class.error]="getErrorMessage('descripcion')">
+            <label>Descripción detallada *</label>
+            <textarea formControlName="descripcion" rows="4" placeholder="¿Por qué es un buen chollo?"></textarea>
+            <span class="error-msg">{{ getErrorMessage('descripcion') }}</span>
           </div>
         </section>
 
-        <!-- SECCIÓN 3: PRECIOS -->
+        <!-- PRECIOS -->
         <section class="form-section highlight-section">
-          <div class="section-header">
-            <div class="icon-box"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" x2="12" y1="2" y2="22"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
-            <h2>Precios y Ahorro</h2>
-          </div>
           <div class="price-grid">
-            <div class="input-group no-margin">
+            <div class="input-group no-margin" [class.error]="getErrorMessage('precioOferta')">
               <label>Precio Rebajado *</label>
-              <div class="input-currency price-accent">
-                <input type="number" formControlName="precioOferta" placeholder="0.00">
-                <span class="currency-symbol">€</span>
-              </div>
+              <div class="input-currency price-accent"><input type="number" formControlName="precioOferta"><span>€</span></div>
+              <span class="error-msg">{{ getErrorMessage('precioOferta') }}</span>
             </div>
             <div class="input-group no-margin">
-              <label>Precio Original (Opcional)</label>
-              <div class="input-currency">
-                <input type="number" formControlName="precioOriginal" placeholder="0.00">
-                <span class="currency-symbol">€</span>
-              </div>
+              <label>Precio Original</label>
+              <div class="input-currency"><input type="number" formControlName="precioOriginal"><span>€</span></div>
             </div>
             @if (discountPercent() > 0) {
-              <div class="discount-calc animate-pop">
-                <span class="pct-val">-{{ discountPercent() }}%</span>
-                <span class="pct-label">Ahorro</span>
-              </div>
+              <div class="discount-calc animate-pop"><span class="pct-val">-{{ discountPercent() }}%</span><span class="pct-label">Ahorro</span></div>
             }
           </div>
         </section>
 
-        <!-- SECCIÓN 4: CATEGORÍA -->
+        <!-- CATEGORÍAS CON ICONOS SVG -->
         <section class="form-section">
-          <div class="section-header">
-            <div class="icon-box"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/></svg></div>
-            <h2>Categoría del producto *</h2>
-          </div>
+          <label class="section-label">Selecciona Categoría *</label>
           <div class="category-grid">
             @for (cat of categorias(); track cat.id) {
               <button type="button" class="cat-card" [class.active]="selectedCategory()?.id === cat.id" (click)="selectCategory(cat)">
-                <span class="cat-icon">{{ cat.icono || '🏷️' }}</span>
+                <div class="cat-icon-wrapper">
+                  @switch (cat.nombre) {
+                    @case ('Tecnología') { <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg> }
+                    @case ('Moda') { <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.38 3.46L16 2a4 4 0 01-8 0L3.62 3.46a2 2 0 00-1.34 1.9l.58 14.03a2 2 0 002 1.92h14.28a2 2 0 002-1.92l.58-14.03a2 2 0 00-1.34-1.9z"/></svg> }
+                    @case ('Hogar') { <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg> }
+                    @case ('Deportes') { <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M6.7 6.7l10.6 10.6"/><path d="M17.3 6.7L6.7 17.3"/></svg> }
+                    @case ('Videojuegos') { <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="6" y1="12" x2="10" y2="12"/><line x1="8" y1="10" x2="8" y2="14"/><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="15.5" cy="10.5" r=".5"/><circle cx="15.5" cy="13.5" r=".5"/><circle cx="18.5" cy="12" r=".5"/></svg> }
+                    @default { <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg> }
+                  }
+                </div>
                 <span class="cat-name">{{ cat.nombre }}</span>
               </button>
             }
           </div>
         </section>
 
-        <!-- SECCIÓN 5: TIENDA Y CUPÓN -->
+        <!-- FOTOS -->
         <section class="form-section">
-          <div class="grid-2">
-            <div class="input-group no-margin">
-              <label>Tienda o Comercio *</label>
-              <input type="text" formControlName="tienda" placeholder="Amazon, PCComponentes...">
-            </div>
-            <div class="input-group no-margin">
-              <label>Código Promocional (Opcional)</label>
-              <div class="coupon-wrapper">
-                <input type="text" formControlName="codigoDescuento" placeholder="EJ: CHOLLO20">
-                <svg class="coupon-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 12H16c-.7 2-3 3-4.5 1.5c-1.5 1.5-3.8.5-4.5-1.5H2v-2h5c.7-2 3-3 4.5-1.5c1.5-1.5 3.8-.5 4.5 1.5h5.5v2z"/></svg>
-              </div>
-            </div>
+          <label class="section-label">Fotos de la oferta</label>
+          <div class="upload-zone" (click)="fileInput.click()">
+            <svg class="upload-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            <p>Haz clic para subir fotos</p>
+            <input #fileInput type="file" multiple (change)="onFileSelected($event)" accept="image/*" class="hidden">
           </div>
-        </section>
-
-        <!-- SECCIÓN 6: IMÁGENES -->
-        <section class="form-section">
-          <div class="section-header">
-            <div class="icon-box"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg></div>
-            <h2>Galería Visual (Máx 5)</h2>
-          </div>
-          <div class="upload-zone" (click)="fileInput.click()" (dragover)="$event.preventDefault()" (drop)="$event.preventDefault(); onFileSelected($event)">
-            <div class="upload-icon-wrapper">
-              <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>
-            </div>
-            <p class="upload-title">Haz clic o arrastra imágenes aquí</p>
-            <p class="upload-subtitle">JPG, PNG o WEBP de alta calidad.</p>
-            <input #fileInput type="file" multiple (change)="onFileSelected($event)" accept="image/jpeg, image/png, image/webp" class="hidden">
-          </div>
-
           @if (images().length > 0) {
             <div class="image-grid">
               @for (img of images(); track img.url; let i = $index) {
-                <div class="image-preview" [class.is-principal]="img.isPrincipal">
-                  <img [src]="img.url" alt="Preview">
-                  @if (img.isPrincipal) { <span class="principal-badge">PORTADA</span> }
-                  <button type="button" class="btn-remove-img" (click)="removeImage(i)" aria-label="Eliminar foto">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
-                  </button>
-                </div>
+                <div class="image-preview"><img [src]="img.url"><button type="button" class="btn-remove-img" (click)="removeImage(i)">✕</button></div>
               }
             </div>
           }
         </section>
 
-        <!-- SECCIÓN 7: ENVÍOS Y LOCALIZACIÓN -->
-        <section class="form-section">
-          <div class="grid-2 align-items-center">
-            <div class="toggle-group">
-              <label class="toggle-container">
-                <input type="checkbox" formControlName="esOnline">
-                <span class="toggle-slider"></span>
-                <div class="toggle-text">
-                  <span class="toggle-title">{{ ofertaForm.get('esOnline')?.value ? 'Oferta Online' : 'Tienda Física' }}</span>
-                  <span class="toggle-desc">{{ ofertaForm.get('esOnline')?.value ? 'Se compra por internet' : 'Hay que ir presencialmente' }}</span>
-                </div>
-              </label>
-            </div>
-            
-            <div class="input-group no-margin">
-              <label>Gastos de envío (Opcional)</label>
-              <div class="input-currency">
-                <input type="number" formControlName="gastosEnvio" placeholder="0 = Gratis">
-                <span class="currency-symbol">€</span>
-              </div>
-            </div>
-          </div>
-
-          @if (!ofertaForm.get('esOnline')?.value) {
-            <div class="input-group animate-fade-in" style="margin-top: 24px;">
-              <label>Ubicación de la tienda física *</label>
-              <div class="input-with-icon">
-                <input type="text" formControlName="ciudadOferta" placeholder="Ej: CC Plenilunio, Madrid" style="padding-left: 40px;">
-                <svg class="location-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
-              </div>
-            </div>
-          }
-        </section>
-
-        <!-- SECCIÓN 8: EXPIRACIÓN -->
-        <section class="form-section">
-          <div class="input-group">
-            <label>Fecha de finalización (Opcional)</label>
-            <input type="date" formControlName="fechaExpiracion" class="date-input">
-          </div>
-        </section>
-
-        <!-- FOOTER ACCIONES -->
         <footer class="publish-footer">
-          <button type="button" class="btn-cancel" routerLink="/publicar">Cancelar</button>
-          <button type="submit" class="btn-submit" [disabled]="uploading()">
-            @if (uploading()) { 
-              <span class="submit-content">
-                <div class="spinner-btn"></div>
-                Publicando chollo...
-              </span>
-            } @else { 
-              <span class="submit-content">
-                Publicar Oferta
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
-              </span>
-            }
+          <button type="button" class="btn-secondary" routerLink="/publicar">Cancelar</button>
+          <button type="submit" class="btn-success" [disabled]="uploading() || ofertaForm.invalid">
+            {{ uploading() ? 'Subiendo...' : 'Publicar Oferta' }}
           </button>
         </footer>
-
       </form>
     </div>
 
-    <!-- COLUMNA DERECHA: PREVIEW -->
+    <!-- PREVIEW FIJO -->
     <aside class="preview-column">
       <div class="sticky-preview">
-        <div class="preview-header">
-          <span class="live-indicator"><span class="pulse"></span> Live Preview</span>
-          <span class="preview-info">Así lo verán los usuarios</span>
-        </div>
-        
-        <div class="preview-card-wrapper">
+        <span class="preview-label">Vista Previa Real</span>
+        <div class="preview-card-container">
           <app-oferta-card [oferta]="previewOferta()"></app-oferta-card>
-        </div>
-        
-        <div class="pro-tips-card">
-          <div class="tip-header">
-            <div class="tip-icon"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg></div>
-            <h4>Consejos para destacar</h4>
-          </div>
-          <ul class="tip-list">
-            <li><strong>Claridad:</strong> Menciona el producto exacto y su precio final en el título.</li>
-            <li><strong>Código:</strong> Si hay un cupón, anótalo. Genera más tracción.</li>
-            <li><strong>Fotos:</strong> Las imágenes sin marcas de agua obtienen un 30% más de votos Spark.</li>
-          </ul>
         </div>
       </div>
     </aside>

@@ -1,0 +1,105 @@
+.publish-container { max-width: 1100px; margin: 40px auto; padding: 0 20px; color: #f1f5f9; }
+.publish-header { margin-bottom: 40px; }
+.progress-bar { height: 6px; background: rgba(255,255,255,0.05); border-radius: 10px; overflow: hidden; margin-bottom: 12px; }
+.progress-fill { height: 100%; background: linear-gradient(90deg, #6366f1, #a855f7); transition: width 0.4s ease; }
+.step-count { font-size: 13px; color: #94a3b8; font-weight: 600; text-transform: uppercase; }
+.step-title { font-size: 28px; margin-top: 8px; font-weight: 700; }
+
+.publish-content { display: block; }
+.form-area { background: #0f172a; border: 1px solid #1e293b; border-radius: 24px; padding: 40px; }
+
+/* Iconos SVG */
+.icon-circle svg { width: 32px; height: 32px; color: white; }
+.loc-icon { width: 18px; height: 18px; color: #6366f1; margin-right: 8px; }
+.upload-icon-svg { width: 48px; height: 48px; color: #6366f1; margin-bottom: 15px; }
+
+/* STEP 1 Cards */
+.step-0-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; }
+.type-card {
+  background: #1e293b; border: 1px solid #334155; border-radius: 20px; padding: 24px;
+  cursor: pointer; transition: 0.3s;
+}
+.type-card:hover { transform: translateY(-4px); border-color: #6366f1; }
+.type-card.active { border-color: #6366f1; background: rgba(99,102,241,0.1); }
+.icon-circle { margin-bottom: 16px; width: 60px; height: 60px; background: #334155; display: flex; align-items: center; justify-content: center; border-radius: 16px; }
+
+/* Forms & Errores */
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.input-group { margin-bottom: 24px; position: relative; }
+.input-group label { display: block; font-size: 14px; color: #94a3b8; margin-bottom: 8px; }
+.input-group input, .input-group textarea, .dark-select {
+  width: 100%; background: #1e293b; border: 1px solid #334155; border-radius: 12px;
+  padding: 12px 16px; color: white; transition: 0.2s;
+}
+.input-group input:focus { border-color: #6366f1; outline: none; }
+
+.relative { position: relative; }
+
+.autocomplete-dropdown {
+  position: absolute; top: 100%; left: 0; right: 0; z-index: 100;
+  background: rgba(30, 41, 59, 0.95);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px; margin-top: 8px; max-height: 250px; overflow-y: auto;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+.dropdown-item { 
+  padding: 12px 16px; cursor: pointer; transition: 0.2s; 
+  font-size: 14px; color: #e2e8f0; border-bottom: 1px solid rgba(255,255,255,0.03);
+}
+.dropdown-item:last-child { border-bottom: none; }
+.dropdown-item:hover { background: rgba(99, 102, 241, 0.2); color: white; }
+
+/* Custom Scrollbar */
+.autocomplete-dropdown::-webkit-scrollbar { width: 6px; }
+.autocomplete-dropdown::-webkit-scrollbar-track { background: transparent; }
+.autocomplete-dropdown::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
+.autocomplete-dropdown::-webkit-scrollbar-thumb:hover { background: #475569; }
+
+.input-group.error input, .input-group.error textarea, .input-group.error .dark-select { border-color: #ef4444; }
+.error-msg { color: #ef4444; font-size: 12px; margin-top: 4px; display: block; min-height: 18px; }
+
+.location-input-wrapper { display: flex; align-items: center; background: #1e293b; border: 1px solid #334155; border-radius: 12px; padding-left: 12px; }
+.location-input-wrapper input { border: none; background: transparent; }
+
+.toggles-grid { display: flex; gap: 30px; margin-top: 10px; }
+.toggle-item { display: flex; align-items: center; gap: 10px; }
+
+/* Condition */
+.condition-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
+.condition-card {
+  background: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 15px;
+  text-align: center; cursor: pointer;
+}
+.condition-card.active { border-color: #6366f1; background: rgba(99,102,241,0.1); }
+
+/* Upload */
+.upload-zone { border: 2px dashed #334155; border-radius: 16px; padding: 40px; text-align: center; cursor: pointer; margin-bottom: 20px; transition: 0.3s; }
+.upload-zone:hover { border-color: #6366f1; background: rgba(255,255,255,0.02); }
+.image-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 15px; }
+.image-preview { position: relative; aspect-ratio: 1; border-radius: 12px; overflow: hidden; }
+.thumb { width: 100%; height: 100%; object-fit: cover; }
+.principal-badge { position: absolute; bottom: 5px; left: 5px; background: #6366f1; font-size: 10px; padding: 2px 6px; border-radius: 4px; }
+.btn-remove { position: absolute; top: 5px; right: 5px; background: rgba(0,0,0,0.5); border: none; color: white; border-radius: 50%; width: 22px; height: 22px; cursor: pointer; }
+
+/* Review */
+.review-header-flex { display: flex; gap: 30px; margin-bottom: 30px; }
+.review-img-large { width: 240px; height: 160px; border-radius: 20px; object-fit: cover; border: 1px solid #334155; }
+.review-price { font-size: 32px; font-weight: 800; color: #10b981; margin: 10px 0; }
+.review-tags { display: flex; gap: 10px; }
+.tag-badge { background: #1e293b; padding: 4px 12px; border-radius: 20px; font-size: 12px; border: 1px solid #334155; }
+.review-grid-details { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+.detail-box { background: #1e293b; padding: 15px; border-radius: 16px; display: flex; flex-direction: column; gap: 5px; }
+.detail-box strong { font-size: 12px; color: #94a3b8; text-transform: uppercase; }
+
+/* Footer */
+.publish-footer { display: flex; justify-content: space-between; margin-top: 40px; padding-top: 20px; border-top: 1px solid #1e293b; }
+.btn-primary, .btn-success { background: #6366f1; color: white; border: none; padding: 12px 30px; border-radius: 12px; font-weight: 600; cursor: pointer; transition: 0.2s; }
+.btn-success { background: #10b981; }
+.btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+.btn-secondary { background: transparent; border: none; color: #94a3b8; cursor: pointer; }
+
+.animate-fade-in { animation: fadeIn 0.4s ease-out; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+.hidden { display: none; }

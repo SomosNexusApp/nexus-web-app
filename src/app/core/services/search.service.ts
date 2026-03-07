@@ -260,14 +260,33 @@ export class SearchService {
     );
   }
 
-  obtenerCiudadDesdeCoords(lat: number, lon: number): Observable<string> {
-    const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=10&addressdetails=1`;
-    return this.http.get<any>(url).pipe(
-      map(res => {
-        if (!res?.address) return 'Ubicación desconocida';
-        return res.address.city || res.address.town || res.address.village || res.address.county || 'Tu ubicación';
+  /** Obtiene ciudad, provincia y CP de forma estructurada y limpia */
+  buscarUbicacionEstructurada(query: string): Observable<any[]> {
+    if (!query || query.length < 2) return of([]);
+    const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&countrycodes=es&format=json&addressdetails=1&limit=8`;
+    return this.http.get<any[]>(url).pipe(
+      map((resultados) => {
+        const unicos = new Set();
+        return resultados
+          .map((res) => {
+            const addr = res.address;
+            const ciudad = addr.city || addr.town || addr.village || addr.municipality || addr.suburb || '';
+            const provincia = addr.county || addr.province || addr.state || '';
+            const cp = addr.postcode || '';
+            
+            // Creamos un display amigable: "Ciudad, Provincia"
+            const display = `${ciudad}${provincia ? ', ' + provincia : ''}`.trim();
+            
+            return { ciudad, provincia, cp, display };
+          })
+          .filter(l => {
+            // Solo ciudades válidas y evitar duplicados visuales
+            if (!l.ciudad || l.ciudad.length < 2 || unicos.has(l.display.toLowerCase())) return false;
+            unicos.add(l.display.toLowerCase());
+            return true;
+          });
       }),
-      catchError(() => of('Tu ubicación'))
+      catchError(() => of([])),
     );
   }
 

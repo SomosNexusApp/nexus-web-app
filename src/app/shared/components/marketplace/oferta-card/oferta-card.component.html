@@ -24,7 +24,7 @@
 
       @if ($any(oferta).badge) {
         <span class="type-badge" [ngClass]="$any(oferta).badge.toLowerCase()">
-          {{ badgeEmoji }} {{ badgeLabel }}
+          {{ badgeLabel }}
         </span>
       }
     </div>
@@ -48,7 +48,7 @@
       <h3 class="oferta-title" [title]="oferta.titulo">{{ oferta.titulo }}</h3>
 
       <div class="price-row">
-        <span class="price-new">{{ oferta.precioOferta || oferta.precio | currencyEs }}</span>
+        <span class="price-new">{{ (oferta.precioOferta || oferta.precio) | currencyEs }}</span>
         @if (oferta.precioOriginal) {
           <span class="price-old">{{ oferta.precioOriginal | currencyEs }}</span>
         }
@@ -56,18 +56,15 @@
 
       @if ($any(oferta).codigoDescuento) {
         <div class="codigo-chip-wrapper">
-          <button class="codigo-chip" (click)="copiarCodigo($event)" [class.copied]="copiado()" type="button" aria-label="Copiar cupón">
-            <svg class="coupon-icon" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 12H16c-.7 2-3 3-4.5 1.5c-1.5 1.5-3.8.5-4.5-1.5H2v-2h5c.7-2 3-3 4.5-1.5c1.5-1.5 3.8-.5 4.5 1.5h5.5v2z"/></svg>
+          <button class="codigo-chip" (click)="copiarCodigo($event)" [class.copied]="copiado()" type="button">
+            <svg class="coupon-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 12H16c-.7 2-3 3-4.5 1.5c-1.5 1.5-3.8.5-4.5-1.5H2v-2h5c.7-2 3-3 4.5-1.5c1.5-1.5 3.8-.5 4.5 1.5h5.5v2z"/></svg>
             <span class="codigo-text">{{ copiado() ? '¡Copiado!' : $any(oferta).codigoDescuento }}</span>
           </button>
         </div>
       }
 
       <div class="card-footer">
-        <div class="spark-bar-container" title="Termómetro de la oferta">
-          <div class="spark-icons">
-            <span class="fire-icon">🔥</span>
-          </div>
+        <div class="spark-bar-container">
           <div class="spark-bar-track">
             <div class="spark-bar-fill" [style.width.%]="sparkTempWidth"></div>
           </div>
@@ -75,11 +72,11 @@
         </div>
 
         <div class="vote-actions">
-          <button class="vote-btn spark-btn" [class.active]="miVoto() === true" (click)="votar(true, $event)" aria-label="Dar Spark">
-            🔥
+          <button class="vote-btn spark-btn" [class.active]="miVoto() === true" (click)="votar(true, $event)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
           </button>
-          <button class="vote-btn drip-btn" [class.active]="miVoto() === false" (click)="votar(false, $event)" aria-label="Dar Drip">
-            ❄️
+          <button class="vote-btn drip-btn" [class.active]="miVoto() === false" (click)="votar(false, $event)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M5 5l14 14M2 12h20M5 19l14-14"/></svg>
           </button>
         </div>
       </div>

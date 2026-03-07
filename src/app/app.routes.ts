@@ -94,6 +94,14 @@ export const routes: Routes = [
       ),
     canActivate: [authGuard],
   },
+  {
+    path: 'publicar/vehiculo',
+    loadComponent: () =>
+      import('./components/marketplace/publish-vehiculo/publish-vehiculo.component').then(
+        (m) => m.PublishVehiculoComponent
+      ),
+    canActivate: [authGuard],
+  },
 
   // {
   //   path: 'compras/:id',
