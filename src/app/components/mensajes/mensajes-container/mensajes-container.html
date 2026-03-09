@@ -1,0 +1,24 @@
+<div class="mensajes-layout">
+  <!-- Columna Izquierda: Lista de Coversaciones -->
+  <aside class="sidebar">
+    <app-conversaciones-list
+      (conversacionSeleccionada)="onConversacionCambiada($event)"
+    ></app-conversaciones-list>
+  </aside>
+
+  <!-- Columna Derecha: Panel de Chat -->
+  <main class="chat-area">
+    <app-chat-panel
+      *ngIf="conversacionSeleccionada() as conversacion; else emptyState"
+      [conversacion]="conversacion"
+    ></app-chat-panel>
+
+    <ng-template #emptyState>
+      <div class="empty-chat">
+        <i class="fas fa-comments text-5xl mb-4 text-gray-400"></i>
+        <h3>Tus Mensajes</h3>
+        <p>Selecciona una conversación para empezar a chatear.</p>
+      </div>
+    </ng-template>
+  </main>
+</div>

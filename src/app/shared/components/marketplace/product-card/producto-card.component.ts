@@ -1,5 +1,5 @@
 import { Component, Input, ChangeDetectionStrategy, inject, signal } from '@angular/core';
-import { CommonModule, NgOptimizedImage } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { CurrencyEsPipe } from '../../../pipes/currency-es.pipe';
 import { TimeAgoPipe } from '../../../pipes/time-ago.pipe';
@@ -13,7 +13,6 @@ import { MarketplaceItem } from '../../../../models/marketplace-item.model';
   imports: [
     CommonModule,
     RouterModule,
-    NgOptimizedImage,
     CurrencyEsPipe,
     TimeAgoPipe,
     SkeletonCardComponent,

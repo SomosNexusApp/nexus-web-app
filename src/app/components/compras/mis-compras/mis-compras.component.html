@@ -1,0 +1,94 @@
+<div class="mc-container">
+  <header class="mc-header">
+    <h1 class="mc-title">Mis Movimientos</h1>
+
+    <div class="mc-tabs">
+      <button class="mc-tab" [class.active]="activeTab() === 'COMPRAS'" (click)="setTab('COMPRAS')">
+        Mis Compras
+      </button>
+      <button class="mc-tab" [class.active]="activeTab() === 'VENTAS'" (click)="setTab('VENTAS')">
+        Mis Ventas
+      </button>
+    </div>
+  </header>
+
+  @if (loading()) {
+    <div class="mc-loading">
+      <div class="mc-spinner"></div>
+      <p>Cargando información...</p>
+    </div>
+  } @else {
+    @let lista = activeTab() === 'COMPRAS' ? compras() : ventas();
+
+    @if (lista.length === 0) {
+      <div class="mc-empty">
+        <h3>Aún no tienes {{ activeTab() === 'COMPRAS' ? 'compras' : 'ventas' }}</h3>
+        <p>Explora el catálogo o publica tus primeros artículos.</p>
+      </div>
+    } @else {
+      <div class="mc-list">
+        @for (item of lista; track item.id) {
+          <article class="mc-item">
+            <div class="mc-item-header">
+              <span class="mc-item-date">{{ item.fechaCompra | timeAgo }}</span>
+              <span class="mc-item-total">Total: {{ item.precioFinal | currencyEs }}</span>
+            </div>
+
+            <a [routerLink]="['/compras', item.id]" class="mc-item-body">
+              <img
+                [src]="item.producto?.galeriaImagenes | coverImage"
+                [alt]="item.producto?.titulo"
+                class="mc-item-img"
+              />
+              <div class="mc-item-info">
+                <h3 class="mc-item-title">{{ item.producto?.titulo }}</h3>
+                <span class="mc-item-badge" [style.backgroundColor]="getBadgeColor(item.estado)">
+                  {{ item.estado.replace('_', ' ') }}
+                </span>
+              </div>
+            </a>
+
+            <div class="mc-item-footer">
+              <a [routerLink]="['/compras', item.id]" class="mc-btn mc-btn-outline">Ver detalle</a>
+
+              <!-- Acciones Comprador -->
+              @if (activeTab() === 'COMPRAS') {
+                @if (item.estado === 'ENTREGADO') {
+                  <button class="mc-btn mc-btn-primary">Confirmar recepción</button>
+                  <button class="mc-btn mc-btn-outline">Abrir disputa</button>
+                }
+                @if (item.estado === 'COMPLETADA') {
+                  <button class="mc-btn mc-btn-primary">Valorar vendedor</button>
+                }
+                @if (item.estado === 'EN_DISPUTA') {
+                  <a [routerLink]="['/disputas', item.id]" class="mc-btn mc-btn-outline"
+                    >Ver disputa</a
+                  >
+                }
+              }
+
+              <!-- Acciones Vendedor -->
+              @if (activeTab() === 'VENTAS') {
+                @if (item.estado === 'PAGADO') {
+                  <button class="mc-btn mc-btn-primary">Marcar como enviado</button>
+                }
+                @if (
+                  item.estado === 'ENVIADO' ||
+                  item.estado === 'EN_TRANSITO' ||
+                  item.estado === 'ENTREGADO'
+                ) {
+                  <button class="mc-btn mc-btn-outline">Ver seguimiento</button>
+                }
+                @if (item.estado === 'EN_DISPUTA') {
+                  <a [routerLink]="['/disputas', item.id]" class="mc-btn mc-btn-primary"
+                    >Responder disputa</a
+                  >
+                }
+              }
+            </div>
+          </article>
+        }
+      </div>
+    }
+  }
+</div>

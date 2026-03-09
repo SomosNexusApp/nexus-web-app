@@ -1,6 +1,6 @@
 import { Component, OnInit, inject, signal, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, RouterModule } from '@angular/router';
+import { ActivatedRoute, RouterModule, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../../environments/enviroment';
 import { AuthStore } from '../../../core/auth/auth-store';
@@ -11,12 +11,13 @@ import { FormsModule } from '@angular/forms';
 @Component({
   selector: 'app-vehiculo-detail',
   standalone: true,
-  imports: [CommonModule, RouterModule, CurrencyEsPipe, TimeAgoPipe, FormsModule],
+  imports: [CommonModule, RouterModule, CurrencyEsPipe, FormsModule],
   templateUrl: './vehiculo-detail.component.html',
-  styleUrls: ['./vehiculo-detail.component.css']
+  styleUrls: ['./vehiculo-detail.component.css'],
 })
 export class VehiculoDetailComponent implements OnInit {
   private route = inject(ActivatedRoute);
+  private router = inject(Router);
   private http = inject(HttpClient);
   authStore = inject(AuthStore);
 
@@ -38,7 +39,7 @@ export class VehiculoDetailComponent implements OnInit {
   opcionesEncuesta: string[] = ['', ''];
 
   ngOnInit() {
-    this.route.params.subscribe(params => {
+    this.route.params.subscribe((params) => {
       const id = params['id'];
       if (id) this.cargarVehiculo(id);
     });
@@ -53,34 +54,43 @@ export class VehiculoDetailComponent implements OnInit {
         this.cargarSimilares(res.publicador?.id);
         this.cargarComentarios(id);
       },
-      error: () => this.cargando.set(false)
+      error: () => this.cargando.set(false),
     });
   }
 
   private cargarSimilares(actorId?: number) {
     if (!actorId) return;
-    this.http.get<any[]>(`${environment.apiUrl}/vehiculo`).subscribe(res => {
-      this.similares.set(res.filter(v => v.id !== this.vehiculo().id && v.publicador?.id === actorId).slice(0, 4));
+    this.http.get<any[]>(`${environment.apiUrl}/vehiculo`).subscribe((res) => {
+      this.similares.set(
+        res.filter((v) => v.id !== this.vehiculo().id && v.publicador?.id === actorId).slice(0, 4),
+      );
     });
   }
 
   private cargarComentarios(id: string) {
     // Los vehículos usan el mismo sistema de comentarios pero con vehiculoId
-    this.http.get<any[]>(`${environment.apiUrl}/comentario/vehiculo/${id}`).subscribe(res => {
-      const parsed = res.map(c => ({
-        ...c,
-        poll: c.pollJson ? JSON.parse(c.pollJson) : null
-      }));
-      this.comentarios.set(parsed);
-    }, () => {
-      // Fallback si el endpoint no existe aún
-      this.comentarios.set([]);
-    });
+    this.http.get<any[]>(`${environment.apiUrl}/comentario/vehiculo/${id}`).subscribe(
+      (res) => {
+        const parsed = res.map((c) => ({
+          ...c,
+          poll: c.pollJson ? JSON.parse(c.pollJson) : null,
+        }));
+        this.comentarios.set(parsed);
+      },
+      () => {
+        // Fallback si el endpoint no existe aún
+        this.comentarios.set([]);
+      },
+    );
   }
 
   contactar() {
-    if (!this.authStore.isLoggedIn()) { alert('Inicia sesión para contactar'); return; }
-    alert('Función de chat próximamente');
+    if (!this.authStore.isLoggedIn()) {
+      alert('Inicia sesión para contactar');
+      return;
+    }
+    // Vehículos también pueden contactarse directamente a través del su `id` si se tratan como Productos en el backend.
+    this.router.navigate(['/mensajes'], { queryParams: { productoId: this.vehiculo()?.id } });
   }
 
   // --- COMENTARIOS ---
@@ -115,9 +125,9 @@ export class VehiculoDetailComponent implements OnInit {
     if (this.mostrandoCreadorEncuesta() && this.preguntaEncuesta.trim()) {
       const poll = {
         question: this.preguntaEncuesta,
-        options: this.opcionesEncuesta.filter(o => o.trim()).map(o => ({ text: o, votes: 0 })),
+        options: this.opcionesEncuesta.filter((o) => o.trim()).map((o) => ({ text: o, votes: 0 })),
         totalVotes: 0,
-        votedUsers: []
+        votedUsers: [],
       };
       pollJson = JSON.stringify(poll);
     }
@@ -128,21 +138,21 @@ export class VehiculoDetailComponent implements OnInit {
     this.http.post(`${environment.apiUrl}/comentario`, body, { params }).subscribe({
       next: (res: any) => {
         const fullComment = { ...res, poll: res.pollJson ? JSON.parse(res.pollJson) : null };
-        this.comentarios.update(list => [fullComment, ...list]);
+        this.comentarios.update((list) => [fullComment, ...list]);
         this.nuevoComentario = '';
         this.preguntaEncuesta = '';
         this.opcionesEncuesta = ['', ''];
         this.mostrandoCreadorEncuesta.set(false);
         this.enviandoComentario.set(false);
       },
-      error: () => this.enviandoComentario.set(false)
+      error: () => this.enviandoComentario.set(false),
     });
   }
 
   eliminarComentario(id: number) {
     if (!confirm('¿Seguro que quieres borrar este comentario?')) return;
     this.http.delete(`${environment.apiUrl}/comentario/${id}`).subscribe(() => {
-      this.comentarios.update(list => list.filter(c => c.id !== id));
+      this.comentarios.update((list) => list.filter((c) => c.id !== id));
     });
   }
 
@@ -155,12 +165,16 @@ export class VehiculoDetailComponent implements OnInit {
     const id = this.editandoId();
     if (!id || !this.textoEditando.trim()) return;
 
-    this.http.put(`${environment.apiUrl}/comentario/${id}`, { texto: this.textoEditando }).subscribe({
-      next: (res: any) => {
-        this.comentarios.update(list => list.map(c => c.id === id ? { ...c, texto: res.texto } : c));
-        this.editandoId.set(null);
-      }
-    });
+    this.http
+      .put(`${environment.apiUrl}/comentario/${id}`, { texto: this.textoEditando })
+      .subscribe({
+        next: (res: any) => {
+          this.comentarios.update((list) =>
+            list.map((c) => (c.id === id ? { ...c, texto: res.texto } : c)),
+          );
+          this.editandoId.set(null);
+        },
+      });
   }
 
   votarEncuesta(comentario: any, index: number) {
@@ -172,9 +186,11 @@ export class VehiculoDetailComponent implements OnInit {
     comentario.poll.totalVotes++;
     comentario.poll.votedUsers.push(userId);
 
-    this.http.put(`${environment.apiUrl}/comentario/${comentario.id}`, { 
-      pollJson: JSON.stringify(comentario.poll) 
-    }).subscribe();
+    this.http
+      .put(`${environment.apiUrl}/comentario/${comentario.id}`, {
+        pollJson: JSON.stringify(comentario.poll),
+      })
+      .subscribe();
   }
 
   parseMarkdown(text: string): string {

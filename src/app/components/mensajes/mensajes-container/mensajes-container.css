@@ -1,0 +1,61 @@
+.mensajes-layout {
+  display: flex;
+  height: calc(100vh - 80px); /* Restando el header apróx */
+  background-color: #f0f2f5;
+  font-family: 'Inter', sans-serif;
+  overflow: hidden;
+}
+
+/* Sidebar: Lista de conversaciones */
+.sidebar {
+  width: 380px;
+  background-color: #ffffff;
+  border-right: 1px solid #e2e8f0;
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+}
+
+/* Área de chat activa */
+.chat-area {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  background-color: #e5ddd5; /* Fondo clásico tipo WA */
+  background-image: url('https://res.cloudinary.com/dzahpgslo/image/upload/v1740924043/chat-bg_yexwdf.png'); /* Fondo opcional transparente */
+  background-repeat: repeat;
+  background-blend-mode: overlay;
+  opacity: 0.95;
+}
+
+.empty-chat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: #64748b;
+  text-align: center;
+  background-color: #f8fafc;
+}
+
+.empty-chat h3 {
+  font-size: 1.5rem;
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+  color: #334155;
+}
+
+@media (max-width: 768px) {
+  .mensajes-layout {
+    flex-direction: column;
+  }
+  .sidebar {
+    width: 100%;
+    height: 100%;
+    display: flex; /* Ajustar vista móvil después si es necesario (hide/show) */
+  }
+  .chat-area {
+    display: none; /* En móvil se ocultará el panel hasta hacer click */
+  }
+}

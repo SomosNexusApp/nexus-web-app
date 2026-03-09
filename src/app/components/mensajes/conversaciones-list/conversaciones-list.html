@@ -1,0 +1,65 @@
+<div class="list-container">
+  <div class="list-header">
+    <h2>Mensajes</h2>
+  </div>
+
+  <div class="conversaciones">
+    @for (msg of conversaciones(); track msg.id) {
+      <div class="conversacion-item" (click)="seleccionar(msg)">
+        <!-- Avatar del otro usuario -->
+        <div class="avatar-container">
+          <img
+            [src]="getOtroUsuario(msg).avatarUrl || 'assets/images/default-avatar.png'"
+            class="avatar-img"
+            alt="Avatar"
+          />
+        </div>
+
+        <!-- Info principal -->
+        <div class="info-container">
+          <div class="top-row">
+            <span class="user-name">{{ getOtroUsuario(msg).nombre }}</span>
+            <span class="msg-time">{{ msg.fechaEnvio | timeAgo }}</span>
+          </div>
+
+          <div class="bottom-row">
+            <div class="msg-preview">
+              <span class="product-title text-nexus-primary font-medium text-xs block mb-1">
+                {{ msg.producto.titulo | truncate: 25 }}
+              </span>
+              <!-- Tipo de mensaje o texto -->
+              <span
+                class="texto-truncado"
+                [ngClass]="{
+                  'font-bold text-gray-900': !msg.leido && msg.receptor.id === authStore.user()?.id,
+                }"
+              >
+                @if (msg.tipo === 'IMAGEN') {
+                  📷 Foto
+                } @else if (msg.tipo === 'AUDIO') {
+                  🎤 Audio
+                } @else if (msg.tipo === 'OFERTA_PRECIO') {
+                  💰 Oferta
+                } @else {
+                  {{ msg.texto | truncate: 40 }}
+                }
+              </span>
+            </div>
+
+            <!-- Miniatura del producto -->
+            <img [src]="msg.producto | coverImage" class="product-thumb" alt="Product" />
+
+            <!-- Badge No Leído -->
+            @if (!msg.leido && msg.receptor.id === authStore.user()?.id) {
+              <div class="unread-badge">!</div>
+            }
+          </div>
+        </div>
+      </div>
+    } @empty {
+      <div class="no-conversaciones">
+        <p>Aún no tienes mensajes.</p>
+      </div>
+    }
+  </div>
+</div>

@@ -1,25 +1,51 @@
-import { Compra } from './compra.model';
-
 export type EstadoEnvio =
   | 'PENDIENTE_ENVIO'
+  | 'PREPARANDO'
+  | 'ENVIADO'
   | 'EN_TRANSITO'
+  | 'EN_REPARTO'
   | 'ENTREGADO'
   | 'INCIDENCIA'
-  | 'DEVUELTO';
+  | 'DEVUELTO'
+  | 'CANCELADO';
+
+export type Transportista = 'CORREOS' | 'SEUR' | 'MRW';
 
 export interface Envio {
   id: number;
-  compra?: Compra;
+  compraId?: number;
   estado: EstadoEnvio;
-  transportista?: string;
-  numeroSeguimiento?: string;
-  urlSeguimiento?: string;
-  precioEnvio?: number;
-  fechaEnvio?: string;
-  fechaEstimadaEntrega?: string;
-  fechaConfirmacionEntrega?: string;
+  metodoEntrega?: string;
+
+  // Datos destinatario
   nombreDestinatario?: string;
   direccion?: string;
   ciudad?: string;
   codigoPostal?: string;
+  pais?: string;
+  telefono?: string;
+
+  // Transportista y código de envío
+  transportistaEnum?: Transportista;
+  transportista?: string; // legado / texto libre
+  numeroSeguimiento?: string;
+  urlSeguimiento?: string;
+
+  // Código SHIP-XXXXXXXX y QR
+  codigoEnvio?: string;
+  qrBase64?: string; // PNG base64 sin prefijo data:image
+
+  // Peso y precio
+  pesoKg?: number;
+  precioEnvio?: number;
+
+  // Valoración comprador
+  valoracionVendedor?: number;
+  comentarioValoracion?: string;
+
+  // Fechas
+  fechaCreacion?: string;
+  fechaEnvio?: string;
+  fechaEstimadaEntrega?: string;
+  fechaConfirmacionEntrega?: string;
 }

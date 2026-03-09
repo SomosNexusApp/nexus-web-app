@@ -2,35 +2,43 @@ import { Injectable, signal } from '@angular/core';
 
 export interface Toast {
   id: number;
-  mensaje: string;
   tipo: 'success' | 'error' | 'warning' | 'info';
+  mensaje: string;
+  titulo?: string;
+  url?: string;
 }
 
 @Injectable({ providedIn: 'root' })
 export class ToastService {
-  // Signal que contiene el array de toasts activos
   toasts = signal<Toast[]>([]);
   private counter = 0;
 
-  success(msg: string) {
-    this.add(msg, 'success');
+  success(msg: string, titulo?: string) {
+    this.add({ tipo: 'success', mensaje: msg, titulo });
   }
-  error(msg: string) {
-    this.add(msg, 'error');
+  error(msg: string, titulo?: string) {
+    this.add({ tipo: 'error', mensaje: msg, titulo });
   }
-  warning(msg: string) {
-    this.add(msg, 'warning');
+  warning(msg: string, titulo?: string) {
+    this.add({ tipo: 'warning', mensaje: msg, titulo });
   }
-  info(msg: string) {
-    this.add(msg, 'info');
+  info(msg: string, titulo?: string) {
+    this.add({ tipo: 'info', mensaje: msg, titulo });
   }
 
-  private add(mensaje: string, tipo: Toast['tipo']) {
+  showToast(toastData: Omit<Toast, 'id'>) {
+    this.add(toastData);
+  }
+
+  private add(toast: Omit<Toast, 'id'>) {
     const id = this.counter++;
-    this.toasts.update((t) => [...t, { id, mensaje, tipo }]);
+    this.toasts.update((t) => {
+      const newStack = [{ ...toast, id }, ...t];
+      return newStack.slice(0, 3); // Máximo 3 simultáneos
+    });
 
-    // Auto-eliminar después de 5 segundos
-    setTimeout(() => this.remove(id), 5000);
+    // Auto-eliminar en 4 segundos
+    setTimeout(() => this.remove(id), 4000);
   }
 
   remove(id: number) {

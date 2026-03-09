@@ -1,0 +1,78 @@
+<div class="pagos-container">
+  <div class="header-actions">
+    <p>Agrega o elimina tarjetas para facilitar tus compras en Nexus.</p>
+    @if (!mostrandoFormulario()) {
+      <button class="btn-primary" (click)="iniciarAnadirTarjeta()" [disabled]="cargando()">
+        <i class="fas fa-plus"></i> Añadir tarjeta
+      </button>
+    }
+  </div>
+
+  @if (mostrandoFormulario()) {
+    <div class="add-card-form card">
+      <h3>Nueva Tarjeta</h3>
+      <p class="text-muted">Por seguridad, Nexus no almacena tus datos. Stripe gestiona el pago.</p>
+
+      <div class="stripe-container">
+        <div id="card-element-setup" class="stripe-element"></div>
+      </div>
+
+      @if (errorStripe()) {
+        <div class="alert alert-danger">
+          <i class="fas fa-exclamation-triangle"></i> {{ errorStripe() }}
+        </div>
+      }
+
+      <div class="form-actions mt-3">
+        <button class="btn-secondary" (click)="cancelarAnadir()" [disabled]="procesando()">
+          Cancelar
+        </button>
+        <button class="btn-primary" (click)="confirmarTarjeta()" [disabled]="procesando()">
+          @if (procesando()) {
+            <i class="fas fa-spinner fa-spin"></i> Guardando...
+          } @else {
+            <i class="fas fa-save"></i> Guardar Tarjeta
+          }
+        </button>
+      </div>
+    </div>
+  }
+
+  @if (cargando()) {
+    <div class="loading-state"><i class="fas fa-spinner fa-spin"></i> Cargando tus tarjetas...</div>
+  } @else if (metodos().length === 0 && !mostrandoFormulario()) {
+    <div class="empty-state mt-4">
+      <i class="fas fa-credit-card"></i>
+      <p>No tienes ningún método de pago guardado.</p>
+    </div>
+  } @else {
+    <div class="cards-grid mt-4">
+      @for (m of metodos(); track m.id) {
+        <div class="card-item">
+          <div class="card-brand">
+            <i [class]="getBrandIcon(m.card.brand)"></i>
+            <span class="brand-name">{{ m.card.brand | titlecase }}</span>
+          </div>
+          <div class="card-details">
+            <span class="dots">•••• •••• •••• </span>
+            <span class="last4">{{ m.card.last4 }}</span>
+          </div>
+          <div class="card-footer">
+            <span class="expiry">
+              Válida hasta: {{ (m.card.exp_month < 10 ? '0' : '') + m.card.exp_month }}/{{
+                m.card.exp_year
+              }}
+            </span>
+            <button
+              class="btn-icon text-danger"
+              (click)="eliminarMetodo(m.id)"
+              title="Eliminar tarjeta"
+            >
+              <i class="fas fa-trash"></i>
+            </button>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>

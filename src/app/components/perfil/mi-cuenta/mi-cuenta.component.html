@@ -1,0 +1,458 @@
+<div class="mi-cuenta-layout">
+  <!-- SIDEBAR -->
+  <aside class="sidebar" [class.open]="mobileMenuOpen()">
+    <!-- Perfil mini -->
+    <div class="sidebar-profile">
+      @if (user()?.avatar) {
+        <img [src]="user()!.avatar" class="sidebar-avatar" alt="Avatar" />
+      } @else {
+        <div class="sidebar-avatar sidebar-avatar-iniciales">{{ iniciales() }}</div>
+      }
+      <div class="sidebar-user-info">
+        <span class="sidebar-name">{{ user()?.nombre || user()?.user }}</span>
+        <span class="sidebar-username">@{{ user()?.user }}</span>
+      </div>
+    </div>
+
+    <!-- Items -->
+    <nav class="sidebar-nav">
+      @for (item of sidebarItems; track item.id) {
+        <button
+          class="sidebar-item"
+          [class.active]="activeSection() === item.id"
+          (click)="setSection(item.id)"
+        >
+          <i class="fas" [ngClass]="item.icon"></i>
+          <span>{{ item.label }}</span>
+        </button>
+      }
+    </nav>
+
+    <!-- Logout -->
+    <button class="sidebar-item logout-btn" (click)="confirmarLogout()">
+      <i class="fas fa-sign-out-alt"></i>
+      <span>Cerrar sesión</span>
+    </button>
+  </aside>
+
+  <!-- Mobile toggle -->
+  <button class="mobile-menu-toggle" (click)="mobileMenuOpen.set(!mobileMenuOpen())">
+    <i class="fas" [ngClass]="mobileMenuOpen() ? 'fa-times' : 'fa-bars'"></i>
+  </button>
+
+  <!-- MAIN CONTENT -->
+  <main class="main-content">
+    <!-- ═══ RESUMEN ═══ -->
+    @if (activeSection() === 'resumen') {
+      <section class="section">
+        <h2 class="section-title"><i class="fas fa-user"></i> Resumen</h2>
+
+        <div class="resumen-header">
+          @if (user()?.avatar) {
+            <img [src]="user()!.avatar" class="resumen-avatar" alt="Avatar" />
+          } @else {
+            <div class="resumen-avatar resumen-avatar-iniciales">{{ iniciales() }}</div>
+          }
+          <div>
+            <h3 class="resumen-name">{{ user()?.nombre || user()?.user }}</h3>
+            <p class="resumen-username">@{{ user()?.user }}</p>
+            <div class="resumen-stars">
+              @for (filled of getStarsArray(kpis().valoracionMedia); track $index) {
+                <i class="fas fa-star" [class.filled]="filled"></i>
+              }
+              <span>{{ kpis().valoracionMedia.toFixed(1) }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="kpi-grid">
+          <div class="kpi-card">
+            <i class="fas fa-coins kpi-icon"></i>
+            <span class="kpi-value">{{ kpis().ventas }}</span>
+            <span class="kpi-label">Ventas totales</span>
+          </div>
+          <div class="kpi-card">
+            <i class="fas fa-shopping-bag kpi-icon"></i>
+            <span class="kpi-value">{{ kpis().compras }}</span>
+            <span class="kpi-label">Compras totales</span>
+          </div>
+          <div class="kpi-card">
+            <i class="fas fa-star kpi-icon"></i>
+            <span class="kpi-value">{{ kpis().valoracionMedia.toFixed(1) }}</span>
+            <span class="kpi-label">Valoración media</span>
+          </div>
+          <div class="kpi-card">
+            <i class="fas fa-reply kpi-icon"></i>
+            <span class="kpi-value">{{ kpis().tasaRespuesta }}%</span>
+            <span class="kpi-label">Tasa respuesta</span>
+          </div>
+        </div>
+
+        <div class="resumen-actions">
+          <a routerLink="/publicar" class="btn-primary">
+            <i class="fas fa-plus"></i> Publicar producto
+          </a>
+          <a
+            [routerLink]="['/perfil', $any(user())?.username || user()?.user || '']"
+            class="btn-secondary"
+            target="_blank"
+          >
+            <i class="fas fa-eye"></i> Ver mi perfil público
+          </a>
+        </div>
+      </section>
+    }
+
+    <!-- ═══ MIS PRODUCTOS ═══ -->
+    @if (activeSection() === 'productos') {
+      <section class="section">
+        <div class="section-header-row">
+          <h2 class="section-title"><i class="fas fa-box-open"></i> Mis Productos</h2>
+          <a routerLink="/publicar" class="btn-primary btn-sm">
+            <i class="fas fa-plus"></i> Publicar nuevo
+          </a>
+        </div>
+
+        <div class="sub-tabs">
+          @for (tab of ['DISPONIBLE', 'RESERVADO', 'VENDIDO']; track tab) {
+            <button
+              class="sub-tab"
+              [class.active]="productoTab() === tab"
+              (click)="productoTab.set(tab)"
+            >
+              {{ tab }}
+            </button>
+          }
+        </div>
+
+        @if (cargandoProductos()) {
+          <div class="tab-loading"><div class="spinner-sm"></div></div>
+        } @else if (productosFiltrados().length === 0) {
+          <div class="empty-state">
+            <i class="fas fa-box-open"></i>
+            <p>No tienes productos en esta categoría.</p>
+          </div>
+        } @else {
+          <div class="product-list">
+            @for (p of productosFiltrados(); track p.id) {
+              <div class="product-list-item">
+                <img [src]="p | coverImage" class="product-list-thumb" alt="Producto" />
+                <div class="product-list-info">
+                  <a [routerLink]="['/productos', p.id]" class="product-list-title">{{
+                    p.titulo
+                  }}</a>
+                  <span class="product-list-price">{{ p.precio | currencyEs }}</span>
+                  <span class="product-list-badge" [style.background]="getEstadoColor(p.estado)">
+                    {{ p.estado }}
+                  </span>
+                </div>
+                <div class="product-list-actions">
+                  @if (p.estado === 'DISPONIBLE') {
+                    <button
+                      class="action-btn"
+                      title="Marcar vendido"
+                      (click)="cambiarEstadoProducto(p.id, 'VENDIDO')"
+                    >
+                      <i class="fas fa-check"></i>
+                    </button>
+                    <button
+                      class="action-btn"
+                      title="Reservar"
+                      (click)="cambiarEstadoProducto(p.id, 'RESERVADO')"
+                    >
+                      <i class="fas fa-bookmark"></i>
+                    </button>
+                  }
+                  @if (p.estado === 'RESERVADO') {
+                    <button
+                      class="action-btn"
+                      title="Disponible"
+                      (click)="cambiarEstadoProducto(p.id, 'DISPONIBLE')"
+                    >
+                      <i class="fas fa-undo"></i>
+                    </button>
+                  }
+                  <button
+                    class="action-btn danger"
+                    title="Eliminar"
+                    (click)="eliminarProducto(p.id)"
+                  >
+                    <i class="fas fa-trash"></i>
+                  </button>
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </section>
+    }
+
+    <!-- ═══ MIS OFERTAS ═══ -->
+    @if (activeSection() === 'ofertas') {
+      <section class="section">
+        <div class="section-header-row">
+          <h2 class="section-title"><i class="fas fa-tags"></i> Mis Ofertas</h2>
+          <a routerLink="/publicar/oferta" class="btn-primary btn-sm">
+            <i class="fas fa-plus"></i> Publicar oferta
+          </a>
+        </div>
+
+        @if (cargandoOfertas()) {
+          <div class="tab-loading"><div class="spinner-sm"></div></div>
+        } @else if (misOfertas().length === 0) {
+          <div class="empty-state">
+            <i class="fas fa-tags"></i>
+            <p>No tienes ofertas publicadas.</p>
+          </div>
+        } @else {
+          <div class="product-list">
+            @for (o of misOfertas(); track o.id) {
+              <div class="product-list-item">
+                <img [src]="o | coverImage" class="product-list-thumb" alt="Oferta" />
+                <div class="product-list-info">
+                  <a [routerLink]="['/ofertas', o.id]" class="product-list-title">{{ o.titulo }}</a>
+                  <span class="product-list-price"
+                    >{{ o.precioOriginal | currencyEs }} → {{ o.precioOferta | currencyEs }}</span
+                  >
+                </div>
+                <div class="product-list-actions">
+                  <button class="action-btn danger" title="Eliminar" (click)="eliminarOferta(o.id)">
+                    <i class="fas fa-trash"></i>
+                  </button>
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </section>
+    }
+
+    <!-- ═══ MIS COMPRAS ═══ -->
+    @if (activeSection() === 'compras') {
+      <section class="section">
+        <h2 class="section-title"><i class="fas fa-shopping-cart"></i> Mis Compras</h2>
+        <app-mis-compras></app-mis-compras>
+      </section>
+    }
+
+    <!-- ═══ MIS VENTAS ═══ -->
+    @if (activeSection() === 'ventas') {
+      <section class="section">
+        <h2 class="section-title"><i class="fas fa-coins"></i> Mis Ventas</h2>
+        <app-mis-compras></app-mis-compras>
+      </section>
+    }
+
+    <!-- ═══ BUZÓN ═══ -->
+    @if (activeSection() === 'buzon') {
+      <section class="section">
+        <h2 class="section-title"><i class="fas fa-comments"></i> Buzón de Mensajes</h2>
+        <app-conversaciones-list
+          (conversacionSeleccionada)="irAChat($event)"
+        ></app-conversaciones-list>
+      </section>
+    }
+
+    <!-- ═══ FAVORITOS ═══ -->
+    @if (activeSection() === 'favoritos') {
+      <section class="section">
+        <h2 class="section-title"><i class="fas fa-heart"></i> Favoritos</h2>
+
+        <div class="sub-tabs">
+          <button
+            class="sub-tab"
+            [class.active]="favTab() === 'productos'"
+            (click)="favTab.set('productos')"
+          >
+            Productos guardados
+          </button>
+          <button
+            class="sub-tab"
+            [class.active]="favTab() === 'ofertas'"
+            (click)="favTab.set('ofertas')"
+          >
+            Chollos guardados
+          </button>
+        </div>
+
+        @if (cargandoFavs()) {
+          <div class="tab-loading"><div class="spinner-sm"></div></div>
+        } @else {
+          @if (favTab() === 'productos') {
+            @if (favProductos().length === 0) {
+              <div class="empty-state">
+                <i class="fas fa-heart"></i>
+                <p>No tienes productos guardados.</p>
+              </div>
+            } @else {
+              <div class="products-grid">
+                @for (f of favProductos(); track f.id) {
+                  <div class="fav-card">
+                    <app-producto-card [producto]="f.producto || f"></app-producto-card>
+                    <button class="fav-remove" (click)="quitarFavorito(f.id)">
+                      <i class="fas fa-times"></i>
+                    </button>
+                  </div>
+                }
+              </div>
+            }
+          }
+          @if (favTab() === 'ofertas') {
+            @if (favOfertas().length === 0) {
+              <div class="empty-state">
+                <i class="fas fa-heart"></i>
+                <p>No tienes chollos guardados.</p>
+              </div>
+            } @else {
+              <div class="products-grid">
+                @for (f of favOfertas(); track f.id) {
+                  <div class="fav-card">
+                    <app-producto-card [producto]="f.oferta || f"></app-producto-card>
+                    <button class="fav-remove" (click)="quitarFavorito(f.id)">
+                      <i class="fas fa-times"></i>
+                    </button>
+                  </div>
+                }
+              </div>
+            }
+          }
+        }
+      </section>
+    }
+
+    <!-- ═══ ESTADÍSTICAS ═══ -->
+    @if (activeSection() === 'estadisticas') {
+      <section class="section">
+        <h2 class="section-title"><i class="fas fa-chart-bar"></i> Estadísticas</h2>
+        <div class="stats-placeholder">
+          <i class="fas fa-chart-line"></i>
+          <h3>Próximamente</h3>
+          <p>
+            Los gráficos de ventas, vistas y distribución por categoría estarán disponibles pronto.
+          </p>
+        </div>
+      </section>
+    }
+
+    <!-- ═══ MÉTODOS DE PAGO ═══ -->
+    @if (activeSection() === 'pagos') {
+      <section class="section">
+        <h2 class="section-title"><i class="fas fa-credit-card"></i> Métodos de Pago</h2>
+        <app-pagos></app-pagos>
+      </section>
+    }
+
+    <!-- ═══ CONFIGURACIÓN ═══ -->
+    @if (activeSection() === 'configuracion') {
+      <section class="section">
+        <h2 class="section-title"><i class="fas fa-cog"></i> Configuración</h2>
+
+        <div class="config-card">
+          <h3>Avatar</h3>
+          <div class="config-avatar-row">
+            @if (user()?.avatar) {
+              <img [src]="user()!.avatar" class="config-avatar" />
+            } @else {
+              <div class="config-avatar config-avatar-iniciales">{{ iniciales() }}</div>
+            }
+            <label class="btn-secondary btn-sm">
+              <i class="fas fa-camera"></i> Cambiar avatar
+              <input type="file" accept="image/*" hidden (change)="onAvatarChange($event)" />
+            </label>
+          </div>
+        </div>
+
+        <div class="config-card">
+          <h3>Datos personales</h3>
+          <div class="config-form">
+            <div class="form-group">
+              <label>Nombre</label>
+              <input
+                type="text"
+                [ngModel]="editForm().nombre"
+                (ngModelChange)="updateConfigField('nombre', $event)"
+              />
+            </div>
+            <div class="form-group">
+              <label>Email</label>
+              <input type="email" [value]="user()?.email" disabled />
+              <small>El email no se puede cambiar.</small>
+            </div>
+            <div class="form-group">
+              <label>Teléfono</label>
+              <input
+                type="tel"
+                [ngModel]="editForm().telefono"
+                (ngModelChange)="updateConfigField('telefono', $event)"
+              />
+            </div>
+            <div class="form-group">
+              <label>Ubicación</label>
+              <input
+                type="text"
+                [ngModel]="editForm().ubicacion"
+                (ngModelChange)="updateConfigField('ubicacion', $event)"
+              />
+            </div>
+            <div class="form-group">
+              <label>Biografía</label>
+              <textarea
+                rows="3"
+                [ngModel]="editForm().biografia"
+                (ngModelChange)="updateConfigField('biografia', $event)"
+              ></textarea>
+            </div>
+            <button class="btn-primary" (click)="guardarPerfil()">
+              <i class="fas fa-save"></i> Guardar cambios
+            </button>
+          </div>
+        </div>
+      </section>
+    }
+
+    <!-- ═══ AYUDA ═══ -->
+    @if (activeSection() === 'ayuda') {
+      <section class="section">
+        <h2 class="section-title"><i class="fas fa-question-circle"></i> Ayuda</h2>
+
+        <div class="faq-list">
+          @for (faq of faqs; track $index) {
+            <div class="faq-item" [class.open]="faqOpen() === $index">
+              <button class="faq-question" (click)="toggleFaq($index)">
+                {{ faq.q }}
+                <i
+                  class="fas"
+                  [ngClass]="faqOpen() === $index ? 'fa-chevron-up' : 'fa-chevron-down'"
+                ></i>
+              </button>
+              @if (faqOpen() === $index) {
+                <div class="faq-answer">{{ faq.a }}</div>
+              }
+            </div>
+          }
+        </div>
+
+        <div class="ayuda-actions">
+          <a href="mailto:somosnexusapp@gmail.com" class="btn-primary">
+            <i class="fas fa-envelope"></i> Contactar con soporte
+          </a>
+        </div>
+      </section>
+    }
+  </main>
+</div>
+
+<!-- Modal Logout -->
+@if (showLogoutModal()) {
+  <div class="modal-overlay" (click)="showLogoutModal.set(false)">
+    <div class="modal-box" (click)="$event.stopPropagation()">
+      <div class="modal-icon"><i class="fas fa-sign-out-alt"></i></div>
+      <h3>¿Cerrar sesión?</h3>
+      <p>¿Seguro que quieres cerrar sesión?</p>
+      <div class="modal-actions">
+        <button class="btn-secondary" (click)="showLogoutModal.set(false)">Cancelar</button>
+        <button class="btn-danger" (click)="logout()">Cerrar sesión</button>
+      </div>
+    </div>
+  </div>
+}

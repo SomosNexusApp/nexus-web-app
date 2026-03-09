@@ -18,10 +18,7 @@ import { Producto } from '../../../../models/producto.model';
 import { Valoracion } from '../../../../models/valoracion.model';
 import { Usuario } from '../../../../models/usuario.model';
 import { environment } from '../../../../../environments/enviroment';
-
-// import { AuthService } from '../../../services/auth.service';
-// import { GuestPopupService } from '../../../services/guest-popup.service';
-// import { FavoritoService } from '../../../services/favorito.service';
+import { AuthStore } from '../../../../core/auth/auth-store';
 
 @Component({
   selector: 'app-producto-detail',
@@ -42,7 +39,7 @@ export class ProductoDetailComponent implements OnInit, OnDestroy {
   private route = inject(ActivatedRoute);
   router = inject(Router);
   private http = inject(HttpClient);
-  // private authService      = inject(AuthService);
+  private authStore = inject(AuthStore);
   // private guestPopupService = inject(GuestPopupService);
   // private favoritoService  = inject(FavoritoService);
 
@@ -64,9 +61,9 @@ export class ProductoDetailComponent implements OnInit, OnDestroy {
   // ── Productos relacionados ────────────────────────────────────────────
   relacionados = signal<Producto[]>([]);
 
-  // ── Auth state (simulado) ─────────────────────────────────────────────
-  isLoggedIn = signal(false); // this.authService.isLoggedIn()
-  currentUserId = signal<number | null>(null);
+  // ── Auth state (desde AuthStore) ─────────────────────────────────────
+  isLoggedIn = this.authStore.isLoggedIn;
+  currentUserId = computed(() => this.authStore.user()?.id ?? null);
   esFavorito = signal(false);
 
   // ── Modales ──────────────────────────────────────────────────────────
@@ -101,7 +98,18 @@ export class ProductoDetailComponent implements OnInit, OnDestroy {
 
   puedeComprar = computed(() => {
     const p = this.producto();
-    return p?.estado === 'DISPONIBLE' && this.isLoggedIn() && !this.esVendedorPropietario();
+    // Solo se puede comprar si el producto admite envío (recogida personal = solo chat)
+    return (
+      p?.estado === 'DISPONIBLE' &&
+      this.isLoggedIn() &&
+      !this.esVendedorPropietario() &&
+      p.admiteEnvio === true
+    );
+  });
+
+  soloRecogidaPersonal = computed(() => {
+    const p = this.producto();
+    return !!p && p.admiteEnvio === false && p.estado === 'DISPONIBLE';
   });
 
   mediaEstrellas = computed(() => {
@@ -210,7 +218,10 @@ export class ProductoDetailComponent implements OnInit, OnDestroy {
   // ── Acciones comprador ────────────────────────────────────────────────
   comprarAhora(): void {
     if (!this.isLoggedIn()) {
-      // this.guestPopupService.showPopup('Para comprar productos');
+      // Redirige al flujo de login y vuelve al producto después
+      this.router.navigate(['/login'], {
+        queryParams: { returnUrl: this.router.url },
+      });
       return;
     }
     const id = this.producto()?.id;

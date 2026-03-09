@@ -1,0 +1,187 @@
+<div class="dev-container">
+  <!-- Cabecera -->
+  <header class="dev-header">
+    <button class="btn-back" routerLink="/compras/mis-compras">&larr; Volver</button>
+    <h1>Solicitar Devolución</h1>
+    <p>Pedido #{{ compraId }}</p>
+  </header>
+
+  <ng-container *ngIf="loading()">
+    <div class="loading-state">
+      <div class="spinner"></div>
+      <p>Cargando información del pedido...</p>
+    </div>
+  </ng-container>
+
+  <ng-container *ngIf="!loading() && errorMsg() && plazoExpirado()">
+    <div class="alert alert-danger">
+      <h4>No se puede procesar tu solicitud</h4>
+      <p>{{ errorMsg() }}</p>
+    </div>
+    <div class="actions center mt-4">
+      <button class="btn btn-outline" routerLink="/compras/mis-compras">
+        Volver a mis compras
+      </button>
+    </div>
+  </ng-container>
+
+  <!-- Flujo normal -->
+  <ng-container *ngIf="!loading() && !plazoExpirado() && compra()">
+    <!-- Steps Indicator -->
+    <div class="stepper">
+      <div class="step" [class.active]="pasoActual() >= 1">1. Motivo</div>
+      <div class="step-divider"></div>
+      <div class="step" [class.active]="pasoActual() >= 2">2. Evidencias</div>
+      <div class="step-divider"></div>
+      <div class="step" [class.active]="pasoActual() === 3">3. Confirmar</div>
+    </div>
+
+    <!-- PASO 1: Motivo y Descripción -->
+    <div class="step-content" *ngIf="pasoActual() === 1" [formGroup]="devForm">
+      <h3>Por favor explícanos qué ocurre</h3>
+
+      <div class="form-group">
+        <label>Motivo principal de devolución</label>
+        <select formControlName="motivo" class="form-control">
+          <option value="">Selecciona una opción...</option>
+          <option *ngFor="let m of MOTIVOS" [value]="m.value">{{ m.label }}</option>
+        </select>
+        <small
+          class="error-msg"
+          *ngIf="devForm.get('motivo')?.touched && devForm.get('motivo')?.invalid"
+        >
+          Debes seleccionar un motivo.
+        </small>
+      </div>
+
+      <div class="form-group mt-4">
+        <label>Descripción detallada</label>
+        <textarea
+          formControlName="descripcion"
+          rows="5"
+          class="form-control"
+          placeholder="Un mínimo de 50 caracteres explicando tu problema..."
+        ></textarea>
+        <!-- Contador de caracteres -->
+        <small
+          class="char-count"
+          [class.text-danger]="devForm.get('descripcion')?.value?.length < 50"
+        >
+          {{ devForm.get('descripcion')?.value?.length || 0 }} / 50 caracteres mínimos
+        </small>
+        <small
+          class="error-msg"
+          *ngIf="devForm.get('descripcion')?.touched && devForm.get('descripcion')?.invalid"
+        >
+          Debe contener al menos 50 caracteres.
+        </small>
+      </div>
+
+      <div class="actions end mt-4">
+        <button class="btn btn-primary" (click)="avanzar()" [disabled]="devForm.invalid">
+          Continuar
+        </button>
+      </div>
+    </div>
+
+    <!-- PASO 2: Evidencias -->
+    <div class="step-content" *ngIf="pasoActual() === 2">
+      <h3>Aporta evidencias físicas</h3>
+      <p class="text-muted">
+        Adjunta fotos claras que demuestren el problema (roturas, estado de la caja, etc.).
+      </p>
+
+      <div class="upload-zone" (click)="fileInput.click()" *ngIf="fotosFiles.length < 4">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="32"
+          height="32"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M12 4v16m8-8H4"
+          />
+        </svg>
+        <p>Añadir foto (Máximo 4)</p>
+        <input
+          #fileInput
+          type="file"
+          hidden
+          accept="image/*"
+          multiple
+          (change)="onFileChange($event)"
+        />
+      </div>
+
+      <div class="previews-grid mt-4" *ngIf="fotosPreviews.length > 0">
+        <div class="preview-item" *ngFor="let preview of fotosPreviews; let i = index">
+          <img [src]="preview" alt="Evidencia de devolución" />
+          <button class="btn-remove" (click)="removeFoto(i)">&times;</button>
+        </div>
+      </div>
+
+      <div
+        class="alert alert-warning mt-4"
+        *ngIf="fotosFiles.length === 0 && devForm.get('motivo')?.value !== 'CAMBIO_DE_OPINION'"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="20"
+          height="20"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+          />
+        </svg>
+        <span>Para procesar este motivo es obligatorio adjuntar al menos 1 fotografía.</span>
+      </div>
+
+      <div class="actions between mt-4">
+        <button class="btn btn-outline" (click)="retroceder()">Atrás</button>
+        <button class="btn btn-primary" (click)="avanzar()" [disabled]="!evidenciasValidas()">
+          Continuar
+        </button>
+      </div>
+    </div>
+
+    <!-- PASO 3: Confirmación -->
+    <div class="step-content" *ngIf="pasoActual() === 3">
+      <h3>Confirma tu solicitud</h3>
+
+      <div class="summary-box">
+        <h4>Resumen de la Devolución</h4>
+        <ul>
+          <li><strong>Producto:</strong> {{ compra()?.producto?.titulo }}</li>
+          <li><strong>Motivo:</strong> {{ devForm.get('motivo')?.value }}</li>
+          <li><strong>Descripción enviada:</strong> {{ devForm.get('descripcion')?.value }}</li>
+          <li><strong>Evidencias aportadas:</strong> {{ fotosFiles.length }} fotografías</li>
+        </ul>
+      </div>
+
+      <div class="alert alert-info mt-4">
+        <p><strong>¿Qué pasa ahora?</strong></p>
+        <p>
+          El equipo Nexus revisará tu caso en 48-72 horas laborables. Si es aceptada, obtendrás
+          indicaciones para reenviar el producto. Los plazos de reembolso bancario tras recibir el
+          paquete suelen tardar entre 5-10 días hábiles.
+        </p>
+      </div>
+
+      <div class="actions between mt-4">
+        <button class="btn btn-outline" (click)="retroceder()">Hacer cambios</button>
+        <button class="btn btn-success" (click)="enviarSolicitud()">Enviar Solicitud</button>
+      </div>
+    </div>
+  </ng-container>
+</div>

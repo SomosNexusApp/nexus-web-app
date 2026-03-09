@@ -1,0 +1,228 @@
+.mc-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+.mc-header {
+  margin-bottom: 2rem;
+}
+
+.mc-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--text-base);
+  margin-bottom: 1.5rem;
+}
+
+/* Tabs */
+.mc-tabs {
+  display: flex;
+  gap: 1rem;
+  border-bottom: 1px solid var(--border-color);
+  margin-bottom: 2rem;
+}
+
+.mc-tab {
+  background: none;
+  border: none;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+  position: relative;
+  transition: color 0.2s ease;
+}
+
+.mc-tab:hover {
+  color: var(--text-base);
+}
+
+.mc-tab.active {
+  color: var(--primary-color);
+}
+
+.mc-tab.active::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background-color: var(--primary-color);
+  border-radius: 2px 2px 0 0;
+}
+
+/* Lista de items */
+.mc-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.mc-item {
+  display: flex;
+  flex-direction: column;
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  overflow: hidden;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.mc-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+/* Header del Item (Fecha y Total) */
+.mc-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  background-color: var(--bg-soft);
+  border-bottom: 1px solid var(--border-color);
+  font-size: 0.875rem;
+}
+
+.mc-item-date {
+  color: var(--text-muted);
+}
+
+.mc-item-total {
+  font-weight: 600;
+  color: var(--text-base);
+}
+
+/* Cuerpo del Item (Producto) */
+.mc-item-body {
+  display: flex;
+  padding: 1.5rem;
+  gap: 1.5rem;
+  text-decoration: none;
+  color: inherit;
+}
+
+.mc-item-img {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+}
+
+.mc-item-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.mc-item-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--text-base);
+  margin-bottom: 0.5rem;
+}
+
+.mc-item-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: white;
+  width: fit-content;
+}
+
+/* Footer del Item (Acciones) */
+.mc-item-footer {
+  display: flex;
+  justify-content: flex-end;
+  padding: 1rem 1.5rem;
+  border-top: 1px solid var(--border-color);
+  background-color: var(--bg-soft);
+  gap: 1rem;
+}
+
+.mc-btn {
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.mc-btn-primary {
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+}
+
+.mc-btn-primary:hover {
+  background-color: var(--primary-dark);
+}
+
+.mc-btn-outline {
+  background-color: transparent;
+  color: var(--text-base);
+  border: 1px solid var(--border-color);
+}
+
+.mc-btn-outline:hover {
+  background-color: var(--bg-hover);
+}
+
+/* Empty State & Loading */
+.mc-empty,
+.mc-loading {
+  text-align: center;
+  padding: 4rem 2rem;
+  color: var(--text-muted);
+  background-color: var(--bg-card);
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+}
+
+.mc-empty h3 {
+  color: var(--text-base);
+  font-size: 1.25rem;
+  margin-bottom: 0.5rem;
+}
+
+/* Spinner */
+.mc-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid var(--border-color);
+  border-top-color: var(--primary-color);
+  border-radius: 50%;
+  animation: mc-spin 1s linear infinite;
+  margin: 0 auto 1rem auto;
+}
+
+@keyframes mc-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 640px) {
+  .mc-item-body {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .mc-item-badge {
+    margin: 0 auto;
+  }
+}

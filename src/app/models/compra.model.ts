@@ -46,4 +46,7 @@ export interface Compra {
   comisionNexus?: number;
   direccionCompleta?: string;
   puntoRecogidaId?: string;
+  // Peso y transportista del paquete
+  pesoKg?: number;
+  transportista?: string;
 }

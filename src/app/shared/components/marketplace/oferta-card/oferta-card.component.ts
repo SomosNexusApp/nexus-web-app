@@ -7,7 +7,7 @@ import {
   OnInit,
   OnDestroy,
   OnChanges,
-  SimpleChanges
+  SimpleChanges,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
@@ -23,14 +23,7 @@ import { AuthStore } from '../../../../core/auth/auth-store';
 @Component({
   selector: 'app-oferta-card',
   standalone: true,
-  imports: [
-    CommonModule,
-    RouterModule,
-    CurrencyEsPipe,
-    TimeAgoPipe,
-    SkeletonCardComponent,
-    CoverImagePipe,
-  ],
+  imports: [CommonModule, RouterModule, CurrencyEsPipe, TimeAgoPipe, SkeletonCardComponent],
   templateUrl: './oferta-card.component.html',
   styleUrls: ['./oferta-card.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -73,7 +66,7 @@ export class OfertaCardComponent implements OnInit, OnDestroy, OnChanges {
       PORCENTAJE: 'OFERTA',
     };
     const b = (this.oferta as any)?.badge;
-    return b ? (map[b] || b) : '';
+    return b ? map[b] || b : '';
   }
 
   get sparkTempWidth(): number {
@@ -105,7 +98,7 @@ export class OfertaCardComponent implements OnInit, OnDestroy, OnChanges {
   private updateState(): void {
     this.sparkScore.set((this.oferta as any).sparkScore ?? 0);
     this.miVoto.set((this.oferta as any).miVoto || 'NONE');
-    
+
     if (this.countdownInterval) clearInterval(this.countdownInterval);
     if ((this.oferta as any).fechaExpiracion) this.startCountdown();
   }
@@ -152,21 +145,23 @@ export class OfertaCardComponent implements OnInit, OnDestroy, OnChanges {
       .set('usuarioId', usuarioId.toString())
       .set('esSpark', esSpark.toString());
 
-    this.http.post(`${environment.apiUrl}/oferta/${this.oferta.id}/votar`, {}, { params }).subscribe({
-      next: (res: any) => {
-        this.sparkScore.set(res.sparkScore);
-        this.miVoto.set(res.miVoto);
-        this.votando.set(false);
-        // Sincronizar objeto original
-        (this.oferta as any).sparkScore = res.sparkScore;
-        (this.oferta as any).badge = res.badge;
-        (this.oferta as any).miVoto = res.miVoto;
-      },
-      error: (err) => {
-        console.error('Error al votar:', err);
-        this.votando.set(false);
-      }
-    });
+    this.http
+      .post(`${environment.apiUrl}/oferta/${this.oferta.id}/votar`, {}, { params })
+      .subscribe({
+        next: (res: any) => {
+          this.sparkScore.set(res.sparkScore);
+          this.miVoto.set(res.miVoto);
+          this.votando.set(false);
+          // Sincronizar objeto original
+          (this.oferta as any).sparkScore = res.sparkScore;
+          (this.oferta as any).badge = res.badge;
+          (this.oferta as any).miVoto = res.miVoto;
+        },
+        error: (err) => {
+          console.error('Error al votar:', err);
+          this.votando.set(false);
+        },
+      });
   }
 
   copiarCodigo(event: MouseEvent): void {
@@ -181,7 +176,7 @@ export class OfertaCardComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   navigateToDetail(): void {
-    if (this.oferta.id === 9999) return; 
+    if (this.oferta.id === 9999) return;
     this.router.navigate(['/ofertas', this.oferta.id]);
   }
 }

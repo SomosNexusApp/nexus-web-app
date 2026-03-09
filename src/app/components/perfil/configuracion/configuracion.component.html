@@ -1,0 +1,554 @@
+<app-toast-container></app-toast-container>
+
+<div class="configuracion-page">
+  <div class="page-container">
+    <!-- Sidebar / ScrollSpy -->
+    <aside class="config-sidebar">
+      <h3>Configuración</h3>
+      <nav class="config-nav">
+        <a
+          *ngFor="let sec of sections"
+          (click)="scrollToSection(sec.id)"
+          [class.active]="activeSection() === sec.id"
+          class="nav-item"
+        >
+          <i [class]="sec.icon"></i>
+          <span>{{ sec.title }}</span>
+        </a>
+      </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="config-content">
+      <!-- 1. Datos del Perfil -->
+      <section id="perfil" class="config-section">
+        <h2>Datos del Perfil</h2>
+        <div class="section-card">
+          <div class="avatar-edit">
+            <div class="avatar-preview">
+              <img [src]="user()?.avatar || 'assets/images/default-avatar.png'" alt="Avatar" />
+            </div>
+            <div class="avatar-actions">
+              <label class="btn-outline">
+                <i class="fas fa-camera"></i> Cambiar imagen
+                <input type="file" hidden (change)="onAvatarSelected($event)" accept="image/*" />
+              </label>
+              <p class="help-text">JPG, GIF o PNG. Max 5MB.</p>
+            </div>
+          </div>
+
+          <form (ngSubmit)="guardarPerfil()">
+            <div class="form-row">
+              <div class="form-group">
+                <label>Nombre</label>
+                <input
+                  type="text"
+                  [ngModel]="editPerfil().nombre"
+                  (ngModelChange)="updateEditPerfilField('nombre', $event)"
+                  name="nombre"
+                />
+              </div>
+              <div class="form-group">
+                <label>Apellidos</label>
+                <input
+                  type="text"
+                  [ngModel]="editPerfil().apellidos"
+                  (ngModelChange)="updateEditPerfilField('apellidos', $event)"
+                  name="apellidos"
+                />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Biografía</label>
+              <textarea
+                rows="3"
+                maxlength="300"
+                [ngModel]="editPerfil().biografia"
+                (ngModelChange)="updateEditPerfilField('biografia', $event)"
+                name="bio"
+                placeholder="Cuenta algo sobre ti... (Máx 300 caracteres)"
+              ></textarea>
+            </div>
+
+            <div class="form-group">
+              <label>Ubicación</label>
+              <div class="input-with-button">
+                <input
+                  type="text"
+                  [ngModel]="editPerfil().ubicacion"
+                  (ngModelChange)="updateEditPerfilField('ubicacion', $event)"
+                  name="ubicacion"
+                  placeholder="Tu ciudad (Ej: Madrid)"
+                />
+                <button type="button" class="btn-text" (click)="usarMiUbicacion()">
+                  <i class="fas fa-location-arrow"></i> Usar mi ubicación
+                </button>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Teléfono <span class="badge badge-info">Opcional</span></label>
+              <input
+                type="tel"
+                [ngModel]="editPerfil().telefono"
+                (ngModelChange)="updateEditPerfilField('telefono', $event)"
+                name="telefono"
+                placeholder="+34 600 000 000"
+              />
+            </div>
+
+            <div class="section-actions">
+              <button type="submit" class="btn-primary">Guardar cambios</button>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <!-- 2. Privacidad -->
+      <section id="privacidad" class="config-section">
+        <h2>Privacidad</h2>
+        <div class="section-card">
+          <div class="toggle-list">
+            <div class="toggle-item">
+              <div class="toggle-info">
+                <h4>Perfil público</h4>
+                <p>Cualquier persona en internet puede ver tu perfil y tus artículos en venta.</p>
+              </div>
+              <label class="switch">
+                <input
+                  type="checkbox"
+                  [ngModel]="privacidad().perfilPublico"
+                  (ngModelChange)="updatePrivacidadField('perfilPublico', $event)"
+                />
+                <span class="slider round"></span>
+              </label>
+            </div>
+
+            <div class="toggle-item">
+              <div class="toggle-info">
+                <h4>Mostrar ubicación</h4>
+                <p>Los visitantes de tu perfil podrán ver tu ciudad.</p>
+              </div>
+              <label class="switch">
+                <input
+                  type="checkbox"
+                  [ngModel]="privacidad().mostrarUbicacion"
+                  (ngModelChange)="updatePrivacidadField('mostrarUbicacion', $event)"
+                />
+                <span class="slider round"></span>
+              </label>
+            </div>
+
+            <div class="toggle-item">
+              <div class="toggle-info">
+                <h4>Mostrar teléfono en el perfil</h4>
+                <p>Útil para cuentas empresa o vendedores muy activos.</p>
+              </div>
+              <label class="switch">
+                <input
+                  type="checkbox"
+                  [ngModel]="privacidad().mostrarTelefono"
+                  (ngModelChange)="updatePrivacidadField('mostrarTelefono', $event)"
+                />
+                <span class="slider round"></span>
+              </label>
+            </div>
+
+            <div class="toggle-item">
+              <div class="toggle-info">
+                <h4>Permitir mensajes directos</h4>
+                <p>
+                  Si está desactivado, solo tú puedes iniciar chats. Útil si recibes mucho spam.
+                </p>
+              </div>
+              <label class="switch">
+                <input
+                  type="checkbox"
+                  [ngModel]="privacidad().permitirMensajesDesconocidos"
+                  (ngModelChange)="updatePrivacidadField('permitirMensajesDesconocidos', $event)"
+                />
+                <span class="slider round"></span>
+              </label>
+            </div>
+
+            <div class="toggle-item warning-toggle">
+              <div class="toggle-info">
+                <h4>Cuenta privada (Modo Invisible)</h4>
+                <p>
+                  Tus productos no se mostrarán en búsquedas globales, solo a quien envíes el link
+                  directo.
+                </p>
+              </div>
+              <label class="switch">
+                <input
+                  type="checkbox"
+                  [ngModel]="privacidad().cuentaPrivada"
+                  (ngModelChange)="updatePrivacidadField('cuentaPrivada', $event)"
+                />
+                <span class="slider round warning"></span>
+              </label>
+            </div>
+          </div>
+
+          <div class="section-actions">
+            <button class="btn-primary" (click)="guardarPrivacidad()">Guardar preferencias</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- 3. Tipo de Cuenta -->
+      <section id="cuenta" class="config-section">
+        <h2>Tipo de Cuenta</h2>
+        <div class="section-card account-type-card">
+          <div class="account-selector">
+            <button
+              class="account-btn"
+              [class.active]="user()?.rol?.includes('ROLE_USER')"
+              (click)="setTipoCuenta('USUARIO')"
+            >
+              <i class="fas fa-user"></i>
+              <span>Personal</span>
+            </button>
+            <button
+              class="account-btn"
+              [class.active]="user()?.rol?.includes('ROLE_EMPRESA')"
+              (click)="setTipoCuenta('EMPRESA')"
+            >
+              <i class="fas fa-building"></i>
+              <span>Empresa / Profesional</span>
+            </button>
+          </div>
+
+          <div class="account-info" *ngIf="!user()?.rol?.includes('ROLE_EMPRESA')">
+            <div class="alert alert-info">
+              <i class="fas fa-info-circle"></i>
+              <div>
+                <strong>¿Quieres vender como profesional?</strong>
+                <p>
+                  Si cambias a Empresa, deberás proveer NIF/CIF. Accederás a beneficios como
+                  catálogos masivos y Analytics avanzados. <a>Leer más</a>
+                </p>
+              </div>
+            </div>
+          </div>
+          <div class="account-info" *ngIf="user()?.rol?.includes('ROLE_EMPRESA')">
+            <div class="alert alert-success">
+              <i class="fas fa-check-circle"></i>
+              <div>
+                <strong>Eres una cuenta verificada de Empresa</strong>
+                <p>Nexus Business Profile activo. Gestiona tus datos fiscales desde facturación.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 4. Seguridad -->
+      <section id="seguridad" class="config-section">
+        <h2>Seguridad</h2>
+        <div class="section-card">
+          <div class="security-group">
+            <h3>Cambiar Email</h3>
+            <p class="current-email">
+              Tu email actual es <strong>{{ user()?.email }}</strong>
+            </p>
+            <div class="form-row">
+              <div class="form-group">
+                <input
+                  type="email"
+                  placeholder="Nuevo email"
+                  [ngModel]="security().emailNuevo"
+                  (ngModelChange)="updateSecurityField('emailNuevo', $event)"
+                />
+              </div>
+              <div class="form-group">
+                <input
+                  type="password"
+                  placeholder="Contraseña actual para verificar"
+                  [ngModel]="security().passwordToEmail"
+                  (ngModelChange)="updateSecurityField('passwordToEmail', $event)"
+                />
+              </div>
+              <button class="btn-outline" (click)="cambiarEmail()">Actualizar Email</button>
+            </div>
+          </div>
+
+          <hr class="divider" />
+
+          <div class="security-group">
+            <h3>Cambiar Contraseña</h3>
+            <div class="form-group">
+              <input
+                type="password"
+                placeholder="Contraseña actual"
+                [ngModel]="security().passwordActual"
+                (ngModelChange)="updateSecurityField('passwordActual', $event)"
+              />
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <input
+                  type="password"
+                  placeholder="Nueva contraseña"
+                  [ngModel]="security().passwordNueva"
+                  (ngModelChange)="updateSecurityField('passwordNueva', $event)"
+                />
+              </div>
+              <div class="form-group">
+                <input
+                  type="password"
+                  placeholder="Repetir nueva contraseña"
+                  [ngModel]="security().passwordConfirm"
+                  (ngModelChange)="updateSecurityField('passwordConfirm', $event)"
+                />
+              </div>
+            </div>
+            <button class="btn-outline" (click)="cambiarPassword()">Cambiar Contraseña</button>
+          </div>
+
+          <hr class="divider" />
+
+          <div class="security-group">
+            <h3>Autenticación en 2 Pasos (2FA)</h3>
+            <div class="two-fa-item">
+              <div class="two-fa-info">
+                <i class="fas fa-envelope text-primary"></i>
+                <div>
+                  <strong>Autenticación por Email</strong>
+                  <p>
+                    Recibe un código en tu correo para iniciar sesión desde dispositivos nuevos.
+                  </p>
+                </div>
+              </div>
+              <button class="btn-text">Activado por defecto</button>
+            </div>
+            <div class="two-fa-item disabled">
+              <div class="two-fa-info">
+                <i class="fas fa-mobile-alt"></i>
+                <div>
+                  <strong>Autenticación TOTP (Google Authenticator)</strong>
+                  <p>Próximamente disponible.</p>
+                </div>
+              </div>
+              <button class="btn-text" disabled>Próximamente</button>
+            </div>
+          </div>
+
+          <hr class="divider" />
+
+          <div class="security-group">
+            <div class="header-split">
+              <h3>Sesiones Activas</h3>
+              <button class="btn-text text-danger" (click)="cerrarOtrasSesiones()">
+                Cerrar otras sesiones
+              </button>
+            </div>
+            <div class="sessions-list">
+              <div class="session-card" *ngFor="let ses of sesionesActivas()">
+                <div class="session-icon">
+                  <i
+                    *ngIf="ses.dispositivo.toLowerCase().includes('windows')"
+                    class="fab fa-windows"
+                  ></i>
+                  <i
+                    *ngIf="ses.dispositivo.toLowerCase().includes('iphone')"
+                    class="fab fa-apple"
+                  ></i>
+                  <i *ngIf="ses.dispositivo.toLowerCase().includes('mac')" class="fab fa-apple"></i>
+                  <i
+                    *ngIf="ses.dispositivo.toLowerCase().includes('android')"
+                    class="fab fa-android"
+                  ></i>
+                </div>
+                <div class="session-details">
+                  <strong
+                    >{{ ses.dispositivo }}
+                    <span class="badge" *ngIf="ses.actual">Esta sesión</span></strong
+                  >
+                  <span class="ip-address">IP: {{ ses.ip }}</span>
+                  <span class="session-date">Activa desde: {{ ses.fecha | date: 'medium' }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 5. Notificaciones -->
+      <section id="notificaciones" class="config-section">
+        <h2>Notificaciones</h2>
+        <div class="section-card">
+          <p class="section-desc">
+            Selecciona qué notificaciones quieres recibir por email (las Notificaciones In-App no se
+            pueden desactivar aquí).
+          </p>
+
+          <div class="toggle-list">
+            <div class="toggle-item minimal">
+              <span>Nuevos mensajes de chat</span>
+              <label class="switch small"
+                ><input
+                  type="checkbox"
+                  [ngModel]="notificaciones().notifNuevosMensajes"
+                  (ngModelChange)="updateNotificacionesField('notifNuevosMensajes', $event)" /><span
+                  class="slider round"
+                ></span
+              ></label>
+            </div>
+            <div class="toggle-item minimal">
+              <span>Nuevas compras o ventas</span>
+              <label class="switch small"
+                ><input
+                  type="checkbox"
+                  [ngModel]="notificaciones().notifNuevaCompra"
+                  (ngModelChange)="updateNotificacionesField('notifNuevaCompra', $event)" /><span
+                  class="slider round"
+                ></span
+              ></label>
+            </div>
+            <div class="toggle-item minimal">
+              <span>Valoraciones recibidas</span>
+              <label class="switch small"
+                ><input
+                  type="checkbox"
+                  [ngModel]="notificaciones().notifValoracion"
+                  (ngModelChange)="updateNotificacionesField('notifValoracion', $event)" /><span
+                  class="slider round"
+                ></span
+              ></label>
+            </div>
+            <div class="toggle-item minimal">
+              <span>Alertas ("Sparks") en mis ofertas</span>
+              <label class="switch small"
+                ><input
+                  type="checkbox"
+                  [ngModel]="notificaciones().notifOfertas"
+                  (ngModelChange)="updateNotificacionesField('notifOfertas', $event)" /><span
+                  class="slider round"
+                ></span
+              ></label>
+            </div>
+            <div class="toggle-item minimal">
+              <span>Actualizaciones sobre mis envíos</span>
+              <label class="switch small"
+                ><input
+                  type="checkbox"
+                  [ngModel]="notificaciones().notifEnvios"
+                  (ngModelChange)="updateNotificacionesField('notifEnvios', $event)" /><span
+                  class="slider round"
+                ></span
+              ></label>
+            </div>
+
+            <hr class="divider-light" />
+
+            <div class="toggle-item minimal">
+              <div class="toggle-info">
+                <strong>Newsletter de Nexus</strong>
+                <p>Novedades, ofertas de la semana y resúmenes de mercado.</p>
+              </div>
+              <label class="switch small"
+                ><input
+                  type="checkbox"
+                  [ngModel]="notificaciones().newsletterSuscrito"
+                  (ngModelChange)="updateNotificacionesField('newsletterSuscrito', $event)" /><span
+                  class="slider round"
+                ></span
+              ></label>
+            </div>
+          </div>
+
+          <div class="section-actions mt-4">
+            <button class="btn-primary" (click)="guardarNotificaciones()">
+              Guardar preferencias
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- 6. Datos y Privacidad (GDPR) -->
+      <section id="gdpr" class="config-section">
+        <h2>Datos y Privacidad</h2>
+        <div class="section-card gdpr-card">
+          <div class="gdpr-action flex-between">
+            <div>
+              <h3>Descargar mis datos</h3>
+              <p>
+                Obtendrás un archivo JSON con todos los datos personales asociados a tu perfil. De
+                acuerdo al RGPD.
+              </p>
+            </div>
+            <button class="btn-outline" (click)="descargarDatos()">
+              <i class="fas fa-download"></i> Descargar JSON
+            </button>
+          </div>
+
+          <hr class="divider" />
+
+          <div class="gdpr-action flex-between delete-zone">
+            <div>
+              <h3 class="text-danger">Eliminar mi cuenta</h3>
+              <p>
+                Esta acción es irreversible. Se eliminarán permanentemente tus mensajes, productos y
+                datos de cuenta. Las transacciones fiscales en firme se anonimizarán.
+              </p>
+            </div>
+            <button class="btn-danger" (click)="showDeleteModal.set(true)">
+              <i class="fas fa-trash"></i> Eliminar cuenta
+            </button>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+</div>
+
+<!-- Modal Eliminar Cuenta -->
+<div class="modal-overlay" *ngIf="showDeleteModal()">
+  <div class="modal-content danger-modal">
+    <div class="modal-header">
+      <h3>Eliminar Cuenta</h3>
+      <button class="close-btn" (click)="showDeleteModal.set(false)">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="alert alert-danger">
+        <i class="fas fa-exclamation-triangle"></i>
+        <span
+          >Estás a punto de eliminar tu cuenta de forma <strong>definitiva</strong>. No podrás
+          recuperar tus datos.</span
+        >
+      </div>
+      <div class="form-group mt-4">
+        <label>Para confirmar, escribe <strong>ELIMINAR</strong> a continuación:</label>
+        <input
+          type="text"
+          [ngModel]="deleteAccount().confirmText"
+          (ngModelChange)="updateDeleteAccountField('confirmText', $event)"
+          placeholder="Escribe ELIMINAR"
+        />
+      </div>
+      <div class="form-group">
+        <label>Contraseña actual:</label>
+        <input
+          type="password"
+          [ngModel]="deleteAccount().password"
+          (ngModelChange)="updateDeleteAccountField('password', $event)"
+          placeholder="Tu contraseña"
+        />
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-outline" (click)="showDeleteModal.set(false)">Cancelar</button>
+      <button
+        class="btn-danger"
+        (click)="confirmarEliminacion()"
+        [disabled]="deleteAccount().confirmText !== 'ELIMINAR'"
+      >
+        Borrar definitivamente
+      </button>
+    </div>
+  </div>
+</div>

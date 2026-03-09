@@ -1,0 +1,129 @@
+<div class="chat-wrapper" *ngIf="conversacion">
+  <!-- Cabecera -->
+  <header class="chat-header">
+    <div class="header-left">
+      <img
+        [src]="otroUsuario()?.avatarUrl || 'assets/images/default-avatar.png'"
+        class="avatar-small"
+      />
+      <div class="user-info">
+        <span class="user-name">{{ otroUsuario()?.nombre }}</span>
+      </div>
+    </div>
+
+    <div class="header-product">
+      <img [src]="conversacion.producto.coverUrl || 'assets/images/no-image.png'" class="thumb" />
+      <div class="prod-info">
+        <span class="prod-title">{{ conversacion.producto.titulo }}</span>
+        <a [href]="'/productos/' + conversacion.producto.id" target="_blank" class="prod-link">
+          Ver anuncio <i class="fas fa-external-link-alt"></i>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Lista de Mensajes -->
+  <div class="messages-container" #scrollContainer (scroll)="onScroll($event)">
+    <div class="loading-state" *ngIf="cargando()">
+      <div class="spinner"></div>
+      Cargando historial...
+    </div>
+
+    <div class="message-list" *ngIf="!cargando()">
+      @for (msg of mensajes(); track msg.id) {
+        <div
+          class="message-row"
+          [ngClass]="{
+            mine: msg.remitente.id === authStore.user()?.id,
+            theirs: msg.remitente.id !== authStore.user()?.id,
+          }"
+        >
+          <div class="bubble" [ngClass]="msg.tipo.toLowerCase()">
+            <!-- TEXTO -->
+            @if (msg.tipo === 'TEXTO') {
+              <p class="text-content">{{ msg.texto }}</p>
+            }
+
+            <!-- IMAGEN -->
+            @if (msg.tipo === 'IMAGEN' && msg.mediaUrl) {
+              <div class="image-wrapper">
+                <img
+                  [src]="msg.mediaUrl"
+                  alt="Imagen enviada"
+                  class="chat-img"
+                  onclick="window.open(this.src, '_blank')"
+                />
+              </div>
+              <p *ngIf="msg.texto" class="text-content mt-1">{{ msg.texto }}</p>
+            }
+
+            <!-- AUDIO -->
+            @if (msg.tipo === 'AUDIO' && msg.mediaUrl) {
+              <div class="audio-wrapper">
+                <audio controls [src]="msg.mediaUrl"></audio>
+              </div>
+            }
+
+            <!-- OFERTA_PRECIO -->
+            @if (msg.tipo === 'OFERTA_PRECIO') {
+              <div class="offer-card">
+                <div class="offer-header">
+                  <i class="fas fa-handshake text-xl text-yellow-500 mr-2"></i>
+                  <span class="font-bold">Oferta de Precio</span>
+                </div>
+                <div class="offer-amount text-2xl font-bold my-2 text-center text-nexus-primary">
+                  {{ msg.precioPropuesto | currencyEs }}
+                </div>
+
+                <!-- Acciones si soy receptor y está PENDIENTE -->
+                @if (
+                  msg.estadoPropuesta === 'PENDIENTE' && msg.receptor.id === authStore.user()?.id
+                ) {
+                  <div class="offer-actions">
+                    <button class="btn-accept" (click)="aceptarOferta(msg)">
+                      <i class="fas fa-check"></i> Aceptar
+                    </button>
+                    <button class="btn-reject" (click)="rechazarOferta(msg)">
+                      <i class="fas fa-times"></i> Rechazar
+                    </button>
+                  </div>
+                }
+
+                @if (msg.estadoPropuesta === 'ACEPTADA') {
+                  <div class="offer-status accepted">
+                    <i class="fas fa-check-circle"></i> Oferta aceptada
+                  </div>
+                }
+
+                @if (msg.estadoPropuesta === 'RECHAZADA') {
+                  <div class="offer-status rejected">
+                    <i class="fas fa-times-circle"></i> Oferta rechazada
+                  </div>
+                }
+              </div>
+            }
+
+            <span class="msg-meta">
+              {{ msg.fechaEnvio | timeAgo }}
+              @if (msg.remitente.id === authStore.user()?.id) {
+                <i
+                  class="fas fa-check-double ml-1"
+                  [ngClass]="{ 'text-blue-500': msg.leido, 'text-gray-400': !msg.leido }"
+                ></i>
+              }
+            </span>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- Input Area (Será el siguiente componente) -->
+  <footer class="chat-footer">
+    <app-chat-input
+      (enviarMensaje)="onEnviarMensaje($event)"
+      (escribiendo)="notificarEscribiendo()"
+    >
+    </app-chat-input>
+  </footer>
+</div>

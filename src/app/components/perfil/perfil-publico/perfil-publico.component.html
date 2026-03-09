@@ -1,0 +1,250 @@
+<!-- Cargando -->
+@if (cargando()) {
+  <div class="loading-container">
+    <div class="spinner"></div>
+    <p>Cargando perfil...</p>
+  </div>
+}
+
+<!-- Error -->
+@if (error()) {
+  <div class="error-container">
+    <i class="fas fa-user-slash"></i>
+    <h2>Perfil no encontrado</h2>
+    <p>{{ error() }}</p>
+    <a routerLink="/" class="btn-back">Volver al inicio</a>
+  </div>
+}
+
+<!-- Contenido del Perfil -->
+@if (!cargando() && !error() && perfil()) {
+  <div class="perfil-page">
+    <!-- HEADER DEL PERFIL -->
+    <header class="perfil-header">
+      <div class="header-bg"></div>
+      <div class="header-content">
+        <!-- Avatar -->
+        <div class="avatar-area">
+          @if (perfil().avatar) {
+            <img [src]="perfil().avatar" alt="Avatar" class="avatar-xl" />
+          } @else {
+            <div class="avatar-xl avatar-iniciales">{{ iniciales() }}</div>
+          }
+          @if (perfil().esVerificado) {
+            <span class="verified-badge" title="Verificado">
+              <i class="fas fa-check-circle"></i>
+            </span>
+          }
+        </div>
+
+        <!-- Info Principal -->
+        <div class="info-principal">
+          <div class="name-row">
+            <h1 class="nombre">{{ perfil().nombre || perfil().username }}</h1>
+            <span class="username">@{{ perfil().username }}</span>
+          </div>
+
+          @if (perfil().tipoCuenta === 'EMPRESA') {
+            <span class="badge empresa-badge"> <i class="fas fa-building"></i> Empresa </span>
+          }
+
+          <!-- Rating -->
+          @if (resumenValoraciones()) {
+            <div class="rating-row">
+              <div class="stars">
+                @for (star of getStarsArray(resumenValoraciones().media || 0); track $index) {
+                  <i
+                    class="fas"
+                    [class.fa-star]="star.full"
+                    [class.fa-star-half-alt]="star.half"
+                    [class.far]="star.empty"
+                    [class.fa-star]="star.empty"
+                  ></i>
+                }
+              </div>
+              <span class="rating-text">
+                {{ (resumenValoraciones().media || 0).toFixed(1) }} ★ ({{
+                  resumenValoraciones().total || 0
+                }}
+                valoraciones)
+              </span>
+            </div>
+          }
+
+          <!-- Ubicación -->
+          @if (perfil().ubicacion) {
+            <p class="ubicacion"><i class="fas fa-map-marker-alt"></i> {{ perfil().ubicacion }}</p>
+          }
+
+          <!-- Miembro desde -->
+          <p class="miembro-desde">
+            <i class="fas fa-calendar-alt"></i> Miembro desde {{ fechaRegistroFormateada() }}
+          </p>
+
+          <!-- Biografía -->
+          @if (perfil().biografia) {
+            <p class="bio">{{ perfil().biografia }}</p>
+          }
+
+          <!-- Stats -->
+          <div class="stats-row">
+            <div class="stat-item">
+              <span class="stat-value">{{ perfil().totalVentas || 0 }}</span>
+              <span class="stat-label">Ventas</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-value">{{ resumenValoraciones()?.total || 0 }}</span>
+              <span class="stat-label">Valoraciones</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-value">{{ perfil().reputacion || 0 }}</span>
+              <span class="stat-label">Reputación</span>
+            </div>
+          </div>
+
+          <!-- Botón Contactar -->
+          @if (!esMiPerfil()) {
+            <button class="btn-contactar" (click)="contactar()">
+              <i class="fas fa-envelope"></i> Contactar
+            </button>
+          } @else {
+            <a routerLink="/perfil" class="btn-editar-perfil">
+              <i class="fas fa-edit"></i> Editar mi perfil
+            </a>
+          }
+        </div>
+      </div>
+    </header>
+
+    <!-- TABS -->
+    <nav class="tabs-nav">
+      <button
+        class="tab-btn"
+        [class.active]="activeTab() === 'productos'"
+        (click)="cambiarTab('productos')"
+      >
+        <i class="fas fa-box-open"></i> Productos
+      </button>
+      <button
+        class="tab-btn"
+        [class.active]="activeTab() === 'valoraciones'"
+        (click)="cambiarTab('valoraciones')"
+      >
+        <i class="fas fa-star"></i> Valoraciones
+      </button>
+      <button
+        class="tab-btn"
+        [class.active]="activeTab() === 'sobre-mi'"
+        (click)="cambiarTab('sobre-mi')"
+      >
+        <i class="fas fa-info-circle"></i> Sobre mí
+      </button>
+    </nav>
+
+    <!-- TAB CONTENT -->
+    <main class="tab-content">
+      <!-- Tab Productos -->
+      @if (activeTab() === 'productos') {
+        @if (cargandoTab()) {
+          <div class="tab-loading"><div class="spinner-sm"></div></div>
+        } @else if (productos().length === 0) {
+          <div class="empty-state">
+            <i class="fas fa-box-open"></i>
+            <p>Este usuario no tiene productos publicados.</p>
+          </div>
+        } @else {
+          <div class="products-grid">
+            @for (p of productos(); track p.id) {
+              <app-producto-card [producto]="p"></app-producto-card>
+            }
+          </div>
+        }
+      }
+
+      <!-- Tab Valoraciones -->
+      @if (activeTab() === 'valoraciones') {
+        @if (cargandoTab()) {
+          <div class="tab-loading"><div class="spinner-sm"></div></div>
+        } @else if (valoraciones().length === 0) {
+          <div class="empty-state">
+            <i class="fas fa-star"></i>
+            <p>Aún no tiene valoraciones.</p>
+          </div>
+        } @else {
+          <div class="valoraciones-list">
+            @for (v of valoraciones(); track v.id) {
+              <div class="valoracion-card">
+                <div class="val-header">
+                  <div class="val-stars">
+                    @for (s of getStarsArray(v.puntuacion); track $index) {
+                      <i class="fas fa-star" [class.filled]="s.full" [class.half]="s.half"></i>
+                    }
+                    <span class="val-score">{{ v.puntuacion }}/5</span>
+                  </div>
+                  <span class="val-date">{{ v.fecha || v.fechaCreacion | timeAgo }}</span>
+                </div>
+                @if (v.comentario) {
+                  <p class="val-comment">"{{ v.comentario }}"</p>
+                }
+                <div class="val-author">
+                  Por <strong>@{{ v.comprador?.user || 'Anónimo' }}</strong>
+                  @if (v.compra?.producto) {
+                    ·
+                    <a [routerLink]="['/productos', v.compra.producto.id]" class="val-product-link">
+                      {{ v.compra.producto.titulo }}
+                    </a>
+                  }
+                </div>
+                @if (v.respuesta) {
+                  <div class="val-reply">
+                    <i class="fas fa-reply"></i>
+                    <div>
+                      <strong>Respuesta del vendedor:</strong>
+                      <p>{{ v.respuesta }}</p>
+                    </div>
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        }
+      }
+
+      <!-- Tab Sobre mí -->
+      @if (activeTab() === 'sobre-mi') {
+        <div class="sobre-mi">
+          <h3>Biografía</h3>
+          <p class="bio-text">
+            {{ perfil().biografia || 'Este usuario no ha escrito una biografía.' }}
+          </p>
+
+          @if (perfil().tipoCuenta === 'EMPRESA') {
+            <div class="empresa-info">
+              <h3><i class="fas fa-building"></i> Información de empresa</h3>
+              @if (perfil().nombreComercial) {
+                <p><strong>Nombre comercial:</strong> {{ perfil().nombreComercial }}</p>
+              }
+              @if (perfil().cif) {
+                <p><strong>CIF:</strong> {{ perfil().cif }}</p>
+              }
+              @if (perfil().web) {
+                <p>
+                  <strong>Web:</strong>
+                  <a [href]="perfil().web" target="_blank">{{ perfil().web }}</a>
+                </p>
+              }
+              @if (perfil().descripcionEmpresa) {
+                <p><strong>Descripción:</strong> {{ perfil().descripcionEmpresa }}</p>
+              }
+            </div>
+          }
+
+          <div class="registro-info">
+            <h3>Registro</h3>
+            <p><i class="fas fa-calendar-alt"></i> Se unió en {{ fechaRegistroFormateada() }}</p>
+          </div>
+        </div>
+      }
+    </main>
+  </div>
+}

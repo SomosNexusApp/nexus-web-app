@@ -1,0 +1,72 @@
+<div class="chat-input-wrapper" [class.recording]="isRecording()">
+  <input
+    type="file"
+    #fileInput
+    accept="image/png, image/jpeg, image/webp"
+    style="display: none"
+    (change)="onFileSelected($event)"
+  />
+
+  <!-- Botones de Accesorios -->
+  <button
+    type="button"
+    class="btn-icon"
+    (click)="abrirSelectorImagen()"
+    title="Adjuntar Imagen"
+    [disabled]="isRecording()"
+  >
+    <i class="fas fa-image"></i>
+  </button>
+
+  <button
+    type="button"
+    class="btn-icon text-nexus-primary"
+    title="Enviar Contrato / Oferta"
+    [disabled]="isRecording()"
+  >
+    <i class="fas fa-handshake"></i>
+  </button>
+
+  <!-- Area de Texto o Indicador de Grabación -->
+  <div class="input-container">
+    @if (!isRecording()) {
+      <textarea
+        #textArea
+        placeholder="Escribe un mensaje..."
+        [ngModel]="texto()"
+        (ngModelChange)="texto.set($event)"
+        (input)="onInput()"
+        (keydown.enter)="enviarTexto(); $event.preventDefault()"
+        rows="1"
+      >
+      </textarea>
+    } @else {
+      <div class="recording-indicator">
+        <i class="fas fa-circle text-red-500 fa-pulse mr-2"></i> Grabando audio... Selta para enviar
+        (Max 60s)
+      </div>
+    }
+  </div>
+
+  <!-- Botones de Acción (Enviar / Grabar Audio) -->
+  @if (texto().trim().length > 0 && !isRecording()) {
+    <button type="button" class="btn-send text-nexus-primary" (click)="enviarTexto()">
+      <i class="fas fa-paper-plane text-xl"></i>
+    </button>
+  } @else {
+    <button
+      type="button"
+      class="btn-mic"
+      (mousedown)="iniciarGrabacion()"
+      (touchstart)="iniciarGrabacion()"
+      (mouseup)="detenerGrabacion()"
+      (mouseleave)="detenerGrabacion()"
+      (touchend)="detenerGrabacion()"
+    >
+      <i
+        class="fas"
+        [ngClass]="isRecording() ? 'fa-stop-circle text-red-500' : 'fa-microphone text-gray-500'"
+      ></i>
+    </button>
+  }
+</div>

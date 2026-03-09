@@ -10,11 +10,21 @@
         <span class="step-count">Paso {{ currentStep() }} de 4</span>
       }
       <h1 class="step-title">
-        @if (currentStep() === 0) { ¿Qué vas a publicar hoy? }
-        @if (currentStep() === 1) { Detalles básicos }
-        @if (currentStep() === 2) { Fotos y descripción }
-        @if (currentStep() === 3) { Precio y ubicación }
-        @if (currentStep() === 4) { Revisión final }
+        @if (currentStep() === 0) {
+          ¿Qué vas a publicar hoy?
+        }
+        @if (currentStep() === 1) {
+          Detalles básicos
+        }
+        @if (currentStep() === 2) {
+          Fotos y descripción
+        }
+        @if (currentStep() === 3) {
+          Precio y ubicación
+        }
+        @if (currentStep() === 4) {
+          Revisión final
+        }
       </h1>
       @if (currentStep() === 0) {
         <p class="step-subtitle">Elige el tipo de anuncio para empezar a vender en Nexus</p>
@@ -24,63 +34,85 @@
 
   <main class="publish-content" [class.grid-layout]="currentStep() > 0">
     <div class="form-area animate-fade-in">
-
       <!-- PASO 0: SELECTOR PREMIUM -->
       @if (currentStep() === 0) {
         <div class="selection-grid">
           <div class="select-card product" (click)="setStep0('PRODUCTO')">
             <div class="card-glow"></div>
             <div class="card-icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v3m18 0v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8m18 0-9 6-9-6"/></svg>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path
+                  d="M21 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v3m18 0v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8m18 0-9 6-9-6"
+                />
+              </svg>
             </div>
             <div class="card-info">
               <h3>Producto</h3>
               <p>Ropa, gadgets, hogar y mucho más.</p>
             </div>
             <div class="card-arrow">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                <path d="M5 12h14M12 5l7 7-7 7" />
+              </svg>
             </div>
           </div>
 
           <div class="select-card vehicle" (click)="setStep0('VEHICULO')">
             <div class="card-glow"></div>
             <div class="card-icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12.4V16c0 .6.4 1 1 1h2"/><circle cx="7" cy="17" r="2"/><path d="M9 17h6"/><circle cx="17" cy="17" r="2"/></svg>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path
+                  d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12.4V16c0 .6.4 1 1 1h2"
+                />
+                <circle cx="7" cy="17" r="2" />
+                <path d="M9 17h6" />
+                <circle cx="17" cy="17" r="2" />
+              </svg>
             </div>
             <div class="card-info">
               <h3>Vehículo</h3>
               <p>Coches, motos y furgonetas.</p>
             </div>
             <div class="card-arrow">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                <path d="M5 12h14M12 5l7 7-7 7" />
+              </svg>
             </div>
           </div>
 
           <div class="select-card offer" (click)="setStep0('OFERTA')">
             <div class="card-glow"></div>
             <div class="card-icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
+              </svg>
             </div>
             <div class="card-info">
               <h3>Oferta o Chollo</h3>
               <p>Comparte descuentos de otras tiendas.</p>
             </div>
             <div class="card-arrow">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                <path d="M5 12h14M12 5l7 7-7 7" />
+              </svg>
             </div>
           </div>
 
           <div class="select-card service" (click)="setStep0('SERVICIO')">
             <div class="card-glow"></div>
             <div class="card-icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+              </svg>
             </div>
             <div class="card-info">
               <h3>Servicio</h3>
               <p>Ofrece tus habilidades profesionales o trabajos.</p>
             </div>
             <div class="card-arrow">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                <path d="M5 12h14M12 5l7 7-7 7" />
+              </svg>
             </div>
           </div>
         </div>
@@ -92,11 +124,23 @@
           <label class="section-label">Categoría del producto</label>
           <div class="category-grid">
             @for (cat of categorias(); track cat.id) {
-              <button type="button" class="cat-card" [class.active]="selectedCategory()?.id === cat.id" (click)="selectCategory(cat)">
+              <button
+                type="button"
+                class="cat-card"
+                [class.active]="selectedCategory()?.id === cat.id"
+                (click)="selectCategory(cat)"
+              >
                 <div class="cat-icon-wrapper">
-                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                      <path [attr.d]="getIconPath(cat)"></path>
-                   </svg>
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path [attr.d]="getIconPath(cat)"></path>
+                  </svg>
                 </div>
                 <span class="cat-name">{{ cat.nombre }}</span>
               </button>
@@ -106,7 +150,11 @@
           <label class="section-label mt-40">Estado del producto</label>
           <div class="condition-grid">
             @for (c of CONDICIONES; track c.val) {
-              <div class="condition-card" [class.active]="step1Form.get('condicion')?.value === c.val" (click)="step1Form.patchValue({condicion: c.val})">
+              <div
+                class="condition-card"
+                [class.active]="step1Form.get('condicion')?.value === c.val"
+                (click)="step1Form.patchValue({ condicion: c.val })"
+              >
                 <span class="cond-label">{{ c.label }}</span>
                 <p class="cond-desc">{{ c.desc }}</p>
               </div>
@@ -120,15 +168,26 @@
         <form [formGroup]="step2Form" class="step-form">
           <label class="section-label">Imágenes (Mín 1)</label>
           <div class="upload-zone" (click)="fileInput.click()">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+              <circle cx="8.5" cy="8.5" r="1.5" />
+              <polyline points="21 15 16 10 5 21" />
+            </svg>
             <p>Haz clic para subir fotos</p>
-            <input #fileInput type="file" multiple (change)="onFileSelected($event)" accept="image/*" class="hidden">
+            <input
+              #fileInput
+              type="file"
+              multiple
+              (change)="onFileSelected($event)"
+              accept="image/*"
+              class="hidden"
+            />
           </div>
           @if (images().length > 0) {
             <div class="image-grid">
               @for (img of images(); track img.url; let i = $index) {
                 <div class="image-preview" [class.is-principal]="img.isPrincipal">
-                  <img [src]="img.url">
+                  <img [src]="img.url" />
                   <button type="button" class="btn-remove-img" (click)="removeImage(i)">✕</button>
                 </div>
               }
@@ -137,11 +196,19 @@
 
           <div class="input-group mt-40">
             <label>Título del anuncio *</label>
-            <input type="text" formControlName="titulo" placeholder="Ej: Bicicleta de montaña casi nueva">
+            <input
+              type="text"
+              formControlName="titulo"
+              placeholder="Ej: Bicicleta de montaña casi nueva"
+            />
           </div>
           <div class="input-group">
             <label>Descripción detallada *</label>
-            <textarea formControlName="descripcion" rows="6" placeholder="Detalla las características, mantenimiento..."></textarea>
+            <textarea
+              formControlName="descripcion"
+              rows="6"
+              placeholder="Detalla las características, mantenimiento..."
+            ></textarea>
           </div>
         </form>
       }
@@ -152,10 +219,12 @@
           <div class="price-section">
             <div class="input-group">
               <label>Precio (€) *</label>
-              <div class="input-currency"><input type="number" formControlName="precio"><span>€</span></div>
+              <div class="input-currency">
+                <input type="number" formControlName="precio" /><span>€</span>
+              </div>
             </div>
             <label class="toggle-container">
-              <input type="checkbox" formControlName="precioNegociable">
+              <input type="checkbox" formControlName="precioNegociable" />
               <span class="toggle-slider"></span>
               <span class="toggle-label">Precio negociable</span>
             </label>
@@ -164,8 +233,11 @@
           <div class="input-group mt-40">
             <label>Ubicación *</label>
             <div class="input-with-icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-              <input type="text" formControlName="ubicacion" placeholder="Busca tu ciudad...">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                <circle cx="12" cy="10" r="3" />
+              </svg>
+              <input type="text" formControlName="ubicacion" placeholder="Busca tu ciudad..." />
             </div>
             @if (sugerenciasUbi().length > 0) {
               <div class="autocomplete-dropdown">
@@ -175,6 +247,133 @@
               </div>
             }
           </div>
+
+          <!-- ── Envío ──────────────────────────────────────────── -->
+          <div class="input-group mt-40">
+            <label class="section-label">Envío</label>
+            <label class="toggle-container">
+              <input
+                type="checkbox"
+                [checked]="step3Form.get('envio')?.value !== 'NO'"
+                (change)="
+                  step3Form.patchValue({
+                    envio: $any($event.target).checked ? 'SI' : 'NO',
+                    peso: null,
+                  })
+                "
+              />
+              <span class="toggle-slider"></span>
+              <span class="toggle-label">Admite envío por mensajería</span>
+            </label>
+          </div>
+
+          <!-- Peso del paquete (solo si admite envío) -->
+          @if (step3Form.get('envio')?.value !== 'NO') {
+            <div class="input-group">
+              <label class="section-label">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="13"
+                  height="13"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path
+                    d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"
+                  />
+                </svg>
+                Peso aproximado del paquete *
+              </label>
+              <div class="peso-grid">
+                <label class="peso-opt" [class.active]="step3Form.get('peso')?.value === 0.3">
+                  <input type="radio" name="peso" (change)="step3Form.patchValue({ peso: 0.3 })" />
+                  <div class="peso-icon">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="20"
+                      height="20"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="1.5"
+                    >
+                      <path
+                        d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"
+                      />
+                      <line x1="7" y1="7" x2="7.01" y2="7" />
+                    </svg>
+                  </div>
+                  <strong>&lt; 0,5 kg</strong>
+                  <span class="peso-examples">Ropa, accesorios</span>
+                  <span class="peso-price">3,90 €</span>
+                </label>
+                <label class="peso-opt" [class.active]="step3Form.get('peso')?.value === 1">
+                  <input type="radio" name="peso" (change)="step3Form.patchValue({ peso: 1 })" />
+                  <div class="peso-icon">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="20"
+                      height="20"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="1.5"
+                    >
+                      <rect x="2" y="7" width="20" height="14" rx="2" ry="2" />
+                      <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
+                    </svg>
+                  </div>
+                  <strong>&lt; 2 kg</strong>
+                  <span class="peso-examples">Calzado, libros</span>
+                  <span class="peso-price">5,20 €</span>
+                </label>
+                <label class="peso-opt" [class.active]="step3Form.get('peso')?.value === 3">
+                  <input type="radio" name="peso" (change)="step3Form.patchValue({ peso: 3 })" />
+                  <div class="peso-icon">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="20"
+                      height="20"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="1.5"
+                    >
+                      <rect x="2" y="3" width="20" height="14" rx="2" ry="2" />
+                      <line x1="8" y1="21" x2="16" y2="21" />
+                      <line x1="12" y1="17" x2="12" y2="21" />
+                    </svg>
+                  </div>
+                  <strong>&lt; 5 kg</strong>
+                  <span class="peso-examples">Electrónica, maletas</span>
+                  <span class="peso-price">7,50 €</span>
+                </label>
+                <label class="peso-opt" [class.active]="step3Form.get('peso')?.value === 7">
+                  <input type="radio" name="peso" (change)="step3Form.patchValue({ peso: 7 })" />
+                  <div class="peso-icon">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="20"
+                      height="20"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="1.5"
+                    >
+                      <path
+                        d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"
+                      />
+                    </svg>
+                  </div>
+                  <strong>&lt; 10 kg</strong>
+                  <span class="peso-examples">Paquetes grandes</span>
+                  <span class="peso-price">11,00 €</span>
+                </label>
+              </div>
+            </div>
+          }
         </form>
       }
 
@@ -185,7 +384,7 @@
           <div class="review-summary">
             <p><strong>Título:</strong> {{ step2Form.value.titulo }}</p>
             <p><strong>Categoría:</strong> {{ selectedCategory()?.nombre }}</p>
-            <p><strong>Precio:</strong> {{ step3Form.value.precio | currency:'EUR' }}</p>
+            <p><strong>Precio:</strong> {{ step3Form.value.precio | currency: 'EUR' }}</p>
             <p><strong>Ubicación:</strong> {{ step3Form.value.ubicacion }}</p>
           </div>
         </div>
@@ -196,7 +395,14 @@
         <footer class="publish-footer">
           <button type="button" class="btn-secondary" (click)="prevStep()">Atrás</button>
           @if (currentStep() < 4) {
-            <button type="button" class="btn-primary" (click)="nextStep()" [disabled]="!canAdvance()">Continuar</button>
+            <button
+              type="button"
+              class="btn-primary"
+              (click)="nextStep()"
+              [disabled]="!canAdvance()"
+            >
+              Continuar
+            </button>
           } @else {
             <button type="button" class="btn-success" (click)="onSubmit()" [disabled]="uploading()">
               {{ uploading() ? 'Publicando...' : 'Publicar anuncio' }}

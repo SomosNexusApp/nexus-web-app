@@ -1,9 +1,12 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal, effect } from '@angular/core';
 import { RouterOutlet, Router, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs';
 
 // Servicios
 import { GuestPopupService } from './core/services/guest-popup.service';
+import { AuthStore } from './core/auth/auth-store';
+import { WebSocketService } from './core/services/websocket.service';
+import { NotificationService } from './core/services/notification.service';
 
 // Popups Globales
 import { RegisterPopupComponent } from './shared/components/register-popup/register-popup.component';
@@ -32,9 +35,25 @@ export class AppComponent implements OnInit {
   guestPopup = inject(GuestPopupService);
   private router = inject(Router);
 
+  private authStore = inject(AuthStore);
+  private wsService = inject(WebSocketService);
+  private notifService = inject(NotificationService);
+
   // Signals para los popups post-registro
   showTwoFactorPopup = signal(false);
   showAccountTypePopup = signal(false);
+
+  constructor() {
+    // Conectar o desconectar WebSocket dinámicamente según estado auth
+    effect(() => {
+      if (this.authStore.isLoggedIn()) {
+        this.wsService.connect();
+        this.notifService.init();
+      } else {
+        this.wsService.disconnect();
+      }
+    });
+  }
 
   ngOnInit() {
     // Escuchar cambios de ruta para el tracking de visitas (Popup periódico de invitado)
@@ -52,7 +71,7 @@ export class AppComponent implements OnInit {
 
     // El "truco maestro": Si tras cerrar el 2FA, vemos que es un usuario nuevo (no tiene tipoCuenta),
     // le lanzamos el popup de seleccionar Empresa o Personal.
-    const user = this.guestPopup['authStore'].user(); // O this.authStore.user() si lo inyectaste
+    const user = this.authStore.user();
     if (user && !user.tipoCuenta) {
       this.guestPopup.showAccountTypePopup();
     }

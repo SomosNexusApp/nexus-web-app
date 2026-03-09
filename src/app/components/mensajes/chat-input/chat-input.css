@@ -1,0 +1,84 @@
+.chat-input-wrapper {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  width: 100%;
+}
+
+.chat-input-wrapper.recording {
+  background-color: #fee2e2;
+  border-radius: 20px;
+  padding: 0 10px;
+}
+
+.btn-icon {
+  background: none;
+  border: none;
+  font-size: 1.25rem;
+  color: #64748b;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 50%;
+  transition:
+    background-color 0.2s,
+    color 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-icon:hover:not(:disabled) {
+  background-color: #e2e8f0;
+  color: #334155;
+}
+
+.input-container {
+  flex: 1;
+  background-color: #ffffff;
+  border-radius: 20px;
+  padding: 8px 16px;
+  display: flex;
+  align-items: center;
+  border: 1px solid #cbd5e1;
+}
+
+textarea {
+  width: 100%;
+  border: none;
+  outline: none;
+  resize: none;
+  max-height: 120px;
+  font-size: 0.95rem;
+  font-family: inherit;
+  background: transparent;
+  line-height: inherit;
+  padding: 0;
+}
+
+.recording-indicator {
+  color: #ef4444;
+  font-weight: 500;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.btn-send,
+.btn-mic {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.1s;
+}
+
+.btn-send:active,
+.btn-mic:active {
+  transform: scale(0.9);
+}

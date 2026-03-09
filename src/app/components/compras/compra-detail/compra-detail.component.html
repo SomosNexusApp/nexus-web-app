@@ -1,0 +1,235 @@
+<div class="cd-container">
+  @if (loading()) {
+    <div style="text-align: center; padding: 4rem">
+      <p>Cargando detalles de tu compra...</p>
+    </div>
+  } @else if (error()) {
+    <div style="text-align: center; padding: 4rem; color: #ef4444">
+      <p>{{ error() }}</p>
+      <button class="cd-btn cd-btn-outline" (click)="volver()">Volver</button>
+    </div>
+  } @else if (compra()) {
+    @let c = compra()!;
+
+    <header class="cd-header">
+      <div style="display: flex; gap: 1rem; align-items: center">
+        <button class="cd-btn-back" (click)="volver()">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <line x1="19" y1="12" x2="5" y2="12"></line>
+            <polyline points="12 19 5 12 12 5"></polyline>
+          </svg>
+          Volver
+        </button>
+        <a
+          routerLink="/compras/mis-compras"
+          class="cd-btn cd-btn-outline"
+          style="padding: 0.5rem 1rem; font-size: 0.875rem"
+          >Ir a Mis Compras</a
+        >
+      </div>
+
+      <div class="cd-title-group">
+        <h1 class="cd-title">Pedido #{{ c.id }}</h1>
+        <span class="cd-badge" [style.backgroundColor]="getBadgeColor(c.estado)">
+          {{ c.estado.replace('_', ' ') }}
+        </span>
+      </div>
+    </header>
+
+    <div class="cd-timeline">
+      @for (step of getTimelineSteps(); track step.id) {
+        <div class="cd-timeline-step" [class.active]="step.active" [class.current]="step.current">
+          <div class="cd-step-dot"></div>
+          <span class="cd-step-label">{{ step.label }}</span>
+        </div>
+      }
+    </div>
+
+    <!-- PRODUCTO -->
+    <section class="cd-section">
+      <h2 class="cd-section-title">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <path
+            d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"
+          ></path>
+          <line x1="7" y1="7" x2="7.01" y2="7"></line>
+        </svg>
+        Detalles del Artículo
+      </h2>
+      <div class="cd-product-info">
+        <img
+          [src]="c.producto?.galeriaImagenes | coverImage"
+          [alt]="c.producto?.titulo"
+          class="cd-product-img"
+        />
+        <div class="cd-product-details">
+          <h3>{{ c.producto?.titulo }}</h3>
+          <p class="cd-product-seller">
+            Publicado por: <strong>{{ c.producto?.vendedor?.user }}</strong>
+          </p>
+          <p style="margin-top: 0.5rem">
+            <a
+              [routerLink]="['/productos', c.producto?.id]"
+              style="color: var(--primary-color); text-decoration: none; font-size: 0.875rem"
+              >Ver página del producto →</a
+            >
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <div class="cd-grid-2">
+      <!-- ENVÍO -->
+      <section class="cd-section">
+        <h2 class="cd-section-title">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <polyline points="9 11 12 14 22 4"></polyline>
+            <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+          </svg>
+          Información de Entrega
+        </h2>
+
+        <div class="cd-data-group" style="margin-bottom: 1rem">
+          <span class="cd-data-label">Método</span>
+          <span class="cd-data-value">{{
+            c.tipoEnvio === 'DOMICILIO'
+              ? 'Envío a Domicilio'
+              : c.tipoEnvio === 'PUNTO_RECOGIDA'
+                ? 'Punto de Recogida'
+                : 'Entrega en Mano'
+          }}</span>
+        </div>
+
+        @if (c.tipoEnvio === 'DOMICILIO') {
+          <div class="cd-data-group" style="margin-bottom: 1rem">
+            <span class="cd-data-label">Dirección</span>
+            <span class="cd-data-value">{{
+              c.direccionCompleta || c.dirCalle + ', ' + c.dirCiudad + ' ' + c.dirCodigoPostal
+            }}</span>
+          </div>
+        }
+
+        @if (envioInfo()) {
+          @let envio = envioInfo();
+          <div class="cd-data-group" style="margin-bottom: 1rem">
+            <span class="cd-data-label">Transportista</span>
+            <span class="cd-data-value">{{ envio.transportista }}</span>
+          </div>
+          <div class="cd-data-group">
+            <span class="cd-data-label">Código de Seguimiento</span>
+            <span class="cd-data-value" style="font-family: monospace; font-size: 1.1rem">{{
+              envio.numeroSeguimiento || 'Generándose...'
+            }}</span>
+          </div>
+        } @else if (c.estado === 'PAGADO' && esVendedor()) {
+          <div
+            style="
+              padding: 1rem;
+              background: #fbbf2433;
+              border-radius: 8px;
+              border: 1px dashed #fbbf24;
+              margin-top: 1rem;
+            "
+          >
+            <p style="margin: 0; font-size: 0.875rem; color: #b45309">
+              Aún no has generado la etiqueta de envío. Por favor, marca esto como enviado pronto.
+            </p>
+          </div>
+        }
+      </section>
+
+      <!-- PAGO -->
+      <section class="cd-section">
+        <h2 class="cd-section-title">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
+            <line x1="1" y1="10" x2="23" y2="10"></line>
+          </svg>
+          Resumen de Pago
+        </h2>
+
+        <div class="cd-data-group" style="margin-bottom: 0.5rem">
+          <span class="cd-data-label">Fecha</span>
+          <span class="cd-data-value">{{ c.fechaCompra | date: 'dd/MM/yyyy HH:mm' }}</span>
+        </div>
+
+        <div class="cd-total-box">
+          <div class="cd-price-row">
+            <span>Subtotal (Producto)</span>
+            <span>{{
+              c.precioFinal - (c.costoEnvio || 0) - (c.comisionNexus || 0) | currencyEs
+            }}</span>
+          </div>
+          <div class="cd-price-row">
+            <span>Protección Nexus</span>
+            <span>{{ c.comisionNexus || 0 | currencyEs }}</span>
+          </div>
+          <div class="cd-price-row">
+            <span>Coste de Envío</span>
+            <span>{{ c.costoEnvio || 0 | currencyEs }}</span>
+          </div>
+
+          <div class="cd-price-row total">
+            <span>Total Pagado</span>
+            <span>{{ c.precioFinal | currencyEs }}</span>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- ACCIONES -->
+    <div class="cd-actions">
+      @if (esComprador()) {
+        @if (c.estado === 'PENDIENTE') {
+          <button class="cd-btn cd-btn-primary">Reintentar Pago</button>
+          <button class="cd-btn cd-btn-danger">Cancelar</button>
+        }
+        @if (c.estado === 'ENTREGADO') {
+          <button class="cd-btn cd-btn-outline">Abrir Disputa</button>
+          <button class="cd-btn cd-btn-primary">Confirmar que todo está bien</button>
+        }
+        @if (c.estado === 'COMPLETADA') {
+          <button class="cd-btn cd-btn-primary">Valorar Vendedor</button>
+        }
+      }
+
+      @if (esVendedor()) {
+        @if (c.estado === 'PAGADO') {
+          <button class="cd-btn cd-btn-primary">Generar Etiqueta y Enviar</button>
+        }
+      }
+    </div>
+  }
+</div>

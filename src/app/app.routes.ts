@@ -82,7 +82,8 @@ export const routes: Routes = [
   {
     path: 'publicar',
     loadComponent: () =>
-      import('./components/marketplace/publish-producto/publish-producto.component').then((m) => m.PublishProductoComponent,
+      import('./components/marketplace/publish-producto/publish-producto.component').then(
+        (m) => m.PublishProductoComponent,
       ),
     canActivate: [authGuard],
   },
@@ -90,7 +91,7 @@ export const routes: Routes = [
     path: 'publicar/oferta',
     loadComponent: () =>
       import('./components/marketplace/publish-oferta/publish-oferta.component').then(
-        (m) => m.PublishOfertaComponent
+        (m) => m.PublishOfertaComponent,
       ),
     canActivate: [authGuard],
   },
@@ -98,27 +99,51 @@ export const routes: Routes = [
     path: 'publicar/vehiculo',
     loadComponent: () =>
       import('./components/marketplace/publish-vehiculo/publish-vehiculo.component').then(
-        (m) => m.PublishVehiculoComponent
+        (m) => m.PublishVehiculoComponent,
       ),
     canActivate: [authGuard],
   },
 
-  // {
-  //   path: 'compras/:id',
-  //   loadComponent: () =>
-  //     import('./components/compras/compra-detail/compra-detail.component').then(
-  //       (m) => m.CompraDetailComponent,
-  //     ),
-  //   canActivate: [authGuard],
-  // },
-  // {
-  //   path: 'devoluciones/nueva/:compraId',
-  //   loadComponent: () =>
-  //     import('./components/devoluciones/nueva-devolucion/nueva-devolucion.component').then(
-  //       (m) => m.NuevaDevolucionComponent,
-  //     ),
-  //   canActivate: [authGuard],
-  // },
+  {
+    path: 'compras/mis-compras',
+    loadComponent: () =>
+      import('./components/compras/mis-compras/mis-compras.component').then(
+        (m) => m.MisComprasComponent,
+      ),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'compras/:id',
+    loadComponent: () =>
+      import('./components/compras/compra-detail/compra-detail.component').then(
+        (m) => m.CompraDetailComponent,
+      ),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'devoluciones/nueva/:compraId',
+    loadComponent: () =>
+      import('./components/devoluciones/nueva-devolucion/nueva-devolucion.component').then(
+        (m) => m.NuevaDevolucionComponent,
+      ),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'devoluciones/:id',
+    loadComponent: () =>
+      import('./components/devoluciones/devolucion-detail/devolucion-detail.component').then(
+        (m) => m.DevolucionDetailComponent,
+      ),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'mensajes',
+    loadComponent: () =>
+      import('./components/mensajes/mensajes-container/mensajes-container').then(
+        (m) => m.MensajesContainerComponent,
+      ),
+    canActivate: [authGuard],
+  },
   // {
   //   path: 'mensajes',
   //   loadComponent: () =>
@@ -128,28 +153,28 @@ export const routes: Routes = [
   //   canActivate: [authGuard],
   // },
 
-  // // Perfiles
-  // {
-  //   path: 'perfil',
-  //   loadComponent: () =>
-  //     import('./components/perfil/mi-cuenta/mi-cuenta.component').then((m) => m.MiCuentaComponent),
-  //   canActivate: [authGuard],
-  // },
-  // {
-  //   path: 'perfil/:username',
-  //   loadComponent: () =>
-  //     import('./components/perfil/perfil-publico/perfil-publico.component').then(
-  //       (m) => m.PerfilPublicoComponent,
-  //     ),
-  // },
-  // {
-  //   path: 'configuracion',
-  //   loadComponent: () =>
-  //     import('./components/perfil/configuracion/configuracion.component').then(
-  //       (m) => m.ConfiguracionComponent,
-  //     ),
-  //   canActivate: [authGuard],
-  // },
+  // Perfiles
+  {
+    path: 'perfil',
+    loadComponent: () =>
+      import('./components/perfil/mi-cuenta/mi-cuenta.component').then((m) => m.MiCuentaComponent),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'perfil/:username',
+    loadComponent: () =>
+      import('./components/perfil/perfil-publico/perfil-publico.component').then(
+        (m) => m.PerfilPublicoComponent,
+      ),
+  },
+  {
+    path: 'configuracion',
+    loadComponent: () =>
+      import('./components/perfil/configuracion/configuracion.component').then(
+        (m) => m.ConfiguracionComponent,
+      ),
+    canActivate: [authGuard],
+  },
 
   // // Legal
   // {
@@ -171,6 +196,31 @@ export const routes: Routes = [
   //   loadChildren: () => import('./components/admin/admin.routes').then((m) => m.ADMIN_ROUTES),
   //   canActivate: [adminGuard],
   // },
+
+  // Compras / Checkout
+  {
+    path: 'checkout/:productoId',
+    loadComponent: () =>
+      import('./components/compras/checkout/checkout.component').then((m) => m.CheckoutComponent),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'compras/:id',
+    loadComponent: () =>
+      import('./components/compras/confirmacion/confirmacion.component').then(
+        (m) => m.ConfirmacionComponent,
+      ),
+    canActivate: [authGuard],
+  },
+
+  {
+    path: 'compras/:compraId/enviar',
+    loadComponent: () =>
+      import('./components/compras/enviar-pedido/enviar-pedido.component').then(
+        (m) => m.EnviarPedidoComponent,
+      ),
+    canActivate: [authGuard],
+  },
 
   // Wildcard (404 / Redirect)
   { path: '**', redirectTo: '' },

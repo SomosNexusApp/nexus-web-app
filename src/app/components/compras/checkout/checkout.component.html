@@ -1,0 +1,744 @@
+<!-- ════════════ LOADING -->
+@if (cargando()) {
+  <div class="ck-loading">
+    <div class="ck-spinner"></div>
+    <p>Cargando información del producto…</p>
+  </div>
+}
+
+<!-- ════════════ ERROR / NO DISPONIBLE -->
+@if (!cargando() && errorGeneral() && !producto()) {
+  <div class="ck-error-page">
+    <div class="ck-error-icon">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="48"
+        height="48"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.5"
+      >
+        <circle cx="12" cy="12" r="10" />
+        <line x1="12" y1="8" x2="12" y2="12" />
+        <line x1="12" y1="16" x2="12.01" y2="16" />
+      </svg>
+    </div>
+    <h2>No disponible</h2>
+    <p>{{ errorGeneral() }}</p>
+    <button class="ck-btn ck-btn--primary" (click)="volver()">Volver al producto</button>
+  </div>
+}
+
+<!-- ════════════ CHECKOUT PRINCIPAL -->
+@if (!cargando() && producto()) {
+  <div class="ck-page">
+    <!-- Top bar -->
+    <header class="ck-topbar">
+      <button class="ck-back-btn" (click)="volver()" type="button" aria-label="Volver">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="18"
+          height="18"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2.5"
+        >
+          <polyline points="15 18 9 12 15 6" />
+        </svg>
+        Volver
+      </button>
+      <div class="ck-topbar-brand">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <rect x="1" y="3" width="15" height="13" />
+          <polygon points="16 8 20 8 23 11 23 16 16 16 16 8" />
+          <circle cx="5.5" cy="18.5" r="2.5" />
+          <circle cx="18.5" cy="18.5" r="2.5" />
+        </svg>
+        Pago seguro · Nexus
+      </div>
+      <div class="ck-topbar-ssl">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="13"
+          height="13"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <rect x="3" y="11" width="18" height="11" rx="2" />
+          <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+        </svg>
+        SSL seguro
+      </div>
+    </header>
+
+    <!-- 2 columnas -->
+    <main class="ck-grid">
+      <!-- ══════════ COLUMNA IZQUIERDA — Resumen ══════════ -->
+      <aside class="ck-summary">
+        <h2 class="ck-section-title">Resumen del pedido</h2>
+
+        <!-- Producto card -->
+        <div class="ck-product-card">
+          <div class="ck-product-img-wrap">
+            <img
+              [src]="producto()!.imagenPrincipal ?? '/assets/placeholder-image.webp'"
+              [alt]="producto()!.titulo"
+              class="ck-product-img"
+              (error)="$any($event.target).src = '/assets/placeholder-image.webp'"
+            />
+            <span class="ck-estado-badge">Disponible</span>
+          </div>
+          <div class="ck-product-info">
+            <h3 class="ck-product-title">{{ producto()!.titulo }}</h3>
+            @if (producto()!.condicion) {
+              <span class="ck-condicion">{{ producto()!.condicion!.replace('_', ' ') }}</span>
+            }
+            @if (producto()!.vendedor) {
+              <div class="ck-seller">
+                <div class="ck-seller-avatar">
+                  @if ($any(producto()!.vendedor)?.avatar) {
+                    <img [src]="$any(producto()!.vendedor)?.avatar" alt="avatar" />
+                  } @else {
+                    <span>{{ getAvatarFallback($any(producto()!.vendedor)?.nombre) }}</span>
+                  }
+                </div>
+                <span class="ck-seller-name">{{ $any(producto()!.vendedor)?.user }}</span>
+                @if ($any(producto()!.vendedor)?.esVerificado) {
+                  <svg
+                    class="ck-verified"
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="13"
+                    height="13"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2.5"
+                  >
+                    <polyline points="20 6 9 17 4 12" />
+                  </svg>
+                }
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- Desglose -->
+        <div class="ck-breakdown">
+          <div class="ck-breakdown-row">
+            <span>Producto</span>
+            <span>{{ formatPrice(producto()!.precio) }}</span>
+          </div>
+          <div class="ck-breakdown-row">
+            <span>Envío</span>
+            <span>{{ costoEnvio() === 0 ? 'Gratis' : formatPrice(costoEnvio()) }}</span>
+          </div>
+          <div class="ck-breakdown-row">
+            <span>Protección Nexus</span>
+            <span>{{ formatPrice(comisionNexus()) }}</span>
+          </div>
+          <div class="ck-breakdown-divider"></div>
+          <div class="ck-breakdown-row ck-breakdown-total">
+            <span>Total</span>
+            <span>{{ formatPrice(total()) }}</span>
+          </div>
+        </div>
+
+        <!-- Protección expandible -->
+        <div class="ck-protection">
+          <button
+            class="ck-protection-toggle"
+            type="button"
+            (click)="proteccionOpen.set(!proteccionOpen())"
+          >
+            <div class="ck-protection-icon">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="15"
+                height="15"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+              </svg>
+            </div>
+            <span>Protección Nexus — ¿Qué incluye?</span>
+            <svg
+              class="ck-chevron"
+              [class.open]="proteccionOpen()"
+              xmlns="http://www.w3.org/2000/svg"
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+            >
+              <polyline points="6 9 12 15 18 9" />
+            </svg>
+          </button>
+          @if (proteccionOpen()) {
+            <div class="ck-protection-body">
+              <ul class="ck-protection-list">
+                <li>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="12"
+                    height="12"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2.5"
+                  >
+                    <polyline points="20 6 9 17 4 12" /></svg
+                  >Tu pago queda en custodia hasta confirmar recepción
+                </li>
+                <li>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="12"
+                    height="12"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2.5"
+                  >
+                    <polyline points="20 6 9 17 4 12" /></svg
+                  >7 días para reclamar si hay cualquier problema
+                </li>
+                <li>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="12"
+                    height="12"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2.5"
+                  >
+                    <polyline points="20 6 9 17 4 12" /></svg
+                  >Reembolso garantizado si el artículo no es como se describe
+                </li>
+              </ul>
+              <div class="ck-protection-table">
+                <div class="ck-pt-row">
+                  <span>Precio &lt; 20 €</span><span class="ck-pt-fee">1,60 €</span>
+                </div>
+                <div class="ck-pt-row">
+                  <span>20 € – 99,99 €</span><span class="ck-pt-fee">3,60 €</span>
+                </div>
+                <div class="ck-pt-row">
+                  <span>≥ 100 €</span><span class="ck-pt-fee">5,60 €</span>
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+
+        <!-- Devoluciones -->
+        <div class="ck-return-policy">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <polyline points="1 4 1 10 7 10" />
+            <path d="M3.51 15a9 9 0 1 0 .49-3.75" />
+          </svg>
+          <span
+            ><strong>7 días</strong> para reclamar si hay cualquier problema con el producto.</span
+          >
+        </div>
+      </aside>
+
+      <!-- ══════════ COLUMNA DERECHA — Pasos ══════════ -->
+      <section class="ck-payment">
+        <!-- ── PASO 1: Datos personales ──────────────── -->
+        <div class="ck-step-card">
+          <div class="ck-step-header">
+            <span class="ck-step-num">1</span>
+            <h2 class="ck-step-title">Datos del comprador</h2>
+          </div>
+          <form [formGroup]="personalForm" class="ck-form" autocomplete="on" novalidate>
+            <div class="ck-form-row ck-form-row--split">
+              <div class="ck-field" [class.invalid]="hasError(personalForm, 'nombre')">
+                <label for="ck-p-nombre">Nombre *</label>
+                <input
+                  id="ck-p-nombre"
+                  type="text"
+                  formControlName="nombre"
+                  placeholder="María"
+                  autocomplete="given-name"
+                />
+                @if (hasError(personalForm, 'nombre')) {
+                  <span class="ck-field-error">Nombre requerido (mín. 2 caracteres)</span>
+                }
+              </div>
+              <div class="ck-field" [class.invalid]="hasError(personalForm, 'apellidos')">
+                <label for="ck-p-apellidos">Apellidos *</label>
+                <input
+                  id="ck-p-apellidos"
+                  type="text"
+                  formControlName="apellidos"
+                  placeholder="García López"
+                  autocomplete="family-name"
+                />
+                @if (hasError(personalForm, 'apellidos')) {
+                  <span class="ck-field-error">Apellidos requeridos</span>
+                }
+              </div>
+            </div>
+            <div class="ck-form-row ck-form-row--split">
+              <div class="ck-field" [class.invalid]="hasError(personalForm, 'email')">
+                <label for="ck-p-email">Email *</label>
+                <input
+                  id="ck-p-email"
+                  type="email"
+                  formControlName="email"
+                  placeholder="tu@email.com"
+                  autocomplete="email"
+                />
+                @if (hasError(personalForm, 'email')) {
+                  <span class="ck-field-error">Email válido requerido</span>
+                }
+              </div>
+              <div class="ck-field" [class.invalid]="hasError(personalForm, 'telefono')">
+                <label for="ck-p-tel">Teléfono</label>
+                <input
+                  id="ck-p-tel"
+                  type="tel"
+                  formControlName="telefono"
+                  placeholder="+34 600 000 000"
+                  autocomplete="tel"
+                />
+                @if (hasError(personalForm, 'telefono')) {
+                  <span class="ck-field-error">Formato inválido</span>
+                }
+              </div>
+            </div>
+          </form>
+        </div>
+
+        <!-- ── PASO 2: Método de envío + Dirección ───── -->
+        <div class="ck-step-card">
+          <div class="ck-step-header">
+            <span class="ck-step-num">2</span>
+            <h2 class="ck-step-title">Envío y dirección</h2>
+          </div>
+
+          <!-- Opciones de envío -->
+          <div class="ck-shipping-options">
+            <!-- Domicilio -->
+            <label class="ck-shipping-opt" [class.selected]="!esRecogida()">
+              <input
+                type="radio"
+                name="tipoEntrega"
+                value="domicilio"
+                [checked]="!esRecogida()"
+                (change)="onEntregaChange(false)"
+              />
+              <div class="ck-shipping-icon">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+                  <polyline points="9 22 9 12 15 12 15 22" />
+                </svg>
+              </div>
+              <div class="ck-shipping-label">
+                <strong>Envío a domicilio</strong>
+                <span>Entrega en tu dirección en 2–5 días</span>
+              </div>
+              <span class="ck-shipping-price">
+                <strong>{{ formatPrice(costoEnvio()) }}</strong>
+              </span>
+            </label>
+
+            <!-- Punto de recogida -->
+            <label class="ck-shipping-opt" [class.selected]="esRecogida()">
+              <input
+                type="radio"
+                name="tipoEntrega"
+                value="recogida"
+                [checked]="esRecogida()"
+                (change)="onEntregaChange(true)"
+              />
+              <div class="ck-shipping-icon">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <rect x="1" y="3" width="15" height="13" />
+                  <polygon points="16 8 20 8 23 11 23 16 16 16 16 8" />
+                  <circle cx="5.5" cy="18.5" r="2.5" />
+                  <circle cx="18.5" cy="18.5" r="2.5" />
+                </svg>
+              </div>
+              <div class="ck-shipping-label">
+                <strong>Punto de recogida</strong>
+                <span>Recoge en Correos, SEUR o MRW</span>
+              </div>
+              <div class="ck-pickup-right">
+                @if (ahorroRecogida() > 0) {
+                  <span class="ck-saving-badge">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="11"
+                      height="11"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2.5"
+                    >
+                      <polyline points="20 6 9 17 4 12" />
+                    </svg>
+                    Ahorra {{ formatPrice(ahorroRecogida()) }}
+                  </span>
+                }
+                <span class="ck-shipping-price">
+                  <strong>{{ formatPrice(costoEnvio()) }}</strong>
+                </span>
+              </div>
+            </label>
+          </div>
+
+          <!-- Dirección — obligatoria para DOMICILIO, referencia para PUNTO_RECOGIDA -->
+          <form [formGroup]="addressForm" class="ck-address-form" autocomplete="on" novalidate>
+            @if (tipoEnvio() === 'PUNTO_RECOGIDA') {
+              <p class="ck-addr-note">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="13"
+                  height="13"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <circle cx="12" cy="12" r="10" />
+                  <line x1="12" y1="8" x2="12" y2="12" />
+                  <line x1="12" y1="16" x2="12.01" y2="16" />
+                </svg>
+                Dirección de referencia (opcional) — el vendedor la usará para elegir el punto más
+                cercano
+              </p>
+            }
+            <div class="ck-form-row">
+              <div class="ck-field" [class.invalid]="hasError(addressForm, 'calle')">
+                <label for="ck-calle">
+                  Calle y número
+                  @if (tipoEnvio() === 'DOMICILIO') {
+                    <span class="required-star">*</span>
+                  }
+                </label>
+                <input
+                  id="ck-calle"
+                  type="text"
+                  formControlName="calle"
+                  placeholder="Calle Mayor 10, 2ºB"
+                  autocomplete="street-address"
+                />
+                @if (hasError(addressForm, 'calle')) {
+                  <span class="ck-field-error">Dirección requerida</span>
+                }
+              </div>
+            </div>
+            <div class="ck-form-row ck-form-row--split">
+              <div class="ck-field" [class.invalid]="hasError(addressForm, 'cp')">
+                <label for="ck-cp">
+                  Código postal
+                  @if (tipoEnvio() === 'DOMICILIO') {
+                    <span class="required-star">*</span>
+                  }
+                </label>
+                <input
+                  id="ck-cp"
+                  type="text"
+                  formControlName="cp"
+                  placeholder="28001"
+                  autocomplete="postal-code"
+                  inputmode="numeric"
+                  maxlength="10"
+                />
+                @if (hasError(addressForm, 'cp')) {
+                  <span class="ck-field-error">Código postal inválido</span>
+                }
+              </div>
+              <div class="ck-field" [class.invalid]="hasError(addressForm, 'ciudad')">
+                <label for="ck-ciudad">
+                  Ciudad
+                  @if (tipoEnvio() === 'DOMICILIO') {
+                    <span class="required-star">*</span>
+                  }
+                </label>
+                <input
+                  id="ck-ciudad"
+                  type="text"
+                  formControlName="ciudad"
+                  placeholder="Madrid"
+                  autocomplete="address-level2"
+                />
+                @if (hasError(addressForm, 'ciudad')) {
+                  <span class="ck-field-error">Ciudad requerida</span>
+                }
+              </div>
+            </div>
+            <div class="ck-form-row">
+              <div class="ck-field">
+                <label for="ck-pais">País</label>
+                <input
+                  id="ck-pais"
+                  type="text"
+                  formControlName="pais"
+                  autocomplete="country-name"
+                />
+              </div>
+            </div>
+          </form>
+        </div>
+
+        <!-- ── PASO 3: Datos de pago ─────────────────── -->
+        <div class="ck-step-card">
+          <div class="ck-step-header">
+            <span class="ck-step-num">3</span>
+            <h2 class="ck-step-title">Datos de pago</h2>
+            <div class="ck-stripe-badge">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="11"
+                height="11"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <rect x="3" y="11" width="18" height="11" rx="2" />
+                <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+              </svg>
+              Cifrado SSL · Stripe
+            </div>
+          </div>
+
+          @if (cargandoMetodos()) {
+            <div class="ck-loading" style="padding: 1rem 0; min-height: 50px">
+              <div class="ck-spinner" style="width: 20px; height: 20px; border-width: 2px"></div>
+            </div>
+          } @else if (metodosGuardados().length > 0) {
+            <div class="saved-cards">
+              @for (m of metodosGuardados(); track m.id) {
+                <label
+                  class="ck-shipping-opt"
+                  [class.selected]="metodoSeleccionado() === m.id && !usarNuevaTarjeta()"
+                >
+                  <input
+                    type="radio"
+                    name="metodoPago"
+                    [value]="m.id"
+                    [checked]="metodoSeleccionado() === m.id && !usarNuevaTarjeta()"
+                    (change)="seleccionarMetodo(m.id)"
+                  />
+                  <div
+                    class="ck-shipping-icon"
+                    style="background: white; border: 1px solid #e2e8f0"
+                  >
+                    <i
+                      [class]="getBrandIcon(m.card.brand)"
+                      style="color: #1e293b; font-size: 1.25rem"
+                    ></i>
+                  </div>
+                  <div class="ck-shipping-label">
+                    <strong style="text-transform: capitalize">{{ m.card.brand }}</strong>
+                    <span>Termina en {{ m.card.last4 }}</span>
+                  </div>
+                  <div class="ck-pickup-right">
+                    <span class="ck-shipping-price" style="font-size: 0.85rem; color: #64748b">
+                      Expira: {{ (m.card.exp_month < 10 ? '0' : '') + m.card.exp_month }}/{{
+                        m.card.exp_year
+                      }}
+                    </span>
+                  </div>
+                </label>
+              }
+
+              <label class="ck-shipping-opt" [class.selected]="usarNuevaTarjeta()">
+                <input
+                  type="radio"
+                  name="metodoPago"
+                  value="new"
+                  [checked]="usarNuevaTarjeta()"
+                  (change)="toggleNuevaTarjeta(true)"
+                />
+                <div class="ck-shipping-icon">
+                  <i class="fas fa-plus"></i>
+                </div>
+                <div class="ck-shipping-label">
+                  <strong>Usar otra tarjeta</strong>
+                </div>
+              </label>
+            </div>
+          }
+
+          @if (usarNuevaTarjeta() || metodosGuardados().length === 0) {
+            <div
+              class="new-card-form"
+              [style.marginTop]="metodosGuardados().length > 0 ? '1rem' : '0'"
+            >
+              <!-- Número de tarjeta -->
+              <div class="ck-card-field">
+                <label class="ck-card-label" for="card-number">Número de tarjeta</label>
+                <div id="card-number" class="ck-stripe-element ck-stripe-element--full"></div>
+              </div>
+
+              <!-- Fecha caducidad + CVC en 2 columnas -->
+              <div class="ck-card-row">
+                <div class="ck-card-field">
+                  <label class="ck-card-label" for="card-expiry">Fecha de caducidad</label>
+                  <div id="card-expiry" class="ck-stripe-element"></div>
+                </div>
+                <div class="ck-card-field">
+                  <label class="ck-card-label" for="card-cvc">
+                    CVC
+                    <span
+                      class="ck-cvc-hint"
+                      title="Los 3 dígitos en el reverso de la tarjeta (Visa/MC) o 4 en el anverso (Amex)"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="12"
+                        height="12"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                      >
+                        <circle cx="12" cy="12" r="10" />
+                        <line x1="12" y1="8" x2="12" y2="12" />
+                        <line x1="12" y1="16" x2="12.01" y2="16" />
+                      </svg>
+                    </span>
+                  </label>
+                  <div id="card-cvc" class="ck-stripe-element"></div>
+                </div>
+              </div>
+
+              @if (errorStripe()) {
+                <div class="ck-stripe-error">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="13"
+                    height="13"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <circle cx="12" cy="12" r="10" />
+                    <line x1="12" y1="8" x2="12" y2="12" />
+                    <line x1="12" y1="16" x2="12.01" y2="16" />
+                  </svg>
+                  {{ errorStripe() }}
+                </div>
+              }
+            </div>
+          }
+
+          <p class="ck-card-notice">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="12"
+              height="12"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+            </svg>
+            Tus datos de pago están protegidos por Stripe. Nexus nunca los recibe ni los almacena.
+          </p>
+        </div>
+
+        <!-- Error general -->
+        @if (errorGeneral()) {
+          <div class="ck-alert-error">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <circle cx="12" cy="12" r="10" />
+              <line x1="15" y1="9" x2="9" y2="15" />
+              <line x1="9" y1="9" x2="15" y2="15" />
+            </svg>
+            {{ errorGeneral() }}
+          </div>
+        }
+
+        <!-- Botón pagar -->
+        <button
+          class="ck-btn ck-btn--pay"
+          id="btn-pagar"
+          type="button"
+          (click)="pagar()"
+          [disabled]="procesando() || !puedeComprar()"
+        >
+          @if (procesando()) {
+            <span class="ck-btn-spinner"></span>
+            Procesando…
+          } @else {
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <rect x="1" y="4" width="22" height="16" rx="2" />
+              <line x1="1" y1="10" x2="23" y2="10" />
+            </svg>
+            Pagar {{ formatPrice(total()) }}
+          }
+        </button>
+
+        <p class="ck-terms-note">
+          Al continuar aceptas los <a routerLink="/legal/terminos">Términos de uso</a> de Nexus. Tu
+          pago está protegido por escrow hasta que confirmes la recepción.
+        </p>
+      </section>
+    </main>
+  </div>
+}

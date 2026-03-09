@@ -1,0 +1,225 @@
+<!-- Container -->
+<div class="dd-container">
+  <header class="dd-header">
+    <div style="display: flex; gap: 1rem; align-items: center">
+      <button class="dd-btn-back" routerLink="/compras/mis-compras">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <line x1="19" y1="12" x2="5" y2="12"></line>
+          <polyline points="12 19 5 12 12 5"></polyline>
+        </svg>
+        Volver
+      </button>
+    </div>
+
+    <ng-container *ngIf="devolucion() as dev">
+      <div class="dd-title-group">
+        <h1 class="dd-title">Devolución #{{ dev.id }}</h1>
+        <span class="dd-badge" [style.backgroundColor]="getBadgeColor(dev.estado)">
+          {{ dev.estado.replace('_', ' ') }}
+        </span>
+      </div>
+    </ng-container>
+  </header>
+
+  <ng-container *ngIf="loading()">
+    <div class="loading-state">
+      <div class="spinner"></div>
+      <p>Cargando información de la devolución...</p>
+    </div>
+  </ng-container>
+
+  <ng-container *ngIf="!loading() && errorMsg()">
+    <div class="error-slate">
+      <h4>{{ errorMsg() }}</h4>
+    </div>
+  </ng-container>
+
+  <ng-container *ngIf="!loading() && devolucion() as dev">
+    <!-- Timeline Horizontal -->
+    <div class="timeline">
+      <div class="timeline-step" [class.active]="getTimelineStep(dev) >= 1">
+        <div class="step-icon">
+          <svg
+            *ngIf="getTimelineStep(dev) >= 1"
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="16"
+            fill="currentColor"
+            viewBox="0 0 16 16"
+          >
+            <path
+              d="M10.97 4.97a.75.75 0 011.07 1.05l-3.99 4.99a.75.75 0 01-1.08.02L4.324 8.384a.75.75 0 111.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 01.02-.022z"
+            />
+          </svg>
+        </div>
+        <p>Solicitada</p>
+      </div>
+      <div class="timeline-line"></div>
+
+      <!-- Paso 2: Aceptada o Rechazada -->
+      <div
+        class="timeline-step"
+        [class.active]="getTimelineStep(dev) >= 2"
+        [class.danger]="dev.estado === 'RECHAZADA'"
+      >
+        <div class="step-icon">
+          <svg
+            *ngIf="dev.estado === 'RECHAZADA'"
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="16"
+            fill="currentColor"
+            viewBox="0 0 16 16"
+          >
+            <path
+              d="M4.646 4.646a.5.5 0 01.708 0L8 7.293l2.646-2.647a.5.5 0 01.708.708L8.707 8l2.647 2.646a.5.5 0 01-.708.708L8 8.707l-2.646 2.647a.5.5 0 01-.708-.708L7.293 8 4.646 5.354a.5.5 0 010-.708z"
+            />
+          </svg>
+          <svg
+            *ngIf="getTimelineStep(dev) >= 2 && dev.estado !== 'RECHAZADA'"
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="16"
+            fill="currentColor"
+            viewBox="0 0 16 16"
+          >
+            <path
+              d="M10.97 4.97a.75.75 0 011.07 1.05l-3.99 4.99a.75.75 0 01-1.08.02L4.324 8.384a.75.75 0 111.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 01.02-.022z"
+            />
+          </svg>
+        </div>
+        <p>{{ dev.estado === 'RECHAZADA' ? 'Rechazada' : 'Aceptada' }}</p>
+      </div>
+
+      <!-- El resto solo se muestra si NO ha sido rechazada -->
+      <ng-container *ngIf="dev.estado !== 'RECHAZADA'">
+        <div class="timeline-line"></div>
+        <div class="timeline-step" [class.active]="getTimelineStep(dev) >= 3">
+          <div class="step-icon">
+            <svg
+              *ngIf="getTimelineStep(dev) >= 3"
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              fill="currentColor"
+              viewBox="0 0 16 16"
+            >
+              <path
+                d="M10.97 4.97a.75.75 0 011.07 1.05l-3.99 4.99a.75.75 0 01-1.08.02L4.324 8.384a.75.75 0 111.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 01.02-.022z"
+              />
+            </svg>
+          </div>
+          <p>Enviada</p>
+        </div>
+        <div class="timeline-line"></div>
+        <div class="timeline-step" [class.active]="getTimelineStep(dev) >= 4">
+          <div class="step-icon">
+            <svg
+              *ngIf="getTimelineStep(dev) >= 4"
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              fill="currentColor"
+              viewBox="0 0 16 16"
+            >
+              <path
+                d="M10.97 4.97a.75.75 0 011.07 1.05l-3.99 4.99a.75.75 0 01-1.08.02L4.324 8.384a.75.75 0 111.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 01.02-.022z"
+              />
+            </svg>
+          </div>
+          <p>Completada</p>
+        </div>
+      </ng-container>
+    </div>
+    <!-- End Timeline -->
+
+    <!-- Mensajes Relevantes por Estado -->
+    <div class="dd-alerts mt-4">
+      <div class="alert alert-success" *ngIf="dev.estado === 'COMPLETADA'">
+        <h4>¡Reembolso completado con éxito!</h4>
+        <p>
+          Hemos procesado el reembolso del importe en tu método de pago original. Por lo general,
+          verás el dinero reflejado en tu cuenta en un plazo de 3-5 días laborables.
+        </p>
+      </div>
+
+      <!-- Para el comprador si le han aceptado pero no ha enviado nada -->
+      <div
+        class="alert alert-info"
+        *ngIf="dev.estado === 'ACEPTADA' && currentUser()?.id === dev.compra.comprador?.id"
+      >
+        <h4>Devolución aceptada. Tienes que enviar el producto.</h4>
+        <p>
+          Por favor, usa Correos o un transportista certificado para enviar el artículo devuelta a:
+        </p>
+        <p>
+          <strong
+            >{{ dev.compra.producto.vendedor.user }} - Dirección Privada (Contacta con él en el
+            chat)</strong
+          >
+        </p>
+        <div class="mt-2">
+          <button class="dd-btn dd-btn-primary" (click)="marcarComoEnviada(dev.id)">
+            Ya lo he enviado
+          </button>
+        </div>
+      </div>
+
+      <div class="alert alert-danger" *ngIf="dev.estado === 'RECHAZADA'">
+        <h4>La solicitud fue denegada por el vendedor</h4>
+        <p>
+          Motivo proporcionado:
+          <strong>{{ dev.notaVendedor || 'No se proporcionó motivo' }}</strong>
+        </p>
+        <hr style="border-color: #fecaca; margin: 0.75rem 0" />
+        <p>
+          Si crees que esto es un error o el vendedor no ha cumplido nuestras normas comunitarias,
+          por favor escríbenos:
+        </p>
+        <a href="mailto:somosnexusapp@gmail.com" style="color: #991b1b; font-weight: bold"
+          >somosnexusapp&#64;gmail.com</a
+        >
+      </div>
+    </div>
+
+    <!-- Info del Artículo Original -->
+    <div class="dd-card mt-4">
+      <h3 class="dd-card-title">Resumen de la Solicitud</h3>
+
+      <div class="dd-info-row">
+        <label>Producto original:</label>
+        <span>{{ dev.compra.producto.titulo }}</span>
+      </div>
+      <div class="dd-info-row">
+        <label>Motivo principal:</label>
+        <span>{{ dev.motivo.replace('_', ' ') }}</span>
+      </div>
+      <div class="dd-info-row" *ngIf="dev.descripcion">
+        <label>Descripción detallada:</label>
+        <p class="dd-desc-text">{{ dev.descripcion }}</p>
+      </div>
+      <div class="dd-info-row">
+        <label>Fecha de creación:</label>
+        <span>{{ dev.fechaSolicitud | date: 'dd/MM/yyyy HH:mm' }}</span>
+      </div>
+    </div>
+
+    <!-- Evidencias -->
+    <div class="dd-card mt-4" *ngIf="dev.evidencias && dev.evidencias.length > 0">
+      <h3 class="dd-card-title">Pruebas aportadas ({{ dev.evidencias.length }})</h3>
+      <div class="dd-photos">
+        <div class="dd-photo" *ngFor="let ev of dev.evidencias">
+          <img [src]="ev.urlImagen | coverImage" alt="Evidencia de devolución" />
+        </div>
+      </div>
+    </div>
+  </ng-container>
+</div>
