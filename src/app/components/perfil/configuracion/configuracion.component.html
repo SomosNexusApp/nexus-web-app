@@ -34,6 +34,12 @@
                 <input type="file" hidden (change)="onAvatarSelected($event)" accept="image/*" />
               </label>
               <p class="help-text">JPG, GIF o PNG. Max 5MB.</p>
+              <h3
+                class="user-handle mt-2 text-center text-muted"
+                style="margin-top: 10px; font-size: 1.1rem"
+              >
+                @{{ user()?.user }}
+              </h3>
             </div>
           </div>
 

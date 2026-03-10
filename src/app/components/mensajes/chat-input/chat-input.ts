@@ -1,4 +1,12 @@
-import { Component, EventEmitter, Output, signal, ViewChild, ElementRef } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  Output,
+  signal,
+  ViewChild,
+  ElementRef,
+  Input,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
@@ -17,6 +25,7 @@ export interface ChatDraft {
   styleUrl: './chat-input.css',
 })
 export class ChatInputComponent {
+  @Input() esDirecto = false;
   @Output() enviarMensaje = new EventEmitter<ChatDraft>();
   @Output() escribiendo = new EventEmitter<void>();
 

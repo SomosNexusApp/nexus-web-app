@@ -24,8 +24,11 @@ export class MensajesContainerComponent implements OnInit {
   ngOnInit() {
     this.route.queryParams.subscribe((params) => {
       const productoId = params['productoId'];
+      const usuarioId = params['usuarioId'];
       if (productoId) {
         this.iniciarNuevaConversacion(Number(productoId));
+      } else if (usuarioId) {
+        this.iniciarConversacionDirecta(Number(usuarioId));
       }
     });
   }
@@ -52,8 +55,32 @@ export class MensajesContainerComponent implements OnInit {
         const fakeConv = {
           id: -1, // ID negativo indica que es nueva / en memoria
           producto: producto,
+          roomId: `P_${producto.id}`,
           remitente: currentUser,
           receptor: vendedor,
+          texto: '',
+          tipo: 'SISTEMA',
+          fechaEnvio: new Date().toISOString(),
+          leido: true,
+        };
+
+        this.conversacionSeleccionada.set(fakeConv);
+      },
+    });
+  }
+
+  private iniciarConversacionDirecta(usuarioId: number) {
+    this.http.get<any>(`${environment.apiUrl}/usuario/${usuarioId}`).subscribe({
+      next: (otroUsuario) => {
+        const currentUser = this.authStore.user();
+        if (!currentUser || currentUser.id === otroUsuario.id) return;
+
+        const fakeConv = {
+          id: -1,
+          producto: null,
+          roomId: `D_${Math.min(currentUser.id, otroUsuario.id)}_${Math.max(currentUser.id, otroUsuario.id)}`,
+          remitente: currentUser,
+          receptor: otroUsuario,
           texto: '',
           tipo: 'SISTEMA',
           fechaEnvio: new Date().toISOString(),

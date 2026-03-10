@@ -26,46 +26,50 @@ export class ChatService {
   }
 
   getConversacion(
-    productoId: number,
+    roomId: string,
     usuario1Id: number,
     usuario2Id: number,
   ): Observable<ChatMensaje[]> {
     return this.http.get<ChatMensaje[]>(
-      `${this.apiUrl}/chat/conversacion/${productoId}?usuario1Id=${usuario1Id}&usuario2Id=${usuario2Id}`,
+      `${this.apiUrl}/chat/conversacion/${roomId}?usuario1Id=${usuario1Id}&usuario2Id=${usuario2Id}`,
     );
   }
 
-  marcarLeidos(productoId: number, receptorId: number): Observable<any> {
-    return this.http.put(`${this.apiUrl}/chat/leer/${productoId}?receptorId=${receptorId}`, {});
+  marcarLeidos(roomId: string, receptorId: number): Observable<any> {
+    return this.http.put(`${this.apiUrl}/chat/leer/${roomId}?receptorId=${receptorId}`, {});
   }
 
   /**
    * Enviar un mensaje de texto por REST (fallback cuando WebSocket no está conectado).
    */
   enviarTexto(
-    productoId: number,
+    productoId: number | null,
     remitenteId: number,
     receptorId: number,
     texto: string,
+    roomId: string,
   ): Observable<ChatMensaje> {
     return this.http.post<ChatMensaje>(`${this.apiUrl}/chat/texto`, {
       productoId,
       remitenteId,
       receptorId,
       texto,
+      roomId,
     });
   }
 
   subirMedia(
-    productoId: number,
+    productoId: number | null,
     remitenteId: number,
     receptorId: number,
     tipo: string,
     archivo: File | Blob,
     duracion = 0,
+    roomId: string,
   ): Observable<ChatMensaje> {
     const fd = new FormData();
-    fd.append('productoId', productoId.toString());
+    if (productoId) fd.append('productoId', productoId.toString());
+    fd.append('roomId', roomId);
     fd.append('remitenteId', remitenteId.toString());
     fd.append('receptorId', receptorId.toString());
     fd.append('tipo', tipo);

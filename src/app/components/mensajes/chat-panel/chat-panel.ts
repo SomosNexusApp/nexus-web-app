@@ -58,22 +58,27 @@ export class ChatPanelComponent implements OnChanges, AfterViewChecked, OnDestro
       this.otroUsuario.set(this.conversacion.remitente);
     }
 
-    const productoId = this.conversacion.producto?.id;
+    const productoId = this.conversacion.producto?.id || null;
     const otroId = this.otroUsuario()?.id;
+    const roomId =
+      this.conversacion.roomId ||
+      (productoId
+        ? `P_${productoId}`
+        : `D_${Math.min(currUser.id, otroId)}_${Math.max(currUser.id, otroId)}`);
 
-    if (!productoId || !otroId) {
+    if (!roomId || !otroId) {
       this.cargando.set(false);
       return;
     }
 
-    // Suscribirse al topic WebSocket de este producto para recibir mensajes en tiempo real
-    this.wsService.suscribirseAlChat(productoId);
+    // Suscribirse al topic WebSocket de esta sala para recibir mensajes en tiempo real
+    this.wsService.suscribirseAlChat(roomId);
 
     // Cancelar suscripción anterior al observable de mensajes
     this.wsSub?.unsubscribe();
     this.wsSub = this.wsService.mensajes.subscribe((msg: ChatMensaje) => {
       // Solo agregar si es de esta conversación y no es un duplicado
-      if (msg.producto?.id === productoId) {
+      if (msg.roomId === roomId || (msg.producto?.id === productoId && productoId !== null)) {
         const existe = this.mensajes().some((m) => m.id === msg.id);
         if (!existe) {
           // Reemplazar mensaje optimista si existe
@@ -87,10 +92,10 @@ export class ChatPanelComponent implements OnChanges, AfterViewChecked, OnDestro
     });
 
     // Marcar leídos
-    this.chatService.marcarLeidos(productoId, currUser.id).subscribe();
+    this.chatService.marcarLeidos(roomId, currUser.id).subscribe();
 
     // Cargar historial (backend devuelve ASC → más antiguos primero, NO hacer reverse)
-    this.chatService.getConversacion(productoId, currUser.id, otroId).subscribe({
+    this.chatService.getConversacion(roomId, currUser.id, otroId).subscribe({
       next: (msgs) => {
         this.mensajes.set(msgs);
         this.cargando.set(false);
@@ -144,8 +149,13 @@ export class ChatPanelComponent implements OnChanges, AfterViewChecked, OnDestro
     const currUser = this.authStore.user();
     if (!currUser || !this.conversacion) return;
 
-    const productoId = this.conversacion.producto.id;
+    const productoId = this.conversacion.producto?.id || null;
     const otroId = this.otroUsuario()?.id;
+    const roomId =
+      this.conversacion.roomId ||
+      (productoId
+        ? `P_${productoId}`
+        : `D_${Math.min(currUser.id, otroId)}_${Math.max(currUser.id, otroId)}`);
     if (!otroId) return;
 
     if (draft.tipo === 'TEXTO' && draft.texto) {
@@ -159,27 +169,30 @@ export class ChatPanelComponent implements OnChanges, AfterViewChecked, OnDestro
         texto: draft.texto,
         fechaEnvio: new Date().toISOString(),
         leido: false,
+        roomId: roomId,
       };
       this.mensajes.update((m) => [...m, optimisticMsg]);
       this.autoScrollActivado = true;
 
       // Enviar por WebSocket STOMP (si conectado) o por REST como fallback
       if (this.wsService.isConnected) {
-        this.wsService.enviarMensajeChat(productoId, currUser.id, otroId, draft.texto);
+        this.wsService.enviarMensajeChat(productoId, currUser.id, otroId, draft.texto, roomId);
       } else {
         // Fallback: enviar por REST
-        this.chatService.enviarTexto(productoId, currUser.id, otroId, draft.texto).subscribe({
-          next: (savedMsg) => {
-            this.mensajes.update((msgs) =>
-              msgs.map((m) => (m.id === optimisticMsg.id ? savedMsg : m)),
-            );
-          },
-          error: () => {
-            // Revertir optimistic
-            this.mensajes.update((msgs) => msgs.filter((m) => m.id !== optimisticMsg.id));
-            alert('Error al enviar el mensaje.');
-          },
-        });
+        this.chatService
+          .enviarTexto(productoId, currUser.id, otroId, draft.texto, roomId)
+          .subscribe({
+            next: (savedMsg) => {
+              this.mensajes.update((msgs) =>
+                msgs.map((m) => (m.id === optimisticMsg.id ? savedMsg : m)),
+              );
+            },
+            error: () => {
+              // Revertir optimistic
+              this.mensajes.update((msgs) => msgs.filter((m) => m.id !== optimisticMsg.id));
+              alert('Error al enviar el mensaje.');
+            },
+          });
       }
     } else if ((draft.tipo === 'IMAGEN' || draft.tipo === 'AUDIO') && draft.archivo) {
       // Optimistic placeholder
@@ -192,6 +205,7 @@ export class ChatPanelComponent implements OnChanges, AfterViewChecked, OnDestro
         texto: draft.tipo === 'IMAGEN' ? '📷 Enviando imagen...' : '🎤 Enviando audio...',
         fechaEnvio: new Date().toISOString(),
         leido: false,
+        roomId: roomId,
       };
       this.mensajes.update((m) => [...m, placeholderMsg]);
       this.autoScrollActivado = true;
@@ -205,6 +219,7 @@ export class ChatPanelComponent implements OnChanges, AfterViewChecked, OnDestro
           draft.tipo,
           draft.archivo,
           draft.duracionSegundos || 0,
+          roomId,
         )
         .subscribe({
           next: (savedMsg) => {
@@ -223,8 +238,15 @@ export class ChatPanelComponent implements OnChanges, AfterViewChecked, OnDestro
 
   notificarEscribiendo() {
     const currUser = this.authStore.user();
-    if (currUser && this.conversacion) {
-      this.wsService.notificarEscribiendo(this.conversacion.producto.id, currUser.id);
+    if (currUser && this.conversacion && this.otroUsuario()) {
+      const productoId = this.conversacion.producto?.id || null;
+      const otroId = this.otroUsuario().id;
+      const roomId =
+        this.conversacion.roomId ||
+        (productoId
+          ? `P_${productoId}`
+          : `D_${Math.min(currUser.id, otroId)}_${Math.max(currUser.id, otroId)}`);
+      this.wsService.notificarEscribiendo(productoId, currUser.id, roomId);
     }
   }
 

@@ -20,6 +20,7 @@ export interface ChatMensaje {
   leido: boolean;
   precioPropuesto?: number;
   estadoPropuesta?: string;
+  roomId?: string;
 }
 
 export interface Notificacion {
@@ -73,11 +74,11 @@ export class WebSocketService {
   }
 
   /**
-   * Suscribirse al topic de un producto específico para recibir mensajes en tiempo real.
+   * Suscribirse al topic de una sala específica para recibir mensajes en tiempo real.
    * Se llama desde ChatPanelComponent cuando se abre una conversación.
    */
-  suscribirseAlChat(productoId: number): void {
-    const topicKey = `/topic/chat/${productoId}`;
+  suscribirseAlChat(roomId: string): void {
+    const topicKey = `/topic/chat/${roomId}`;
     if (!this.client?.connected || this.subscribedTopics.has(topicKey)) return;
 
     this.subscribedTopics.add(topicKey);
@@ -97,10 +98,11 @@ export class WebSocketService {
    * Destination: /app/chat.enviar (según ChatWebSocketController.java)
    */
   enviarMensajeChat(
-    productoId: number,
+    productoId: number | null,
     remitenteId: number,
     receptorId: number,
     texto: string,
+    roomId: string,
   ): void {
     if (this.client?.connected) {
       this.client.publish({
@@ -111,6 +113,7 @@ export class WebSocketService {
           receptorId,
           texto,
           tipo: 'TEXTO',
+          roomId,
         }),
       });
     }
@@ -143,12 +146,13 @@ export class WebSocketService {
    * Indicador "está escribiendo..."
    * Destination: /app/chat.escribiendo (según ChatWebSocketController.java)
    */
-  notificarEscribiendo(productoId: number, remitenteId: number): void {
+  notificarEscribiendo(productoId: number | null, remitenteId: number, roomId: string): void {
     if (this.client?.connected) {
       this.client.publish({
         destination: '/app/chat.escribiendo',
         body: JSON.stringify({
           productoId,
+          roomId,
           remitenteId,
           escribiendo: true,
         }),

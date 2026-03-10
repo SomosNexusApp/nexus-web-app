@@ -25,10 +25,11 @@ export class PerfilPublicoComponent implements OnInit, OnDestroy {
   perfil = signal<any>(null);
   cargando = signal(true);
   error = signal<string | null>(null);
-  activeTab = signal<'productos' | 'valoraciones' | 'sobre-mi'>('productos');
+  activeTab = signal<'productos' | 'ofertas' | 'valoraciones' | 'sobre-mi'>('productos');
 
   // Datos de tabs
   productos = signal<any[]>([]);
+  ofertas = signal<any[]>([]);
   valoraciones = signal<any[]>([]);
   resumenValoraciones = signal<any>(null);
   cargandoTab = signal(false);
@@ -116,13 +117,15 @@ export class PerfilPublicoComponent implements OnInit, OnDestroy {
     });
   }
 
-  cambiarTab(tab: 'productos' | 'valoraciones' | 'sobre-mi') {
+  cambiarTab(tab: 'productos' | 'ofertas' | 'valoraciones' | 'sobre-mi') {
     this.activeTab.set(tab);
     const p = this.perfil();
     if (!p) return;
 
     if (tab === 'productos' && this.productos().length === 0) {
       this.cargarTabProductos(p.id);
+    } else if (tab === 'ofertas' && this.ofertas().length === 0) {
+      this.cargarTabOfertas(p.id);
     } else if (tab === 'valoraciones' && this.valoraciones().length === 0) {
       this.cargarTabValoraciones(p.id);
     }
@@ -136,6 +139,20 @@ export class PerfilPublicoComponent implements OnInit, OnDestroy {
         next: (res) => {
           const lista = res?.contenido ?? res?.content ?? res ?? [];
           this.productos.set(Array.isArray(lista) ? lista : []);
+          this.cargandoTab.set(false);
+        },
+        error: () => this.cargandoTab.set(false),
+      });
+  }
+
+  cargarTabOfertas(userId: number) {
+    this.cargandoTab.set(true);
+    this.http
+      .get<any>(`${environment.apiUrl}/oferta/filtrar?vendedorId=${userId}&tamano=20`)
+      .subscribe({
+        next: (res) => {
+          const lista = res?.contenido ?? res?.content ?? res ?? [];
+          this.ofertas.set(Array.isArray(lista) ? lista : []);
           this.cargandoTab.set(false);
         },
         error: () => this.cargandoTab.set(false),
@@ -158,9 +175,10 @@ export class PerfilPublicoComponent implements OnInit, OnDestroy {
       this.router.navigate(['/login']);
       return;
     }
-    // Navigate to messages - we don't have a direct product to open,
-    // so we just go to the messages page
-    this.router.navigate(['/mensajes']);
+    const p = this.perfil();
+    if (p) {
+      this.router.navigate(['/mensajes'], { queryParams: { usuarioId: p.id } });
+    }
   }
 
   getStarsArray(rating: number): { full: boolean; half: boolean; empty: boolean }[] {

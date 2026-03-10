@@ -18,14 +18,16 @@
     <i class="fas fa-image"></i>
   </button>
 
-  <button
-    type="button"
-    class="btn-icon text-nexus-primary"
-    title="Enviar Contrato / Oferta"
-    [disabled]="isRecording()"
-  >
-    <i class="fas fa-handshake"></i>
-  </button>
+  @if (!esDirecto) {
+    <button
+      type="button"
+      class="btn-icon text-nexus-primary"
+      title="Enviar Contrato / Oferta"
+      [disabled]="isRecording()"
+    >
+      <i class="fas fa-handshake"></i>
+    </button>
+  }
 
   <!-- Area de Texto o Indicador de Grabación -->
   <div class="input-container">

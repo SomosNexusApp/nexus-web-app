@@ -26,7 +26,6 @@ export class OauthTermsPopupComponent {
   errorMessage = signal<string | null>(null);
 
   termsForm: FormGroup = this.fb.group({
-    tipoCuenta: ['USUARIO', Validators.required], // Valor por defecto
     terminosAceptados: [false, Validators.requiredTrue],
     newsletterSuscrito: [false],
   });
@@ -41,7 +40,6 @@ export class OauthTermsPopupComponent {
     this.errorMessage.set(null);
 
     const payload = {
-      tipoCuenta: this.termsForm.value.tipoCuenta, // Lo enviamos al backend
       terminosAceptados: this.termsForm.value.terminosAceptados,
       newsletterSuscrito: this.termsForm.value.newsletterSuscrito,
       versionTerminosAceptados: '1.0',

@@ -97,6 +97,30 @@
             </span>
           </button>
 
+          <button
+            class="icon-btn relative"
+            aria-label="Mensajes"
+            routerLink="/mensajes"
+            [style.display]="isLoggedIn() ? 'flex' : 'none'"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="22"
+              height="22"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path
+                d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"
+              ></path>
+              <polyline points="22,6 12,13 2,6"></polyline>
+            </svg>
+          </button>
+
           <div class="divider-v"></div>
 
           <button class="btn-publish-premium" (click)="onPublicarClick()">
@@ -142,29 +166,46 @@
                 <!-- ↓ span en vez de p — evita el auto-cierre del parser -->
                 <div class="dropdown-header">
                   <span class="user-name">{{ usuario()?.nombre }} {{ usuario()?.apellidos }}</span>
+                  <span class="user-username text-muted text-sm">@{{ usuario()?.user }}</span>
                   <span class="user-email">{{ usuario()?.email }}</span>
                 </div>
 
-                <a routerLink="/perfil" class="dropdown-item">Mi perfil</a>
-                <a
-                  [routerLink]="['/perfil']"
-                  [queryParams]="{ tab: 'compras' }"
-                  class="dropdown-item"
-                >
-                  Mis compras
+                <a routerLink="/configuracion" class="dropdown-item">
+                  <i class="fas fa-user-cog"></i> Mi cuenta
                 </a>
+                <a routerLink="/perfil" [queryParams]="{ tab: 'productos' }" class="dropdown-item">
+                  <i class="fas fa-box-open"></i> Mis anuncios
+                </a>
+                <a routerLink="/perfil" [queryParams]="{ tab: 'favoritos' }" class="dropdown-item">
+                  <i class="fas fa-heart"></i> Mis favoritos
+                </a>
+                <a routerLink="/mensajes" class="dropdown-item">
+                  <i class="fas fa-envelope"></i> Mis mensajes
+                </a>
+                <a routerLink="/perfil" [queryParams]="{ tab: 'compras' }" class="dropdown-item">
+                  <i class="fas fa-truck"></i> Mis envíos
+                </a>
+
+                <div class="dropdown-divider"></div>
+
                 <a
-                  [routerLink]="['/perfil']"
-                  [queryParams]="{ tab: 'favoritos' }"
+                  routerLink="/configuracion"
+                  fragment="cuenta"
                   class="dropdown-item"
+                  *ngIf="!usuario()?.rol?.includes('ROLE_EMPRESA')"
                 >
-                  Mis favoritos
+                  <i class="fas fa-briefcase"></i> ¿Eres profesional?
+                </a>
+                <a routerLink="/ayuda" class="dropdown-item">
+                  <i class="fas fa-question-circle"></i> Ayuda
                 </a>
 
                 <!-- ↓ div en vez de hr — hr también desincroniza el parser -->
                 <div class="dropdown-divider"></div>
 
-                <button (click)="logout()" class="dropdown-item logout-btn">Cerrar sesión</button>
+                <button (click)="logout()" class="dropdown-item logout-btn">
+                  <i class="fas fa-sign-out-alt"></i> Cerrar sesión
+                </button>
               </div>
             </div>
 

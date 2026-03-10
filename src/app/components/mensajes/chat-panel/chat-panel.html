@@ -11,15 +11,17 @@
       </div>
     </div>
 
-    <div class="header-product">
-      <img [src]="conversacion.producto.coverUrl || 'assets/images/no-image.png'" class="thumb" />
-      <div class="prod-info">
-        <span class="prod-title">{{ conversacion.producto.titulo }}</span>
-        <a [href]="'/productos/' + conversacion.producto.id" target="_blank" class="prod-link">
-          Ver anuncio <i class="fas fa-external-link-alt"></i>
-        </a>
+    @if (conversacion.producto) {
+      <div class="header-product">
+        <img [src]="conversacion.producto.coverUrl || 'assets/images/no-image.png'" class="thumb" />
+        <div class="prod-info">
+          <span class="prod-title">{{ conversacion.producto.titulo }}</span>
+          <a [href]="'/productos/' + conversacion.producto.id" target="_blank" class="prod-link">
+            Ver anuncio <i class="fas fa-external-link-alt"></i>
+          </a>
+        </div>
       </div>
-    </div>
+    }
   </header>
 
   <!-- Lista de Mensajes -->
@@ -121,6 +123,7 @@
   <!-- Input Area (Será el siguiente componente) -->
   <footer class="chat-footer">
     <app-chat-input
+      [esDirecto]="!conversacion.producto"
       (enviarMensaje)="onEnviarMensaje($event)"
       (escribiendo)="notificarEscribiendo()"
     >

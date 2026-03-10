@@ -1,6 +1,6 @@
 import { Component, inject, signal, OnInit, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule, Router } from '@angular/router';
+import { ActivatedRoute, RouterModule, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { AuthStore } from '../../../core/auth/auth-store';
@@ -50,6 +50,7 @@ export class MiCuentaComponent implements OnInit {
   authService = inject(AuthService);
   private http = inject(HttpClient);
   private router = inject(Router);
+  private route = inject(ActivatedRoute);
 
   // Sidebar
   activeSection = signal<SidebarSection>('resumen');
@@ -140,6 +141,12 @@ export class MiCuentaComponent implements OnInit {
 
   ngOnInit() {
     this.cargarKPIs();
+    this.route.queryParams.subscribe((params) => {
+      const tab = params['tab'];
+      if (tab) {
+        this.setSection(tab as SidebarSection);
+      }
+    });
   }
 
   setSection(section: SidebarSection) {

@@ -127,6 +127,13 @@
       </button>
       <button
         class="tab-btn"
+        [class.active]="activeTab() === 'ofertas'"
+        (click)="cambiarTab('ofertas')"
+      >
+        <i class="fas fa-tags"></i> Ofertas
+      </button>
+      <button
+        class="tab-btn"
         [class.active]="activeTab() === 'valoraciones'"
         (click)="cambiarTab('valoraciones')"
       >
@@ -156,6 +163,24 @@
           <div class="products-grid">
             @for (p of productos(); track p.id) {
               <app-producto-card [producto]="p"></app-producto-card>
+            }
+          </div>
+        }
+      }
+
+      <!-- Tab Ofertas -->
+      @if (activeTab() === 'ofertas') {
+        @if (cargandoTab()) {
+          <div class="tab-loading"><div class="spinner-sm"></div></div>
+        } @else if (ofertas().length === 0) {
+          <div class="empty-state">
+            <i class="fas fa-tags"></i>
+            <p>Este usuario no tiene ofertas publicadas.</p>
+          </div>
+        } @else {
+          <div class="products-grid">
+            @for (o of ofertas(); track o.id) {
+              <app-producto-card [producto]="o"></app-producto-card>
             }
           </div>
         }
