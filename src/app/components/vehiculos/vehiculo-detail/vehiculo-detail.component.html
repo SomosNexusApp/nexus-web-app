@@ -4,7 +4,7 @@
     <!-- GALERÍA -->
     <div class="media-section">
       <div class="main-img">
-        <img [src]="imgPrincipal() || '/assets/placeholder-image.webp'">
+        <img [src]="imgPrincipal() || 'https://placehold.co/600x400/0f1115/ffffff?text=Nexus+Product'">
         <div class="status-badge" [ngClass]="vehiculo().estadoVehiculo?.toLowerCase()">{{ vehiculo().estadoVehiculo }}</div>
       </div>
       <div class="thumbnails" *ngIf="vehiculo().galeriaImagenes?.length > 0">

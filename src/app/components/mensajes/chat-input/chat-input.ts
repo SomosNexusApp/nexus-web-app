@@ -6,15 +6,18 @@ import {
   ViewChild,
   ElementRef,
   Input,
+  inject,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { HttpClient } from '@angular/common/http';
 
 export interface ChatDraft {
-  tipo: 'TEXTO' | 'IMAGEN' | 'AUDIO';
+  tipo: 'TEXTO' | 'IMAGEN' | 'AUDIO' | 'OFERTA_PRECIO' | 'GIF';
   texto?: string;
   archivo?: File | Blob;
   duracionSegundos?: number;
+  precioPropuesto?: number;
 }
 
 @Component({
@@ -32,8 +35,20 @@ export class ChatInputComponent {
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
   @ViewChild('textArea') textArea!: ElementRef<HTMLTextAreaElement>;
 
+  private http = inject(HttpClient);
+
   texto = signal('');
   isRecording = signal(false);
+
+  // Gifs
+  mostrarGifs = signal(false);
+  gifSearch = signal('');
+  gifs = signal<any[]>([]);
+  private tenorKey = 'LIVDSRZULELA'; // Tenor API key de pruebas gratuita (Google)
+
+  // Ofertas
+  mostrarOfertaModal = signal(false);
+  precioOferta = signal<number | null>(null);
 
   private mediaRecorder: MediaRecorder | null = null;
   private audioChunks: Blob[] = [];
@@ -69,9 +84,52 @@ export class ChatInputComponent {
 
     this.enviarMensaje.emit({ tipo: 'TEXTO', texto: msg });
     this.texto.set('');
+    this.mostrarGifs.set(false);
     if (this.textArea?.nativeElement) {
       this.textArea.nativeElement.style.height = 'auto';
     }
+  }
+
+  // --- GIFS (Tenor API) ---
+  toggleGifs() {
+    this.mostrarGifs.set(!this.mostrarGifs());
+    if (this.mostrarGifs() && this.gifs().length === 0) {
+      this.buscarGifs();
+    }
+  }
+
+  buscarGifs() {
+    const q = this.gifSearch().trim() || 'trending';
+    const limit = 20;
+    const url = `https://g.tenor.com/v1/search?q=${q}&key=${this.tenorKey}&limit=${limit}&media_filter=minimal`;
+
+    this.http.get<any>(url).subscribe({
+      next: (res) => {
+        this.gifs.set(res.results || []);
+      },
+      error: (err) => console.error('Error fetching GIFs', err),
+    });
+  }
+
+  seleccionarGif(gif: any) {
+    const url = gif.media[0]?.gif?.url || gif.media[0]?.tinygif?.url;
+    if (!url) return;
+    this.enviarMensaje.emit({ tipo: 'GIF', texto: url }); // We pass the URL in 'texto' prop, ChatPanel will map to mediaUrl
+    this.mostrarGifs.set(false);
+  }
+
+  // --- OFERTAS ---
+  toggleOfertaModal() {
+    this.mostrarOfertaModal.set(!this.mostrarOfertaModal());
+    if (this.mostrarOfertaModal()) {
+      this.precioOferta.set(null);
+    }
+  }
+
+  enviarOferta() {
+    if (!this.precioOferta() || this.precioOferta()! <= 0) return;
+    this.enviarMensaje.emit({ tipo: 'OFERTA_PRECIO', precioPropuesto: this.precioOferta()! });
+    this.mostrarOfertaModal.set(false);
   }
 
   abrirSelectorImagen() {

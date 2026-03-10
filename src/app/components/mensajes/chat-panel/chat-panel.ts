@@ -16,13 +16,14 @@ import { ChatMensaje, WebSocketService } from '../../../core/services/websocket.
 import { AuthStore } from '../../../core/auth/auth-store';
 import { TimeAgoPipe } from '../../../shared/pipes/time-ago.pipe';
 import { CurrencyEsPipe } from '../../../shared/pipes/currency-es.pipe';
+import { CoverImagePipe } from '../../../shared/pipes/cover-image.pipe';
 import { ChatInputComponent, ChatDraft } from '../chat-input/chat-input';
 import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-chat-panel',
   standalone: true,
-  imports: [CommonModule, TimeAgoPipe, CurrencyEsPipe, ChatInputComponent],
+  imports: [CommonModule, TimeAgoPipe, CurrencyEsPipe, ChatInputComponent, CoverImagePipe],
   templateUrl: './chat-panel.html',
   styleUrl: './chat-panel.css',
 })
@@ -210,7 +211,7 @@ export class ChatPanelComponent implements OnChanges, AfterViewChecked, OnDestro
       this.mensajes.update((m) => [...m, placeholderMsg]);
       this.autoScrollActivado = true;
 
-      // REST para subir archivos a Cloudinary
+      // REST para subir archivos
       this.chatService
         .subirMedia(
           productoId,
@@ -233,6 +234,37 @@ export class ChatPanelComponent implements OnChanges, AfterViewChecked, OnDestro
             alert('Error al subir el archivo multimedia.');
           },
         });
+    } else if (draft.tipo === 'GIF' || draft.tipo === 'OFERTA_PRECIO') {
+      const optimisticMsg: any = {
+        id: -Date.now(), // ID negativo para identificar como optimista
+        remitente: currUser,
+        receptor: this.otroUsuario(),
+        producto: this.conversacion.producto,
+        tipo: draft.tipo,
+        texto: draft.texto,
+        mediaUrl: draft.tipo === 'GIF' ? draft.texto : null,
+        precioPropuesto: draft.tipo === 'OFERTA_PRECIO' ? draft.precioPropuesto : null,
+        estadoPropuesta: draft.tipo === 'OFERTA_PRECIO' ? 'PENDIENTE' : null,
+        fechaEnvio: new Date().toISOString(),
+        leido: false,
+        roomId: roomId,
+      };
+      this.mensajes.update((m) => [...m, optimisticMsg]);
+      this.autoScrollActivado = true;
+
+      if (this.wsService.isConnected) {
+        if (draft.tipo === 'GIF' && draft.texto) {
+          this.wsService.enviarGif(productoId, currUser.id, otroId, draft.texto, roomId);
+        } else if (draft.tipo === 'OFERTA_PRECIO' && draft.precioPropuesto) {
+          this.wsService.enviarPropuestaPrecio(
+            productoId,
+            currUser.id,
+            otroId,
+            draft.precioPropuesto,
+            roomId,
+          );
+        }
+      }
     }
   }
 

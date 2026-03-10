@@ -27,6 +27,7 @@ type SidebarSection =
   | 'configuracion'
   | 'ayuda';
 
+
 @Component({
   selector: 'app-mi-cuenta',
   standalone: true,
@@ -260,8 +261,9 @@ export class MiCuentaComponent implements OnInit {
   // ── Favoritos ────────────────────────────
   cargarFavoritos() {
     this.cargandoFavs.set(true);
-    // Los endpoints de favoritos dependerán de tu backend
-    this.http.get<any[]>(`${environment.apiUrl}/favorito/mis-favoritos`).subscribe({
+    const u = this.authStore.user();
+    if (!u) return;
+    this.http.get<any[]>(`${environment.apiUrl}/api/favoritos/usuario/${u.id}`, { withCredentials: true }).subscribe({
       next: (data) => {
         this.favProductos.set((data || []).filter((f: any) => f.tipo === 'PRODUCTO'));
         this.favOfertas.set((data || []).filter((f: any) => f.tipo === 'OFERTA'));

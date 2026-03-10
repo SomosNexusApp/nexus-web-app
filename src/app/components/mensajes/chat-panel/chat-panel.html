@@ -3,17 +3,22 @@
   <header class="chat-header">
     <div class="header-left">
       <img
-        [src]="otroUsuario()?.avatarUrl || 'assets/images/default-avatar.png'"
+        [src]="
+          otroUsuario()?.avatar ||
+          'https://ui-avatars.com/api/?name=' +
+            (otroUsuario()?.nombre || 'Nexus') +
+            '&background=random'
+        "
         class="avatar-small"
       />
       <div class="user-info">
-        <span class="user-name">{{ otroUsuario()?.nombre }}</span>
+        <span class="user-name">{{ otroUsuario()?.nombre }} {{ otroUsuario()?.apellidos || '' }}</span>
       </div>
     </div>
 
     @if (conversacion.producto) {
       <div class="header-product">
-        <img [src]="conversacion.producto.coverUrl || 'assets/images/no-image.png'" class="thumb" />
+        <img [src]="conversacion.producto | coverImage" class="thumb" />
         <div class="prod-info">
           <span class="prod-title">{{ conversacion.producto.titulo }}</span>
           <a [href]="'/productos/' + conversacion.producto.id" target="_blank" class="prod-link">
@@ -57,6 +62,13 @@
                 />
               </div>
               <p *ngIf="msg.texto" class="text-content mt-1">{{ msg.texto }}</p>
+            }
+
+            <!-- GIF -->
+            @if (msg.tipo === 'GIF' && msg.mediaUrl) {
+              <div class="image-wrapper">
+                <img [src]="msg.mediaUrl" alt="GIF enviado" class="chat-img" />
+              </div>
             }
 
             <!-- AUDIO -->

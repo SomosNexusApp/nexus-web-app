@@ -150,7 +150,7 @@ export class ConfiguracionComponent implements OnInit {
   }
 
   cargarSesiones() {
-    this.http.get<any[]>(`${this.backendUrl}/auth/sessions`).subscribe({
+    this.http.get<any[]>(`${this.backendUrl}/api/auth/sessions`, { withCredentials: true }).subscribe({
       next: (res) => this.sesionesActivas.set(res),
       error: () => console.log('Error cargando sesiones'),
     });

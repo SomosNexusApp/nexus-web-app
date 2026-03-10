@@ -19,6 +19,7 @@ import { Valoracion } from '../../../../models/valoracion.model';
 import { Usuario } from '../../../../models/usuario.model';
 import { environment } from '../../../../../environments/enviroment';
 import { AuthStore } from '../../../../core/auth/auth-store';
+import { FavoritoService } from '../../../../core/services/favorito.service';
 
 @Component({
   selector: 'app-producto-detail',
@@ -40,8 +41,7 @@ export class ProductoDetailComponent implements OnInit, OnDestroy {
   router = inject(Router);
   private http = inject(HttpClient);
   private authStore = inject(AuthStore);
-  // private guestPopupService = inject(GuestPopupService);
-  // private favoritoService  = inject(FavoritoService);
+  private favoritoService  = inject(FavoritoService);
 
   // ── Estado principal ────────────────────────────────────────────────
   producto = signal<Producto | null>(null);
@@ -84,7 +84,7 @@ export class ProductoDetailComponent implements OnInit, OnDestroy {
     const imgs: string[] = [];
     if (p.imagenPrincipal) imgs.push(p.imagenPrincipal);
     if (p.galeriaImagenes?.length) imgs.push(...p.galeriaImagenes);
-    return imgs.length > 0 ? imgs : ['/assets/placeholder-image.webp'];
+    return imgs.length > 0 ? imgs : ['https://placehold.co/600x400/0f1115/ffffff?text=Nexus+Product'];
   });
 
   imagenActiva = computed(() => this.todasImagenes()[this.imagenActivaIdx()]);
@@ -154,6 +154,7 @@ export class ProductoDetailComponent implements OnInit, OnDestroy {
         this.cargando.set(false);
         this.cargarVendedor(p);
         this.cargarRelacionados(p);
+        this.verificarFavorito(p.id);
       },
       error: () => {
         this.error.set('No se pudo cargar el producto.');
@@ -246,13 +247,22 @@ export class ProductoDetailComponent implements OnInit, OnDestroy {
     this.router.navigate(['/mensajes'], { queryParams: { productoId: this.producto()?.id } });
   }
 
+  verificarFavorito(productoId: number): void {
+    if (!this.isLoggedIn()) return;
+    this.favoritoService.getFavoritosIds().subscribe({
+      next: (ids: number[]) => this.esFavorito.set(ids.includes(productoId))
+    });
+  }
+
   toggleFavorito(): void {
     if (!this.isLoggedIn()) {
       // this.guestPopupService.showPopup('Para guardar favoritos');
       return;
     }
     this.esFavorito.update((v) => !v);
-    // this.favoritoService.toggleFavorito(this.producto()!.id).subscribe();
+    this.favoritoService.toggleFavorito(this.producto()!.id).subscribe({
+      error: () => this.esFavorito.update((v) => !v) // revert on error
+    });
   }
 
   // ── Acciones vendedor ─────────────────────────────────────────────────

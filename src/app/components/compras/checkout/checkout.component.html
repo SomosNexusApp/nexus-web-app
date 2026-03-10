@@ -93,10 +93,10 @@
         <div class="ck-product-card">
           <div class="ck-product-img-wrap">
             <img
-              [src]="producto()!.imagenPrincipal ?? '/assets/placeholder-image.webp'"
+              [src]="producto()!.imagenPrincipal ?? 'https://placehold.co/600x400/0f1115/ffffff?text=Nexus+Product'"
               [alt]="producto()!.titulo"
               class="ck-product-img"
-              (error)="$any($event.target).src = '/assets/placeholder-image.webp'"
+              (error)="$any($event.target).src = 'https://placehold.co/600x400/0f1115/ffffff?text=Nexus+Product'"
             />
             <span class="ck-estado-badge">Disponible</span>
           </div>

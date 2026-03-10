@@ -128,7 +128,7 @@ export class PublishProductoComponent implements OnInit {
       titulo: s2?.titulo || 'Título del anuncio',
       precio: s3?.precio || 0,
       imagenPrincipal:
-        imgs.length > 0 ? imgs[0].url : '/assets/placeholder-image.webp',
+        imgs.length > 0 ? imgs[0].url : 'https://placehold.co/600x400/0f1115/ffffff?text=Nexus+Product',
       ubicacion: s3?.ubicacion || 'Ubicación',
       condicion: s1?.condicion,
       fechaPublicacion: new Date().toISOString(),

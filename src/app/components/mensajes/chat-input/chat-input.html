@@ -23,11 +23,22 @@
       type="button"
       class="btn-icon text-nexus-primary"
       title="Enviar Contrato / Oferta"
+      (click)="toggleOfertaModal()"
       [disabled]="isRecording()"
     >
       <i class="fas fa-handshake"></i>
     </button>
   }
+
+  <button
+    type="button"
+    class="btn-icon"
+    title="Buscar GIFs"
+    (click)="toggleGifs()"
+    [disabled]="isRecording()"
+  >
+    <i class="fas fa-sticky-note text-yellow-500"></i>
+  </button>
 
   <!-- Area de Texto o Indicador de Grabación -->
   <div class="input-container">
@@ -72,3 +83,68 @@
     </button>
   }
 </div>
+
+<!-- GIF Tracker Overlay -->
+@if (mostrarGifs()) {
+  <div class="gifs-overlay">
+    <div class="gifs-header">
+      <input
+        type="text"
+        [ngModel]="gifSearch()"
+        (ngModelChange)="gifSearch.set($event)"
+        (keydown.enter)="buscarGifs()"
+        placeholder="Buscar GIFs en Tenor..."
+        class="form-input gif-search-input"
+        autofocus
+      />
+      <button class="btn-icon" (click)="buscarGifs()"><i class="fas fa-search"></i></button>
+      <button class="btn-icon ml-auto" (click)="toggleGifs()"><i class="fas fa-times"></i></button>
+    </div>
+
+    <div class="gifs-grid">
+      @for (gif of gifs(); track gif.id) {
+        <img
+          [src]="gif.media[0]?.tinygif?.url || gif.media[0]?.gif?.url"
+          class="gif-item"
+          (click)="seleccionarGif(gif)"
+        />
+      } @empty {
+        <p class="text-center w-full text-slate-400 p-4">No se encontraron resultados</p>
+      }
+    </div>
+  </div>
+}
+
+<!-- Offer Modal Overlay -->
+@if (mostrarOfertaModal()) {
+  <div class="oferta-overlay">
+    <div class="oferta-header">
+      <h3 class="font-bold">
+        <i class="fas fa-handshake text-yellow-500 mr-2"></i> Hacer Oferta
+      </h3>
+      <button class="btn-icon ml-auto" (click)="toggleOfertaModal()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    <div class="oferta-body p-4">
+      <label class="block text-sm text-slate-400 mb-2">Ingresa el precio propuesto (€)</label>
+      <input
+        type="number"
+        [ngModel]="precioOferta()"
+        (ngModelChange)="precioOferta.set($event)"
+        placeholder="Ej: 25"
+        class="form-input w-full text-lg mb-4"
+        min="1"
+      />
+
+      <button
+        class="btn-nexus w-full"
+        [disabled]="!precioOferta() || precioOferta()! <= 0"
+        (click)="enviarOferta()"
+      >
+        Enviar Oferta
+      </button>
+    </div>
+  </div>
+}

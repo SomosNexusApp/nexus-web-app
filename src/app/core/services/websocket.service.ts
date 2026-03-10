@@ -8,8 +8,8 @@ import { AuthStore } from '../auth/auth-store';
 
 export interface ChatMensaje {
   id: number;
-  remitente: { id: number; nombre: string; avatarUrl?: string };
-  receptor: { id: number; nombre: string; avatarUrl?: string };
+  remitente: { id: number; nombre: string; avatar?: string };
+  receptor: { id: number; nombre: string; avatar?: string };
   producto: { id: number; titulo: string; imagenPrincipal?: string; coverImage?: string };
   texto?: string;
   mediaUrl?: string;
@@ -123,10 +123,11 @@ export class WebSocketService {
    * Enviar propuesta de precio via STOMP.
    */
   enviarPropuestaPrecio(
-    productoId: number,
+    productoId: number | null,
     remitenteId: number,
     receptorId: number,
     precio: number,
+    roomId: string,
   ): void {
     if (this.client?.connected) {
       this.client.publish({
@@ -137,6 +138,32 @@ export class WebSocketService {
           receptorId,
           tipo: 'OFERTA_PRECIO',
           precioPropuesto: precio,
+          roomId,
+        }),
+      });
+    }
+  }
+
+  /**
+   * Enviar GIF via STOMP.
+   */
+  enviarGif(
+    productoId: number | null,
+    remitenteId: number,
+    receptorId: number,
+    mediaUrl: string,
+    roomId: string,
+  ): void {
+    if (this.client?.connected) {
+      this.client.publish({
+        destination: '/app/chat.enviar',
+        body: JSON.stringify({
+          productoId,
+          remitenteId,
+          receptorId,
+          tipo: 'GIF',
+          mediaUrl,
+          roomId,
         }),
       });
     }

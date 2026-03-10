@@ -9,7 +9,12 @@
         <!-- Avatar del otro usuario -->
         <div class="avatar-container">
           <img
-            [src]="getOtroUsuario(msg).avatarUrl || 'assets/images/default-avatar.png'"
+            [src]="
+              getOtroUsuario(msg)?.avatar ||
+              'https://ui-avatars.com/api/?name=' +
+                (getOtroUsuario(msg)?.nombre || 'U') +
+                '&background=random'
+            "
             class="avatar-img"
             alt="Avatar"
           />
@@ -24,9 +29,11 @@
 
           <div class="bottom-row">
             <div class="msg-preview">
-              <span class="product-title text-nexus-primary font-medium text-xs block mb-1">
-                {{ msg.producto.titulo | truncate: 25 }}
-              </span>
+              @if (msg.producto) {
+                <span class="product-title text-nexus-primary font-medium text-xs block mb-1">
+                  {{ msg.producto?.titulo | truncate: 25 }}
+                </span>
+              }
               <!-- Tipo de mensaje o texto -->
               <span
                 class="texto-truncado"
@@ -38,6 +45,8 @@
                   📷 Foto
                 } @else if (msg.tipo === 'AUDIO') {
                   🎤 Audio
+                } @else if (msg.tipo === 'GIF') {
+                  🎦 GIF
                 } @else if (msg.tipo === 'OFERTA_PRECIO') {
                   💰 Oferta
                 } @else {
@@ -47,7 +56,9 @@
             </div>
 
             <!-- Miniatura del producto -->
-            <img [src]="msg.producto | coverImage" class="product-thumb" alt="Product" />
+            @if (msg.producto) {
+              <img [src]="msg.producto | coverImage" class="product-thumb" alt="Product" />
+            }
 
             <!-- Badge No Leído -->
             @if (!msg.leido && msg.receptor.id === authStore.user()?.id) {
