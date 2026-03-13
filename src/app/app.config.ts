@@ -3,6 +3,8 @@ import { provideRouter, withComponentInputBinding } from '@angular/router';
 import { provideHttpClient, HTTP_INTERCEPTORS, withInterceptorsFromDi } from '@angular/common/http';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { catchError, of } from 'rxjs';
+import { registerLocaleData } from '@angular/common'; // <-- Añadir
+import localeEs from '@angular/common/locales/es'; // <-- Añadir
 
 import { routes } from './app.routes';
 
@@ -11,14 +13,13 @@ import { JwtService } from './core/auth/jwt-service';
 import { JwtInterceptor } from './core/interceptors/jwt-interceptor';
 import { ErrorInterceptor } from './core/interceptors/error-interceptor';
 
+registerLocaleData(localeEs, 'es-ES');
+
 // Factory function para el inicializador
 export function initializeUserData(authService: AuthService, jwtService: JwtService) {
   return () => {
-    // Solo hacemos la petición a /me si ya existe un token localmente
     if (jwtService.isValid()) {
-      return authService.loadCurrentUser().pipe(
-        catchError(() => of(null)), // Si falla (ej. token expirado), continúa el arranque sin error
-      );
+      return authService.loadCurrentUser().pipe(catchError(() => of(null)));
     }
     return of(null);
   };

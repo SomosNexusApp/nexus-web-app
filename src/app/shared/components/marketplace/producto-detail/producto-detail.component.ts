@@ -41,7 +41,7 @@ export class ProductoDetailComponent implements OnInit, OnDestroy {
   router = inject(Router);
   private http = inject(HttpClient);
   private authStore = inject(AuthStore);
-  private favoritoService  = inject(FavoritoService);
+  private favoritoService = inject(FavoritoService);
 
   // ── Estado principal ────────────────────────────────────────────────
   producto = signal<Producto | null>(null);
@@ -84,7 +84,9 @@ export class ProductoDetailComponent implements OnInit, OnDestroy {
     const imgs: string[] = [];
     if (p.imagenPrincipal) imgs.push(p.imagenPrincipal);
     if (p.galeriaImagenes?.length) imgs.push(...p.galeriaImagenes);
-    return imgs.length > 0 ? imgs : ['https://placehold.co/600x400/0f1115/ffffff?text=Nexus+Product'];
+    return imgs.length > 0
+      ? imgs
+      : ['https://placehold.co/600x400/0f1115/ffffff?text=Nexus+Product'];
   });
 
   imagenActiva = computed(() => this.todasImagenes()[this.imagenActivaIdx()]);
@@ -250,19 +252,33 @@ export class ProductoDetailComponent implements OnInit, OnDestroy {
   verificarFavorito(productoId: number): void {
     if (!this.isLoggedIn()) return;
     this.favoritoService.getFavoritosIds().subscribe({
-      next: (ids: number[]) => this.esFavorito.set(ids.includes(productoId))
+      next: (ids: number[]) => this.esFavorito.set(ids.includes(productoId)),
     });
   }
 
   toggleFavorito(): void {
     if (!this.isLoggedIn()) {
-      // this.guestPopupService.showPopup('Para guardar favoritos');
+      // Si tuvieras un modal de login para invitados, lo llamas aquí
       return;
     }
-    this.esFavorito.update((v) => !v);
-    this.favoritoService.toggleFavorito(this.producto()!.id).subscribe({
-      error: () => this.esFavorito.update((v) => !v) // revert on error
-    });
+
+    const productoId = this.producto()!.id;
+    const esFavActual = this.esFavorito(); // Guardamos el estado previo
+
+    // Optimistic UI: Actualizamos visualmente al instante para que se sienta rápido
+    this.esFavorito.set(!esFavActual);
+
+    if (!esFavActual) {
+      // Si NO era favorito, lo agregamos
+      this.favoritoService.addFavorito(productoId).subscribe({
+        error: () => this.esFavorito.set(esFavActual), // Revertimos si falla el servidor
+      });
+    } else {
+      // Si YA era favorito, lo eliminamos
+      this.favoritoService.removeFavorito(productoId).subscribe({
+        error: () => this.esFavorito.set(esFavActual), // Revertimos si falla el servidor
+      });
+    }
   }
 
   // ── Acciones vendedor ─────────────────────────────────────────────────

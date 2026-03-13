@@ -265,8 +265,8 @@ export class MiCuentaComponent implements OnInit {
     if (!u) return;
     this.http.get<any[]>(`${environment.apiUrl}/api/favoritos/usuario/${u.id}`, { withCredentials: true }).subscribe({
       next: (data) => {
-        this.favProductos.set((data || []).filter((f: any) => f.tipo === 'PRODUCTO'));
-        this.favOfertas.set((data || []).filter((f: any) => f.tipo === 'OFERTA'));
+        this.favProductos.set((data || []).filter((f: any) => f.producto));
+        this.favOfertas.set((data || []).filter((f: any) => f.oferta));
         this.cargandoFavs.set(false);
       },
       error: () => {

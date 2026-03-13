@@ -41,7 +41,12 @@ export class VehiculoDetailComponent implements OnInit {
   ngOnInit() {
     this.route.params.subscribe((params) => {
       const id = params['id'];
-      if (id) this.cargarVehiculo(id);
+      if (id) {
+        this.cargando.set(true);
+        this.vehiculo.set(null);
+
+        this.cargarVehiculo(id);
+      }
     });
   }
 
