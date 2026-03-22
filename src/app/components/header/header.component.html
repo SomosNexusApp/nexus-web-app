@@ -147,16 +147,13 @@
               <button class="user-avatar-btn" (click)="toggleUserDropdown($event)">
                 <img
                   class="avatar-img"
-                  [src]="usuario()?.avatar"
+                  [src]="
+                    usuario()?.avatar && !usuario()?.avatar?.includes('default')
+                      ? usuario()?.avatar
+                      : 'https://ui-avatars.com/api/?name=' + (usuario()?.nombre || usuario()?.user || 'Nexus') + '&background=random&color=fff'
+                  "
                   alt="Perfil"
-                  [style.display]="usuario()?.avatar ? 'block' : 'none'"
                 />
-                <div
-                  class="avatar-placeholder"
-                  [style.display]="usuario()?.avatar ? 'none' : 'flex'"
-                >
-                  {{ getIniciales(usuario()?.nombre, usuario()?.apellidos) }}
-                </div>
               </button>
 
               <div

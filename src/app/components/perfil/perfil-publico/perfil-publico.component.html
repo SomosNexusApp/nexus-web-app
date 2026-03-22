@@ -25,11 +25,15 @@
       <div class="header-content">
         <!-- Avatar -->
         <div class="avatar-area">
-          @if (perfil().avatar) {
-            <img [src]="perfil().avatar" alt="Avatar" class="avatar-xl" />
-          } @else {
-            <div class="avatar-xl avatar-iniciales">{{ iniciales() }}</div>
-          }
+          <img
+            [src]="
+              perfil().avatar && !perfil().avatar?.includes('default')
+                ? perfil().avatar
+                : 'https://ui-avatars.com/api/?name=' + (perfil().nombre || perfil().username || 'Nexus') + '&background=random&color=fff'
+            "
+            alt="Avatar"
+            class="avatar-xl"
+          />
           @if (perfil().esVerificado) {
             <span class="verified-badge" title="Verificado">
               <i class="fas fa-check-circle"></i>
