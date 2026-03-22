@@ -11,6 +11,7 @@ import {
   OnDestroy,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { ChatService } from '../../../core/services/chat.service';
 import { ChatMensaje, WebSocketService } from '../../../core/services/websocket.service';
 import { AuthStore } from '../../../core/auth/auth-store';
@@ -27,6 +28,7 @@ import { Subscription } from 'rxjs';
   standalone: true,
   imports: [
     CommonModule, 
+    FormsModule,
     TimeAgoPipe, 
     CurrencyEsPipe, 
     ChatInputComponent, 
@@ -53,6 +55,8 @@ export class ChatPanelComponent implements OnChanges, AfterViewChecked, OnDestro
   usuarioBloqueado = signal(false);
   showMenu = signal(false);
   showConfirmBloqueo = signal(false);
+  mostrarOfertaModal = signal(false);
+  precioOferta = signal<number | null>(null);
   private autoScrollActivado = true;
   private wsSub: Subscription | null = null;
 
@@ -224,6 +228,16 @@ export class ChatPanelComponent implements OnChanges, AfterViewChecked, OnDestro
 
   actualizarMensajeLista(updatedMsg: ChatMensaje) {
     this.mensajes.update((msgs) => msgs.map((m) => (m.id === updatedMsg.id ? updatedMsg : m)));
+  }
+
+  enviarOferta() {
+    if (!this.precioOferta() || this.precioOferta()! <= 0) return;
+    this.onEnviarMensaje({ 
+      tipo: 'OFERTA_PRECIO', 
+      precioPropuesto: this.precioOferta()! 
+    } as ChatDraft);
+    this.mostrarOfertaModal.set(false);
+    this.precioOferta.set(null);
   }
 
   onEnviarMensaje(draft: ChatDraft) {

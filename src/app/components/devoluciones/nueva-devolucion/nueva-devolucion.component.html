@@ -77,6 +77,27 @@
         </small>
       </div>
 
+      <div class="form-group mt-4">
+        <label>Dirección de recogida del producto</label>
+        <input
+          type="text"
+          formControlName="direccionEnvio"
+          class="form-control"
+          placeholder="Calle, número, piso, código postal, ciudad..."
+        />
+        <small class="text-muted">
+          Dirección donde el mensajero recogerá el paquete.
+        </small>
+      </div>
+
+      <div class="alert alert-warning mt-4">
+        <i class="fas fa-exclamation-triangle"></i>
+        <span>
+          <strong>Importante:</strong> Los gastos de envío de la devolución serán asumidos por el
+          comprador. Nexus solo facilita la gestión de la etiqueta y la dirección de destino.
+        </span>
+      </div>
+
       <div class="actions end mt-4">
         <button class="btn btn-primary" (click)="avanzar()" [disabled]="devForm.invalid">
           Continuar
@@ -164,7 +185,7 @@
         <ul>
           <li><strong>Producto:</strong> {{ compra()?.producto?.titulo }}</li>
           <li><strong>Motivo:</strong> {{ devForm.get('motivo')?.value }}</li>
-          <li><strong>Descripción enviada:</strong> {{ devForm.get('descripcion')?.value }}</li>
+          <li><strong>Dirección de recogida:</strong> {{ devForm.get('direccionEnvio')?.value }}</li>
           <li><strong>Evidencias aportadas:</strong> {{ fotosFiles.length }} fotografías</li>
         </ul>
       </div>

@@ -109,6 +109,7 @@ export class ProductoDetailComponent implements OnInit, OnDestroy {
     return (
       p?.estado === 'DISPONIBLE' &&
       p?.tipoOferta !== 'INTERCAMBIO' &&
+      p?.tipoOferta !== 'DONACION' &&
       this.isLoggedIn() &&
       !this.esVendedorPropietario() &&
       p.admiteEnvio === true
@@ -240,10 +241,11 @@ export class ProductoDetailComponent implements OnInit, OnDestroy {
     // Verificar estado fresco antes de navegar
     this.http.get<Producto>(`${environment.apiUrl}/producto/${id}`).subscribe({
       next: (p) => {
-        if (p.estado === 'DISPONIBLE') {
+        if (p.estado === 'DISPONIBLE' && p.tipoOferta !== 'INTERCAMBIO') {
           this.router.navigate(['/checkout', id]);
         } else {
           this.producto.set(p);
+          if (p.tipoOferta === 'INTERCAMBIO') alert('Los productos de intercambio deben negociarse por chat.');
         }
       },
     });

@@ -54,23 +54,29 @@
               <!-- Acciones Comprador -->
               @if (activeTab() === 'COMPRAS') {
                 @if (item.estado === 'ENTREGADO') {
-                  <button class="mc-btn mc-btn-primary">Confirmar recepción</button>
-                  <button class="mc-btn mc-btn-outline">Abrir disputa</button>
+                  <button class="mc-btn mc-btn-primary" (click)="confirmarRecepcion(item)">
+                    Confirmar recepción
+                  </button>
+                  <button class="mc-btn mc-btn-outline" [routerLink]="['/devoluciones/nueva', item.id]">
+                    Abrir disputa / Devolución
+                  </button>
                 }
                 @if (item.estado === 'COMPLETADA') {
-                  <button class="mc-btn mc-btn-primary">Valorar vendedor</button>
+                  <button class="mc-btn mc-btn-primary" (click)="abrirValoracion(item)">
+                    Valorar vendedor
+                  </button>
                 }
                 @if (item.estado === 'EN_DISPUTA') {
-                  <a [routerLink]="['/disputas', item.id]" class="mc-btn mc-btn-outline"
-                    >Ver disputa</a
-                  >
+                  <a [routerLink]="['/devoluciones', item.id]" class="mc-btn mc-btn-outline">Ver disputa</a>
                 }
               }
 
               <!-- Acciones Vendedor -->
               @if (activeTab() === 'VENTAS') {
                 @if (item.estado === 'PAGADO') {
-                  <button class="mc-btn mc-btn-primary">Marcar como enviado</button>
+                  <button class="mc-btn mc-btn-primary" [routerLink]="['/compras', item.id, 'enviar']">
+                    Marcar como enviado
+                  </button>
                 }
                 @if (
                   item.estado === 'ENVIADO' ||
@@ -80,9 +86,7 @@
                   <button class="mc-btn mc-btn-outline">Ver seguimiento</button>
                 }
                 @if (item.estado === 'EN_DISPUTA') {
-                  <a [routerLink]="['/disputas', item.id]" class="mc-btn mc-btn-primary"
-                    >Responder disputa</a
-                  >
+                  <a [routerLink]="['/devoluciones', item.id]" class="mc-btn mc-btn-primary">Responder disputa</a>
                 }
               }
             </div>
@@ -92,3 +96,5 @@
     }
   }
 </div>
+
+<app-valoracion-modal (valoracionRegistrada)="cargarDatos()"></app-valoracion-modal>

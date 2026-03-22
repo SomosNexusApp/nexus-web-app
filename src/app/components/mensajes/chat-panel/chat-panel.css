@@ -561,3 +561,229 @@
   font-size: 0.9rem;
   backdrop-filter: blur(10px);
 }
+
+/* --- NEGOTIATION MODAL --- */
+.oferta-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  animation: backdropFade 0.3s ease;
+}
+
+@keyframes backdropFade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.oferta-modal-card {
+  background: rgba(15, 15, 20, 0.98);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 32px;
+  width: 100%;
+  max-width: 420px;
+  box-shadow: 0 40px 100px rgba(0, 0, 0, 0.9), 0 0 0 1px rgba(255, 255, 255, 0.1);
+  overflow: hidden;
+  animation: modalSlideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+}
+
+@keyframes modalSlideUp {
+  from { opacity: 0; transform: translateY(40px) scale(0.9); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.oferta-modal-header {
+  padding: 32px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  position: relative;
+}
+
+.modal-icon {
+  width: 50px;
+  height: 50px;
+  background: rgba(168, 180, 255, 0.1);
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #a8b4ff;
+  font-size: 1.5rem;
+}
+
+.modal-title-group h3 {
+  margin: 0;
+  color: #fff;
+  font-size: 1.25rem;
+  font-weight: 800;
+  font-family: 'Space Grotesk', sans-serif;
+}
+
+.modal-title-group p {
+  margin: 4px 0 0;
+  color: #94a3b8;
+  font-size: 0.85rem;
+}
+
+.btn-close-modal {
+  position: absolute;
+  top: 24px;
+  right: 24px;
+  background: rgba(255, 255, 255, 0.05);
+  border: none;
+  color: #94a3b8;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-close-modal:hover {
+  background: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+}
+
+.oferta-modal-body {
+  padding: 40px 32px;
+}
+
+.reference-price {
+  margin-bottom: 24px;
+  text-align: center;
+  font-size: 0.9rem;
+  color: #94a3b8;
+}
+
+.reference-price span {
+  color: #fff;
+  font-weight: 700;
+}
+
+.price-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 32px;
+}
+
+.currency-symbol {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #a8b4ff;
+  margin-right: 12px;
+}
+
+.price-input {
+  background: transparent;
+  border: none;
+  color: #fff;
+  font-size: 3.5rem;
+  font-weight: 800;
+  width: 100%;
+  max-width: 250px;
+  text-align: left;
+  font-family: 'Outfit', sans-serif;
+  outline: none;
+}
+
+/* Hide Spinners (Arrows) */
+.price-input::-webkit-outer-spin-button,
+.price-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.price-input {
+  -moz-appearance: textfield;
+  appearance: none;
+}
+
+.price-input::placeholder {
+  color: rgba(255, 255, 255, 0.1);
+}
+
+.offer-tips {
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 16px;
+  padding: 16px;
+  margin-bottom: 32px;
+}
+
+.tip {
+  display: flex;
+  gap: 12px;
+  color: #94a3b8;
+  font-size: 0.85rem;
+  line-height: 1.4;
+}
+
+.tip i {
+  color: #6366f1;
+  margin-top: 2px;
+}
+
+.btn-nexus-submit {
+  width: 100%;
+  background: linear-gradient(135deg, #a8b4ff, #8b5cf6);
+  color: #fff;
+  border: none;
+  padding: 20px;
+  border-radius: 20px;
+  font-size: 1rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  box-shadow: 0 10px 30px rgba(139, 92, 246, 0.3);
+}
+
+.btn-nexus-submit:hover:not(:disabled) {
+  transform: translateY(-4px);
+  box-shadow: 0 15px 35px rgba(139, 92, 246, 0.5);
+  filter: brightness(1.1);
+}
+
+.btn-nexus-submit:disabled {
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(255, 255, 255, 0.2);
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
+}
+
+@media (max-width: 480px) {
+  .oferta-modal-backdrop {
+    align-items: flex-end;
+    padding: 0;
+  }
+
+  .oferta-modal-card {
+    border-radius: 32px 32px 0 0;
+    max-width: 100%;
+    animation: modalSlideUpMobile 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  @keyframes modalSlideUpMobile {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
+  }
+
+  .oferta-modal-header { padding: 24px; }
+  .oferta-modal-body { padding: 32px 24px 48px; }
+  .price-input { font-size: 3rem; }
+  .currency-symbol { font-size: 1.5rem; }
+}

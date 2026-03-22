@@ -244,64 +244,19 @@
           <!-- Comprador logueado, puede comprar (admiteEnvio === true) -->
           @if (puedeComprar()) {
             <button class="btn btn-primary" (click)="comprarAhora()">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-              >
-                <circle cx="9" cy="21" r="1" />
-                <circle cx="20" cy="21" r="1" />
-                <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
-              </svg>
+              <i class="fas fa-shopping-cart"></i>
               Comprar ahora
             </button>
             <button class="btn btn-secondary" (click)="abrirModalOferta()">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-              >
-                <line x1="12" y1="5" x2="12" y2="19" />
-                <line x1="5" y1="12" x2="19" y2="12" />
-              </svg>
+              <i class="fas fa-tags"></i>
               Hacer oferta
             </button>
             <button class="btn btn-chat" (click)="irAlChat()">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-              >
-                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-              </svg>
+              <i class="fas fa-comments"></i>
               Chat con el vendedor
             </button>
             <button class="btn btn-fav" [class.active]="esFavorito()" (click)="toggleFavorito()">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                [attr.fill]="esFavorito() ? 'currentColor' : 'none'"
-                stroke="currentColor"
-                stroke-width="2"
-              >
-                <path
-                  d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"
-                />
-              </svg>
+              <i class="fas fa-heart"></i>
               {{ esFavorito() ? 'Guardado' : 'Guardar' }}
             </button>
           }
@@ -309,87 +264,33 @@
           <!-- Solo recogida en persona (admiteEnvio === false) -->
           @if (soloRecogidaPersonal() && isLoggedIn() && !esVendedorPropietario()) {
             <div class="estado-banner estado-recogida">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="15"
-                height="15"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-              >
-                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-                <circle cx="9" cy="7" r="4" />
-                <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
-                <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-              </svg>
+              <i class="fas fa-handshake"></i>
               Solo recogida en persona — acuerda la entrega por el chat
             </div>
             <button class="btn btn-chat" (click)="irAlChat()">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-              >
-                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-              </svg>
+              <i class="fas fa-comments"></i>
               Contactar al vendedor
             </button>
             <button class="btn btn-fav" [class.active]="esFavorito()" (click)="toggleFavorito()">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                [attr.fill]="esFavorito() ? 'currentColor' : 'none'"
-                stroke="currentColor"
-                stroke-width="2"
-              >
-                <path
-                  d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"
-                />
-              </svg>
+              <i class="fas fa-heart"></i>
               {{ esFavorito() ? 'Guardado' : 'Guardar' }}
             </button>
           }
 
           <!-- Guest -->
           @if (!isLoggedIn()) {
-            <button class="btn btn-primary" (click)="comprarAhora()">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-              >
-                <circle cx="9" cy="21" r="1" />
-                <circle cx="20" cy="21" r="1" />
-                <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
-              </svg>
-              Comprar ahora
+            @if (producto()!.tipoOferta !== 'INTERCAMBIO' && producto()!.tipoOferta !== 'DONACION') {
+              <button class="btn btn-primary" (click)="comprarAhora()">
+                <i class="fas fa-shopping-cart"></i>
+                Comprar ahora
+              </button>
+            }
+            <button class="btn btn-chat" (click)="irAlChat()">
+              <i class="fas fa-comments"></i>
+              Chat con el vendedor
             </button>
-            <button class="btn btn-chat" (click)="irAlChat()">Chat con el vendedor</button>
             <button class="btn btn-fav" (click)="toggleFavorito()">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-              >
-                <path
-                  d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"
-                />
-              </svg>
+              <i class="fas fa-heart"></i>
               Guardar
             </button>
           }
@@ -462,40 +363,47 @@
       <div class="detail-specs">
         @if (producto()!.marca) {
           <div class="spec-item">
-            <span class="spec-label">Marca</span
-            ><span class="spec-value">{{ producto()!.marca }}</span>
+            <i class="fas fa-car"></i>
+            <span class="spec-label">Marca</span>
+            <span class="spec-value">{{ producto()!.marca }}</span>
           </div>
         }
         @if (producto()!.modelo) {
           <div class="spec-item">
-            <span class="spec-label">Modelo</span
-            ><span class="spec-value">{{ producto()!.modelo }}</span>
+            <i class="fas fa-fingerprint"></i>
+            <span class="spec-label">Modelo</span>
+            <span class="spec-value">{{ producto()!.modelo }}</span>
           </div>
         }
         @if (producto()!.condicion) {
           <div class="spec-item">
-            <span class="spec-label">Condición</span
-            ><span class="spec-value">{{ producto()!.condicion!.replace('_', ' ') }}</span>
+            <i class="fas fa-info-circle"></i>
+            <span class="spec-label">Condición</span>
+            <span class="spec-value">{{ producto()!.condicion!.replace('_', ' ') }}</span>
           </div>
         }
         @if (producto()!.talla) {
           <div class="spec-item">
-            <span class="spec-label">Talla</span
-            ><span class="spec-value">{{ producto()!.talla }}</span>
+            <i class="fas fa-ruler-combined"></i>
+            <span class="spec-label">Talla</span>
+            <span class="spec-value">{{ producto()!.talla }}</span>
           </div>
         }
         @if (producto()!.color) {
           <div class="spec-item">
-            <span class="spec-label">Color</span
-            ><span class="spec-value">{{ producto()!.color }}</span>
+            <i class="fas fa-palette"></i>
+            <span class="spec-label">Color</span>
+            <span class="spec-value">{{ producto()!.color }}</span>
           </div>
         }
         <div class="spec-item">
+          <i class="fas fa-truck"></i>
           <span class="spec-label">Envío</span>
           <span class="spec-value">{{ producto()!.admiteEnvio ? 'Sí' : 'No' }}</span>
         </div>
         @if (producto()!.admiteEnvio && producto()!.precioEnvio) {
           <div class="spec-item">
+            <i class="fas fa-coins"></i>
             <span class="spec-label">Precio envío</span>
             <span class="spec-value">{{ producto()!.precioEnvio | currencyEs }}</span>
           </div>

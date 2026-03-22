@@ -1,4 +1,4 @@
-import { Component, Input, ChangeDetectionStrategy, inject, signal } from '@angular/core';
+import { Component, Input, ChangeDetectionStrategy, inject, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { CurrencyEsPipe } from '../../../pipes/currency-es.pipe';
@@ -6,6 +6,8 @@ import { TimeAgoPipe } from '../../../pipes/time-ago.pipe';
 import { SkeletonCardComponent } from '../../skeleton-card/skeleton-card.component';
 import { CoverImagePipe } from '../../../pipes/cover-image.pipe';
 import { MarketplaceItem } from '../../../../models/marketplace-item.model';
+import { AuthStore } from '../../../../core/auth/auth-store';
+import { FavoritoService } from '../../../../core/services/favorito.service';
 
 @Component({
   selector: 'app-producto-card',
@@ -22,19 +24,30 @@ import { MarketplaceItem } from '../../../../models/marketplace-item.model';
   styleUrls: ['./producto-card.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ProductoCardComponent {
+export class ProductoCardComponent implements OnInit {
   @Input() producto!: MarketplaceItem;
   @Input() isSkeleton = false;
   @Input() showFavorito = true;
 
   private router = inject(Router);
+  private authStore = inject(AuthStore);
+  private favService = inject(FavoritoService);
 
   esFavorito = signal(false);
   animandoCorazon = signal(false);
 
-  // Simula estado auth
+  ngOnInit(): void {
+    if (this.authStore.isLoggedIn()) {
+      this.favService.getFavoritosIds().subscribe(ids => {
+        if (this.producto?.id) {
+          this.esFavorito.set(ids.includes(this.producto.id));
+        }
+      });
+    }
+  }
+
   get isLoggedIn(): boolean {
-    return false;
+    return this.authStore.isLoggedIn();
   }
 
   get formatCondicion(): string {
@@ -83,8 +96,25 @@ export class ProductoCardComponent {
       return;
     }
 
+    const id = this.producto.id;
+    if (!id) return;
+
     this.animandoCorazon.set(true);
-    this.esFavorito.update((v) => !v);
-    setTimeout(() => this.animandoCorazon.set(false), 400);
+    const becomingFav = !this.esFavorito();
+    
+    // Update local state early for responsiveness
+    this.esFavorito.set(becomingFav);
+
+    const req = becomingFav ? this.favService.addFavorito(id) : this.favService.removeFavorito(id);
+
+    req.subscribe({
+      error: () => {
+        // Rollback state on error
+        this.esFavorito.set(!becomingFav);
+      },
+      complete: () => {
+        setTimeout(() => this.animandoCorazon.set(false), 400);
+      }
+    });
   }
 }

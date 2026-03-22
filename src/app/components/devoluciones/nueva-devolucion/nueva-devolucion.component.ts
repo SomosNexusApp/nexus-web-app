@@ -48,6 +48,7 @@ export class NuevaDevolucionComponent implements OnInit {
     this.devForm = this.fb.group({
       motivo: ['', Validators.required],
       descripcion: ['', [Validators.required, Validators.minLength(50)]],
+      direccionEnvio: ['', Validators.required],
     });
   }
 
@@ -132,6 +133,7 @@ export class NuevaDevolucionComponent implements OnInit {
     fd.append('compraId', this.compraId!);
     fd.append('motivo', this.devForm.get('motivo')?.value);
     fd.append('descripcion', this.devForm.get('descripcion')?.value);
+    fd.append('direccionEnvio', this.devForm.get('direccionEnvio')?.value);
 
     this.fotosFiles.forEach((f) => fd.append('fotos', f));
 

@@ -31,6 +31,7 @@ export class ChatInputComponent {
   @Input() esDirecto = false;
   @Output() enviarMensaje = new EventEmitter<ChatDraft>();
   @Output() escribiendo = new EventEmitter<void>();
+  @Output() abrirNegociacion = new EventEmitter<void>();
 
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
   @ViewChild('textArea') textArea!: ElementRef<HTMLTextAreaElement>;
@@ -45,10 +46,6 @@ export class ChatInputComponent {
   gifSearch = signal('');
   gifs = signal<any[]>([]);
   private tenorKey = 'LIVDSRZULELA'; // Tenor API key de pruebas gratuita (Google)
-
-  // Ofertas
-  mostrarOfertaModal = signal(false);
-  precioOferta = signal<number | null>(null);
 
   private mediaRecorder: MediaRecorder | null = null;
   private audioChunks: Blob[] = [];
@@ -120,16 +117,7 @@ export class ChatInputComponent {
 
   // --- OFERTAS ---
   toggleOfertaModal() {
-    this.mostrarOfertaModal.set(!this.mostrarOfertaModal());
-    if (this.mostrarOfertaModal()) {
-      this.precioOferta.set(null);
-    }
-  }
-
-  enviarOferta() {
-    if (!this.precioOferta() || this.precioOferta()! <= 0) return;
-    this.enviarMensaje.emit({ tipo: 'OFERTA_PRECIO', precioPropuesto: this.precioOferta()! });
-    this.mostrarOfertaModal.set(false);
+    this.abrirNegociacion.emit();
   }
 
   abrirSelectorImagen() {

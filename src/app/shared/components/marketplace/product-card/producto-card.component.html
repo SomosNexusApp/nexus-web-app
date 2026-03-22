@@ -20,24 +20,28 @@
       />
       <div class="img-overlay"></div>
 
-      @if (producto.condicion) {
-        <span class="badge condition-badge" [ngClass]="condicionClass">
-          {{ formatCondicion }}
-        </span>
-      }
+      <div class="top-badges">
+        @if (producto.condicion) {
+          <span class="badge condition-badge" [ngClass]="condicionClass">
+            {{ formatCondicion }}
+          </span>
+        }
 
-      @if ($any(producto).admiteEnvio) {
-        <span class="badge shipping-badge" title="Admite envío"> Envío Disp. </span>
-      }
+        @if ($any(producto).admiteEnvio) {
+          <span class="badge shipping-badge" title="Admite envío">
+            <i class="fas fa-truck"></i> Envío
+          </span>
+        }
+      </div>
 
       @if (isVendido) {
         <div class="estado-overlay vendido-overlay">
-          <span class="estado-overlay__text">VENDIDO</span>
+          <span class="estado-text">VENDIDO</span>
         </div>
-      }
-
-      @if (isReservado) {
-        <span class="estado-badge reservado-badge">RESERVADO</span>
+      } @else if (isReservado) {
+        <div class="estado-overlay reservado-overlay">
+          <span class="estado-text">RESERVADO</span>
+        </div>
       }
 
       @if (showFavorito) {

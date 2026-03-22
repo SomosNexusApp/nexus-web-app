@@ -8,6 +8,7 @@ import { CurrencyEsPipe } from '../../../shared/pipes/currency-es.pipe';
 import { TimeAgoPipe } from '../../../shared/pipes/time-ago.pipe';
 import { FormsModule } from '@angular/forms';
 import { ReporteModalComponent } from '../../../shared/components/reporte-modal/reporte-modal.component';
+import { ConfirmacionModalComponent } from '../../../shared/components/confirmacion-modal/confirmacion-modal.component';
 
 export interface PollOption { text: string; votes: number; }
 export interface PollData { question: string; options: PollOption[]; totalVotes: number; votedUsers: number[]; }
@@ -15,7 +16,7 @@ export interface PollData { question: string; options: PollOption[]; totalVotes:
 @Component({
   selector: 'app-oferta-detail',
   standalone: true,
-  imports: [CommonModule, RouterModule, CurrencyEsPipe, TimeAgoPipe, FormsModule, ReporteModalComponent],
+  imports: [CommonModule, RouterModule, CurrencyEsPipe, TimeAgoPipe, FormsModule, ReporteModalComponent, ConfirmacionModalComponent],
   templateUrl: './oferta-detail.component.html',
   styleUrls: ['./oferta-detail.component.css']
 })
@@ -25,6 +26,7 @@ export class OfertaDetailComponent implements OnInit, OnDestroy {
   authStore = inject(AuthStore);
 
   @ViewChild(ReporteModalComponent) reporteModal!: ReporteModalComponent;
+  @ViewChild(ConfirmacionModalComponent) confirmModal!: ConfirmacionModalComponent;
 
   oferta = signal<any>(null);
   comentarios = signal<any[]>([]);
@@ -107,12 +109,36 @@ export class OfertaDetailComponent implements OnInit, OnDestroy {
   }
 
   votar(esSpark: boolean) {
-    if (!this.authStore.isLoggedIn()) { alert('Inicia sesión para votar'); return; }
+    if (!this.authStore.isLoggedIn()) { 
+      this.confirmModal.abrir('Inicio de sesión', 'Debes iniciar sesión para calificar este chollo.', 'INFO');
+      return; 
+    }
     if (this.votando()) return;
 
+    const voteType = esSpark ? 'SPARK' : 'DRIP';
+
+    // Si hace click en el voto que ya tiene, se retira el voto (Toggle off)
+    if (this.oferta().miVoto === voteType) {
+      this.procesarVoto(esSpark);
+      return;
+    }
+
+    // Si ya ha votado otra cosa, pedir confirmación para cambiar
+    if (this.oferta().miVoto && this.oferta().miVoto !== 'NONE') {
+      this.confirmModal.abrir(
+        'Cambiar voto',
+        `Ya has calificado como ${this.oferta().miVoto}. ¿Deseas cambiarlo a ${voteType}?`,
+        'WARNING',
+        () => this.procesarVoto(esSpark)
+      );
+      return;
+    }
+
+    this.procesarVoto(esSpark);
+  }
+
+  private procesarVoto(esSpark: boolean) {
     this.votando.set(true);
-    
-    // Guardar estado original por si falla y actualización optimista
     const previousState = { ...this.oferta() };
     const voteType = esSpark ? 'SPARK' : 'DRIP';
     
@@ -120,16 +146,15 @@ export class OfertaDetailComponent implements OnInit, OnDestroy {
       let newScore = o.sparkScore || 0;
       let newVoto = o.miVoto;
       
-      // Deshacer voto anterior simulado
       if (o.miVoto === 'SPARK') newScore -= 1;
-      else if (o.miVoto === 'DRIP') newScore -= -1;
+      else if (o.miVoto === 'DRIP') newScore += 1;
 
       if (o.miVoto === voteType) {
-        newVoto = 'NONE'; // Toggle off
+        newVoto = 'NONE';
       } else {
-        newVoto = voteType; // Toggle on o Switch
+        newVoto = voteType;
         if (newVoto === 'SPARK') newScore += 1;
-        else if (newVoto === 'DRIP') newScore += -1;
+        else if (newVoto === 'DRIP') newScore -= 1;
       }
       return { ...o, sparkScore: newScore, miVoto: newVoto };
     });
@@ -146,10 +171,13 @@ export class OfertaDetailComponent implements OnInit, OnDestroy {
           badge: res.badge,
           miVoto: res.miVoto 
         }));
-        this.votando.set(false);
       },
-      error: () => {
+      error: (err) => {
+        console.error('Error voting:', err);
         this.oferta.set(previousState);
+        this.confirmModal.abrir('Error', 'No se pudo procesar tu voto. Intenta de nuevo más tarde.', 'WARNING');
+      },
+      complete: () => {
         this.votando.set(false);
       }
     });
@@ -220,10 +248,16 @@ export class OfertaDetailComponent implements OnInit, OnDestroy {
   }
 
   borrarComentario(id: number) {
-    if (!confirm('¿Borrar comentario?')) return;
-    this.http.delete(`${environment.apiUrl}/comentario/${id}`).subscribe({
-      next: () => this.comentarios.update(list => list.filter(c => c.id !== id))
-    });
+    this.confirmModal.abrir(
+      '¿Eliminar comentario?',
+      'Esta acción borrará permanentemente tu comentario. ¿Deseas continuar?',
+      'DANGER',
+      () => {
+        this.http.delete(`${environment.apiUrl}/comentario/${id}`).subscribe({
+          next: () => this.comentarios.update(list => list.filter(c => c.id !== id))
+        });
+      }
+    );
   }
 
   iniciarEdicion(c: any) {
@@ -244,15 +278,33 @@ export class OfertaDetailComponent implements OnInit, OnDestroy {
 
   votarEncuesta(comentario: any, index: number) {
     const userId = this.authStore.user()?.id;
-    if (!userId || comentario.poll.votedUsers.includes(userId)) return;
+    if (!userId) { 
+      this.confirmModal.abrir('Inicio de sesión', 'Inicia sesión para participar en encuestas.', 'INFO');
+      return; 
+    }
+    if (comentario.poll.votedUsers?.includes(userId)) { 
+      this.confirmModal.abrir('Ya has votado', 'Ya has participado en esta encuesta.', 'INFO');
+      return; 
+    }
 
-    comentario.poll.options[index].votes++;
-    comentario.poll.totalVotes++;
-    comentario.poll.votedUsers.push(userId);
+    // Clonar poll para evitar mutaciones directas y actualizar UI
+    const updatedPoll = JSON.parse(JSON.stringify(comentario.poll));
+    updatedPoll.options[index].votes++;
+    updatedPoll.totalVotes++;
+    updatedPoll.votedUsers = updatedPoll.votedUsers || [];
+    updatedPoll.votedUsers.push(userId);
+
+    const oldPoll = comentario.poll;
+    comentario.poll = updatedPoll;
 
     this.http.put(`${environment.apiUrl}/comentario/${comentario.id}`, { 
-      pollJson: JSON.stringify(comentario.poll) 
-    }).subscribe();
+      pollJson: JSON.stringify(updatedPoll) 
+    }).subscribe({
+      error: () => {
+        comentario.poll = oldPoll;
+        alert('Error al guardar tu voto.');
+      }
+    });
   }
 
   compartir(plataforma: string) {
@@ -281,9 +333,13 @@ export class OfertaDetailComponent implements OnInit, OnDestroy {
   parseMarkdown(text: string): string {
     if (!text) return '';
     return text
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
       .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
       .replace(/\*(.*?)\*/g, '<em>$1</em>')
       .replace(/\n- (.*?)/g, '<li>$1</li>')
-      .replace(/### (.*?)\n/g, '<h4>$1</h4>');
+      .replace(/### (.*?)\n/g, '<h4>$1</h4>')
+      .replace(/\n/g, '<br>');
   }
 }

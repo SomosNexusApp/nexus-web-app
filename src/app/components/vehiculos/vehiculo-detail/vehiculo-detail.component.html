@@ -1,119 +1,147 @@
-<div class="detail-container animate-fade-in" *ngIf="!cargando() && vehiculo()">
-  <div class="detail-grid">
-    
-    <!-- GALERÍA -->
-    <div class="media-section">
-      <div class="main-img">
-        <img [src]="imgPrincipal() || 'https://placehold.co/600x400/0f1115/ffffff?text=Nexus+Product'">
+<div class="vehiculo-detail-container" *ngIf="!cargando() && vehiculo()">
+  <!-- Background Glow -->
+  <div class="hero-glow"></div>
+
+  <div class="main-layout">
+    <!-- GALERÍA (Stick) -->
+    <aside class="gallery-panel sticky-panel">
+      <div class="glass-card main-img-box">
+        <img [src]="imgPrincipal() || 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?q=80&w=1000&auto=format&fit=crop'" class="hero-img">
         <div class="status-badge" [ngClass]="vehiculo().estadoVehiculo?.toLowerCase()">{{ vehiculo().estadoVehiculo }}</div>
       </div>
-      <div class="thumbnails" *ngIf="vehiculo().galeriaImagenes?.length > 0">
-        <div class="thumb-item" (click)="imgPrincipal.set(vehiculo().imagenPrincipal)" [class.active]="imgPrincipal() === vehiculo().imagenPrincipal">
+      
+      <div class="thumbnails-row" *ngIf="vehiculo().galeriaImagenes?.length > 0">
+        <div class="thumb-card" (click)="imgPrincipal.set(vehiculo().imagenPrincipal)" [class.active]="imgPrincipal() === vehiculo().imagenPrincipal">
           <img [src]="vehiculo().imagenPrincipal">
         </div>
         @for (img of vehiculo().galeriaImagenes; track img) {
-          <div class="thumb-item" (click)="imgPrincipal.set(img)" [class.active]="imgPrincipal() === img">
+          <div class="thumb-card" (click)="imgPrincipal.set(img)" [class.active]="imgPrincipal() === img">
             <img [src]="img">
           </div>
         }
       </div>
-    </div>
 
-    <!-- INFO -->
-    <div class="info-section">
-      <div class="header-info">
-        <div class="breadcrumb">
-          <a routerLink="/vehiculos">Vehículos</a> <i class="fa-solid fa-chevron-right"></i> {{ vehiculo().marca }}
-        </div>
-        <h1 class="title">{{ vehiculo().titulo }}</h1>
-        <div class="price-row">
-          <div class="price">{{ vehiculo().precio | currencyEs }}</div>
-          <div class="location">
-            <i class="fa-solid fa-location-dot"></i> {{ vehiculo().ubicacion }}
-          </div>
+      <div class="glass-card trust-banner">
+        <div class="trust-icon"><i class="fas fa-shield-alt"></i></div>
+        <div class="trust-text">
+          <h5>Transacción Segura</h5>
+          <p>La entrega se realiza en persona con contrato oficial de Nexus.</p>
         </div>
       </div>
+    </aside>
 
-      <div class="actions">
-        <button class="btn-chat" (click)="contactar()">
-          <i class="fa-solid fa-comments"></i> Contactar con el vendedor
-        </button>
-        <div class="actions-secondary">
-          <button class="btn-fav" title="Guardar en favoritos">
-            <i class="fa-solid fa-heart"></i>
+    <!-- INFO (Scroll) -->
+    <main class="info-panel">
+      <div class="glass-card header-card">
+        <div class="breadcrumb-row">
+          <a routerLink="/vehiculos">Vehículos</a> <i class="fas fa-chevron-right"></i> {{ vehiculo().marca }}
+        </div>
+        <h1 class="vehicle-title">{{ vehiculo().titulo }}</h1>
+        
+        <div class="price-location-box">
+          <div class="v-price">{{ vehiculo().precio | currencyEs }}</div>
+          <div class="v-location"><i class="fas fa-location-dot"></i> {{ vehiculo().ubicacion }}</div>
+        </div>
+
+        <div class="action-grid">
+          <button class="btn-nexus-primary" (click)="contactar()">
+            <i class="fas fa-paper-plane"></i> CONTACTAR ESCUDERÍA
           </button>
-          <button class="btn-report" (click)="abrirReporte()" title="Reportar vehículo">
-            <i class="fa-solid fa-flag"></i>
+          <button class="btn-nexus-outline v-fav" [class.active]="esFavorito()" (click)="toggleFavorito()">
+            <i class="fas fa-heart"></i>
+          </button>
+          <button class="btn-nexus-outline v-report" (click)="abrirReporte()">
+            <i class="fas fa-flag"></i>
           </button>
         </div>
       </div>
 
-      <div class="info-banner">
-        <div class="banner-icon">
-          <i class="fa-solid fa-circle-info"></i>
+      <!-- SPECS (The core requested change) -->
+      <section class="glass-card specs-section">
+        <div class="section-title">
+          <i class="fas fa-tachometer-alt"></i>
+          <h3>Ficha de Rendimiento</h3>
         </div>
-        <p>Los vehículos se entregan en persona. Contacta con el vendedor para acordar los detalles de la transferencia y entrega.</p>
-      </div>
-
-      <!-- FICHA TÉCNICA -->
-      <div class="specs-box">
-        <div class="specs-header">
-          <i class="fa-solid fa-gears"></i>
-          <h3>Ficha técnica</h3>
-        </div>
+        
         <div class="specs-grid">
-          <div class="spec-item">
-            <span class="spec-label">Marca</span>
-            <span class="spec-value">{{ vehiculo().marca }}</span>
+          <div class="spec-card">
+            <i class="fas fa-car-side"></i>
+            <div class="s-info">
+              <span class="s-label">Marca</span>
+              <span class="s-value">{{ vehiculo().marca }}</span>
+            </div>
           </div>
-          <div class="spec-item">
-            <span class="spec-label">Modelo</span>
-            <span class="spec-value">{{ vehiculo().modelo }}</span>
+          <div class="spec-card">
+            <i class="fas fa-fingerprint"></i>
+            <div class="s-info">
+              <span class="s-label">Modelo</span>
+              <span class="s-value">{{ vehiculo().modelo }}</span>
+            </div>
           </div>
-          <div class="spec-item">
-            <span class="spec-label">Año</span>
-            <span class="spec-value">{{ vehiculo().anio }}</span>
+          <div class="spec-card">
+            <i class="fas fa-calendar-check"></i>
+            <div class="s-info">
+              <span class="s-label">Año</span>
+              <span class="s-value">{{ vehiculo().anio }}</span>
+            </div>
           </div>
-          <div class="spec-item">
-            <span class="spec-label">Kilómetros</span>
-            <span class="spec-value">{{ vehiculo().kilometros | number:'1.0-0':'es-ES' }} km</span>
+          <div class="spec-card">
+            <i class="fas fa-road"></i>
+            <div class="s-info">
+              <span class="s-label">Kilómetros</span>
+              <span class="s-value">{{ vehiculo().kilometros | number:'1.0-0':'es-ES' }} km</span>
+            </div>
           </div>
-          <div class="spec-item">
-            <span class="spec-label">Motor</span>
-            <span class="spec-value">{{ vehiculo().combustible }}</span>
+          <div class="spec-card">
+            <i class="fas fa-gas-pump"></i>
+            <div class="s-info">
+              <span class="s-label">Combustible</span>
+              <span class="s-value">{{ vehiculo().combustible }}</span>
+            </div>
           </div>
-          <div class="spec-item">
-            <span class="spec-label">Cambio</span>
-            <span class="spec-value">{{ vehiculo().cambio }}</span>
+          <div class="spec-card">
+            <i class="fas fa-cogs"></i>
+            <div class="s-info">
+              <span class="s-label">Transmisión</span>
+              <span class="s-value">{{ vehiculo().cambio }}</span>
+            </div>
           </div>
-          <div class="spec-item">
-            <span class="spec-label">Potencia</span>
-            <span class="spec-value">{{ vehiculo().potencia }} CV</span>
+          <div class="spec-card">
+            <i class="fas fa-bolt"></i>
+            <div class="s-info">
+              <span class="s-label">Potencia</span>
+              <span class="s-value">{{ vehiculo().potencia }} CV</span>
+            </div>
           </div>
-          <div class="spec-item">
-            <span class="spec-label">Color</span>
-            <span class="spec-value">{{ vehiculo().color }}</span>
+          <div class="spec-card">
+            <i class="fas fa-palette"></i>
+            <div class="s-info">
+              <span class="s-label">Color</span>
+              <span class="s-value">{{ vehiculo().color }}</span>
+            </div>
           </div>
-          <div class="spec-item">
-            <span class="spec-label">Plazas</span>
-            <span class="spec-value">{{ vehiculo().plazas }}</span>
+          <div class="spec-card">
+            <i class="fas fa-users"></i>
+            <div class="s-info">
+              <span class="s-label">Plazas</span>
+              <span class="s-value">{{ vehiculo().plazas }}</span>
+            </div>
           </div>
-          <div class="spec-item">
-            <span class="spec-label">ITV</span>
-            <span class="spec-value">{{ vehiculo().itv ? 'SÍ' : 'NO' }}</span>
-          </div>
-          <div class="spec-item">
-            <span class="spec-label">Garantía</span>
-            <span class="spec-value">{{ vehiculo().garantia ? 'SÍ' : 'NO' }}</span>
+          <div class="spec-card" [class.danger]="!vehiculo().itv">
+            <i class="fas fa-file-contract"></i>
+            <div class="s-info">
+              <span class="s-label">ITV</span>
+              <span class="s-value">{{ vehiculo().itv ? 'VIGENTE' : 'CADUCADA' }}</span>
+            </div>
           </div>
         </div>
-      </div>
+      </section>
 
-      <div class="description-box">
-        <h3>Descripción</h3>
-        <p>{{ vehiculo().descripcion }}</p>
-      </div>
-    </div>
+      <section class="glass-card description-section">
+        <h3>Historia del Vehículo</h3>
+        <p class="description-text">{{ vehiculo().descripcion }}</p>
+      </section>
+    </main>
   </div>
 
   <!-- VENDEDOR -->
@@ -141,19 +169,19 @@
 
   <!-- SIMILARES -->
   @if (similares().length > 0) {
-    <section class="similar-section">
+    <section class="similar-section animate-fade-up">
       <div class="section-title-wrap">
-        <h3>Otros vehículos del vendedor</h3>
+        <h3>Otros vehículos de este vendedor</h3>
         <div class="title-line"></div>
       </div>
       <div class="similar-grid">
         @for (s of similares(); track s.id) {
-          <div class="mini-card" [routerLink]="['/vehiculos', s.id]">
+          <div class="mini-card" [routerLink]="['/vehiculo', s.id]">
             <div class="mini-img">
               <img [src]="s.imagenPrincipal">
             </div>
             <div class="mini-info">
-              <h5>{{ s.titulo }}</h5>
+              <h5>{{ s.marca }} {{ s.modelo }}</h5>
               <span class="mini-price">{{ s.precio | currencyEs }}</span>
             </div>
           </div>
@@ -162,99 +190,54 @@
     </section>
   }
 
-  <!-- SECCIÓN COMENTARIOS -->
-  <section class="comments-area">
-    <div class="comments-header">
-      <div class="comments-title">
-        <i class="fa-solid fa-messages"></i>
-        <h3>Preguntas y Comentarios ({{ comentarios().length }})</h3>
-      </div>
-      @if (authStore.isLoggedIn()) {
-        <button class="btn-toggle-poll" (click)="mostrandoCreadorEncuesta.set(!mostrandoCreadorEncuesta())">
-          {{ mostrandoCreadorEncuesta() ? 'Quitar Encuesta' : 'Crear Encuesta' }}
-        </button>
-      }
-    </div>
-    
-    @if (authStore.isLoggedIn()) {
-      <div class="comment-input-wrap">
-        <div class="format-toolbar">
-          <button (click)="formatText('bold')" title="Negrita"><b>B</b></button>
-          <button (click)="formatText('italic')" title="Cursiva"><i>I</i></button>
-          <button (click)="formatText('list')" title="Lista"><i class="fa-solid fa-list"></i></button>
-          <button (click)="formatText('header')" title="Título">H</button>
-        </div>
-        <textarea [(ngModel)]="nuevoComentario" placeholder="Escribe tu pregunta aquí..."></textarea>
-        
-        @if (mostrandoCreadorEncuesta()) {
-          <div class="poll-creator animate-fade-in">
-            <input type="text" [(ngModel)]="preguntaEncuesta" placeholder="Título de la encuesta...">
-            <div class="poll-options-grid">
-              @for (opt of opcionesEncuesta; track $index; let i = $index) {
-                <div class="poll-option-input">
-                  <input type="text" [(ngModel)]="opcionesEncuesta[i]" [placeholder]="'Opción ' + (i+1)">
-                </div>
-              }
-              <button class="btn-add-option" *ngIf="opcionesEncuesta.length < 5" (click)="addPollOption()">
-                <i class="fa-solid fa-plus"></i>
-              </button>
-            </div>
+  <!-- RESEÑAS -->
+  <section class="reviews-section animate-fade-up">
+    <div class="section-title-wrap">
+      <div class="title-with-rating">
+        <h3>Reseñas del Vendedor</h3>
+        @if (resumenValoraciones()) {
+          <div class="rating-badge">
+            <i class="fa-solid fa-star"></i>
+            <span>{{ resumenValoraciones().media }}</span>
+            <small>({{ resumenValoraciones().total }})</small>
           </div>
         }
-        <div class="comment-footer">
-          <button class="btn-comment" (click)='publicarComentario()' [disabled]="enviandoComentario() || !nuevoComentario.trim()">
-            @if (enviandoComentario()) {
-              <i class="fa-solid fa-spinner fa-spin"></i>
-            } @else {
-              Publicar comentario
-            }
-          </button>
-        </div>
       </div>
-    }
+      <div class="title-line"></div>
+    </div>
 
-    <div class="comments-list">
-      @for (c of comentarios(); track c.id) {
-        <div class="comment-card animate-fade-up" [style.animation-delay]="$index * 0.1 + 's'">
-          <div class="user-avatar-wrap">
-            <img [src]="c.actor?.avatar || 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + c.actor?.user" class="user-avatar">
-          </div>
-          <div class="comment-body">
-            <div class="comment-header">
-              <span class="user">{{ c.actor?.user }}</span>
-              <div class="comment-actions" *ngIf="authStore.user()?.id === c.actor?.id">
-                <button (click)="iniciarEdicion(c)" class="btn-action-edit" title="Editar"><i class="fa-solid fa-pen"></i></button>
-                <button (click)="eliminarComentario(c.id)" class="btn-action-delete" title="Eliminar"><i class="fa-solid fa-trash"></i></button>
+    <div class="reviews-container">
+      @for (v of valoraciones(); track v.id) {
+        <div class="review-item">
+          <div class="review-header">
+            <div class="reviewer-info">
+              <img [src]="v.comprador?.avatar || 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + v.comprador?.user" class="reviewer-avatar">
+              <div class="reviewer-meta">
+                <span class="reviewer-name">{{ v.comprador?.nombre || v.comprador?.user }}</span>
+                <span class="review-date">{{ v.fechaCreacion | timeAgo }}</span>
               </div>
             </div>
-            
-            @if (editandoId() === c.id) {
-              <div class="edit-area">
-                <textarea [(ngModel)]="textoEditando"></textarea>
-                <div class="edit-buttons">
-                  <button class="btn-cancel" (click)="editandoId.set(null)">Cancelar</button>
-                  <button class="btn-save" (click)="guardarEdicion()">Guardar</button>
-                </div>
-              </div>
-            } @else {
-              <div class="text" [innerHTML]="parseMarkdown(c.texto)"></div>
-              @if (c.poll) {
-                <div class="poll-display">
-                  <p class="poll-question">{{ c.poll.question }}</p>
-                  <div class="poll-options">
-                    @for (opt of c.poll.options; track $index; let i = $index) {
-                      <div class="poll-opt-row" (click)="votarEncuesta(c, i)">
-                        <div class="poll-bar" [style.width.%]="c.poll.totalVotes > 0 ? (opt.votes/c.poll.totalVotes*100) : 0"></div>
-                        <span class="opt-text">{{ opt.text }}</span>
-                        <span class="opt-votes">{{ opt.votes }}</span>
-                      </div>
-                    }
-                  </div>
-                  <p class="poll-total">{{ c.poll.totalVotes }} votos totales</p>
-                </div>
+            <div class="review-rating">
+              @for (star of [1,2,3,4,5]; track star) {
+                <i class="fa-solid fa-star" [class.filled]="star <= v.puntuacion"></i>
               }
-            }
+            </div>
           </div>
+          <p class="review-text">{{ v.comentario }}</p>
+          @if (v.respuestaVendedor) {
+            <div class="seller-reply">
+              <div class="reply-header">
+                <i class="fa-solid fa-reply-all"></i>
+                <span>Respuesta del vendedor</span>
+              </div>
+              <p>{{ v.respuestaVendedor }}</p>
+            </div>
+          }
+        </div>
+      } @empty {
+        <div class="no-reviews">
+          <i class="fa-solid fa-star-half-stroke"></i>
+          <p>Este vendedor aún no tiene reseñas públicas.</p>
         </div>
       }
     </div>

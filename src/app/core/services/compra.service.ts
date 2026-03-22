@@ -121,4 +121,14 @@ export class CompraService {
   getHistorial(usuarioId: number): Observable<Compra[]> {
     return this.http.get<Compra[]>(`${this.BASE}/historial/${usuarioId}`);
   }
+
+  /**
+   * Comprador confirma la recepción del pedido.
+   */
+  confirmarEntrega(envioId: number, valoracion?: number, comentario?: string): Observable<any> {
+    const body: any = {};
+    if (valoracion) body.valoracion = valoracion;
+    if (comentario) body.comentario = comentario;
+    return this.http.post<any>(`${environment.apiUrl}/envio/${envioId}/confirmar`, body);
+  }
 }

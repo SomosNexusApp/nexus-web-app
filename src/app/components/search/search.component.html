@@ -415,15 +415,10 @@
         @for (item of resultados; track item.id) {
           <div class="nx-card-glass-wrapper">
             @if (item.searchType === 'OFERTA') {
-              <div class="nx-badge-glass nx-badge-oferta"><i class="icon-zap"></i> Chollo</div>
               <app-oferta-card [oferta]="item"></app-oferta-card>
             } @else if (item.searchType === 'PRODUCTO') {
-              <div class="nx-badge-glass nx-badge-producto"><i class="icon-box"></i> Producto</div>
               <app-producto-card [producto]="item"></app-producto-card>
             } @else if (item.searchType === 'VEHICULO') {
-              <div class="nx-badge-glass nx-badge-vehiculo">
-                <i class="icon-truck"></i> Vehículo
-              </div>
               <app-vehiculo-card [vehiculo]="item"></app-vehiculo-card>
             }
           </div>
