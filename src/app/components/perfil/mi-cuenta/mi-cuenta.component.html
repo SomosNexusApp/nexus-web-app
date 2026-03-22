@@ -10,7 +10,7 @@
       }
       <div class="sidebar-user-info">
         <span class="sidebar-name">{{ user()?.nombre || user()?.user }}</span>
-        <span class="sidebar-username">@{{ user()?.user }}</span>
+        <span class="sidebar-username user-handle">@{{ user()?.user }}</span>
       </div>
     </div>
 
@@ -55,7 +55,7 @@
           }
           <div>
             <h3 class="resumen-name">{{ user()?.nombre || user()?.user }}</h3>
-            <p class="resumen-username">@{{ user()?.user }}</p>
+            <p class="resumen-username user-handle">@{{ user()?.user }}</p>
             <div class="resumen-stars">
               @for (filled of getStarsArray(kpis().valoracionMedia); track $index) {
                 <i class="fas fa-star" [class.filled]="filled"></i>

@@ -268,9 +268,13 @@
   color: var(--text-secondary);
   font-size: 0.9rem;
   font-weight: 500;
-  padding: 6px 0;
-  transition: color 0.2s;
+  padding: 6px 12px;
+  transition: all 0.3s var(--transition);
   border-bottom: 2px solid transparent;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  border-radius: 8px 8px 0 0;
 }
 
 .nav-item:hover,
@@ -279,7 +283,10 @@
 }
 
 .nav-item.active {
+  color: #fff;
   border-bottom-color: var(--nexus-blue);
+  background: rgba(168, 180, 255, 0.05);
+  box-shadow: none;
 }
 
 .nav-icon {
@@ -290,6 +297,7 @@
 .nav-item:hover .nav-icon,
 .nav-item.active .nav-icon {
   color: var(--nexus-blue);
+  filter: drop-shadow(0 0 5px rgba(168, 180, 255, 0.4));
 }
 
 /* Responsive */

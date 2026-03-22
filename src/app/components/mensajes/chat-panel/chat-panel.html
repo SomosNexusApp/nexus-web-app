@@ -58,6 +58,7 @@
                   [src]="msg.mediaUrl"
                   alt="Imagen enviada"
                   class="chat-img"
+                  (load)="onImageLoad()"
                   onclick="window.open(this.src, '_blank')"
                 />
               </div>
@@ -67,7 +68,7 @@
             <!-- GIF -->
             @if (msg.tipo === 'GIF' && msg.mediaUrl) {
               <div class="image-wrapper">
-                <img [src]="msg.mediaUrl" alt="GIF enviado" class="chat-img" />
+                <img [src]="msg.mediaUrl" alt="GIF enviado" class="chat-img" (load)="onImageLoad()" />
               </div>
             }
 

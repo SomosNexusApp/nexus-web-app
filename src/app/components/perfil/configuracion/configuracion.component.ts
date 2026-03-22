@@ -1,4 +1,4 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, AfterViewInit, OnDestroy, signal, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
@@ -18,7 +18,8 @@ import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
   templateUrl: './configuracion.component.html',
   styleUrls: ['./configuracion.component.css'],
 })
-export class ConfiguracionComponent implements OnInit {
+export class ConfiguracionComponent implements OnInit, AfterViewInit, OnDestroy {
+  private observer: IntersectionObserver | null = null;
   activeSection = signal<string>('perfil');
   private backendUrl = environment.apiUrl;
   sugerenciasUbicacion = signal<any[]>([]);
@@ -27,6 +28,7 @@ export class ConfiguracionComponent implements OnInit {
   show2FASetup = signal(false);
   qrCodeUrl = signal<string | null>(null);
   totpCode = '';
+  loading2FA = signal(false);
 
   // Secciones del scrollspy
   sections = [
@@ -90,6 +92,7 @@ export class ConfiguracionComponent implements OnInit {
     private http: HttpClient,
     private router: Router,
     private toast: ToastService,
+    private el: ElementRef
   ) {
     this.user = this.authStore.user;
   }
@@ -121,6 +124,42 @@ export class ConfiguracionComponent implements OnInit {
       });
   }
 
+  ngAfterViewInit(): void {
+    if (typeof window !== 'undefined') {
+      setTimeout(() => this.initScrollSpy(), 500);
+    }
+  }
+
+  ngOnDestroy(): void {
+    if (this.observer) {
+      this.observer.disconnect();
+    }
+  }
+
+  private initScrollSpy() {
+    if (this.observer) this.observer.disconnect();
+
+    const options = {
+      root: null,
+      rootMargin: '-10% 0px -60% 0px',
+      threshold: 0.1
+    };
+
+    this.observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          this.activeSection.set(entry.target.id);
+        }
+      });
+    }, options);
+
+    this.sections.forEach(sec => {
+      const element = document.getElementById(sec.id);
+      if (element) {
+        this.observer?.observe(element);
+      }
+    });
+  }
   onUbicacionInput(value: string) {
     this.updateEditPerfilField('ubicacion', value);
     this.searchSubject.next(value);
@@ -339,6 +378,8 @@ export class ConfiguracionComponent implements OnInit {
   }
 
   toggle2FA(metodo: string) {
+    if (this.loading2FA()) return;
+
     const isCurrentlyEnabled = this.user()?.twoFactorEnabled;
     const currentMethod = this.user()?.twoFactorMethod;
 
@@ -348,37 +389,56 @@ export class ConfiguracionComponent implements OnInit {
           '¿Seguro que quieres desactivar la Autenticación en 2 Pasos? Tu cuenta será menos segura.',
         )
       ) {
+        this.loading2FA.set(true);
         this.http.post(`${this.backendUrl}/usuario/me/2fa/disable`, {}).subscribe({
           next: () => {
             this.toast.success('2FA Desactivado');
             this.show2FASetup.set(false);
-            this.authService.loadCurrentUser().subscribe();
+            this.qrCodeUrl.set(null);
+            this.authService.loadCurrentUser().subscribe({
+              complete: () => this.loading2FA.set(false)
+            });
           },
+          error: () => this.loading2FA.set(false)
         });
       }
       return;
     }
 
     if (metodo === 'EMAIL') {
+      this.loading2FA.set(true);
       this.http.post(`${this.backendUrl}/usuario/me/2fa/enable-email`, {}).subscribe({
         next: () => {
           this.toast.success('2FA por Email activado');
           this.show2FASetup.set(false);
-          this.authService.loadCurrentUser().subscribe();
+          this.authService.loadCurrentUser().subscribe({
+            complete: () => this.loading2FA.set(false)
+          });
         },
+        error: () => this.loading2FA.set(false)
       });
     }
 
     if (metodo === 'APP') {
+      if (this.show2FASetup() && !isCurrentlyEnabled) {
+        this.show2FASetup.set(false);
+        this.qrCodeUrl.set(null);
+        return;
+      }
       this.show2FASetup.set(true);
       this.qrCodeUrl.set(null);
+      this.loading2FA.set(true);
       this.http
         .post<{ qrUrl: string }>(`${this.backendUrl}/usuario/me/2fa/setup-app`, {})
         .subscribe({
-          next: (res) => this.qrCodeUrl.set(res.qrUrl),
+          next: (res) => {
+            this.qrCodeUrl.set(res.qrUrl);
+            this.loading2FA.set(false);
+          },
           error: () => {
             this.toast.error('Error al generar código QR');
             this.show2FASetup.set(false);
+            this.loading2FA.set(false);
           },
         });
     }

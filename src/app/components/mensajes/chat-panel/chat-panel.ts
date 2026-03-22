@@ -123,12 +123,18 @@ export class ChatPanelComponent implements OnChanges, AfterViewChecked, OnDestro
     this.scrollToBottom();
   }
 
-  private scrollToBottom(): void {
-    if (this.autoScrollActivado && this.scrollContainer) {
+  onImageLoad() {
+    this.scrollToBottom(true);
+  }
+
+  private scrollToBottom(force = false): void {
+    if ((this.autoScrollActivado || force) && this.scrollContainer) {
       try {
-        this.scrollContainer.nativeElement.scrollTop =
-          this.scrollContainer.nativeElement.scrollHeight;
-        this.autoScrollActivado = false;
+        const nativeElement = this.scrollContainer.nativeElement;
+        nativeElement.scrollTop = nativeElement.scrollHeight;
+        if (!force) {
+          this.autoScrollActivado = false;
+        }
       } catch (err) {}
     }
   }

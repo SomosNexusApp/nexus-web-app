@@ -1,37 +1,39 @@
-/* ─── Variables heredadas del sistema Nexus ──────────────────────── */
+/* ─── Variables Nexus Premium Dark Glass ────────────────────── */
 :host {
-  --panel-w: 320px;
-  --radius: 12px;
-  --bg: #ffffff;
-  --border: #f1f5f9;
-  --text-main: #0f172a;
-  --text-sub: #64748b;
-  --text-muted: #94a3b8;
-  --hover-bg: #f8fafc;
-  --active-bg: #f1f5f9;
-  --shadow: 0 20px 60px -10px rgba(15, 23, 42, 0.18), 0 4px 16px rgba(15, 23, 42, 0.08);
-  --ease: cubic-bezier(0.4, 0, 0.2, 1);
-  --accent: #6366f1;
+  --panel-w: 340px;
+  --radius: 20px;
+  --bg: rgba(10, 10, 10, 0.95);
+  --border: rgba(255, 255, 255, 0.08);
+  --text-main: #ffffff;
+  --text-sub: #9ca3af;
+  --text-muted: #6b7280;
+  --hover-bg: rgba(255, 255, 255, 0.05);
+  --active-bg: rgba(168, 180, 255, 0.1);
+  --shadow: 0 20px 80px rgba(0, 0, 0, 0.8);
+  --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --accent: var(--nexus-purple, #cdb0e8);
+  --accent-blue: var(--nexus-blue, #a8b4ff);
+  --glass-blur: blur(25px);
 }
 
-/* ─── Overlay ────────────────────────────────────────────────────── */
+/* ─── Overlay Nexus ─────────────────────────────────────────────── */
 .cp-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(15, 23, 42, 0.4);
-  backdrop-filter: blur(3px);
-  -webkit-backdrop-filter: blur(3px);
-  z-index: 1000;
+  background: rgba(0, 0, 0, 0.82);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 2000;
   opacity: 0;
   pointer-events: none;
-  transition: opacity 280ms var(--ease);
+  transition: opacity 400ms var(--ease);
 }
 .cp-overlay--visible {
   opacity: 1;
   pointer-events: all;
 }
 
-/* ─── Panel ──────────────────────────────────────────────────────── */
+/* ─── Panel Dark Glass ───────────────────────────────────────────── */
 .cp-panel {
   position: fixed;
   top: 0;
@@ -39,11 +41,12 @@
   width: var(--panel-w);
   height: 100dvh;
   background: var(--bg);
-  z-index: 1001;
+  backdrop-filter: var(--glass-blur);
+  z-index: 2001;
   display: flex;
   flex-direction: column;
   transform: translateX(-100%);
-  transition: transform 300ms var(--ease);
+  transition: transform 450ms var(--ease);
   border-right: 1px solid var(--border);
   box-shadow: var(--shadow);
 }
@@ -51,71 +54,73 @@
   transform: translateX(0);
 }
 
-/* ─── Header ─────────────────────────────────────────────────────── */
+/* ─── Header Nexus ─────────────────────────────────────────────── */
 .cp-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 16px;
-  height: 60px;
+  padding: 0 24px;
+  height: 80px;
   border-bottom: 1px solid var(--border);
   flex-shrink: 0;
 }
+
 .cp-header__left {
   display: flex;
   align-items: center;
-  gap: 9px;
+  gap: 12px;
   color: var(--text-main);
-  font-size: 15px;
-  font-weight: 700;
-  letter-spacing: -0.3px;
+  font-size: 1.2rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  font-family: 'Space Grotesk', sans-serif;
 }
+
 .cp-header__left svg {
-  color: var(--accent);
+  color: var(--accent-blue);
+  filter: drop-shadow(0 0 8px rgba(168, 180, 255, 0.4));
 }
+
 .cp-close {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
   border: 1px solid var(--border);
-  background: transparent;
+  background: rgba(255, 255, 255, 0.03);
   color: var(--text-sub);
   cursor: pointer;
-  transition:
-    background 140ms,
-    color 140ms,
-    border-color 140ms;
-}
-.cp-close:hover {
-  background: var(--hover-bg);
-  color: var(--text-main);
-  border-color: #cbd5e1;
+  transition: var(--transition);
 }
 
-/* ─── Skeleton ───────────────────────────────────────────────────── */
+.cp-close:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-main);
+  border-color: var(--accent-blue);
+  transform: rotate(90deg);
+}
+
+/* ─── Skeleton Dark ──────────────────────────────────────────────── */
 .cp-skeleton {
   flex-direction: column;
-  gap: 6px;
-  padding: 12px 14px;
+  gap: 8px;
+  padding: 16px;
   flex: 1;
 }
+
 .cp-sk-item {
-  height: 46px;
-  border-radius: 10px;
-  background: linear-gradient(90deg, #f1f5f9 25%, #e9eef5 50%, #f1f5f9 75%);
+  height: 52px;
+  border-radius: 12px;
+  background: linear-gradient(90deg, #1a1a1a 25%, #2a2a2a 50%, #1a1a1a 75%);
   background-size: 200% 100%;
-  animation: cp-shimmer 1.4s infinite;
+  animation: cp-shimmer 1.8s infinite;
 }
+
 @keyframes cp-shimmer {
-  from {
-    background-position: 200% 0;
-  }
-  to {
-    background-position: -200% 0;
-  }
+  from { background-position: 200% 0; }
+  to { background-position: -200% 0; }
 }
 
 /* ─── Nav / lista ────────────────────────────────────────────────── */
@@ -123,16 +128,18 @@
   flex: 1;
   overflow-y: auto;
   overflow-x: hidden;
-  padding: 8px 10px;
+  padding: 12px 16px;
   scrollbar-width: thin;
   scrollbar-color: var(--border) transparent;
 }
+
 .cp-nav::-webkit-scrollbar {
-  width: 3px;
+  width: 4px;
 }
+
 .cp-nav::-webkit-scrollbar-thumb {
   background: var(--border);
-  border-radius: 2px;
+  border-radius: 10px;
 }
 
 .cp-list {
@@ -152,20 +159,26 @@
 .cp-row {
   display: flex;
   align-items: center;
-  gap: 11px;
-  height: 48px;
-  padding: 0 10px;
-  border-radius: 10px;
+  gap: 14px;
+  height: 54px;
+  padding: 0 12px;
+  border-radius: 14px;
   cursor: pointer;
-  transition: background 130ms;
+  transition: var(--ease) 200ms;
   user-select: none;
   position: relative;
+  border: 1px solid transparent;
 }
+
 .cp-row:hover {
   background: var(--hover-bg);
+  border-color: var(--border);
+  transform: translateX(4px);
 }
+
 .cp-row--expanded {
   background: var(--active-bg);
+  border-color: rgba(168, 180, 255, 0.2);
 }
 
 /* Barra de acento izquierda */
@@ -175,42 +188,52 @@
   left: 0;
   top: 50%;
   transform: translateY(-50%) scaleY(0);
-  width: 3px;
+  width: 4px;
   height: 24px;
-  border-radius: 0 3px 3px 0;
-  background: var(--accent);
-  transition: transform 150ms var(--ease);
+  border-radius: 0 4px 4px 0;
+  background: var(--nexus-gradient, linear-gradient(180deg, #a8b4ff, #cdb0e8));
+  transition: transform 300ms var(--ease);
 }
 .cp-row:hover::before,
 .cp-row--expanded::before {
   transform: translateY(-50%) scaleY(1);
 }
 
-/* Icono envoltorio */
+/* Icono envoltorio Neon */
 .cp-icon-wrap {
-  width: 34px;
-  height: 34px;
-  border-radius: 9px;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: color-mix(in srgb, var(--accent) 10%, white);
+  background: rgba(255, 255, 255, 0.03);
   flex-shrink: 0;
-  transition: background 150ms;
+  transition: var(--ease) 200ms;
+  border: 1px solid var(--border);
 }
+
 .cp-row:hover .cp-icon-wrap,
 .cp-row--expanded .cp-icon-wrap {
-  background: color-mix(in srgb, var(--accent) 18%, white);
+  background: rgba(168, 180, 255, 0.15);
+  border-color: var(--accent-blue);
+  box-shadow: 0 0 15px rgba(168, 180, 255, 0.2);
 }
+
 .cp-icon-wrap svg {
-  color: var(--accent);
+  color: var(--accent-blue);
+  transition: transform 0.3s;
+}
+
+.cp-row:hover .cp-icon-wrap svg {
+  transform: scale(1.1);
 }
 
 /* Label */
 .cp-label {
   flex: 1;
-  font-size: 13.5px;
-  font-weight: 500;
+  font-size: 0.95rem;
+  font-weight: 600;
   color: var(--text-main);
   white-space: nowrap;
   overflow: hidden;
@@ -219,12 +242,13 @@
 
 /* Badge */
 .cp-badge {
-  font-size: 10.5px;
-  font-weight: 600;
-  color: var(--text-muted);
-  background: var(--active-bg);
-  border-radius: 20px;
-  padding: 2px 6px;
+  font-size: 0.7rem;
+  font-weight: 800;
+  color: var(--accent-blue);
+  background: rgba(168, 180, 255, 0.1);
+  border-radius: 6px;
+  padding: 2px 8px;
+  border: 1px solid rgba(168, 180, 255, 0.1);
 }
 
 /* Chevron */
@@ -255,51 +279,58 @@
   transform: translateX(0);
 }
 
-/* ─── Sublista ───────────────────────────────────────────────────── */
+/* ─── Sublista Nexus ───────────────────────────────────────────── */
 .cp-sub {
   list-style: none;
   margin: 0;
   padding: 0;
   max-height: 0;
   overflow: hidden;
-  transition: max-height 260ms var(--ease);
+  transition: max-height 400ms var(--ease);
 }
+
 .cp-sub--open {
-  max-height: 600px;
+  max-height: 1000px;
 }
 
 .cp-subrow {
   display: flex;
   align-items: center;
-  gap: 10px;
-  height: 38px;
-  padding: 0 10px 0 55px;
-  border-radius: 8px;
+  gap: 12px;
+  height: 44px;
+  padding: 0 16px 0 60px;
+  border-radius: 12px;
   cursor: pointer;
-  transition: background 110ms;
+  transition: var(--transition);
+  margin: 2px 0;
 }
+
 .cp-subrow:hover {
-  background: var(--hover-bg);
+  background: rgba(255, 255, 255, 0.03);
+  transform: translateX(6px);
 }
 
 .cp-sub-dot {
-  width: 5px;
-  height: 5px;
+  width: 6px;
+  height: 6px;
   border-radius: 50%;
   background: var(--text-muted);
   flex-shrink: 0;
-  transition: background 130ms;
+  transition: var(--transition);
 }
+
 .cp-subrow:hover .cp-sub-dot {
-  background: var(--accent);
+  background: var(--accent-blue);
+  box-shadow: 0 0 8px var(--accent-blue);
 }
 
 .cp-sub-label {
   flex: 1;
-  font-size: 12.5px;
+  font-size: 0.9rem;
   color: var(--text-sub);
-  transition: color 110ms;
+  transition: color 0.2s;
 }
+
 .cp-subrow:hover .cp-sub-label {
   color: var(--text-main);
 }
@@ -308,41 +339,45 @@
   color: var(--text-muted);
   opacity: 0;
   transform: translateX(-4px);
-  transition:
-    opacity 110ms,
-    transform 110ms;
+  transition: var(--transition);
 }
+
 .cp-subrow:hover .cp-sub-arrow {
   opacity: 1;
   transform: translateX(0);
+  color: var(--accent-blue);
 }
 
-/* ─── Footer ─────────────────────────────────────────────────────── */
+/* ─── Footer Nexus ─────────────────────────────────────────────── */
 .cp-footer {
-  padding: 10px;
+  padding: 20px 24px;
   border-top: 1px solid var(--border);
   flex-shrink: 0;
 }
+
 .cp-footer-btn {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 7px;
+  gap: 10px;
   width: 100%;
-  height: 38px;
-  border-radius: 9px;
-  border: 1.5px dashed #e2e8f0;
-  background: transparent;
+  height: 46px;
+  border-radius: 14px;
+  border: 1.5px dashed var(--border);
+  background: rgba(255, 255, 255, 0.02);
   color: var(--text-sub);
-  font-size: 12.5px;
-  font-weight: 500;
+  font-size: 0.9rem;
+  font-weight: 700;
   cursor: pointer;
-  transition: all 140ms;
+  transition: var(--transition);
 }
+
 .cp-footer-btn:hover {
-  border-color: var(--accent);
-  color: var(--accent);
-  background: color-mix(in srgb, var(--accent) 6%, white);
+  border-color: var(--accent-blue);
+  color: var(--text-main);
+  background: rgba(168, 180, 255, 0.1);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
 }
 
 /* ─── Mobile ─────────────────────────────────────────────────────── */
