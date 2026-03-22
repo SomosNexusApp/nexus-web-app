@@ -105,9 +105,10 @@ export class ProductoDetailComponent implements OnInit, OnDestroy {
 
   puedeComprar = computed(() => {
     const p = this.producto();
-    // Solo se puede comprar si el producto admite envío (recogida personal = solo chat)
+    // No se puede comprar si es intercambio, si ya está vendido/reservado, si es el vendedor o si no admite envío
     return (
       p?.estado === 'DISPONIBLE' &&
+      p?.tipoOferta !== 'INTERCAMBIO' &&
       this.isLoggedIn() &&
       !this.esVendedorPropietario() &&
       p.admiteEnvio === true

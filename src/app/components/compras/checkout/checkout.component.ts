@@ -26,13 +26,14 @@ import { PagoService } from '../../../core/services/pago.service';
 import { CompraService } from '../../../core/services/compra.service';
 import { Producto } from '../../../models/producto.model';
 import { TipoEnvio } from '../../../models/compra.model';
+import { PuntoRecogidaSelector, PuntoRecogida } from '../../../shared/components/punto-recogida-selector/punto-recogida-selector';
 
 const MAX_PRICE = 1000;
 
 @Component({
   selector: 'app-checkout',
   standalone: true,
-  imports: [CommonModule, RouterModule, ReactiveFormsModule],
+  imports: [CommonModule, RouterModule, ReactiveFormsModule, PuntoRecogidaSelector],
   templateUrl: './checkout.component.html',
   styleUrls: ['./checkout.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -57,10 +58,16 @@ export class CheckoutComponent implements OnInit, OnDestroy {
 
   tipoEnvio = signal<TipoEnvio>('DOMICILIO');
   esRecogida = signal<boolean>(false);
+  
+  mostrarSelectorPunto = signal<boolean>(false);
+  puntoRecogidaSeleccionado = signal<PuntoRecogida | null>(null);
+
   /** Precio de envío recibido del backend (o calculado localmente como fallback) */
   costoEnvioBackend = signal<number>(0);
   precioVenta = signal<number>(0);
   ahorroRecogida = signal<number>(0);
+  opcionesEnvio = signal<any[]>([]);
+  transportistaSeleccionado = signal<string | null>(null);
 
   // ── Stripe (elementos individuales) ──────────────────────────────────
   private stripe: Stripe | null = null;
@@ -139,6 +146,7 @@ export class CheckoutComponent implements OnInit, OnDestroy {
       ciudad: ['', [Validators.required]],
       cp: ['', [Validators.required, Validators.pattern(/^\d{4,10}$/)]],
       pais: ['España', [Validators.required]],
+      puntoRecogidaId: ['']
     });
   }
 
@@ -210,6 +218,12 @@ export class CheckoutComponent implements OnInit, OnDestroy {
           next: (resp: any) => {
             this.costoEnvioBackend.set(resp.costoEnvio);
             this.ahorroRecogida.set(resp.ahorroRecogida);
+            this.opcionesEnvio.set(resp.opcionesEnvio || []);
+            // Seleccionar el primero por defecto
+            if (resp.opcionesEnvio?.length > 0) {
+              this.transportistaSeleccionado.set(resp.opcionesEnvio[0].id);
+              this.costoEnvioBackend.set(resp.opcionesEnvio[0].precio);
+            }
             if (resp.precioProducto) {
               this.precioVenta.set(resp.precioProducto);
             }
@@ -238,7 +252,9 @@ export class CheckoutComponent implements OnInit, OnDestroy {
       !document.getElementById('card-expiry') ||
       !document.getElementById('card-cvc')
     ) {
-      setTimeout(() => this.initStripe(), 100);
+      if (this.usarNuevaTarjeta() || this.metodosGuardados().length === 0) {
+        setTimeout(() => this.initStripe(), 100);
+      }
       return;
     }
 
@@ -254,13 +270,15 @@ export class CheckoutComponent implements OnInit, OnDestroy {
 
       const style = {
         base: {
-          fontFamily: '"Inter", "Helvetica Neue", Helvetica, sans-serif',
-          fontSize: '15px',
-          color: '#1a1a2e',
-          '::placeholder': { color: '#9ca3af' },
-          iconColor: '#6366f1',
+          fontFamily: '"Outfit", "Inter", sans-serif',
+          fontSize: '16px',
+          color: '#ffffff',
+          '::placeholder': { color: 'rgba(255,255,255,0.4)' },
+          iconColor: '#818cf8',
+          fontSmoothing: 'antialiased',
+          ':-webkit-autofill': { color: '#ffffff' },
         },
-        invalid: { color: '#ef4444', iconColor: '#ef4444' },
+        invalid: { color: '#fb7185', iconColor: '#fb7185' },
       };
 
       this.cardNumberEl = elements.create('cardNumber', { style, showIcon: true });
@@ -287,6 +305,19 @@ export class CheckoutComponent implements OnInit, OnDestroy {
   }
 
   // ── Cambio tipo envío / peso / transportista ───────────────────────────────
+  onPuntoSeleccionado(punto: PuntoRecogida): void {
+    this.puntoRecogidaSeleccionado.set(punto);
+    this.mostrarSelectorPunto.set(false);
+    
+    // Rellenamos el addressForm silenciosamente para que el backend tenga los datos del punto si lo requiere
+    this.addressForm.patchValue({
+      calle: punto.direccion,
+      cp: punto.cp,
+      ciudad: punto.ciudad,
+      puntoRecogidaId: punto.id
+    });
+  }
+
   onTipoEnvioChange(tipo: TipoEnvio): void {
     this.tipoEnvio.set(tipo);
     // La dirección siempre es visible, solo cambia si algunos campos son requeridos
@@ -328,13 +359,26 @@ export class CheckoutComponent implements OnInit, OnDestroy {
     }
     [calle, ciudad, cp].forEach((c) => c?.updateValueAndValidity());
 
-    // Re-calcular precio usando el endpoint ligero (sin crear nada)
     const prod = this.producto();
     if (prod) {
       this.compraSrv.consultarPrecio(prod.id, recogida).subscribe({
         next: (resp: any) => {
-          this.costoEnvioBackend.set(resp.costoEnvio);
           this.ahorroRecogida.set(resp.ahorroRecogida);
+          this.opcionesEnvio.set(resp.opcionesEnvio || []);
+
+          // Mantener el mismo transportista si sigue disponible, o el primero
+          const currentId = this.transportistaSeleccionado();
+          const exists = resp.opcionesEnvio?.find((o: any) => o.id === currentId);
+          if (exists) {
+            this.costoEnvioBackend.set(exists.precio);
+          } else if (resp.opcionesEnvio?.length > 0) {
+            this.transportistaSeleccionado.set(resp.opcionesEnvio[0].id);
+            this.costoEnvioBackend.set(resp.opcionesEnvio[0].precio);
+          } else {
+            this.costoEnvioBackend.set(resp.costoEnvio);
+            this.transportistaSeleccionado.set(null);
+          }
+
           if (resp.precioProducto) {
             this.precioVenta.set(resp.precioProducto);
           }
@@ -342,6 +386,12 @@ export class CheckoutComponent implements OnInit, OnDestroy {
         },
       });
     }
+  }
+
+  seleccionarTransportista(id: string, precio: number): void {
+    this.transportistaSeleccionado.set(id);
+    this.costoEnvioBackend.set(precio);
+    this.cdr.markForCheck();
   }
 
   // ── Pagar ─────────────────────────────────────────────────────────────
@@ -372,15 +422,27 @@ export class CheckoutComponent implements OnInit, OnDestroy {
       }
     }
 
-    // Validaciones de formulario
-    if (this.personalForm.invalid) {
-      this.personalForm.markAllAsTouched();
+    // Marcar campos como tocados para mostrar errores
+    this.personalForm.markAllAsTouched();
+    this.addressForm.markAllAsTouched();
+
+    if (this.personalForm.invalid || (this.tipoEnvio() === 'DOMICILIO' && this.addressForm.invalid)) {
+      this.errorGeneral.set('Por favor, completa correctamente todos los campos obligatorios.');
+      // Scroll al primer error
+      document.querySelector('.invalid')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
       return;
     }
-    if (this.tipoEnvio() === 'DOMICILIO' && this.addressForm.invalid) {
-      this.addressForm.markAllAsTouched();
+
+    if (!this.transportistaSeleccionado()) {
+      this.errorGeneral.set('Por favor, selecciona una compañía de transporte.');
       return;
     }
+
+    if (this.esRecogida() && !this.puntoRecogidaSeleccionado()) {
+      this.errorGeneral.set('Por favor, selecciona un punto de Correos para recoger tu pedido.');
+      return;
+    }
+
     if (this.total() > MAX_PRICE + 10) {
       this.errorGeneral.set(`El total no puede superar los ${MAX_PRICE} €.`);
       return;
@@ -405,9 +467,8 @@ export class CheckoutComponent implements OnInit, OnDestroy {
           user.id,
           tipoEnv,
           tipoEnv === 'DOMICILIO' ? dirCompleta : undefined,
-          undefined,
-          undefined,
-          undefined,
+          tipoEnv === 'PUNTO_RECOGIDA' ? addr.puntoRecogidaId : undefined,
+          this.transportistaSeleccionado() || undefined,
           this.esRecogida(),
         )
         .toPromise();
@@ -463,7 +524,7 @@ export class CheckoutComponent implements OnInit, OnDestroy {
         precioEnvio: this.costoEnvio(),
         telefono: personal.telefono,
         pesoKg: (intentResp as any).pesoKg,
-        transportista: 'CORREOS',
+        transportista: this.transportistaSeleccionado() || 'ESTANDAR',
       };
 
       if (tipoEnv === 'DOMICILIO') {

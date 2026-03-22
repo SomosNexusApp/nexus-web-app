@@ -2,6 +2,7 @@
   <!-- Columna Izquierda: Lista de Coversaciones -->
   <aside class="sidebar">
     <app-conversaciones-list
+      [convSeleccionada]="conversacionSeleccionada()"
       (conversacionSeleccionada)="onConversacionCambiada($event)"
     ></app-conversaciones-list>
   </aside>

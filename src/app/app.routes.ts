@@ -46,6 +46,11 @@ export const routes: Routes = [
 
   // // Public
   {
+    path: 'legal/condiciones',
+    loadComponent: () =>
+      import('./components/legal/condiciones-compra/condiciones-compra').then((m) => m.CondicionesCompra),
+  },
+  {
     path: 'search',
     loadComponent: () =>
       import('./components/search/search.component').then((m) => m.SearchComponent),

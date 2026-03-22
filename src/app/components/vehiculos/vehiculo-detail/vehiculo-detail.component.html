@@ -8,9 +8,13 @@
         <div class="status-badge" [ngClass]="vehiculo().estadoVehiculo?.toLowerCase()">{{ vehiculo().estadoVehiculo }}</div>
       </div>
       <div class="thumbnails" *ngIf="vehiculo().galeriaImagenes?.length > 0">
-        <img [src]="vehiculo().imagenPrincipal" (click)="imgPrincipal.set(vehiculo().imagenPrincipal)" [class.active]="imgPrincipal() === vehiculo().imagenPrincipal">
+        <div class="thumb-item" (click)="imgPrincipal.set(vehiculo().imagenPrincipal)" [class.active]="imgPrincipal() === vehiculo().imagenPrincipal">
+          <img [src]="vehiculo().imagenPrincipal">
+        </div>
         @for (img of vehiculo().galeriaImagenes; track img) {
-          <img [src]="img" (click)="imgPrincipal.set(img)" [class.active]="imgPrincipal() === img">
+          <div class="thumb-item" (click)="imgPrincipal.set(img)" [class.active]="imgPrincipal() === img">
+            <img [src]="img">
+          </div>
         }
       </div>
     </div>
@@ -18,46 +22,94 @@
     <!-- INFO -->
     <div class="info-section">
       <div class="header-info">
+        <div class="breadcrumb">
+          <a routerLink="/vehiculos">Vehículos</a> <i class="fa-solid fa-chevron-right"></i> {{ vehiculo().marca }}
+        </div>
         <h1 class="title">{{ vehiculo().titulo }}</h1>
-        <div class="price">{{ vehiculo().precio | currencyEs }}</div>
-        <div class="location">📍 {{ vehiculo().ubicacion }}</div>
+        <div class="price-row">
+          <div class="price">{{ vehiculo().precio | currencyEs }}</div>
+          <div class="location">
+            <i class="fa-solid fa-location-dot"></i> {{ vehiculo().ubicacion }}
+          </div>
+        </div>
       </div>
 
       <div class="actions">
-        <button class="btn-chat" (click)="contactar()">💬 Contactar con el vendedor</button>
-        <button class="btn-fav" style="margin-right: 8px;">❤️ Guardar</button>
-        <button class="btn-report" (click)="abrirReporte()" title="Reportar vehículo" style="background: none; border: 1px solid #e5e7eb; border-radius: 8px; padding: 10px; cursor: pointer; color: #ef4444;">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 20px; height: 20px;">
-            <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path>
-            <line x1="4" y1="22" x2="4" y2="15"></line>
-          </svg>
+        <button class="btn-chat" (click)="contactar()">
+          <i class="fa-solid fa-comments"></i> Contactar con el vendedor
         </button>
+        <div class="actions-secondary">
+          <button class="btn-fav" title="Guardar en favoritos">
+            <i class="fa-solid fa-heart"></i>
+          </button>
+          <button class="btn-report" (click)="abrirReporte()" title="Reportar vehículo">
+            <i class="fa-solid fa-flag"></i>
+          </button>
+        </div>
       </div>
 
       <div class="info-banner">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
-        <p>Los vehículos se entregan en persona. Contacta con el vendedor para acordar los detalles.</p>
+        <div class="banner-icon">
+          <i class="fa-solid fa-circle-info"></i>
+        </div>
+        <p>Los vehículos se entregan en persona. Contacta con el vendedor para acordar los detalles de la transferencia y entrega.</p>
       </div>
 
       <!-- FICHA TÉCNICA -->
       <div class="specs-box">
-        <h3>Ficha técnica</h3>
+        <div class="specs-header">
+          <i class="fa-solid fa-gears"></i>
+          <h3>Ficha técnica</h3>
+        </div>
         <div class="specs-grid">
-          <div class="spec-item"><span>Marca</span><strong>{{ vehiculo().marca }}</strong></div>
-          <div class="spec-item"><span>Modelo</span><strong>{{ vehiculo().modelo }}</strong></div>
-          <div class="spec-item"><span>Año</span><strong>{{ vehiculo().anio }}</strong></div>
-          <div class="spec-item"><span>Kilómetros</span><strong>{{ vehiculo().kilometros | number:'1.0-0':'es-ES' }} km</strong></div>
-          <div class="spec-item"><span>Motor</span><strong>{{ vehiculo().combustible }}</strong></div>
-          <div class="spec-item"><span>Cambio</span><strong>{{ vehiculo().cambio }}</strong></div>
-          <div class="spec-item"><span>Potencia</span><strong>{{ vehiculo().potencia }} CV</strong></div>
-          <div class="spec-item"><span>Color</span><strong>{{ vehiculo().color }}</strong></div>
-          <div class="spec-item"><span>Plazas</span><strong>{{ vehiculo().plazas }}</strong></div>
-          <div class="spec-item"><span>ITV</span><strong>{{ vehiculo().itv ? 'SÍ' : 'NO' }}</strong></div>
-          <div class="spec-item"><span>Garantía</span><strong>{{ vehiculo().garantia ? 'SÍ' : 'NO' }}</strong></div>
+          <div class="spec-item">
+            <span class="spec-label">Marca</span>
+            <span class="spec-value">{{ vehiculo().marca }}</span>
+          </div>
+          <div class="spec-item">
+            <span class="spec-label">Modelo</span>
+            <span class="spec-value">{{ vehiculo().modelo }}</span>
+          </div>
+          <div class="spec-item">
+            <span class="spec-label">Año</span>
+            <span class="spec-value">{{ vehiculo().anio }}</span>
+          </div>
+          <div class="spec-item">
+            <span class="spec-label">Kilómetros</span>
+            <span class="spec-value">{{ vehiculo().kilometros | number:'1.0-0':'es-ES' }} km</span>
+          </div>
+          <div class="spec-item">
+            <span class="spec-label">Motor</span>
+            <span class="spec-value">{{ vehiculo().combustible }}</span>
+          </div>
+          <div class="spec-item">
+            <span class="spec-label">Cambio</span>
+            <span class="spec-value">{{ vehiculo().cambio }}</span>
+          </div>
+          <div class="spec-item">
+            <span class="spec-label">Potencia</span>
+            <span class="spec-value">{{ vehiculo().potencia }} CV</span>
+          </div>
+          <div class="spec-item">
+            <span class="spec-label">Color</span>
+            <span class="spec-value">{{ vehiculo().color }}</span>
+          </div>
+          <div class="spec-item">
+            <span class="spec-label">Plazas</span>
+            <span class="spec-value">{{ vehiculo().plazas }}</span>
+          </div>
+          <div class="spec-item">
+            <span class="spec-label">ITV</span>
+            <span class="spec-value">{{ vehiculo().itv ? 'SÍ' : 'NO' }}</span>
+          </div>
+          <div class="spec-item">
+            <span class="spec-label">Garantía</span>
+            <span class="spec-value">{{ vehiculo().garantia ? 'SÍ' : 'NO' }}</span>
+          </div>
         </div>
       </div>
 
-      <div class="description">
+      <div class="description-box">
         <h3>Descripción</h3>
         <p>{{ vehiculo().descripcion }}</p>
       </div>
@@ -66,13 +118,21 @@
 
   <!-- VENDEDOR -->
   <section class="seller-section">
+    <div class="section-divider"></div>
     <div class="seller-card">
-      <img [src]="vehiculo().publicador?.avatar || 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + vehiculo().publicador?.user">
+      <div class="seller-avatar">
+        <img [src]="vehiculo().publicador?.avatar || 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + vehiculo().publicador?.user">
+        @if (vehiculo().publicador?.esVerificado) {
+          <div class="verified-badge" title="Vendedor verificado">
+            <i class="fa-solid fa-check"></i>
+          </div>
+        }
+      </div>
       <div class="seller-info">
         <h4>{{ vehiculo().publicador?.nombreComercial || vehiculo().publicador?.user }}</h4>
         <div class="seller-meta">
-          <span>⭐ {{ vehiculo().publicador?.reputacion || 'Nuevo' }}</span>
-          <span>📦 {{ vehiculo().publicador?.totalVentas || 0 }} ventas</span>
+          <span class="stat-item"><i class="fa-solid fa-star"></i> {{ vehiculo().publicador?.reputacion || 'Nuevo' }}</span>
+          <span class="stat-item"><i class="fa-solid fa-box-open"></i> {{ vehiculo().publicador?.totalVentas || 0 }} ventas</span>
         </div>
       </div>
       <button class="btn-profile">Ver perfil</button>
@@ -82,11 +142,16 @@
   <!-- SIMILARES -->
   @if (similares().length > 0) {
     <section class="similar-section">
-      <h3>Otros vehículos del vendedor</h3>
+      <div class="section-title-wrap">
+        <h3>Otros vehículos del vendedor</h3>
+        <div class="title-line"></div>
+      </div>
       <div class="similar-grid">
         @for (s of similares(); track s.id) {
           <div class="mini-card" [routerLink]="['/vehiculos', s.id]">
-            <img [src]="s.imagenPrincipal">
+            <div class="mini-img">
+              <img [src]="s.imagenPrincipal">
+            </div>
             <div class="mini-info">
               <h5>{{ s.titulo }}</h5>
               <span class="mini-price">{{ s.precio | currencyEs }}</span>
@@ -100,7 +165,10 @@
   <!-- SECCIÓN COMENTARIOS -->
   <section class="comments-area">
     <div class="comments-header">
-      <h3>Preguntas y Comentarios ({{ comentarios().length }})</h3>
+      <div class="comments-title">
+        <i class="fa-solid fa-messages"></i>
+        <h3>Preguntas y Comentarios ({{ comentarios().length }})</h3>
+      </div>
       @if (authStore.isLoggedIn()) {
         <button class="btn-toggle-poll" (click)="mostrandoCreadorEncuesta.set(!mostrandoCreadorEncuesta())">
           {{ mostrandoCreadorEncuesta() ? 'Quitar Encuesta' : 'Crear Encuesta' }}
@@ -111,57 +179,78 @@
     @if (authStore.isLoggedIn()) {
       <div class="comment-input-wrap">
         <div class="format-toolbar">
-          <button (click)="formatText('bold')">B</button>
-          <button (click)="formatText('italic')">I</button>
-          <button (click)="formatText('list')">List</button>
-          <button (click)="formatText('header')">H</button>
+          <button (click)="formatText('bold')" title="Negrita"><b>B</b></button>
+          <button (click)="formatText('italic')" title="Cursiva"><i>I</i></button>
+          <button (click)="formatText('list')" title="Lista"><i class="fa-solid fa-list"></i></button>
+          <button (click)="formatText('header')" title="Título">H</button>
         </div>
-        <textarea [(ngModel)]="nuevoComentario" placeholder="Haz una pregunta al vendedor..."></textarea>
+        <textarea [(ngModel)]="nuevoComentario" placeholder="Escribe tu pregunta aquí..."></textarea>
         
         @if (mostrandoCreadorEncuesta()) {
           <div class="poll-creator animate-fade-in">
-            <input type="text" [(ngModel)]="preguntaEncuesta" placeholder="Ej: ¿Qué os parece el precio?">
+            <input type="text" [(ngModel)]="preguntaEncuesta" placeholder="Título de la encuesta...">
             <div class="poll-options-grid">
               @for (opt of opcionesEncuesta; track $index; let i = $index) {
-                <input type="text" [(ngModel)]="opcionesEncuesta[i]" [placeholder]="'Opción ' + (i+1)">
+                <div class="poll-option-input">
+                  <input type="text" [(ngModel)]="opcionesEncuesta[i]" [placeholder]="'Opción ' + (i+1)">
+                </div>
               }
-              <button *ngIf="opcionesEncuesta.length < 5" (click)="addPollOption()">+</button>
+              <button class="btn-add-option" *ngIf="opcionesEncuesta.length < 5" (click)="addPollOption()">
+                <i class="fa-solid fa-plus"></i>
+              </button>
             </div>
           </div>
         }
-        <button class="btn-comment" (click)='publicarComentario()' [disabled]="enviandoComentario()">Publicar</button>
+        <div class="comment-footer">
+          <button class="btn-comment" (click)='publicarComentario()' [disabled]="enviandoComentario() || !nuevoComentario.trim()">
+            @if (enviandoComentario()) {
+              <i class="fa-solid fa-spinner fa-spin"></i>
+            } @else {
+              Publicar comentario
+            }
+          </button>
+        </div>
       </div>
     }
 
     <div class="comments-list">
       @for (c of comentarios(); track c.id) {
-        <div class="comment-card">
-          <img [src]="c.actor?.avatar || 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + c.actor?.user" class="user-avatar">
+        <div class="comment-card animate-fade-up" [style.animation-delay]="$index * 0.1 + 's'">
+          <div class="user-avatar-wrap">
+            <img [src]="c.actor?.avatar || 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + c.actor?.user" class="user-avatar">
+          </div>
           <div class="comment-body">
             <div class="comment-header">
               <span class="user">{{ c.actor?.user }}</span>
               <div class="comment-actions" *ngIf="authStore.user()?.id === c.actor?.id">
-                <button (click)="iniciarEdicion(c)">✏️</button>
-                <button (click)="eliminarComentario(c.id)">🗑️</button>
+                <button (click)="iniciarEdicion(c)" class="btn-action-edit" title="Editar"><i class="fa-solid fa-pen"></i></button>
+                <button (click)="eliminarComentario(c.id)" class="btn-action-delete" title="Eliminar"><i class="fa-solid fa-trash"></i></button>
               </div>
             </div>
             
             @if (editandoId() === c.id) {
               <div class="edit-area">
                 <textarea [(ngModel)]="textoEditando"></textarea>
-                <button (click)="guardarEdicion()">Guardar</button>
+                <div class="edit-buttons">
+                  <button class="btn-cancel" (click)="editandoId.set(null)">Cancelar</button>
+                  <button class="btn-save" (click)="guardarEdicion()">Guardar</button>
+                </div>
               </div>
             } @else {
               <div class="text" [innerHTML]="parseMarkdown(c.texto)"></div>
               @if (c.poll) {
                 <div class="poll-display">
-                  <p>{{ c.poll.question }}</p>
-                  @for (opt of c.poll.options; track $index; let i = $index) {
-                    <div class="poll-opt-row" (click)="votarEncuesta(c, i)">
-                      <div class="poll-bar" [style.width.%]="c.poll.totalVotes > 0 ? (opt.votes/c.poll.totalVotes*100) : 0"></div>
-                      <span>{{ opt.text }} ({{ opt.votes }})</span>
-                    </div>
-                  }
+                  <p class="poll-question">{{ c.poll.question }}</p>
+                  <div class="poll-options">
+                    @for (opt of c.poll.options; track $index; let i = $index) {
+                      <div class="poll-opt-row" (click)="votarEncuesta(c, i)">
+                        <div class="poll-bar" [style.width.%]="c.poll.totalVotes > 0 ? (opt.votes/c.poll.totalVotes*100) : 0"></div>
+                        <span class="opt-text">{{ opt.text }}</span>
+                        <span class="opt-votes">{{ opt.votes }}</span>
+                      </div>
+                    }
+                  </div>
+                  <p class="poll-total">{{ c.poll.totalVotes }} votos totales</p>
                 </div>
               }
             }

@@ -1,0 +1,77 @@
+<div class="modal-overlay animate-fade-in" (click)="cerrar.emit()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <button class="btn-close" (click)="cerrar.emit()">
+      <i class="fa-solid fa-xmark"></i>
+    </button>
+    
+    <div class="modal-header">
+      <div class="logo-circle">
+        <i class="fa-solid fa-map-location-dot"></i>
+      </div>
+      <h2>Punto Recogida Correos</h2>
+      <p>Localiza tu oficina más cercana en el mapa o busca por código postal.</p>
+    </div>
+
+    <!-- Barra de búsqueda con botón de ubicación -->
+    <div class="search-section">
+      <div class="search-input-wrapper">
+        <i class="fa-solid fa-magnifying-glass search-icon"></i>
+        <input 
+          type="text" 
+          placeholder="Ej. 28001, Madrid..."
+          [ngModel]="busqueda()"
+          (ngModelChange)="busqueda.set($event)"
+          (keyup.enter)="buscarPuntos()"
+        >
+        <div class="search-actions">
+          <button class="btn-location" (click)="usarMiUbicacion()" title="Usar mi ubicación">
+            <i class="fa-solid fa-location-crosshairs"></i>
+          </button>
+          <button class="btn-search" (click)="buscarPuntos()" [disabled]="buscando() || !busqueda().trim()">
+            @if (buscando()) {
+              <i class="fa-solid fa-spinner fa-spin"></i>
+            } @else {
+              Buscar
+            }
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Contenedor del Mapa -->
+    <div class="map-wrapper animate-fade-in" style="animation-delay: 0.1s;">
+      <div id="map-container" style="height: 250px; border-radius: 16px; border: 1px solid rgba(255, 255, 255, 0.1); margin-bottom: 1.5rem;"></div>
+    </div>
+
+    <!-- Lista de Resultados -->
+    <div class="results-section">
+      @if (puntos().length === 0 && busqueda().length > 0 && !buscando()) {
+        <div class="empty-state">
+          <i class="fa-regular fa-folder-open"></i>
+          <p>No se encontraron puntos de recogida para esta búsqueda.</p>
+        </div>
+      }
+
+      @for (p of puntos(); track p.id) {
+        <div class="punto-card animate-fade-up" [class.active]="puntoActivo()?.id === p.id" (click)="seleccionar(p)">
+          <div class="punto-logo">
+            <i class="fa-solid fa-envelope"></i>
+          </div>
+          <div class="punto-info">
+            <h3>{{ p.nombre }}</h3>
+            <p class="punto-address">{{ p.direccion }}, {{ p.cp }} {{ p.ciudad }}</p>
+            <div class="punto-meta">
+              <span class="punto-time"><i class="fa-regular fa-clock"></i> {{ p.horario }}</span>
+              @if (p.distancia) {
+                <span class="punto-dist"><i class="fa-solid fa-location-dot"></i> {{ p.distancia }}</span>
+              }
+            </div>
+          </div>
+          <div class="punto-action">
+            <button class="btn-select">Elegir</button>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+</div>

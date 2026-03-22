@@ -46,8 +46,7 @@ export class CompraService {
     tipoEnvio: TipoEnvio,
     direccionCompleta?: string,
     puntoRecogidaId?: string,
-    _pesoKgObsolete?: number, // ignorado — peso viene del producto
-    _transportistaObsolete?: string, // ignorado — Nexus elige el mejor
+    transportista?: string,
     esRecogida: boolean = false,
   ): Observable<IniciarPagoResponse> {
     let params = new HttpParams()
@@ -58,6 +57,7 @@ export class CompraService {
 
     if (direccionCompleta) params = params.set('direccionCompleta', direccionCompleta);
     if (puntoRecogidaId) params = params.set('puntoRecogidaId', puntoRecogidaId);
+    if (transportista) params = params.set('transportista', transportista);
 
     return this.http.post<IniciarPagoResponse>(`${this.BASE}/intent`, null, { params });
   }
