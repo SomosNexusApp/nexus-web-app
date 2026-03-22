@@ -19,18 +19,27 @@ import { TimeAgoPipe } from '../../../shared/pipes/time-ago.pipe';
 import { CurrencyEsPipe } from '../../../shared/pipes/currency-es.pipe';
 import { CoverImagePipe } from '../../../shared/pipes/cover-image.pipe';
 import { ChatInputComponent, ChatDraft } from '../chat-input/chat-input';
+import { ReporteModalComponent } from '../../../shared/components/reporte-modal/reporte-modal.component';
 import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-chat-panel',
   standalone: true,
-  imports: [CommonModule, TimeAgoPipe, CurrencyEsPipe, ChatInputComponent, CoverImagePipe],
+  imports: [
+    CommonModule, 
+    TimeAgoPipe, 
+    CurrencyEsPipe, 
+    ChatInputComponent, 
+    CoverImagePipe, 
+    ReporteModalComponent
+  ],
   templateUrl: './chat-panel.html',
   styleUrl: './chat-panel.css',
 })
 export class ChatPanelComponent implements OnChanges, AfterViewChecked, OnDestroy {
   @Input() conversacion: any;
   @ViewChild('scrollContainer') private scrollContainer!: ElementRef;
+  @ViewChild('reporteModal') reporteModal!: ReporteModalComponent;
 
   chatService = inject(ChatService);
   wsService = inject(WebSocketService);
@@ -39,8 +48,11 @@ export class ChatPanelComponent implements OnChanges, AfterViewChecked, OnDestro
 
   mensajes = signal<ChatMensaje[]>([]);
   otroUsuario = signal<any>(null);
+  esVendedor = signal(false);
   cargando = signal(false);
   usuarioBloqueado = signal(false);
+  showMenu = signal(false);
+  showConfirmBloqueo = signal(false);
   private autoScrollActivado = true;
   private wsSub: Subscription | null = null;
 
@@ -60,6 +72,13 @@ export class ChatPanelComponent implements OnChanges, AfterViewChecked, OnDestro
       this.otroUsuario.set(this.conversacion.receptor);
     } else {
       this.otroUsuario.set(this.conversacion.remitente);
+    }
+
+    // Identificar si el otro es el vendedor del producto
+    if (this.conversacion.producto && this.otroUsuario()) {
+      this.esVendedor.set(this.conversacion.producto.usuario?.id === this.otroUsuario().id);
+    } else {
+      this.esVendedor.set(false);
     }
 
     const productoId = this.conversacion.producto?.id || null;
@@ -155,6 +174,52 @@ export class ChatPanelComponent implements OnChanges, AfterViewChecked, OnDestro
     this.chatService.responderPropuesta(msg.id, false).subscribe((updatedMsg) => {
       this.actualizarMensajeLista(updatedMsg);
     });
+  }
+
+  toggleMenu(event: Event) {
+    event.stopPropagation();
+    this.showMenu.update((v) => !v);
+
+    if (this.showMenu()) {
+      // Cerrar al hacer click fuera
+      const closeMenu = () => {
+        this.showMenu.set(false);
+        document.removeEventListener('click', closeMenu);
+      };
+      setTimeout(() => document.addEventListener('click', closeMenu), 0);
+    }
+  }
+
+  bloquear() {
+    const otro = this.otroUsuario();
+    if (!otro) return;
+
+    if (this.usuarioBloqueado()) {
+      this.bloqueoService.desbloquear(otro.id).subscribe(() => {
+        this.usuarioBloqueado.set(false);
+        this.showMenu.set(false);
+      });
+    } else {
+      this.showMenu.set(false);
+      this.showConfirmBloqueo.set(true);
+    }
+  }
+
+  confirmarBloqueo() {
+    const otro = this.otroUsuario();
+    if (!otro) return;
+    
+    this.bloqueoService.bloquearUsuario(otro.id, 'Bloqueado desde chat').subscribe(() => {
+      this.usuarioBloqueado.set(true);
+      this.showConfirmBloqueo.set(false);
+    });
+  }
+
+  reportar() {
+    const otro = this.otroUsuario();
+    if (!otro) return;
+    this.showMenu.set(false);
+    this.reporteModal.abrir('USUARIO', otro.id);
   }
 
   actualizarMensajeLista(updatedMsg: ChatMensaje) {

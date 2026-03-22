@@ -86,6 +86,22 @@ export class ChatService {
     );
   }
 
+  enviarPropuestaPrecio(
+    productoId: number,
+    remitenteId: number,
+    receptorId: number,
+    precioPropuesto: number,
+  ): Observable<ChatMensaje> {
+    return this.http.post<ChatMensaje>(
+      `${this.apiUrl}/chat/propuesta?productoId=${productoId}&remitenteId=${remitenteId}&receptorId=${receptorId}&precioPropuesto=${precioPropuesto}`,
+      {},
+    );
+  }
+
+  getOfertaAceptada(productoId: number, compradorId: number): Observable<any> {
+    return this.http.get(`${this.apiUrl}/chat/propuesta/aceptada?productoId=${productoId}&compradorId=${compradorId}`);
+  }
+
   // Compatibilidad legacy
   getMensajesLegacy(productoId: number): Observable<MensajeLegacy[]> {
     return this.http.get<MensajeLegacy[]>(`${this.apiUrl}/mensaje/producto/${productoId}`);

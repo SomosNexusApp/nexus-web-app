@@ -230,6 +230,35 @@
 }
 
 /* Badges condición */
+.detail-price.text-blue {
+  color: var(--nexus-blue, #3b82f6);
+}
+
+.negotiated-price-box {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.original-price-strikethrough {
+  font-size: 1.1rem;
+  color: #64748b;
+  text-decoration: line-through;
+  opacity: 0.8;
+}
+
+.negotiated-badge {
+  font-size: 0.65rem;
+  background: rgba(59, 130, 246, 0.1);
+  color: var(--nexus-blue, #3b82f6);
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-weight: 700;
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  letter-spacing: 0.05em;
+}
+
 .cond-badge {
   padding: 4px 12px;
   border-radius: 20px;

@@ -59,6 +59,7 @@ export class CheckoutComponent implements OnInit, OnDestroy {
   esRecogida = signal<boolean>(false);
   /** Precio de envío recibido del backend (o calculado localmente como fallback) */
   costoEnvioBackend = signal<number>(0);
+  precioVenta = signal<number>(0);
   ahorroRecogida = signal<number>(0);
 
   // ── Stripe (elementos individuales) ──────────────────────────────────
@@ -95,7 +96,10 @@ export class CheckoutComponent implements OnInit, OnDestroy {
     return 5.6;
   });
 
-  total = computed(() => (this.producto()?.precio ?? 0) + this.costoEnvio() + this.comisionNexus());
+  total = computed(() => {
+    const base = this.precioVenta() > 0 ? this.precioVenta() : (this.producto()?.precio ?? 0);
+    return base + this.costoEnvio() + this.comisionNexus();
+  });
 
   puedeComprar = computed(() => {
     const p = this.producto();
@@ -203,9 +207,12 @@ export class CheckoutComponent implements OnInit, OnDestroy {
 
         // Pre-cargar precio inicial desde el backend (sin crear nada en BD)
         this.compraSrv.consultarPrecio(p.id, false).subscribe({
-          next: (resp) => {
+          next: (resp: any) => {
             this.costoEnvioBackend.set(resp.costoEnvio);
             this.ahorroRecogida.set(resp.ahorroRecogida);
+            if (resp.precioProducto) {
+              this.precioVenta.set(resp.precioProducto);
+            }
             this.cdr.markForCheck();
           },
         });
@@ -325,9 +332,12 @@ export class CheckoutComponent implements OnInit, OnDestroy {
     const prod = this.producto();
     if (prod) {
       this.compraSrv.consultarPrecio(prod.id, recogida).subscribe({
-        next: (resp) => {
+        next: (resp: any) => {
           this.costoEnvioBackend.set(resp.costoEnvio);
           this.ahorroRecogida.set(resp.ahorroRecogida);
+          if (resp.precioProducto) {
+            this.precioVenta.set(resp.precioProducto);
+          }
           this.cdr.markForCheck();
         },
       });

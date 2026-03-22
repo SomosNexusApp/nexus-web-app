@@ -21,6 +21,7 @@ import { Usuario } from '../../../../models/usuario.model';
 import { environment } from '../../../../../environments/enviroment';
 import { AuthStore } from '../../../../core/auth/auth-store';
 import { FavoritoService } from '../../../../core/services/favorito.service';
+import { ChatService } from '../../../../core/services/chat.service';
 import { ReporteModalComponent } from '../../reporte-modal/reporte-modal.component';
 
 @Component({
@@ -45,9 +46,11 @@ export class ProductoDetailComponent implements OnInit, OnDestroy {
   private http = inject(HttpClient);
   private authStore = inject(AuthStore);
   private favoritoService = inject(FavoritoService);
+  private chatService = inject(ChatService);
 
   // ── Estado principal ────────────────────────────────────────────────
   producto = signal<Producto | null>(null);
+  precioNegociado = signal<number | null>(null);
   cargando = signal(true);
   error = signal<string | null>(null);
 
@@ -88,7 +91,7 @@ export class ProductoDetailComponent implements OnInit, OnDestroy {
     if (p.galeriaImagenes?.length) imgs.push(...p.galeriaImagenes);
     return imgs.length > 0
       ? imgs
-      : ['https://placehold.co/600x400/0f1115/ffffff?text=Nexus+Product'];
+      : ['https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=800&auto=format&fit=crop'];
   });
 
   imagenActiva = computed(() => this.todasImagenes()[this.imagenActivaIdx()]);
@@ -136,6 +139,7 @@ export class ProductoDetailComponent implements OnInit, OnDestroy {
   private routeSub: any;
 
   ngOnInit(): void {
+    window.scrollTo(0, 0);
     this.routeSub = this.route.paramMap.subscribe((params) => {
       const id = params.get('id');
       if (id) this.cargarProducto(+id);
@@ -159,6 +163,7 @@ export class ProductoDetailComponent implements OnInit, OnDestroy {
         this.cargarVendedor(p);
         this.cargarRelacionados(p);
         this.verificarFavorito(p.id);
+        this.verificarOfertaAceptada(p.id);
       },
       error: () => {
         this.error.set('No se pudo cargar el producto.');
@@ -319,16 +324,24 @@ export class ProductoDetailComponent implements OnInit, OnDestroy {
   enviarOferta(): void {
     const precio = this.precioOfertaInput();
     const p = this.producto();
-    if (!precio || !p) return;
-    this.http
-      .post(`${environment.apiUrl}/chat/mensaje`, {
-        productoId: p.id,
-        tipo: 'OFERTA_PRECIO',
-        precioPropuesto: precio,
-      })
-      .subscribe();
-    this.modalOfertaAbierto.set(false);
-    this.irAlChat();
+    const currUser = this.authStore.user();
+    if (!precio || !p || !currUser) return;
+
+    const vendedorId = (p.vendedor as any)?.id;
+    if (!vendedorId) return;
+
+    this.chatService
+      .enviarPropuestaPrecio(p.id, currUser.id, vendedorId, precio)
+      .subscribe({
+        next: () => {
+          this.modalOfertaAbierto.set(false);
+          this.irAlChat();
+        },
+        error: (err) => {
+          console.error('Error enviando oferta:', err);
+          alert('No se pudo enviar la oferta. Inténtalo de nuevo.');
+        }
+      });
   }
 
   // ── Reporte ───────────────────────────────────────────────────────────
@@ -350,5 +363,20 @@ export class ProductoDetailComponent implements OnInit, OnDestroy {
 
   getAvatarFallback(nombre?: string): string {
     return nombre ? nombre.charAt(0).toUpperCase() : 'U';
+  }
+
+  verificarOfertaAceptada(productoId: number): void {
+    const userId = this.currentUserId();
+    if (!userId) return;
+
+    this.chatService.getOfertaAceptada(productoId, userId).subscribe({
+      next: (res) => {
+        if (res && res.precio > 0) {
+          this.precioNegociado.set(res.precio);
+        } else {
+          this.precioNegociado.set(null);
+        }
+      }
+    });
   }
 }

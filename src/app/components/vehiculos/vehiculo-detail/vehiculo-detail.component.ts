@@ -43,6 +43,7 @@ export class VehiculoDetailComponent implements OnInit {
   opcionesEncuesta: string[] = ['', ''];
 
   ngOnInit() {
+    window.scrollTo(0, 0);
     this.route.params.subscribe((params) => {
       const id = params['id'];
       if (id) {

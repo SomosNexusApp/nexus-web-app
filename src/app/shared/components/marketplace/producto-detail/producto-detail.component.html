@@ -58,7 +58,7 @@
             [alt]="producto()!.titulo"
             class="gallery-main__img"
             [class.zoom-active]="zoomActivo()"
-            (error)="$any($event.target).src = 'https://placehold.co/600x400/0f1115/ffffff?text=Nexus+Product'"
+            (error)="$any($event.target).src = 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=800&auto=format&fit=crop'"
           />
 
           <!-- Flechas navegación -->
@@ -134,7 +134,15 @@
           } @else if (producto()!.tipoOferta === 'INTERCAMBIO') {
             <span class="detail-price text-purple">Intercambio</span>
           } @else {
-            <span class="detail-price">{{ producto()!.precio | currencyEs }}</span>
+            @if (precioNegociado()) {
+              <div class="negotiated-price-box">
+                <span class="detail-price text-blue">{{ precioNegociado() | currencyEs }}</span>
+                <span class="original-price-strikethrough">{{ producto()!.precio | currencyEs }}</span>
+                <span class="negotiated-badge">OFERTA ACEPTADA</span>
+              </div>
+            } @else {
+              <span class="detail-price">{{ producto()!.precio | currencyEs }}</span>
+            }
           }
           @if (producto()!.condicion) {
             <span class="cond-badge" [ngClass]="'cond-' + producto()!.condicion!.toLowerCase()">

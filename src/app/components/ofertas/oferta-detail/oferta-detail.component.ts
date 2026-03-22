@@ -46,6 +46,7 @@ export class OfertaDetailComponent implements OnInit, OnDestroy {
   private timer?: any;
 
   ngOnInit() {
+    window.scrollTo(0, 0);
     this.route.params.subscribe(params => {
       const id = params['id'];
       if (id) this.cargarOferta(id);

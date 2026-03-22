@@ -1,4 +1,4 @@
-import { Component, EventEmitter, inject, OnInit, Output, OnDestroy, signal } from '@angular/core';
+import { Component, EventEmitter, inject, OnInit, Output, OnDestroy, signal, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ChatService } from '../../../core/services/chat.service';
 import { ChatMensaje, WebSocketService } from '../../../core/services/websocket.service';
@@ -16,6 +16,7 @@ import { CoverImagePipe } from '../../../shared/pipes/cover-image.pipe';
   styleUrl: './conversaciones-list.css',
 })
 export class ConversacionesListComponent implements OnInit, OnDestroy {
+  @Input() convSeleccionada: any = null;
   @Output() conversacionSeleccionada = new EventEmitter<any>();
 
   chatService = inject(ChatService);

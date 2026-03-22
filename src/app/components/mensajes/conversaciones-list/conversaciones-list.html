@@ -5,7 +5,11 @@
 
   <div class="conversaciones">
     @for (msg of conversaciones(); track msg.id) {
-      <div class="conversacion-item" (click)="seleccionar(msg)">
+      <div 
+        class="conversacion-item" 
+        [class.active]="msg.id === convSeleccionada?.id || (msg.producto?.id === convSeleccionada?.producto?.id && convSeleccionada?.id === -1)"
+        (click)="seleccionar(msg)"
+      >
         <!-- Avatar del otro usuario -->
         <div class="avatar-container">
           <img
@@ -23,7 +27,7 @@
         <!-- Info principal -->
         <div class="info-container">
           <div class="top-row">
-            <span class="user-name">{{ getOtroUsuario(msg).nombre }}</span>
+            <span class="user-name">{{ getOtroUsuario(msg)?.nombre || getOtroUsuario(msg)?.user || 'Usuario' }}</span>
             <span class="msg-time">{{ msg.fechaEnvio | timeAgo }}</span>
           </div>
 

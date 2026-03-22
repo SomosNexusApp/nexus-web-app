@@ -40,6 +40,11 @@
   transform: translateX(4px);
 }
 
+.conversacion-item.active {
+  background-color: rgba(59, 130, 246, 0.08);
+  border-left: 3px solid var(--nexus-blue, #3b82f6);
+}
+
 .avatar-container {
   margin-right: 14px;
 }

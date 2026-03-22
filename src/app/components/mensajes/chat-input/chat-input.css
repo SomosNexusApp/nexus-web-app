@@ -191,53 +191,191 @@ textarea::placeholder {
   position: relative;
 }
 
-/* Oferta Overlay */
-.oferta-overlay {
-  position: absolute;
-  bottom: 80px;
-  left: 16px;
-  background: #0f1115;
-  border-radius: 12px;
-  box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.8);
-  border: 1px solid rgba(234, 179, 8, 0.3); /* gold accent */
-  max-width: 300px;
-  z-index: 50;
+/* Ultimate Offer Modal */
+.oferta-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  z-index: 9999;
   display: flex;
-  flex-direction: column;
-  overflow: hidden;
-}
-
-.oferta-header {
-  display: flex;
-  padding: 14px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  background: #15181e;
   align-items: center;
+  justify-content: center;
+  padding: 20px;
+  animation: backdropFade 0.3s ease;
 }
 
-.oferta-header h3 {
-  color: #e2e8f0;
-  margin: 0;
-  font-size: 1.05rem;
+@keyframes backdropFade {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
-.oferta-body {
-  padding: 16px;
-}
-
-.oferta-body label {
-  color: #94a3b8;
-}
-
-.oferta-body input {
-  background: rgba(0, 0, 0, 0.4);
-  color: #fff;
+.oferta-modal-card {
+  background: rgba(15, 15, 20, 0.95);
   border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 8px;
-  padding: 12px;
+  border-radius: 32px;
+  width: 100%;
+  max-width: 420px;
+  box-shadow: 0 40px 100px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.05);
+  overflow: hidden;
+  animation: modalSlideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.oferta-body input:focus {
-  border-color: #eab308;
+@keyframes modalSlideUp {
+  from { opacity: 0; transform: translateY(40px) scale(0.9); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.oferta-modal-header {
+  padding: 32px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  position: relative;
+}
+
+.modal-icon {
+  width: 50px;
+  height: 50px;
+  background: rgba(168, 180, 255, 0.1);
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #a8b4ff;
+  font-size: 1.5rem;
+}
+
+.modal-title-group h3 {
+  margin: 0;
+  color: #fff;
+  font-size: 1.25rem;
+  font-weight: 800;
+  font-family: 'Space Grotesk', sans-serif;
+}
+
+.modal-title-group p {
+  margin: 4px 0 0;
+  color: #94a3b8;
+  font-size: 0.85rem;
+}
+
+.btn-close-modal {
+  position: absolute;
+  top: 24px;
+  right: 24px;
+  background: rgba(255, 255, 255, 0.05);
+  border: none;
+  color: #94a3b8;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-close-modal:hover {
+  background: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+}
+
+.oferta-modal-body {
+  padding: 40px 32px;
+}
+
+.price-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 32px;
+}
+
+.currency-symbol {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #a8b4ff;
+  margin-right: 12px;
+}
+
+.price-input {
+  background: transparent;
+  border: none;
+  color: #fff;
+  font-size: 4rem;
+  font-weight: 800;
+  width: 200px;
+  text-align: left;
+  font-family: 'Outfit', sans-serif;
   outline: none;
+}
+
+/* Hide Spinners (Arrows) */
+.price-input::-webkit-outer-spin-button,
+.price-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.price-input {
+  -moz-appearance: textfield;
+  appearance: none;
+}
+
+.price-input::placeholder {
+  color: rgba(255, 255, 255, 0.1);
+}
+
+.offer-tips {
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 16px;
+  padding: 16px;
+  margin-bottom: 32px;
+}
+
+.tip {
+  display: flex;
+  gap: 12px;
+  color: #94a3b8;
+  font-size: 0.85rem;
+  line-height: 1.4;
+}
+
+.tip i {
+  color: #6366f1;
+  margin-top: 2px;
+}
+
+.btn-nexus-submit {
+  width: 100%;
+  background: linear-gradient(135deg, #a8b4ff, #8b5cf6);
+  color: #fff;
+  border: none;
+  padding: 20px;
+  border-radius: 20px;
+  font-size: 1rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  box-shadow: 0 10px 30px rgba(139, 92, 246, 0.3);
+}
+
+.btn-nexus-submit:hover:not(:disabled) {
+  transform: translateY(-4px);
+  box-shadow: 0 15px 35px rgba(139, 92, 246, 0.5);
+  filter: brightness(1.1);
+}
+
+.btn-nexus-submit:disabled {
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(255, 255, 255, 0.2);
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
 }

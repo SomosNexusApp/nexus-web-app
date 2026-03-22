@@ -12,7 +12,12 @@
         class="avatar-small"
       />
       <div class="user-info">
-        <span class="user-name">{{ otroUsuario()?.nombre }} {{ otroUsuario()?.apellidos || '' }}</span>
+        <span class="user-name">
+          {{ otroUsuario()?.nombre || otroUsuario()?.user || 'Usuario' }}
+          @if (esVendedor()) {
+            <span class="seller-badge">Vendedor</span>
+          }
+        </span>
       </div>
     </div>
 
@@ -27,7 +32,46 @@
         </div>
       </div>
     }
+
+    <div class="header-right">
+      <button class="btn-menu-trigger" [class.active]="showMenu()" (click)="toggleMenu($event)">
+        <i class="fas fa-ellipsis-v"></i>
+      </button>
+
+      @if (showMenu()) {
+        <div class="safety-menu animate-slide-down">
+          <button class="menu-item" (click)="reportar()">
+            <i class="fas fa-flag"></i> Reportar Usuario
+          </button>
+          <button class="menu-item danger" (click)="bloquear()">
+            <i class="fas fa-user-slash"></i> 
+            {{ usuarioBloqueado() ? 'Desbloquear' : 'Bloquear Usuario' }}
+          </button>
+        </div>
+      }
+    </div>
   </header>
+
+  <!-- Componente Modal de Reporte -->
+  <app-reporte-modal #reporteModal></app-reporte-modal>
+
+  <!-- Modal de Confirmación de Bloqueo -->
+  @if (showConfirmBloqueo()) {
+    <div class="confirm-modal-overlay" (click)="showConfirmBloqueo.set(false)">
+      <div class="confirm-modal-content animate-pop" (click)="$event.stopPropagation()">
+        <div class="confirm-icon danger">
+          <i class="fas fa-user-slash"></i>
+        </div>
+        <h3>¿Bloquear a {{ otroUsuario()?.nombre }}?</h3>
+        <p>No podréis enviaros mensajes ni ver vuestros perfiles. Puedes desbloquearlo en cualquier momento desde tu configuración.</p>
+        
+        <div class="confirm-actions">
+          <button class="btn-cancel" (click)="showConfirmBloqueo.set(false)">Cancelar</button>
+          <button class="btn-confirm-danger" (click)="confirmarBloqueo()">Bloquear Usuario</button>
+        </div>
+      </div>
+    </div>
+  }
 
   <!-- Lista de Mensajes -->
   <div class="messages-container" #scrollContainer (scroll)="onScroll($event)">
@@ -83,11 +127,17 @@
             @if (msg.tipo === 'OFERTA_PRECIO') {
               <div class="offer-card">
                 <div class="offer-header">
-                  <i class="fas fa-handshake text-xl text-yellow-500 mr-2"></i>
-                  <span class="font-bold">Oferta de Precio</span>
+                  <div class="icon-wrapper">
+                    <i class="fas fa-handshake"></i>
+                  </div>
+                  <span>Propuesta de Precio</span>
                 </div>
-                <div class="offer-amount text-2xl font-bold my-2 text-center text-nexus-primary">
-                  {{ msg.precioPropuesto | currencyEs }}
+                
+                <div class="offer-content">
+                  <span class="offer-label">Monto propuesto</span>
+                  <div class="offer-amount">
+                    {{ msg.precioPropuesto | currencyEs }}
+                  </div>
                 </div>
 
                 <!-- Acciones si soy receptor y está PENDIENTE -->
@@ -96,23 +146,23 @@
                 ) {
                   <div class="offer-actions">
                     <button class="btn-accept" (click)="aceptarOferta(msg)">
-                      <i class="fas fa-check"></i> Aceptar
+                      ACEPTAR
                     </button>
                     <button class="btn-reject" (click)="rechazarOferta(msg)">
-                      <i class="fas fa-times"></i> Rechazar
+                      RECHAZAR
                     </button>
                   </div>
                 }
 
                 @if (msg.estadoPropuesta === 'ACEPTADA') {
                   <div class="offer-status accepted">
-                    <i class="fas fa-check-circle"></i> Oferta aceptada
+                    <i class="fas fa-check-circle"></i> PROPUESTA ACEPTADA
                   </div>
                 }
 
                 @if (msg.estadoPropuesta === 'RECHAZADA') {
                   <div class="offer-status rejected">
-                    <i class="fas fa-times-circle"></i> Oferta rechazada
+                    <i class="fas fa-times-circle"></i> PROPUESTA RECHAZADA
                   </div>
                 }
               </div>
