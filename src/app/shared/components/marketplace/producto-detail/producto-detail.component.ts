@@ -6,6 +6,7 @@ import {
   signal,
   computed,
   ChangeDetectionStrategy,
+  ViewChild
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
@@ -20,6 +21,7 @@ import { Usuario } from '../../../../models/usuario.model';
 import { environment } from '../../../../../environments/enviroment';
 import { AuthStore } from '../../../../core/auth/auth-store';
 import { FavoritoService } from '../../../../core/services/favorito.service';
+import { ReporteModalComponent } from '../../reporte-modal/reporte-modal.component';
 
 @Component({
   selector: 'app-producto-detail',
@@ -31,6 +33,7 @@ import { FavoritoService } from '../../../../core/services/favorito.service';
     TimeAgoPipe,
     CurrencyEsPipe,
     ProductoCardComponent,
+    ReporteModalComponent
   ],
   templateUrl: './producto-detail.component.html',
   styleUrls: ['./producto-detail.component.css'],
@@ -47,6 +50,8 @@ export class ProductoDetailComponent implements OnInit, OnDestroy {
   producto = signal<Producto | null>(null);
   cargando = signal(true);
   error = signal<string | null>(null);
+
+  @ViewChild(ReporteModalComponent) reporteModal!: ReporteModalComponent;
 
   // ── Galería ──────────────────────────────────────────────────────────
   imagenActivaIdx = signal(0);
@@ -68,11 +73,8 @@ export class ProductoDetailComponent implements OnInit, OnDestroy {
 
   // ── Modales ──────────────────────────────────────────────────────────
   modalOfertaAbierto = signal(false);
-  modalReporteAbierto = signal(false);
   modalBorrarAbierto = signal(false);
   precioOfertaInput = signal<number | null>(null);
-  motivoReporte = signal('');
-  descReporte = signal('');
 
   // ── Descripción expandida ─────────────────────────────────────────────
   descExpandida = signal(false);
@@ -332,24 +334,13 @@ export class ProductoDetailComponent implements OnInit, OnDestroy {
   // ── Reporte ───────────────────────────────────────────────────────────
   reportarAnuncio(): void {
     if (!this.isLoggedIn()) {
-      // this.guestPopupService.showPopup('Para reportar anuncios');
+      alert('Inicia sesión para reportar anuncios.');
       return;
     }
-    this.modalReporteAbierto.set(true);
-  }
-
-  enviarReporte(): void {
     const p = this.producto();
-    if (!p || !this.motivoReporte()) return;
-    this.http
-      .post(`${environment.apiUrl}/reporte`, {
-        tipo: 'PRODUCTO',
-        motivo: this.motivoReporte(),
-        descripcion: this.descReporte(),
-        productoDenunciadoId: p.id,
-      })
-      .subscribe();
-    this.modalReporteAbierto.set(false);
+    if (p) {
+      this.reporteModal.abrir('PRODUCTO', p.id);
+    }
   }
 
   // ── Helpers UI ────────────────────────────────────────────────────────

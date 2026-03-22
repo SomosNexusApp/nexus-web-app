@@ -25,7 +25,13 @@
 
       <div class="actions">
         <button class="btn-chat" (click)="contactar()">💬 Contactar con el vendedor</button>
-        <button class="btn-fav">❤️ Guardar</button>
+        <button class="btn-fav" style="margin-right: 8px;">❤️ Guardar</button>
+        <button class="btn-report" (click)="abrirReporte()" title="Reportar vehículo" style="background: none; border: 1px solid #e5e7eb; border-radius: 8px; padding: 10px; cursor: pointer; color: #ef4444;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 20px; height: 20px;">
+            <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path>
+            <line x1="4" y1="22" x2="4" y2="15"></line>
+          </svg>
+        </button>
       </div>
 
       <div class="info-banner">
@@ -165,3 +171,5 @@
     </div>
   </section>
 </div>
+
+<app-reporte-modal></app-reporte-modal>

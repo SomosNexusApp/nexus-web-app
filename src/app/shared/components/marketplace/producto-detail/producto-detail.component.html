@@ -673,35 +673,4 @@
   </div>
 }
 
-<!-- ═══════════════════ MODAL REPORTAR ══════════════════════ -->
-@if (modalReporteAbierto()) {
-  <div class="modal-overlay" (click)="modalReporteAbierto.set(false)">
-    <div class="modal-box" (click)="$event.stopPropagation()">
-      <h3 class="modal-title">Reportar anuncio</h3>
-      <select
-        class="modal-input"
-        [ngModel]="motivoReporte()"
-        (ngModelChange)="motivoReporte.set($event)"
-      >
-        <option value="">Selecciona un motivo…</option>
-        <option value="SPAM">Spam</option>
-        <option value="FRAUDE">Fraude</option>
-        <option value="CONTENIDO_INAPROPIADO">Contenido inapropiado</option>
-        <option value="INFORMACION_FALSA">Información falsa</option>
-      </select>
-      <textarea
-        class="modal-input modal-textarea"
-        placeholder="Descripción adicional (opcional)"
-        rows="3"
-        [ngModel]="descReporte()"
-        (ngModelChange)="descReporte.set($event)"
-      ></textarea>
-      <div class="modal-actions">
-        <button class="btn btn-secondary" (click)="modalReporteAbierto.set(false)">Cancelar</button>
-        <button class="btn btn-danger" (click)="enviarReporte()" [disabled]="!motivoReporte()">
-          Enviar reporte
-        </button>
-      </div>
-    </div>
-  </div>
-}
+<app-reporte-modal></app-reporte-modal>

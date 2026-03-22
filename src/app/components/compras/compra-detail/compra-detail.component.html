@@ -221,7 +221,7 @@
           <button class="cd-btn cd-btn-primary">Confirmar que todo está bien</button>
         }
         @if (c.estado === 'COMPLETADA') {
-          <button class="cd-btn cd-btn-primary">Valorar Vendedor</button>
+          <button class="cd-btn cd-btn-primary" (click)="abrirValoracion()">Valorar Vendedor</button>
         }
       }
 
@@ -233,3 +233,5 @@
     </div>
   }
 </div>
+
+<app-valoracion-modal></app-valoracion-modal>

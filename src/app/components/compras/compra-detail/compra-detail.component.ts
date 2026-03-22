@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal, computed } from '@angular/core';
+import { Component, inject, OnInit, signal, computed, ViewChild } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
 import { ActivatedRoute, RouterModule, Router } from '@angular/router';
 import { CompraService } from '../../../core/services/compra.service';
@@ -7,11 +7,12 @@ import { Compra } from '../../../models/compra.model';
 import { TimeAgoPipe } from '../../../shared/pipes/time-ago.pipe';
 import { CurrencyEsPipe } from '../../../shared/pipes/currency-es.pipe';
 import { CoverImagePipe } from '../../../shared/pipes/cover-image.pipe';
+import { ValoracionModalComponent } from '../../../shared/components/valoracion-modal/valoracion-modal.component';
 
 @Component({
   selector: 'app-compra-detail',
   standalone: true,
-  imports: [CommonModule, RouterModule, CurrencyEsPipe, CoverImagePipe],
+  imports: [CommonModule, RouterModule, CurrencyEsPipe, CoverImagePipe, ValoracionModalComponent],
   templateUrl: './compra-detail.component.html',
   styleUrl: './compra-detail.component.css',
 })
@@ -26,6 +27,8 @@ export class CompraDetailComponent implements OnInit {
   envioInfo = signal<any>(null);
   loading = signal(true);
   error = signal<string | null>(null);
+
+  @ViewChild(ValoracionModalComponent) valoracionModal!: ValoracionModalComponent;
 
   currentUser = this.authStore.user;
 
@@ -133,5 +136,12 @@ export class CompraDetailComponent implements OnInit {
         current: s.id === c.estado,
       };
     });
+  }
+
+  abrirValoracion() {
+    const c = this.compra();
+    if (c && c.producto?.vendedor?.user) {
+      this.valoracionModal.abrir(c.producto.vendedor.user, c.id);
+    }
   }
 }

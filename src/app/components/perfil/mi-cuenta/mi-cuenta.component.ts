@@ -27,7 +27,6 @@ type SidebarSection =
   | 'configuracion'
   | 'ayuda';
 
-
 @Component({
   selector: 'app-mi-cuenta',
   standalone: true,
@@ -263,22 +262,25 @@ export class MiCuentaComponent implements OnInit {
     this.cargandoFavs.set(true);
     const u = this.authStore.user();
     if (!u) return;
-    this.http.get<any[]>(`${environment.apiUrl}/api/favoritos/usuario/${u.id}`, { withCredentials: true }).subscribe({
-      next: (data) => {
-        this.favProductos.set((data || []).filter((f: any) => f.producto));
-        this.favOfertas.set((data || []).filter((f: any) => f.oferta));
-        this.cargandoFavs.set(false);
-      },
-      error: () => {
-        this.favProductos.set([]);
-        this.favOfertas.set([]);
-        this.cargandoFavs.set(false);
-      },
-    });
+    this.http
+      .get<any[]>(`${environment.apiUrl}/api/favoritos/usuario/${u.id}`, { withCredentials: true })
+      .subscribe({
+        next: (data) => {
+          this.favProductos.set((data || []).filter((f: any) => f.producto));
+          this.favOfertas.set((data || []).filter((f: any) => f.oferta));
+          this.cargandoFavs.set(false);
+        },
+        error: () => {
+          this.favProductos.set([]);
+          this.favOfertas.set([]);
+          this.cargandoFavs.set(false);
+        },
+      });
   }
 
   quitarFavorito(favId: number) {
-    this.http.delete(`${environment.apiUrl}/favorito/${favId}`).subscribe({
+    // Fíjate que aquí dice /api/favoritos/ en lugar de /favorito/
+    this.http.delete(`${environment.apiUrl}/api/favoritos/${favId}`).subscribe({
       next: () => {
         this.favProductos.update((fs) => fs.filter((f) => f.id !== favId));
         this.favOfertas.update((fs) => fs.filter((f) => f.id !== favId));

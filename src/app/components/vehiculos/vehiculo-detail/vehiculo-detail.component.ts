@@ -7,11 +7,13 @@ import { AuthStore } from '../../../core/auth/auth-store';
 import { CurrencyEsPipe } from '../../../shared/pipes/currency-es.pipe';
 import { TimeAgoPipe } from '../../../shared/pipes/time-ago.pipe';
 import { FormsModule } from '@angular/forms';
+import { ReporteModalComponent } from '../../../shared/components/reporte-modal/reporte-modal.component';
+import { ViewChild } from '@angular/core';
 
 @Component({
   selector: 'app-vehiculo-detail',
   standalone: true,
-  imports: [CommonModule, RouterModule, CurrencyEsPipe, FormsModule],
+  imports: [CommonModule, RouterModule, CurrencyEsPipe, FormsModule, ReporteModalComponent],
   templateUrl: './vehiculo-detail.component.html',
   styleUrls: ['./vehiculo-detail.component.css'],
 })
@@ -20,6 +22,8 @@ export class VehiculoDetailComponent implements OnInit {
   private router = inject(Router);
   private http = inject(HttpClient);
   authStore = inject(AuthStore);
+
+  @ViewChild(ReporteModalComponent) reporteModal!: ReporteModalComponent;
 
   vehiculo = signal<any>(null);
   similares = signal<any[]>([]);
@@ -96,6 +100,14 @@ export class VehiculoDetailComponent implements OnInit {
     }
     // Vehículos también pueden contactarse directamente a través del su `id` si se tratan como Productos en el backend.
     this.router.navigate(['/mensajes'], { queryParams: { productoId: this.vehiculo()?.id } });
+  }
+
+  abrirReporte() {
+    if (!this.authStore.isLoggedIn()) {
+      alert('Inicia sesión para reportar.');
+      return;
+    }
+    this.reporteModal.abrir('VEHICULO', this.vehiculo().id);
   }
 
   // --- COMENTARIOS ---

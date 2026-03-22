@@ -14,6 +14,7 @@ import { CommonModule } from '@angular/common';
 import { ChatService } from '../../../core/services/chat.service';
 import { ChatMensaje, WebSocketService } from '../../../core/services/websocket.service';
 import { AuthStore } from '../../../core/auth/auth-store';
+import { BloqueoService } from '../../../core/services/bloqueo.service';
 import { TimeAgoPipe } from '../../../shared/pipes/time-ago.pipe';
 import { CurrencyEsPipe } from '../../../shared/pipes/currency-es.pipe';
 import { CoverImagePipe } from '../../../shared/pipes/cover-image.pipe';
@@ -34,10 +35,12 @@ export class ChatPanelComponent implements OnChanges, AfterViewChecked, OnDestro
   chatService = inject(ChatService);
   wsService = inject(WebSocketService);
   authStore = inject(AuthStore);
+  bloqueoService = inject(BloqueoService);
 
   mensajes = signal<ChatMensaje[]>([]);
   otroUsuario = signal<any>(null);
   cargando = signal(false);
+  usuarioBloqueado = signal(false);
   private autoScrollActivado = true;
   private wsSub: Subscription | null = null;
 
@@ -71,6 +74,12 @@ export class ChatPanelComponent implements OnChanges, AfterViewChecked, OnDestro
       this.cargando.set(false);
       return;
     }
+
+    // Check if user is blocked
+    this.bloqueoService.estaBloqueado(otroId).subscribe({
+      next: (res) => this.usuarioBloqueado.set(res.bloqueado),
+      error: () => this.usuarioBloqueado.set(false)
+    });
 
     // Suscribirse al topic WebSocket de esta sala para recibir mensajes en tiempo real
     this.wsService.suscribirseAlChat(roomId);

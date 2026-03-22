@@ -134,11 +134,17 @@
 
   <!-- Input Area (Será el siguiente componente) -->
   <footer class="chat-footer">
-    <app-chat-input
-      [esDirecto]="!conversacion.producto"
-      (enviarMensaje)="onEnviarMensaje($event)"
-      (escribiendo)="notificarEscribiendo()"
-    >
-    </app-chat-input>
+    @if (usuarioBloqueado()) {
+      <div class="bloqueado-banner" style="padding: 15px; text-align: center; background-color: #fef2f2; color: #ef4444; border-top: 1px solid #fee2e2;">
+        No puedes enviar ni recibir mensajes de este usuario porque lo has bloqueado.
+      </div>
+    } @else {
+      <app-chat-input
+        [esDirecto]="!conversacion.producto"
+        (enviarMensaje)="onEnviarMensaje($event)"
+        (escribiendo)="notificarEscribiendo()"
+      >
+      </app-chat-input>
+    }
   </footer>
 </div>

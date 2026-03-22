@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal, OnDestroy } from '@angular/core';
+import { Component, OnInit, inject, signal, OnDestroy, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { HttpClient, HttpParams } from '@angular/common/http';
@@ -7,6 +7,7 @@ import { AuthStore } from '../../../core/auth/auth-store';
 import { CurrencyEsPipe } from '../../../shared/pipes/currency-es.pipe';
 import { TimeAgoPipe } from '../../../shared/pipes/time-ago.pipe';
 import { FormsModule } from '@angular/forms';
+import { ReporteModalComponent } from '../../../shared/components/reporte-modal/reporte-modal.component';
 
 export interface PollOption { text: string; votes: number; }
 export interface PollData { question: string; options: PollOption[]; totalVotes: number; votedUsers: number[]; }
@@ -14,7 +15,7 @@ export interface PollData { question: string; options: PollOption[]; totalVotes:
 @Component({
   selector: 'app-oferta-detail',
   standalone: true,
-  imports: [CommonModule, RouterModule, CurrencyEsPipe, TimeAgoPipe, FormsModule],
+  imports: [CommonModule, RouterModule, CurrencyEsPipe, TimeAgoPipe, FormsModule, ReporteModalComponent],
   templateUrl: './oferta-detail.component.html',
   styleUrls: ['./oferta-detail.component.css']
 })
@@ -22,6 +23,8 @@ export class OfertaDetailComponent implements OnInit, OnDestroy {
   private route = inject(ActivatedRoute);
   private http = inject(HttpClient);
   authStore = inject(AuthStore);
+
+  @ViewChild(ReporteModalComponent) reporteModal!: ReporteModalComponent;
 
   oferta = signal<any>(null);
   comentarios = signal<any[]>([]);
@@ -107,11 +110,34 @@ export class OfertaDetailComponent implements OnInit, OnDestroy {
     if (this.votando()) return;
 
     this.votando.set(true);
+    
+    // Guardar estado original por si falla y actualización optimista
+    const previousState = { ...this.oferta() };
+    const voteType = esSpark ? 'SPARK' : 'DRIP';
+    
+    this.oferta.update(o => {
+      let newScore = o.sparkScore || 0;
+      let newVoto = o.miVoto;
+      
+      // Deshacer voto anterior simulado
+      if (o.miVoto === 'SPARK') newScore -= 1;
+      else if (o.miVoto === 'DRIP') newScore -= -1;
+
+      if (o.miVoto === voteType) {
+        newVoto = 'NONE'; // Toggle off
+      } else {
+        newVoto = voteType; // Toggle on o Switch
+        if (newVoto === 'SPARK') newScore += 1;
+        else if (newVoto === 'DRIP') newScore += -1;
+      }
+      return { ...o, sparkScore: newScore, miVoto: newVoto };
+    });
+
     const params = new HttpParams()
       .set('usuarioId', this.authStore.user()!.id.toString())
       .set('esSpark', esSpark.toString());
 
-    this.http.post(`${environment.apiUrl}/oferta/${this.oferta().id}/votar`, {}, { params }).subscribe({
+    this.http.post(`${environment.apiUrl}/oferta/${previousState.id}/votar`, {}, { params }).subscribe({
       next: (res: any) => {
         this.oferta.update(o => ({ 
           ...o, 
@@ -121,8 +147,19 @@ export class OfertaDetailComponent implements OnInit, OnDestroy {
         }));
         this.votando.set(false);
       },
-      error: () => this.votando.set(false)
+      error: () => {
+        this.oferta.set(previousState);
+        this.votando.set(false);
+      }
     });
+  }
+
+  abrirReporte() {
+    if (!this.authStore.isLoggedIn()) {
+      alert('Inicia sesión para reportar.');
+      return;
+    }
+    this.reporteModal.abrir('OFERTA', this.oferta().id);
   }
 
   // --- COMENTARIOS: FORMATO Y ACCIONES ---

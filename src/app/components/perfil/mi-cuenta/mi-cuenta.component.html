@@ -284,7 +284,10 @@
               <div class="products-grid">
                 @for (f of favProductos(); track f.id) {
                   <div class="fav-card">
-                    <app-producto-card [producto]="f.producto || f"></app-producto-card>
+                    <app-producto-card
+                      [producto]="f.producto || f"
+                      [showFavorito]="false"
+                    ></app-producto-card>
                     <button class="fav-remove" (click)="quitarFavorito(f.id)">
                       <i class="fas fa-times"></i>
                     </button>
@@ -303,7 +306,10 @@
               <div class="products-grid">
                 @for (f of favOfertas(); track f.id) {
                   <div class="fav-card">
-                    <app-producto-card [producto]="f.oferta || f"></app-producto-card>
+                    <app-producto-card
+                      [producto]="f.oferta || f"
+                      [showFavorito]="false"
+                    ></app-producto-card>
                     <button class="fav-remove" (click)="quitarFavorito(f.id)">
                       <i class="fas fa-times"></i>
                     </button>

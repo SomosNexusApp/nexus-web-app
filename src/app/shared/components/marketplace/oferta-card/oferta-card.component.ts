@@ -141,6 +141,34 @@ export class OfertaCardComponent implements OnInit, OnDestroy, OnChanges {
 
     this.votando.set(true);
 
+    // Guardar estado anterior por si falla
+    const previousScore = this.sparkScore();
+    const previousVoto = this.miVoto();
+    const voteType = esSpark ? 'SPARK' : 'DRIP';
+
+    // Calculo optimista
+    let newScore = previousScore;
+    let newVoto = previousVoto;
+
+    // Deshacer voto anterior si lo había
+    if (previousVoto === 'SPARK') newScore -= 1;
+    else if (previousVoto === 'DRIP') newScore -= -1;
+
+    if (previousVoto === voteType) {
+      // Quitar voto
+      newVoto = 'NONE';
+    } else {
+      // Agregar nuevo voto
+      newVoto = voteType;
+      if (newVoto === 'SPARK') newScore += 1;
+      else if (newVoto === 'DRIP') newScore += -1;
+    }
+
+    this.sparkScore.set(newScore);
+    this.miVoto.set(newVoto);
+    (this.oferta as any).sparkScore = newScore;
+    (this.oferta as any).miVoto = newVoto;
+
     const params = new HttpParams()
       .set('usuarioId', usuarioId.toString())
       .set('esSpark', esSpark.toString());
@@ -159,6 +187,10 @@ export class OfertaCardComponent implements OnInit, OnDestroy, OnChanges {
         },
         error: (err) => {
           console.error('Error al votar:', err);
+          this.sparkScore.set(previousScore);
+          this.miVoto.set(previousVoto);
+          (this.oferta as any).sparkScore = previousScore;
+          (this.oferta as any).miVoto = previousVoto;
           this.votando.set(false);
         },
       });

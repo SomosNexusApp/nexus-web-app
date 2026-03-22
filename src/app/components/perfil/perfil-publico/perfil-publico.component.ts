@@ -1,17 +1,19 @@
-import { Component, OnInit, inject, signal, computed, OnDestroy } from '@angular/core';
+import { Component, OnInit, inject, signal, computed, OnDestroy, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../../environments/enviroment';
 import { AuthStore } from '../../../core/auth/auth-store';
 import { TimeAgoPipe } from '../../../shared/pipes/time-ago.pipe';
+import { BloqueoService } from '../../../core/services/bloqueo.service';
+import { ReporteModalComponent } from '../../../shared/components/reporte-modal/reporte-modal.component';
 
 import { ProductoCardComponent } from '../../../shared/components/marketplace/product-card/producto-card.component';
 
 @Component({
   selector: 'app-perfil-publico',
   standalone: true,
-  imports: [CommonModule, RouterModule, TimeAgoPipe, ProductoCardComponent],
+  imports: [CommonModule, RouterModule, TimeAgoPipe, ProductoCardComponent, ReporteModalComponent],
   templateUrl: './perfil-publico.component.html',
   styleUrls: ['./perfil-publico.component.css'],
 })
@@ -20,12 +22,19 @@ export class PerfilPublicoComponent implements OnInit, OnDestroy {
   private router = inject(Router);
   private http = inject(HttpClient);
   authStore = inject(AuthStore);
+  private bloqueoService = inject(BloqueoService);
+
+  @ViewChild(ReporteModalComponent) reporteModal!: ReporteModalComponent;
 
   // Estado
   perfil = signal<any>(null);
   cargando = signal(true);
   error = signal<string | null>(null);
   activeTab = signal<'productos' | 'ofertas' | 'valoraciones' | 'sobre-mi'>('productos');
+
+  // Actions states
+  estaBloqueado = signal(false);
+  mostrandoMenu = signal(false);
 
   // Datos de tabs
   productos = signal<any[]>([]);
@@ -103,6 +112,13 @@ export class PerfilPublicoComponent implements OnInit, OnDestroy {
         this.cargando.set(false);
         this.cargarResumenValoraciones(data.id);
         this.cargarTabProductos(data.id);
+
+        if (this.authStore.isLoggedIn() && data.id !== this.authStore.user()?.id) {
+          this.bloqueoService.estaBloqueado(data.id).subscribe({
+            next: (res) => this.estaBloqueado.set(res.bloqueado),
+            error: () => this.estaBloqueado.set(false)
+          });
+        }
       },
       error: () => {
         this.error.set('No se encontró el perfil.');
@@ -187,5 +203,41 @@ export class PerfilPublicoComponent implements OnInit, OnDestroy {
       half: n === Math.ceil(rating) && rating % 1 >= 0.25,
       empty: n > Math.ceil(rating),
     }));
+  }
+
+  toggleOptionMenu() {
+    this.mostrandoMenu.update(v => !v);
+  }
+
+  abrirReporte() {
+    this.mostrandoMenu.set(false);
+    if (!this.authStore.isLoggedIn()) {
+      alert('Debes iniciar sesión para reportar.');
+      return;
+    }
+    this.reporteModal.abrir('USUARIO', this.perfil().id);
+  }
+
+  toggleBloqueo() {
+    this.mostrandoMenu.set(false);
+    if (!this.authStore.isLoggedIn()) {
+      alert('Debes iniciar sesión para bloquear.');
+      return;
+    }
+
+    const userId = this.perfil().id;
+    if (this.estaBloqueado()) {
+      this.bloqueoService.desbloquear(userId).subscribe({
+        next: () => this.estaBloqueado.set(false),
+        error: (err) => alert('Error al desbloquear: ' + (err.error?.error || err.message))
+      });
+    } else {
+      if (confirm('¿Estás seguro de que deseas bloquear a este usuario? No podrá enviarte mensajes.')) {
+        this.bloqueoService.bloquearUsuario(userId).subscribe({
+          next: () => this.estaBloqueado.set(true),
+          error: (err) => alert('Error al bloquear: ' + (err.error?.error || err.message))
+        });
+      }
+    }
   }
 }
