@@ -81,6 +81,7 @@ export class SearchComponent implements OnInit, AfterViewInit, OnDestroy {
   esBusquedaVehiculo = false;
   obteniendoUbicacion = false;
   categoriaNombreActual = signal<string>('');
+  categoriaIconoActual = signal<string>('fas fa-layer-group');
 
   private destroy$ = new Subject<void>();
   private formSub!: Subscription;
@@ -343,6 +344,9 @@ export class SearchComponent implements OnInit, AfterViewInit, OnDestroy {
         if (this.slugEsVehiculo(slug)) {
           this.filterForm.patchValue({ tipo: 'VEHICULO' }, { emitEvent: false });
           this.esBusquedaVehiculo = true;
+        } else if (this.filterForm.get('tipo')?.value === 'VEHICULO') {
+          this.filterForm.patchValue({ tipo: 'TODOS' }, { emitEvent: false });
+          this.esBusquedaVehiculo = false;
         }
       });
   }
@@ -363,6 +367,7 @@ export class SearchComponent implements OnInit, AfterViewInit, OnDestroy {
     }
     const cat = this.categoriasDisponibles.find((c) => c.slug === slug);
     this.categoriaNombreActual.set(cat ? cat.nombre : slug.charAt(0).toUpperCase() + slug.slice(1));
+    this.categoriaIconoActual.set(cat?.icono || 'fas fa-layer-group');
   }
 
   limpiarFiltros(): void {

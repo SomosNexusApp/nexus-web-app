@@ -47,46 +47,55 @@
           <div class="nx-segmented-control">
             <label class="nx-segment-item">
               <input type="radio" formControlName="tipo" value="TODOS" />
-              <div class="nx-segment-btn"><i class="icon-globe"></i> Todo</div>
+              <div class="nx-segment-btn btn-all">
+                <i class="fas fa-border-all"></i>
+                <span>Todo</span>
+              </div>
             </label>
             <label class="nx-segment-item">
               <input type="radio" formControlName="tipo" value="PRODUCTO" />
-              <div class="nx-segment-btn"><i class="icon-box"></i> Productos</div>
+              <div class="nx-segment-btn btn-product">
+                <i class="fas fa-box-open"></i>
+                <span>Productos</span>
+              </div>
             </label>
             <label class="nx-segment-item">
               <input type="radio" formControlName="tipo" value="OFERTA" />
-              <div class="nx-segment-btn"><i class="icon-zap"></i> Chollos</div>
+              <div class="nx-segment-btn btn-offer">
+                <i class="fas fa-fire"></i>
+                <span>Chollos</span>
+              </div>
             </label>
             <label class="nx-segment-item">
               <input type="radio" formControlName="tipo" value="VEHICULO" />
-              <div class="nx-segment-btn"><i class="icon-car"></i> Motor</div>
+              <div class="nx-segment-btn btn-motor">
+                <i class="fas fa-car-side"></i>
+                <span>Motor</span>
+              </div>
             </label>
           </div>
         </div>
 
         <!-- Ubicación -->
-        <div class="nx-form-group nx-relative">
-          <label class="nx-form-label">Ubicación</label>
+        <div class="nx-form-group">
+          <label class="nx-form-label"><i class="fas fa-location-dot"></i> Ubicación</label>
           <div class="nx-input-with-icon">
-            <i class="icon-map-pin nx-icon-left"></i>
+            <i class="fas fa-location-dot nx-icon-left"></i>
             <input
               type="text"
               formControlName="ubicacion"
               class="nx-dark-input"
               placeholder="Ciudad, provincia, código postal..."
-              autocomplete="off"
+              (focus)="mostrandoSugerenciasUbi = sugerenciasUbicacion.length > 0"
             />
             <button
               type="button"
               class="nx-btn-locate"
               (click)="usarUbicacionActual()"
+              [disabled]="obteniendoUbicacion"
               title="Usar mi ubicación actual"
             >
-              @if (obteniendoUbicacion) {
-                <i class="icon-loader nx-spin"></i>
-              } @else {
-                <i class="icon-crosshair"></i>
-              }
+              <i class="fas fa-crosshairs anim-gps" [class.nx-spin]="obteniendoUbicacion"></i>
             </button>
           </div>
           @if (mostrandoSugerenciasUbi && sugerenciasUbicacion.length > 0) {
@@ -107,9 +116,9 @@
 
         <!-- Categoría — value es slug (string), no id -->
         <div class="nx-form-group">
-          <label class="nx-form-label">Categoría</label>
+          <label class="nx-form-label"><i [class]="categoriaIconoActual()"></i> Categoría</label>
           <div class="nx-select-wrapper">
-            <i class="icon-layers nx-icon-left"></i>
+            <i [class]="categoriaIconoActual() + ' nx-icon-left'"></i>
             <select formControlName="categoria" class="nx-dark-select">
               <option value="">Cualquier categoría</option>
               @for (cat of categoriasDisponibles; track cat.id) {
@@ -382,11 +391,11 @@
       </div>
 
       <div class="nx-sort-wrapper" [formGroup]="filterForm">
-        <label class="nx-sort-label"><i class="icon-bar-chart-2"></i> Ordenar por</label>
+        <label class="nx-sort-label"><i class="fas fa-sort-amount-down"></i> Ordenar por</label>
         <div class="nx-select-wrapper nx-select-sort">
           <select formControlName="orden" class="nx-dark-select">
             <option value="relevancia">Mejor coincidencia</option>
-            <option value="reciente">Novedades primero</option>
+            <option value="novedades">Novedades primero</option>
             <option value="precio_asc">Precio: de menor a mayor</option>
             <option value="precio_desc">Precio: de mayor a menor</option>
           </select>
@@ -424,19 +433,26 @@
           </div>
         }
       } @else if (busquedaRealizada) {
-        <div class="nx-empty-glass-state">
-          <div class="nx-empty-icon-circle">
-            <i class="icon-search"></i>
-          </div>
-          <h2>No hay coincidencias</h2>
-          <span>
-            No hemos encontrado resultados que cumplan con todos tus filtros. Prueba a reducir las
-            restricciones o eliminar alguna palabra clave.
-          </span>
-          <button class="nx-btn-primary-glow" (click)="limpiarFiltros()">
-            Ver todo el catálogo
-          </button>
+        <!-- Estado Vacío Premium (Spectacular) -->
+    <div
+      class="nx-empty-glass-state"
+      *ngIf="!cargando && resultados.length === 0 && busquedaRealizada"
+    >
+      <div class="nx-spectacular-empty-container">
+        <div class="nx-neon-ring"></div>
+        <div class="nx-empty-icon-circle">
+          <i class="fas fa-search-minus"></i>
         </div>
+      </div>
+      <h2 class="nx-h2-spectacular">Vaya... parece que no hay nada por aquí</h2>
+      <p class="nx-p-spectacular">
+        No hemos encontrado resultados que coincidan con tus criterios. Prueba a ajustar los
+        filtros o buscar algo diferente.
+      </p>
+      <button class="nx-btn-spectacular-glow" (click)="limpiarFiltros()">
+        <i class="fas fa-undo"></i> Reiniciar filtros
+      </button>
+    </div>
       }
     </div>
 
