@@ -47,9 +47,27 @@
     radial-gradient(circle at 50% 0%, rgba(99, 102, 241, 0.05) 0%, transparent 50%),
     radial-gradient(circle at 100% 100%, rgba(16, 185, 129, 0.03) 0%, transparent 40%);
   background-attachment: fixed;
+
+  overflow: hidden;
+  margin-top: 120px;
 }
 
-h1, h2, h3, .nx-h1-gradient, .nx-sidebar-brand h2 {
+@media (min-width: 1025px) {
+  :host {
+    height: 100vh;
+    overflow: hidden;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+  }
+}
+
+h1,
+h2,
+h3,
+.nx-h1-gradient,
+.nx-sidebar-brand h2 {
   font-family: 'Outfit', sans-serif !important;
 }
 
@@ -64,6 +82,17 @@ h1, h2, h3, .nx-h1-gradient, .nx-sidebar-brand h2 {
   gap: 2.5rem;
   align-items: flex-start;
   position: relative;
+}
+
+/* Scroll Separado para Desktop */
+@media (min-width: 1025px) {
+  .nx-search-wrapper {
+    height: calc(100vh - 130px);
+    overflow: hidden;
+    padding-bottom: 2rem;
+    padding-top: 2rem; /* Aumentado para que no se corte arriba */
+    align-items: stretch; /* Asegura que los hijos llenen la altura si es necesario */
+  }
 }
 
 /* ==========================================================================
@@ -90,11 +119,19 @@ h1, h2, h3, .nx-h1-gradient, .nx-sidebar-brand h2 {
   box-shadow: var(--nx-shadow-glass);
   position: sticky;
   top: 2rem;
-  max-height: calc(100vh - 4rem);
   display: flex;
   flex-direction: column;
-  overflow: hidden;
   z-index: 20;
+}
+
+@media (min-width: 1025px) {
+  .nx-sidebar-glass {
+    height: 100%;
+    position: sticky;
+    top: 0;
+    max-height: none;
+    flex-shrink: 0;
+  }
 }
 
 .nx-sidebar-header {
@@ -135,25 +172,22 @@ h1, h2, h3, .nx-h1-gradient, .nx-sidebar-brand h2 {
   transition: var(--nx-transition);
 }
 
-/* Scrollbar Custom Oscura para el Sidebar */
 .nx-sidebar-scroll-container {
   padding: 1.5rem;
-  overflow-y: auto;
   flex-grow: 1;
+  overflow-y: auto;
+  scrollbar-gutter: stable;
 }
 
+.nx-sidebar-scroll-container {
+  padding: 1.5rem;
+  flex-grow: 1;
+  overflow-y: auto;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE/Edge */
+}
 .nx-sidebar-scroll-container::-webkit-scrollbar {
-  width: 6px;
-}
-.nx-sidebar-scroll-container::-webkit-scrollbar-track {
-  background: rgba(0, 0, 0, 0.1);
-}
-.nx-sidebar-scroll-container::-webkit-scrollbar-thumb {
-  background: var(--nx-text-muted);
-  border-radius: 10px;
-}
-.nx-sidebar-scroll-container::-webkit-scrollbar-thumb:hover {
-  background: var(--nx-text-secondary);
+  display: none; /* Chrome, Safari, Opera */
 }
 
 /* ==========================================================================
@@ -309,6 +343,16 @@ h1, h2, h3, .nx-h1-gradient, .nx-sidebar-brand h2 {
   appearance: none;
 }
 
+/* Quitar flechas del input number para que no quede el fondo blanco feo */
+.nx-dark-input[type='number']::-webkit-inner-spin-button,
+.nx-dark-input[type='number']::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.nx-dark-input[type='number'] {
+  -moz-appearance: textfield;
+}
+
 .nx-dark-input::placeholder {
   color: var(--nx-text-muted);
 }
@@ -336,49 +380,268 @@ h1, h2, h3, .nx-h1-gradient, .nx-sidebar-brand h2 {
   background: rgba(0, 0, 0, 0.5);
 }
 
+/* --- Custom Select Categorías con Iconos --- */
+.nx-custom-select-container {
+  position: relative;
+  width: 100%;
+  z-index: 100;
+}
+
+.nx-custom-select-container.active-container {
+  z-index: 10001;
+}
+
+.nx-custom-select-trigger {
+  display: grid !important;
+  grid-template-columns: auto 1fr auto !important;
+  align-items: center !important;
+  gap: 12px !important;
+  width: 100%;
+  padding: 0 1.25rem;
+  background: #1a1b26; /* Fondo sólido por si las variables fallan */
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  color: #fff;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-height: 52px;
+  position: relative;
+  box-sizing: border-box;
+  z-index: 5;
+}
+
+.nx-custom-select-trigger:hover,
+.nx-custom-select-trigger.active {
+  border-color: var(--nx-primary-glow);
+  box-shadow: var(--nx-glow-shadow);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.nx-custom-select-trigger .nx-icon-left {
+  position: static !important;
+  font-size: 1.1rem;
+  width: 24px;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  color: var(--nx-primary-hover);
+  margin: 0 !important;
+}
+
+.nx-select-text {
+  font-size: 0.95rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin: 0 !important;
+  padding: 0 !important;
+  display: block !important;
+}
+
+.nx-custom-select-trigger .nx-icon-right {
+  position: static !important;
+  font-size: 0.8rem;
+  transition: transform 0.3s ease;
+  opacity: 0.6;
+  margin: 0 !important;
+}
+
+.nx-custom-select-trigger .nx-rotate {
+  transform: rotate(180deg) !important;
+}
+
+/* Panel Desplegable Premium */
+.nx-custom-dropdown-panel {
+  position: absolute;
+  top: calc(100% + 12px);
+  left: 0;
+  width: 100%;
+  background: #0f101a;
+  backdrop-filter: blur(25px);
+  -webkit-backdrop-filter: blur(25px);
+  border: 1px solid rgba(99, 102, 241, 0.3); /* Borde neón sutil */
+  border-radius: 16px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.9);
+  max-height: 380px;
+  overflow-y: auto;
+  padding: 8px;
+  z-index: 9999;
+}
+
+/* Scrollbar para el panel */
+.nx-custom-dropdown-panel::-webkit-scrollbar {
+  width: 6px;
+}
+.nx-custom-dropdown-panel::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+}
+
+.nx-dropdown-option {
+  display: flex;
+  align-items: center;
+  padding: 10px 14px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.9rem;
+}
+
+.nx-dropdown-option i {
+  width: 24px;
+  margin-right: 14px;
+  font-size: 1.2rem;
+  text-align: center;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.9;
+  color: var(--nx-primary-hover);
+  font-family: 'Font Awesome 6 Free' !important;
+  font-weight: 900 !important;
+}
+
+.nx-dropdown-option:hover {
+  background: rgba(99, 102, 241, 0.15);
+  color: #fff;
+}
+
+.nx-dropdown-option:hover i {
+  opacity: 1;
+  color: var(--nx-primary-hover);
+}
+
+.nx-dropdown-option.active {
+  background: rgba(99, 102, 241, 0.25);
+  color: #fff;
+  font-weight: 600;
+}
+
+.nx-dropdown-option.active i {
+  opacity: 1;
+  color: var(--nx-primary-hover);
+}
+
+.nx-dropdown-option.active {
+  background: var(--nx-primary-transparent);
+  color: #fff;
+  font-weight: 600;
+}
+
+.nx-dropdown-option.active i {
+  opacity: 1;
+  color: var(--nx-primary-hover);
+}
+
+.nx-dropdown-divider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.05);
+  margin: 6px 8px;
+}
+
+/* --- ANIMACIONES --- */
+@keyframes scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.scale-in {
+  animation: scale-in 0.2s cubic-bezier(0.165, 0.84, 0.44, 1) forwards;
+}
+
+@keyframes nx-rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(180deg);
+  }
+}
+
+.nx-rotate {
+  transform: rotate(180deg);
+}
+
 .nx-select-wrapper.nx-disabled .nx-dark-select {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+.nx-form-label-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.25rem;
+}
+
+.nx-btn-map-toggle {
+  background: transparent;
+  border: none;
+  color: var(--nx-primary-glow);
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: var(--nx-radius-sm);
+  transition: var(--nx-transition);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.nx-btn-map-toggle:hover,
+.nx-btn-map-toggle.active {
+  background: var(--nx-primary-transparent);
+  color: #fff;
+  box-shadow: 0 0 10px var(--nx-primary-glow);
+}
+
+.nx-dark-input.no-left-icon {
+  padding-left: 2.75rem !important;
+  padding-right: 3.5rem !important;
 }
 
 /* 3. Botón de Geolocalización (Cerca de mí) */
 .nx-btn-locate {
   position: absolute;
   right: 0.5rem;
-  background: transparent;
-  border: none;
+  background: rgba(99, 102, 241, 0.1);
+  border: 1px solid rgba(99, 102, 241, 0.2);
   color: var(--nx-primary-glow);
-  width: 32px;
-  height: 32px;
+  width: 34px;
+  height: 34px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: var(--nx-radius-sm);
+  border-radius: 8px;
   cursor: pointer;
   transition: var(--nx-transition);
+  z-index: 10;
 }
 
 .nx-btn-locate:hover {
-  background: var(--nx-primary-transparent);
+  background: var(--nx-primary-glow);
+  color: white;
+  box-shadow: 0 0 15px var(--nx-primary-glow);
 }
 
 .anim-gps {
-  transition: all 0.3s ease;
-}
-
-.nx-btn-locate:hover .anim-gps {
-  color: #fff;
-  transform: scale(1.1);
-}
-
-.nx-spin {
-  animation: spin 1s linear infinite;
+  font-size: 1.1rem;
 }
 
 /* Autocomplete Dropdown */
 .nx-autocomplete-dropdown {
   position: absolute;
-  top: calc(100% + 0.5rem);
+  top: 100%;
   left: 0;
   right: 0;
   background: var(--nx-glass-bg);
@@ -388,10 +651,11 @@ h1, h2, h3, .nx-h1-gradient, .nx-sidebar-brand h2 {
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
   z-index: 50;
   overflow: hidden;
+  margin-top: 0.5rem;
 }
 
 .nx-dropdown-list {
-  list-style: none;
+  list-style: none; /* Fix: remove bullet points */
   padding: 0;
   margin: 0;
   max-height: 200px;
@@ -415,6 +679,364 @@ h1, h2, h3, .nx-h1-gradient, .nx-sidebar-brand h2 {
 .nx-dropdown-item:hover {
   background: rgba(255, 255, 255, 0.05);
   color: var(--nx-text-primary);
+}
+
+/* Leaflet Map Search Dropdown */
+.nx-map-dropdown-container {
+  display: none;
+  margin-top: 0.75rem;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid var(--nx-glass-border);
+  border-radius: var(--nx-radius-md);
+  overflow: hidden;
+  animation: fadeInDown 0.3s ease forwards;
+}
+
+.nx-map-dropdown-container.nx-show {
+  display: block;
+}
+
+.nx-search-mini-map {
+  width: 100%;
+  height: 100%; /* Changed for modal body */
+  background: #1a1a1a;
+}
+
+/* Sidebar Summary Label */
+.nx-location-summary {
+  margin-top: 1rem;
+  padding: 0.75rem 1rem;
+  background: rgba(99, 102, 241, 0.1);
+  border: 1px solid rgba(99, 102, 241, 0.3);
+  border-radius: 1rem;
+  color: #fff;
+  font-size: 0.875rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  animation: slideUpFade 0.4s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.nx-loc-text {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--nx-primary-light);
+}
+
+.nx-btn-clear-loc {
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.4);
+  cursor: pointer;
+  padding: 0.25rem;
+  display: flex;
+  align-items: center;
+  transition: all 0.2s ease;
+  font-size: 1.1rem;
+}
+
+.nx-btn-clear-loc:hover {
+  color: #ff4d4d;
+  transform: rotate(90deg) scale(1.1);
+}
+
+@keyframes slideUpFade {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.nx-location-summary i {
+  color: var(--nx-primary-glow);
+  font-size: 1rem;
+}
+
+/* Map Modal Styles */
+.nx-map-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.6); /* Less dark as requested */
+  backdrop-filter: blur(4px); /* Subtle blur as requested */
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  animation: fadeIn 0.3s ease;
+}
+
+.nx-map-modal-content {
+  width: 100%;
+  max-width: 900px;
+  background: #121214;
+  border: 1px solid var(--nx-glass-border);
+  border-radius: 1.5rem;
+  overflow: hidden;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+}
+
+.nx-map-modal-header {
+  padding: 1rem 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--nx-glass-border);
+  gap: 1rem;
+}
+
+/* Modal Search Box */
+.nx-modal-search-box {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.08) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  border-radius: 2rem !important;
+  padding: 0 1.25rem !important;
+  flex: 1;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  min-height: 42px;
+}
+
+.nx-modal-search-box:focus-within {
+  background: rgba(255, 255, 255, 0.12) !important;
+  border-color: var(--nx-primary-glow) !important;
+  box-shadow: 0 0 20px rgba(99, 102, 241, 0.25) !important;
+}
+
+.nx-modal-search-icon {
+  color: var(--nx-text-muted) !important;
+  margin-right: 0.75rem !important;
+  font-size: 1rem !important;
+}
+
+.nx-modal-search-input {
+  all: unset !important;
+  background: transparent !important;
+  border: none !important;
+  color: #fff !important;
+  padding: 0.75rem 0 !important;
+  width: 100% !important;
+  font-size: 0.9375rem !important;
+  outline: none !important;
+  font-weight: 500 !important;
+  box-shadow: none !important;
+  cursor: text !important;
+  display: block !important;
+}
+
+.nx-modal-search-input::placeholder {
+  color: rgba(255, 255, 255, 0.4) !important;
+}
+
+.nx-btn-modal-gps {
+  background: transparent !important;
+  border: none !important;
+  color: var(--nx-primary-glow) !important;
+  cursor: pointer !important;
+  padding: 0.5rem !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  transition: all 0.2s ease;
+  margin-left: 0.5rem;
+}
+
+.nx-btn-modal-gps:hover {
+  transform: scale(1.15);
+  text-shadow: 0 0 10px var(--nx-primary-glow);
+}
+
+.nx-btn-modal-gps.nx-spin {
+  animation: nx-spin 1s linear infinite !important;
+  color: #fff !important;
+}
+
+@keyframes nx-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Modal specific Autocomplete positioning and Styling */
+.nx-modal-autocomplete {
+  position: absolute;
+  top: calc(100% + 10px);
+  left: 0;
+  width: 100%;
+  background: #1a1a1c !important;
+  border: 1px solid var(--nx-glass-border) !important;
+  border-radius: var(--nx-radius-md) !important;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6) !important;
+  z-index: 10002;
+  overflow: hidden;
+  animation: fadeInDown 0.2s ease-out;
+}
+
+.nx-autocomplete-item {
+  padding: 0.875rem 1.25rem !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.875rem !important;
+  color: var(--nx-text-secondary) !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+  font-size: 0.875rem;
+}
+
+.nx-autocomplete-item:last-child {
+  border-bottom: none;
+}
+
+.nx-autocomplete-item:hover {
+  background: rgba(255, 255, 255, 0.05) !important;
+  color: #fff !important;
+}
+
+.nx-autocomplete-item i {
+  color: var(--nx-primary-glow);
+  font-size: 0.9rem;
+}
+
+.nx-map-modal-header h3 {
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #fff;
+  white-space: nowrap;
+}
+
+.nx-map-modal-body {
+  height: 550px;
+  position: relative;
+  background: #000;
+}
+
+.nx-map-modal-footer {
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.02);
+  gap: 1.5rem;
+}
+
+.nx-btn-close-modal {
+  background: transparent;
+  border: none;
+  color: var(--nx-text-secondary);
+  font-size: 1.25rem;
+  cursor: pointer;
+  padding: 0.5rem;
+  transition: var(--nx-transition);
+}
+
+.nx-btn-close-modal:hover {
+  color: #fff;
+  transform: rotate(90deg);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.nx-map-controls {
+  padding: 0.75rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.2);
+  gap: 0.5rem;
+}
+
+.nx-radius-selector {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.8125rem;
+  color: var(--nx-text-secondary);
+}
+
+.nx-dark-select-sm {
+  background: rgba(0, 0, 0, 0.6);
+  border: 1px solid var(--nx-glass-border);
+  color: #fff;
+  border-radius: 6px;
+  padding: 0.35rem 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  outline: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  appearance: listbox; /* Better native integration in some browsers */
+}
+
+.nx-dark-select-sm:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: var(--nx-primary-glow);
+}
+
+.nx-dark-select-sm option {
+  background: #1a1a1a;
+  color: #fff;
+}
+
+.nx-btn-confirm-loc {
+  background: var(--nx-primary);
+  color: white;
+  border: none;
+  padding: 0.6rem 2rem;
+  border-radius: 2rem;
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(99, 102, 241, 0.2);
+  letter-spacing: 0.5px;
+}
+
+.nx-btn-confirm-loc:hover {
+  background: var(--nx-primary-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 0 20px var(--nx-primary-glow);
+}
+
+.nx-btn-confirm-loc:active {
+  transform: translateY(0);
+}
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* 4. Inputs Dobles (Precio, Año) y Prefijos/Sufijos */
@@ -484,6 +1106,74 @@ h1, h2, h3, .nx-h1-gradient, .nx-sidebar-brand h2 {
   font-size: 0.75rem;
   color: var(--nx-text-secondary);
   margin-top: 2px;
+}
+
+.nx-select-wrapper-sm {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.nx-select-wrapper-sm::after {
+  content: '\f078';
+  font-family: 'Font Awesome 6 Free';
+  font-weight: 900;
+  position: absolute;
+  right: 1.1rem;
+  font-size: 0.65rem;
+  color: var(--nx-text-muted);
+  pointer-events: none;
+}
+
+/* Custom Marker Styles */
+.nx-custom-marker {
+  position: relative;
+}
+
+.nx-marker-dot {
+  width: 12px;
+  height: 12px;
+  background: var(--nx-primary-glow);
+  border: 2px solid #fff;
+  border-radius: 50%;
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  z-index: 2;
+  box-shadow: 0 0 10px var(--nx-primary-glow);
+}
+
+.nx-marker-pulse {
+  width: 20px;
+  height: 20px;
+  background: var(--nx-primary-glow);
+  border-radius: 50%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1;
+  opacity: 0.6;
+  animation: nx-pulse 2s infinite;
+}
+
+@keyframes nx-pulse {
+  0% {
+    transform: scale(0.5);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(2.5);
+    opacity: 0;
+  }
+}
+
+/* Map specific tweaks */
+.leaflet-container {
+  background: #09090b !important;
+}
+
+.leaflet-tile {
+  filter: brightness(0.7) contrast(1.2) grayscale(0.2); /* Premium dark feel */
 }
 
 .nx-switch {
@@ -578,13 +1268,24 @@ h1, h2, h3, .nx-h1-gradient, .nx-sidebar-brand h2 {
 
 /* ==========================================================================
    ÁREA PRINCIPAL DE RESULTADOS
-   ========================================================================== */
+   ==========================================================================*/
 .nx-main-results-area {
   flex: 1;
   min-width: 0;
   display: flex;
   flex-direction: column;
   gap: 2rem;
+  height: 100%;
+  overflow-y: auto;
+  padding-top: 1.5rem; /* Margen para la primera fila */
+  padding-right: 1.5rem; /* Espacio para scroll invisible */
+  padding-bottom: 3rem; /* Margen al final */
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE/Edge */
+}
+
+.nx-main-results-area::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
 }
 
 .nx-results-header {
@@ -618,22 +1319,36 @@ h1, h2, h3, .nx-h1-gradient, .nx-sidebar-brand h2 {
 .nx-sort-wrapper {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 1rem;
+  flex-shrink: 0;
 }
 
 .nx-sort-label {
   font-size: 0.875rem;
-  color: var(--nx-text-secondary);
+  color: var(--text-muted);
+  font-weight: 500;
+  white-space: nowrap;
   display: flex;
   align-items: center;
   gap: 0.375rem;
 }
 
-.nx-select-sort .nx-dark-select {
-  border-radius: 2rem; /* Aspecto de píldora */
-  background: var(--nx-glass-bg);
-  backdrop-filter: blur(8px);
-  padding: 0.625rem 2.5rem 0.625rem 1.25rem;
+.nx-sort-select-container {
+  min-width: 240px;
+}
+
+.nx-sort-trigger {
+  border-radius: 2rem !important;
+  min-height: 44px !important;
+  background: rgba(255, 255, 255, 0.03) !important;
+}
+
+.nx-sort-panel {
+  border-radius: 1.25rem !important;
+  top: calc(100% + 8px) !important;
+  right: 0 !important;
+  left: auto !important;
+  min-width: 240px !important;
 }
 
 /* ==========================================================================
@@ -650,21 +1365,14 @@ h1, h2, h3, .nx-h1-gradient, .nx-sidebar-brand h2 {
   display: flex;
   flex-direction: column;
   height: 100%;
-  transition: var(--nx-transition);
-  border-radius: var(--nx-radius-lg);
-  background: var(--nx-glass-bg);
-  border: 1px solid var(--nx-glass-border);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-  overflow: hidden;
 }
 
-.nx-card-glass-wrapper:hover {
-  transform: translateY(-6px);
-  box-shadow:
-    0 12px 30px rgba(0, 0, 0, 0.4),
-    0 0 15px rgba(255, 255, 255, 0.05);
-  border-color: rgba(255, 255, 255, 0.15);
-  z-index: 10;
+/* Forzar que los custom elements de Angular llenen el wrapper uniformemente */
+.nx-card-glass-wrapper > * {
+  display: block;
+  height: 100%;
+  width: 100%;
+  flex-grow: 1;
 }
 
 /* Badges Profesionales Flotantes */
@@ -803,7 +1511,7 @@ h1, h2, h3, .nx-h1-gradient, .nx-sidebar-brand h2 {
 }
 
 /* ==========================================================================
-   ESTADO VACÍO (Empty State Oscuro)
+   ESTADO VACÍO (Empty State Oscuro & Spectacular)
    ========================================================================== */
 .nx-empty-glass-state {
   grid-column: 1 / -1;
@@ -811,133 +1519,241 @@ h1, h2, h3, .nx-h1-gradient, .nx-sidebar-brand h2 {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 6rem 2rem;
+  padding: 1rem; /* Reducido al máximo de 2rem */
   text-align: center;
-  background: rgba(0, 0, 0, 0.2);
+  background: radial-gradient(
+    circle at center,
+    rgba(99, 102, 241, 0.05) 0%,
+    rgba(0, 0, 0, 0.2) 70%
+  );
   border-radius: var(--nx-radius-lg);
   border: 1px dashed rgba(255, 255, 255, 0.1);
-  box-shadow: inset 0 0 50px rgba(0, 0, 0, 0.5);
+  box-shadow: inset 0 0 80px rgba(0, 0, 0, 0.5);
+  margin-top: 0;
 }
 
-.nx-empty-icon-circle {
-  width: 90px;
-  height: 90px;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid var(--nx-glass-border);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 1.5rem;
-  box-shadow: var(--nx-glow-shadow);
-}
-
-.nx-empty-icon-circle i {
-  font-size: 2.5rem;
-  color: var(--nx-primary-glow);
-}
-
-.nx-empty-glass-state h2 {
-  margin: 0 0 0.75rem 0;
-  font-size: 1.5rem;
-  color: var(--nx-text-primary);
-}
-
-.nx-empty-glass-state p {
-  margin: 0 0 2rem 0;
-  color: var(--nx-text-secondary);
-  max-width: 450px;
-  line-height: 1.6;
-}
-
-/* ==========================================================================
-   SPECTACULAR EMPTY STATE
-   ========================================================================== */
+/* --- SPECTACULAR EMPTY STATE (RADAR SCANNING REFINED) --- */
 .nx-spectacular-empty-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0; /* Eliminado padding interno */
+  text-align: center;
+  min-height: 280px; /* Reducido aún más */
   position: relative;
+  background: radial-gradient(circle at center, rgba(99, 102, 241, 0.15) 0%, transparent 70%);
+}
+
+.nx-radar-wrap {
+  position: relative;
+  width: 160px;
+  height: 160px;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 2.5rem;
-  width: 140px;
-  height: 140px;
+  margin-bottom: 10px; /* Reducido de 30px */
 }
 
-.nx-neon-ring {
+.nx-radar-grid {
   position: absolute;
-  width: 120px;
-  height: 120px;
+  width: 100%;
+  height: 100%;
   border-radius: 50%;
-  border: 2px solid var(--nx-primary-glow);
-  box-shadow:
-    0 0 20px var(--nx-primary-glow),
-    inset 0 0 15px var(--nx-primary-glow);
-  animation: pulseNeon 2s infinite ease-in-out;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+  background-size: 15px 15px; /* Reducido el tamaño de la rejilla */
+  background-position: center center;
+  z-index: 1;
   opacity: 0.5;
 }
 
-@keyframes pulseNeon {
-  0%,
-  100% {
-    transform: scale(1);
-    opacity: 0.3;
-  }
-  50% {
-    transform: scale(1.2);
-    opacity: 0.7;
-  }
+.nx-radar-ring {
+  position: absolute;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: transparent;
+  z-index: 1;
+}
+
+.nx-ring-1 {
+  width: 100%;
+  height: 100%;
+  border-color: rgba(255, 255, 255, 0.25);
+  border-width: 2px;
+}
+.nx-ring-2 {
+  width: 66%;
+  height: 66%;
+  border-color: rgba(255, 255, 255, 0.2);
+}
+.nx-ring-3 {
+  width: 33%;
+  height: 33%;
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.nx-radar-scanner {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: conic-gradient(
+    from 0deg,
+    transparent 0deg,
+    transparent 280deg,
+    rgba(99, 102, 241, 0.5) 360deg
+  );
+  animation: radarRotate 4s linear infinite;
+  z-index: 2;
+  pointer-events: none;
+  box-shadow: inset 0 0 30px rgba(99, 102, 241, 0.2);
+}
+
+.nx-radar-echo {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  border: 2px solid rgba(99, 102, 241, 0.4);
+  /* Escala reducida a 2.2 para que quepa bien sin overflow hidden */
+  animation: radarEcho 2.5s ease-out infinite;
+  z-index: 0;
+  opacity: 0;
+}
+
+/* Radar Dots (Blips) */
+.nx-radar-dot {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  background: #6366f1;
+  border-radius: 50%;
+  z-index: 4;
+  box-shadow: 0 0 10px #6366f1;
+  opacity: 0;
+  animation: dotBlink 4s infinite;
+}
+
+.nx-dot-1 {
+  top: 20%;
+  left: 30%;
+  animation-delay: 0.5s;
+}
+.nx-dot-2 {
+  top: 60%;
+  right: 25%;
+  animation-delay: 2.2s;
+}
+.nx-dot-3 {
+  bottom: 20%;
+  left: 45%;
+  animation-delay: 3.1s;
 }
 
 .nx-empty-icon-circle {
-  width: 90px;
-  height: 90px;
-  background: rgba(255, 255, 255, 0.03);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  width: 80px; /* Reducido de 110px */
+  height: 80px; /* Reducido de 110px */
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.05));
+  border: 1px solid rgba(255, 255, 255, 0.25);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 2;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  z-index: 5;
+  backdrop-filter: blur(10px);
+  animation: floatIcon 4s ease-in-out infinite;
 }
 
-.nx-empty-icon-circle i {
-  font-size: 3.5rem;
+.nx-radar-icon {
+  font-size: 3.2rem; /* Aumentado para mayor visibilidad */
   color: #fff;
-  filter: drop-shadow(0 0 10px rgba(99, 102, 241, 0.8));
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.6));
+  /* Ajuste óptico balanceado */
+  margin-top: 0;
+}
+
+@keyframes dotBlink {
+  0%,
+  10%,
+  20%,
+  100% {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  15% {
+    opacity: 1;
+    transform: scale(1.5);
+    box-shadow: 0 0 20px #6366f1;
+  }
+}
+
+@keyframes radarRotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes radarEcho {
+  0% {
+    transform: scale(0.8);
+    opacity: 0.6;
+  }
+  100% {
+    transform: scale(2.2);
+    opacity: 0;
+  }
+}
+
+@keyframes floatIcon {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-12px);
+  }
 }
 
 .nx-h2-spectacular {
   font-family: 'Outfit', sans-serif;
   font-weight: 800;
-  font-size: 1.75rem;
-  margin-bottom: 1rem;
+  font-size: 1.6rem; /* Reducido de 1.8rem */
+  margin-top: 0;
+  margin-bottom: 0.25rem; /* Casi pegado */
   color: #fff;
+  letter-spacing: -0.02em;
+  background: linear-gradient(to right, #fff, #a5b4fc);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 .nx-p-spectacular {
-  font-size: 1rem;
-  color: var(--nx-text-secondary);
-  max-width: 500px;
-  margin: 0 auto 2.5rem;
-  line-height: 1.6;
+  font-size: 0.95rem; /* Aún más pequeño */
+  color: rgba(255, 255, 255, 0.5);
+  max-width: 400px;
+  margin: 0 auto 1.25rem; /* Reducido de 1.5rem */
+  line-height: 1.4;
 }
 
 .nx-btn-spectacular-glow {
-  background: linear-gradient(135deg, var(--nx-primary-glow), #c084fc);
+  background: linear-gradient(135deg, #6366f1, #a855f7);
   color: white;
   border: none;
-  padding: 1rem 2.5rem;
-  border-radius: 3rem;
+  padding: 1.1rem 2.8rem;
+  border-radius: 3.5rem;
   font-weight: 700;
-  font-size: 1rem;
+  font-size: 1.05rem;
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  margin: 0 auto;
+  gap: 0.8rem;
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   box-shadow: 0 10px 30px rgba(99, 102, 241, 0.4);
@@ -1003,6 +1819,34 @@ h1, h2, h3, .nx-h1-gradient, .nx-sidebar-brand h2 {
   color: var(--nx-text-secondary);
   letter-spacing: 0.05em;
   text-transform: uppercase;
+}
+
+.nx-btn-load-more {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.875rem 2rem;
+  background: rgba(99, 102, 241, 0.1);
+  border: 1px solid rgba(99, 102, 241, 0.3);
+  border-radius: 2rem;
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  margin-top: 1rem;
+}
+
+.nx-btn-load-more:hover {
+  background: var(--nx-primary-glow);
+  border-color: var(--nx-primary-hover);
+  box-shadow: 0 0 20px rgba(99, 102, 241, 0.4);
+  transform: translateY(-2px);
+}
+
+.nx-btn-load-more i {
+  font-size: 1.1rem;
 }
 
 @keyframes spin {

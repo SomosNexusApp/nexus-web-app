@@ -5,13 +5,22 @@ import { Injectable } from '@angular/core';
 })
 export class ScrollService {
   private originalOverflow: string = '';
+  private lockCount: number = 0;
 
   lock(): void {
-    this.originalOverflow = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
+    if (this.lockCount === 0) {
+      this.originalOverflow = document.body.style.overflow;
+      document.body.style.overflow = 'hidden';
+    }
+    this.lockCount++;
   }
 
   unlock(): void {
-    document.body.style.overflow = this.originalOverflow || 'auto';
+    if (this.lockCount > 0) {
+      this.lockCount--;
+      if (this.lockCount === 0) {
+        document.body.style.overflow = this.originalOverflow || '';
+      }
+    }
   }
 }

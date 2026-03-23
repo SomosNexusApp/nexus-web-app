@@ -5,6 +5,9 @@ import {
   signal,
   computed,
   ChangeDetectionStrategy,
+  ViewChild,
+  ElementRef,
+  HostListener,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -155,6 +158,40 @@ export class PublishProductoComponent implements OnInit {
     }
     this.cargarCategorias();
     this.setupLocationSearch();
+  }
+
+  @HostListener('mousemove', ['$event'])
+  onMouseMove(event: MouseEvent) {
+    if (this.currentStep() !== 0) return;
+
+    const cards = document.querySelectorAll('.select-card');
+    cards.forEach((card) => {
+      const rect = (card as HTMLElement).getBoundingClientRect();
+      const x = event.clientX - rect.left;
+      const y = event.clientY - rect.top;
+
+      // Cálculo para efecto 3D Tilt
+      const centerX = rect.width / 2;
+      const centerY = rect.height / 2;
+      const rotateX = ((y - centerY) / centerY) * -8; // Reducido para profesionalidad
+      const rotateY = ((x - centerX) / centerX) * 8;
+
+      const el = card as HTMLElement;
+      el.style.setProperty('--mouse-x', `${x}px`);
+      el.style.setProperty('--mouse-y', `${y}px`);
+      el.style.setProperty('--rotate-x', `${rotateX}deg`);
+      el.style.setProperty('--rotate-y', `${rotateY}deg`);
+    });
+  }
+
+  @HostListener('mouseleave', ['$event'])
+  onMouseLeave(event: MouseEvent) {
+    const cards = document.querySelectorAll('.select-card');
+    cards.forEach((card) => {
+      const el = card as HTMLElement;
+      el.style.setProperty('--rotate-x', `0deg`);
+      el.style.setProperty('--rotate-y', `0deg`);
+    });
   }
 
   // ── FORMULARIOS ────────────────────────────────────────────────────

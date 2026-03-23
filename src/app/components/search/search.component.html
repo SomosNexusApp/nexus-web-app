@@ -78,13 +78,25 @@
 
         <!-- Ubicación -->
         <div class="nx-form-group">
-          <label class="nx-form-label"><i class="fas fa-location-dot"></i> Ubicación</label>
+          <div class="nx-form-label-row">
+            <label class="nx-form-label">Ubicación</label>
+            <button
+              type="button"
+              class="nx-btn-map-toggle"
+              (click)="toggleMapa()"
+              [class.active]="mostrandoMapaModal"
+            >
+              <i class="fas fa-map"></i>
+              {{ filterForm.get('lat')?.value ? 'Ajustar Mapa' : 'Ver Mapa' }}
+            </button>
+          </div>
+
           <div class="nx-input-with-icon">
             <i class="fas fa-location-dot nx-icon-left"></i>
             <input
               type="text"
               formControlName="ubicacion"
-              class="nx-dark-input"
+              class="nx-dark-input no-left-icon"
               placeholder="Ciudad, provincia, código postal..."
               (focus)="mostrandoSugerenciasUbi = sugerenciasUbicacion.length > 0"
             />
@@ -98,12 +110,28 @@
               <i class="fas fa-crosshairs anim-gps" [class.nx-spin]="obteniendoUbicacion"></i>
             </button>
           </div>
+
+          <!-- Resumen de Ubicación Seleccionada -->
+          @if (filterForm.get('lat')?.value && filterForm.get('ubicacion')?.value) {
+            <div class="nx-location-summary">
+              <i class="fas fa-location-crosshairs"></i>
+              <span
+                >{{ filterForm.get('ubicacion')?.value }} ({{
+                  filterForm.get('radius')?.value
+                }}
+                km)</span
+              >
+            </div>
+          }
+
+          <!-- Mapa Interactivo en Modal (Relocalizado al final) -->
+
           @if (mostrandoSugerenciasUbi && sugerenciasUbicacion.length > 0) {
             <div class="nx-autocomplete-dropdown">
               <ul class="nx-dropdown-list">
                 @for (sug of sugerenciasUbicacion; track $index) {
                   <li class="nx-dropdown-item" (click)="seleccionarUbicacion(sug)">
-                    <i class="icon-map"></i>
+                    <i class="fas fa-location-dot"></i>
                     <span>{{ sug }}</span>
                   </li>
                 }
@@ -114,18 +142,35 @@
 
         <div class="nx-divider-subtle"></div>
 
-        <!-- Categoría — value es slug (string), no id -->
+        <!-- Categoría — Custom Select con Iconos -->
         <div class="nx-form-group">
-          <label class="nx-form-label"><i [class]="categoriaIconoActual()"></i> Categoría</label>
-          <div class="nx-select-wrapper">
-            <i [class]="categoriaIconoActual() + ' nx-icon-left'"></i>
-            <select formControlName="categoria" class="nx-dark-select">
-              <option value="">Cualquier categoría</option>
-              @for (cat of categoriasDisponibles; track cat.id) {
-                <option [value]="cat.slug">{{ cat.nombre }}</option>
-              }
-            </select>
-            <i class="icon-chevron-down nx-icon-right"></i>
+          <label class="nx-form-label">Categoría</label>
+          <div class="nx-custom-select-container" [class.active-container]="mostrandoCategorias">
+            <div class="nx-custom-select-trigger" (click)="toggleCategorias($event)" [class.active]="mostrandoCategorias">
+              <i [class]="categoriaIconoActual() + ' nx-icon-left'"></i>
+              <span class="nx-select-text">{{ categoriaNombreActual() || 'Cualquier categoría' }}</span>
+              <i class="fas fa-chevron-down nx-icon-right" [class.nx-rotate]="mostrandoCategorias"></i>
+            </div>
+
+            @if (mostrandoCategorias) {
+              <div class="nx-custom-dropdown-panel scale-in">
+                <div class="nx-dropdown-option" (click)="seleccionarCategoria(null)">
+                  <i class="fas fa-layer-group"></i>
+                  <span>Cualquier categoría</span>
+                </div>
+                <div class="nx-dropdown-divider"></div>
+                @for (cat of categoriasDisponibles; track cat.id) {
+                  <div 
+                    class="nx-dropdown-option" 
+                    (click)="seleccionarCategoria(cat)" 
+                    [class.active]="filterForm.get('categoria')?.value === cat.slug"
+                  >
+                    <i [class]="getIconoCategoria(cat)"></i>
+                    <span>{{ cat.nombre }}</span>
+                  </div>
+                }
+              </div>
+            }
           </div>
         </div>
 
@@ -155,19 +200,30 @@
           </div>
         </div>
 
-        <!-- Condición -->
+        <!-- Condición — Custom Select -->
         <div class="nx-form-group">
           <label class="nx-form-label">Condición del artículo</label>
-          <div class="nx-select-wrapper">
-            <select formControlName="condicion" class="nx-dark-select">
-              <option value="">Cualquier estado</option>
-              <option value="NUEVO">A estrenar (Nuevo)</option>
-              <option value="COMO_NUEVO">Como nuevo</option>
-              <option value="MUY_BUEN_ESTADO">Muy buen estado</option>
-              <option value="BUEN_ESTADO">Buen estado</option>
-              <option value="ACEPTABLE">Aceptable</option>
-            </select>
-            <i class="icon-chevron-down nx-icon-right"></i>
+          <div class="nx-custom-select-container" [class.active-container]="mostrandoCondiciones">
+            <div class="nx-custom-select-trigger" (click)="toggleCondiciones($event)" [class.active]="mostrandoCondiciones">
+              <i [class]="condicionIconoActual() + ' nx-icon-left'"></i>
+              <span class="nx-select-text">{{ condicionNombreActual() }}</span>
+              <i class="fas fa-chevron-down nx-icon-right" [class.nx-rotate]="mostrandoCondiciones"></i>
+            </div>
+
+            @if (mostrandoCondiciones) {
+              <div class="nx-custom-dropdown-panel scale-in">
+                @for (opt of condicionesDisponibles; track opt.value) {
+                  <div 
+                    class="nx-dropdown-option" 
+                    (click)="seleccionarCondicion(opt.value)" 
+                    [class.active]="filterForm.get('condicion')?.value === opt.value"
+                  >
+                    <i [class]="opt.icon"></i>
+                    <span>{{ opt.label }}</span>
+                  </div>
+                }
+              </div>
+            }
           </div>
         </div>
 
@@ -390,16 +446,29 @@
         </span>
       </div>
 
-      <div class="nx-sort-wrapper" [formGroup]="filterForm">
+      <div class="nx-sort-wrapper">
         <label class="nx-sort-label"><i class="fas fa-sort-amount-down"></i> Ordenar por</label>
-        <div class="nx-select-wrapper nx-select-sort">
-          <select formControlName="orden" class="nx-dark-select">
-            <option value="relevancia">Mejor coincidencia</option>
-            <option value="novedades">Novedades primero</option>
-            <option value="precio_asc">Precio: de menor a mayor</option>
-            <option value="precio_desc">Precio: de mayor a menor</option>
-          </select>
-          <i class="icon-chevron-down nx-icon-right"></i>
+        <div class="nx-custom-select-container nx-sort-select-container" [class.active-container]="mostrandoOrden">
+          <div class="nx-custom-select-trigger nx-sort-trigger" (click)="toggleOrden($event)" [class.active]="mostrandoOrden">
+            <i [class]="ordenIconoActual() + ' nx-icon-left'"></i>
+            <span class="nx-select-text">{{ ordenNombreActual() }}</span>
+            <i class="fas fa-chevron-down nx-icon-right" [class.nx-rotate]="mostrandoOrden"></i>
+          </div>
+
+          @if (mostrandoOrden) {
+            <div class="nx-custom-dropdown-panel nx-sort-panel scale-in">
+              @for (opt of opcionesOrden; track opt.value) {
+                <div 
+                  class="nx-dropdown-option" 
+                  (click)="seleccionarOrden(opt.value)" 
+                  [class.active]="filterForm.get('orden')?.value === opt.value"
+                >
+                  <i [class]="opt.icon"></i>
+                  <span>{{ opt.label }}</span>
+                </div>
+              }
+            </div>
+          }
         </div>
       </div>
     </header>
@@ -434,33 +503,133 @@
         }
       } @else if (busquedaRealizada) {
         <!-- Estado Vacío Premium (Spectacular) -->
-    <div
-      class="nx-empty-glass-state"
-      *ngIf="!cargando && resultados.length === 0 && busquedaRealizada"
-    >
-      <div class="nx-spectacular-empty-container">
-        <div class="nx-neon-ring"></div>
-        <div class="nx-empty-icon-circle">
-          <i class="fas fa-search-minus"></i>
+        <div class="nx-empty-glass-state">
+          <div class="nx-spectacular-empty-container">
+            <div class="nx-radar-wrap">
+              <!-- Background Grid -->
+              <div class="nx-radar-grid"></div>
+
+              <!-- Concentric Rings -->
+              <div class="nx-radar-ring nx-ring-1"></div>
+              <div class="nx-radar-ring nx-ring-2"></div>
+              <div class="nx-radar-ring nx-ring-3"></div>
+
+              <!-- Moving Elements -->
+              <div class="nx-radar-scanner"></div>
+              <div class="nx-radar-echo"></div>
+
+              <!-- Reactive Dots (Blips) -->
+              <div class="nx-radar-dot nx-dot-1"></div>
+              <div class="nx-radar-dot nx-dot-2"></div>
+              <div class="nx-radar-dot nx-dot-3"></div>
+
+              <div class="nx-empty-icon-circle">
+                <i class="fas fa-search-minus nx-radar-icon"></i>
+              </div>
+            </div>
+          </div>
+          <h2 class="nx-h2-spectacular">Vaya... parece que no hay nada por aquí</h2>
+          <p class="nx-p-spectacular">
+            No hemos encontrado resultados que coincidan con tus criterios. Prueba a ajustar los
+            filtros o buscar algo diferente.
+          </p>
+          <button class="nx-btn-spectacular-glow" (click)="limpiarFiltros()">
+            <i class="fas fa-undo"></i> Reiniciar filtros
+          </button>
         </div>
-      </div>
-      <h2 class="nx-h2-spectacular">Vaya... parece que no hay nada por aquí</h2>
-      <p class="nx-p-spectacular">
-        No hemos encontrado resultados que coincidan con tus criterios. Prueba a ajustar los
-        filtros o buscar algo diferente.
-      </p>
-      <button class="nx-btn-spectacular-glow" (click)="limpiarFiltros()">
-        <i class="fas fa-undo"></i> Reiniciar filtros
-      </button>
-    </div>
       }
     </div>
 
-    <div #scrollAnchor class="nx-infinite-loader-zone">
-      @if (cargandoMas) {
-        <div class="nx-glow-spinner"></div>
-        <span>Cargando más resultados...</span>
-      }
-    </div>
+    <div class="nx-infinite-loader-zone" #scrollAnchor>
+        <div class="nx-glow-spinner" *ngIf="cargandoMas"></div>
+        <span *ngIf="cargandoMas">Cargando más resultados...</span>
+        
+        <button 
+          *ngIf="mostrarBotonCargarMas" 
+          (click)="cargarMasResultados()" 
+          class="nx-btn-load-more"
+        >
+          <i class="fas fa-plus-circle"></i>
+          Cargar más resultados
+        </button>
+      </div>
   </main>
 </div>
+
+<!-- Mapa Interactivo en Modal (Relocalizado al final para evitar recortes de contenedor) -->
+@if (mostrandoMapaModal) {
+  <div class="nx-map-modal-overlay" [formGroup]="filterForm">
+    <div class="nx-map-modal-content">
+      <div class="nx-map-modal-header">
+        <div class="nx-modal-search-box">
+          <i class="fas fa-search nx-modal-search-icon"></i>
+          <input
+            type="text"
+            formControlName="ubicacion"
+            placeholder="Buscar ciudad o dirección..."
+            class="nx-modal-search-input"
+            (focus)="mostrandoSugerenciasUbi = sugerenciasUbicacion.length > 0"
+            (keyup.enter)="seleccionarUbicacion(filterForm.get('ubicacion')?.value)"
+          />
+          <button
+            class="nx-btn-modal-gps"
+            [class.nx-spin]="obteniendoUbicacion"
+            (click)="usarUbicacionActual()"
+            type="button"
+            title="Mi ubicación actual"
+          >
+            <i class="fas fa-crosshairs"></i>
+          </button>
+
+          <!-- Autocomplete Sugerencias (Modal) -->
+          <div
+            class="nx-modal-autocomplete"
+            *ngIf="mostrandoSugerenciasUbi && sugerenciasUbicacion.length > 0"
+          >
+            <div
+              class="nx-autocomplete-item"
+              *ngFor="let s of sugerenciasUbicacion"
+              (click)="seleccionarUbicacion(s.display_name, { lat: s.lat, lng: s.lng })"
+            >
+              <i class="fas fa-map-marker-alt"></i>
+              <span>{{ s.display_name }}</span>
+            </div>
+          </div>
+        </div>
+        <button type="button" class="nx-btn-close-modal" (click)="toggleMapa()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+
+      <div class="nx-map-modal-body">
+        <div id="nx-search-map" class="nx-search-mini-map"></div>
+      </div>
+
+      <div class="nx-map-modal-footer">
+        <div class="nx-radius-selector">
+          <label>Radio de búsqueda:</label>
+          <div class="nx-select-wrapper-sm">
+            <select
+              formControlName="radius"
+              class="nx-dark-select-sm"
+              (change)="updateRadiusCircle()"
+            >
+              <option [value]="5">5 km</option>
+              <option [value]="10">10 km</option>
+              <option [value]="25">25 km</option>
+              <option [value]="50">50 km</option>
+              <option [value]="100">100 km</option>
+              <option [value]="150">150 km</option>
+              <option [value]="250">250 km</option>
+              <option [value]="500">500 km</option>
+              <option [value]="1000">1000 km</option>
+            </select>
+          </div>
+        </div>
+        <button type="button" class="nx-btn-confirm-loc" (click)="confirmarUbicacionMapa()">
+          Confirmar Ubicación
+        </button>
+      </div>
+    </div>
+  </div>
+}

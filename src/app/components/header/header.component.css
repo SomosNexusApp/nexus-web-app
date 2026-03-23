@@ -116,6 +116,24 @@
   transform: translateY(-2px);
 }
 
+.icon-btn-sm {
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.5);
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  border-radius: 4px;
+}
+
+.icon-btn-sm:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.1);
+}
+
 .icon-btn:hover .heart-icon {
   fill: var(--nexus-pink);
   stroke: var(--nexus-pink);

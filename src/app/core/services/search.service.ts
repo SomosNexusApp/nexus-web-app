@@ -36,6 +36,9 @@ export interface SearchParams {
   plazas?: number | string;
   garantia?: boolean;
   itv?: boolean;
+  lat?: number | string;
+  lng?: number | string;
+  radius?: number | string;
 }
 
 /** Lo que devuelve buscar() al componente */
@@ -66,19 +69,28 @@ export class SearchService {
     if (tipo === 'OFERTA') return this.buscarOfertas(params, usuarioId);
     if (tipo === 'VEHICULO') return this.buscarVehiculos(params, usuarioId);
 
-    // TODOS → paralelo con forkJoin
-    return forkJoin({
-      productos: this.buscarProductos(params, usuarioId),
-      ofertas: this.buscarOfertas(params, usuarioId),
-      vehiculos: this.buscarVehiculos(params, usuarioId),
-    }).pipe(
-      map(({ productos, ofertas, vehiculos }) => ({
-        items: this.ordenarResultados(
-          [...productos.items, ...ofertas.items, ...vehiculos.items],
-          params.orden,
-        ),
-        total: productos.total + ofertas.total + vehiculos.total,
+    // TODOS → Usamos el nuevo endpoint unificado del backend para mayor rapidez
+    let p = new HttpParams()
+      .set('page', String(params.page ?? 0))
+      .set('size', String(params.size ?? 20));
+
+    if (params.q) p = p.set('q', params.q);
+    if (params.categoria) p = p.set('categoria', String(params.categoria));
+    if (this.hasValue(params.precioMin)) p = p.set('precioMin', String(params.precioMin));
+    if (this.hasValue(params.precioMax)) p = p.set('precioMax', String(params.precioMax));
+    if (params.ubicacion) p = p.set('ubicacion', params.ubicacion);
+    if (params.lat) p = p.set('lat', String(params.lat));
+    if (params.lng) p = p.set('lng', String(params.lng));
+    if (params.radius) p = p.set('radius', String(params.radius));
+    if (params.orden) p = p.set('orden', params.orden);
+    if (usuarioId) p = p.set('usuarioId', String(usuarioId));
+
+    return this.http.get<any>(`${this.apiUrl}/market/search`, { params: p }).pipe(
+      map((res) => ({
+        items: res.items,
+        total: res.total,
       })),
+      catchError(() => of({ items: [], total: 0 })),
     );
   }
 
@@ -96,6 +108,9 @@ export class SearchService {
     if (params.ubicacion) p = p.set('ubicacion', params.ubicacion);
     if (params.conEnvio) p = p.set('conEnvio', 'true');
     if (params.orden) p = p.set('orden', params.orden);
+    if (params.lat) p = p.set('lat', String(params.lat));
+    if (params.lng) p = p.set('lng', String(params.lng));
+    if (params.radius) p = p.set('radius', String(params.radius));
     if (usuarioId) p = p.set('usuarioId', String(usuarioId));
 
     return this.http.get<any>(`${this.apiUrl}/producto/filtrar`, { params: p }).pipe(
@@ -124,6 +139,9 @@ export class SearchService {
     if (params.categoria) p = p.set('categoria', String(params.categoria));
     if (this.hasValue(params.precioMin)) p = p.set('precioMin', String(params.precioMin));
     if (this.hasValue(params.precioMax)) p = p.set('precioMax', String(params.precioMax));
+    if (params.lat) p = p.set('lat', String(params.lat));
+    if (params.lng) p = p.set('lng', String(params.lng));
+    if (params.radius) p = p.set('radius', String(params.radius));
     if (usuarioId) p = p.set('usuarioId', String(usuarioId));
 
     return this.http.get<any>(`${this.apiUrl}/oferta/filtrar`, { params: p }).pipe(
@@ -163,6 +181,9 @@ export class SearchService {
     if (this.hasValue(params.plazas)) p = p.set('plazas', String(params.plazas));
     if (params.garantia === true) p = p.set('garantia', 'true');
     if (params.itv === true) p = p.set('itv', 'true');
+    if (params.lat) p = p.set('lat', String(params.lat));
+    if (params.lng) p = p.set('lng', String(params.lng));
+    if (params.radius) p = p.set('radius', String(params.radius));
     if (usuarioId) p = p.set('usuarioId', String(usuarioId));
 
     return this.http.get<any>(`${this.apiUrl}/vehiculo/filtrar`, { params: p }).pipe(
@@ -226,19 +247,33 @@ export class SearchService {
 
   // ─── APIs EXTERNAS ───────────────────────────────────────────────────────────
 
-  buscarUbicacionExterna(query: string): Observable<string[]> {
+  getCoordenadas(query: string): Observable<{ lat: number; lng: number } | null> {
+    if (!query) return of(null);
+    const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&countrycodes=es&format=json&limit=1`;
+    return this.http.get<any[]>(url).pipe(
+      map((resultados) => {
+        if (resultados && resultados.length > 0) {
+          return {
+            lat: parseFloat(resultados[0].lat),
+            lng: parseFloat(resultados[0].lon),
+          };
+        }
+        return null;
+      }),
+      catchError(() => of(null)),
+    );
+  }
+
+  buscarUbicacionExterna(query: string): Observable<any[]> {
     if (!query || query.length < 3) return of([]);
     const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&countrycodes=es&format=json&addressdetails=1&limit=5`;
     return this.http.get<any[]>(url).pipe(
       map((resultados) => {
-        const lista = resultados.map((res) => {
-          const addr = res.address;
-          const localidad =
-            addr.city || addr.town || addr.village || addr.municipality || 'Desconocido';
-          const provincia = addr.county || addr.province || addr.state || '';
-          return `${localidad}, ${provincia}`.trim().replace(/,\s*$/, '');
-        });
-        return Array.from(new Set(lista)) as string[];
+        return resultados.map((res) => ({
+          display_name: res.display_name,
+          lat: parseFloat(res.lat),
+          lng: parseFloat(res.lon),
+        }));
       }),
       catchError(() => of([])),
     );
@@ -254,18 +289,20 @@ export class SearchService {
         return resultados
           .map((res) => {
             const addr = res.address;
-            const ciudad = addr.city || addr.town || addr.village || addr.municipality || addr.suburb || '';
+            const ciudad =
+              addr.city || addr.town || addr.village || addr.municipality || addr.suburb || '';
             const provincia = addr.county || addr.province || addr.state || '';
             const cp = addr.postcode || '';
-            
+
             // Creamos un display amigable: "Ciudad, Provincia"
             const display = `${ciudad}${provincia ? ', ' + provincia : ''}`.trim();
-            
+
             return { ciudad, provincia, cp, display };
           })
-          .filter(l => {
+          .filter((l) => {
             // Solo ciudades válidas y evitar duplicados visuales
-            if (!l.ciudad || l.ciudad.length < 2 || unicos.has(l.display.toLowerCase())) return false;
+            if (!l.ciudad || l.ciudad.length < 2 || unicos.has(l.display.toLowerCase()))
+              return false;
             unicos.add(l.display.toLowerCase());
             return true;
           });

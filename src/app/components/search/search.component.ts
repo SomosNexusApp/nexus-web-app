@@ -1,3 +1,4 @@
+declare var L: any;
 import {
   Component,
   OnInit,
@@ -15,8 +16,10 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { Subject, Subscription } from 'rxjs';
 import { debounceTime, distinctUntilChanged, takeUntil, catchError } from 'rxjs/operators';
+import { HostListener } from '@angular/core';
 
 import { SearchService, SearchParams, SearchResultItem } from '../../core/services/search.service';
+import { ScrollService } from '../../core/services/scroll.service';
 import { AuthStore } from '../../core/auth/auth-store';
 import { ProductoCardComponent } from '../../shared/components/marketplace/product-card/producto-card.component';
 import { OfertaCardComponent } from '../../shared/components/marketplace/oferta-card/oferta-card.component';
@@ -26,20 +29,11 @@ import { environment } from '../../../environments/enviroment';
 import { MarketplaceItem } from '../../models/marketplace-item.model';
 
 const VEHICLE_SLUGS = [
-  'vehiculo',
-  'vehiculos',
-  'motor',
-  'coches',
-  'coche',
-  'motos',
-  'moto',
-  'furgoneta',
-  'camion',
-  'caravana',
-  'autobus',
-  'quad',
-  'barco',
+  'vehiculo', 'vehiculos', 'motor', 'coches', 'coche', 
+  'motos', 'moto', 'furgoneta', 'camion', 'caravana', 
+  'autobus', 'quad', 'barco'
 ];
+const PAGINAS_AUTO_LOAD = 3;
 
 @Component({
   selector: 'app-search',
@@ -63,6 +57,7 @@ export class SearchComponent implements OnInit, AfterViewInit, OnDestroy {
   private authStore = inject(AuthStore);
   private http = inject(HttpClient);
   private cdr = inject(ChangeDetectorRef);
+  private scrollService = inject(ScrollService);
 
   filterForm!: FormGroup;
   resultados: MarketplaceItem[] = [];
@@ -86,11 +81,42 @@ export class SearchComponent implements OnInit, AfterViewInit, OnDestroy {
   private destroy$ = new Subject<void>();
   private formSub!: Subscription;
 
-  sugerenciasUbicacion: string[] = [];
+  sugerenciasUbicacion: any[] = [];
   mostrandoSugerenciasUbi = false;
+  mostrandoMapaModal = false;
+  private map: any;
+  private marker: any;
+  private radiusCircle: any;
+  mostrandoCategorias = false;
   marcasDisponibles: string[] = [];
   modelosDisponibles: string[] = [];
   categoriasDisponibles: Categoria[] = [];
+
+  condicionesDisponibles = [
+    { value: '', label: 'Cualquier estado', icon: 'fas fa-tags' },
+    { value: 'NUEVO_OFERTA', label: 'Nuevo / Oferta', icon: 'fas fa-fire' },
+    { value: 'NUEVO', label: 'A estrenar (Nuevo)', icon: 'fas fa-star' },
+    { value: 'COMO_NUEVO', label: 'Como nuevo', icon: 'fas fa-wand-magic-sparkles' },
+    { value: 'MUY_BUEN_ESTADO', label: 'Muy buen estado', icon: 'fas fa-check-double' },
+    { value: 'BUEN_ESTADO', label: 'Buen estado', icon: 'fas fa-check' },
+    { value: 'ACEPTABLE', label: 'Aceptable', icon: 'fas fa-thumbs-up' }
+  ];
+
+  opcionesOrden = [
+    { value: 'relevancia', label: 'Mejor coincidencia', icon: 'fas fa-sort-amount-down' },
+    { value: 'novedades', label: 'Novedades primero', icon: 'fas fa-calendar-plus' },
+    { value: 'precio_asc', label: 'Precio: bajo a alto', icon: 'fas fa-arrow-up-9-1' },
+    { value: 'precio_desc', label: 'Precio: alto a bajo', icon: 'fas fa-arrow-down-9-1' }
+  ];
+
+  condicionNombreActual = signal<string>('Cualquier estado');
+  condicionIconoActual = signal<string>('fas fa-tags');
+  
+  ordenNombreActual = signal<string>('Mejor coincidencia');
+  ordenIconoActual = signal<string>('fas fa-sort-amount-down');
+  
+  mostrandoCondiciones = false;
+  mostrandoOrden = false;
 
   ngOnInit(): void {
     this.initForm();
@@ -107,8 +133,19 @@ export class SearchComponent implements OnInit, AfterViewInit, OnDestroy {
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+    this.scrollService.unlock();
     if (this.observer) this.observer.disconnect();
-    document.body.style.overflow = '';
+  }
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent): void {
+    const target = event.target as HTMLElement;
+    if (!target.closest('.nx-custom-select-container')) {
+      this.mostrandoCategorias = false;
+      this.mostrandoCondiciones = false;
+      this.mostrandoOrden = false;
+      this.cdr.detectChanges();
+    }
   }
 
   private initForm(): void {
@@ -136,6 +173,9 @@ export class SearchComponent implements OnInit, AfterViewInit, OnDestroy {
       plazas: [''],
       garantia: [false],
       itv: [false],
+      radius: [150], // km por defecto solicitado por el usuario
+      lat: [null],
+      lng: [null],
     });
 
     this.filterForm
@@ -149,7 +189,7 @@ export class SearchComponent implements OnInit, AfterViewInit, OnDestroy {
 
     this.formSub = this.filterForm.valueChanges
       .pipe(
-        debounceTime(600),
+        debounceTime(300),
         distinctUntilChanged((p, c) => JSON.stringify(p) === JSON.stringify(c)),
         takeUntil(this.destroy$),
       )
@@ -233,12 +273,148 @@ export class SearchComponent implements OnInit, AfterViewInit, OnDestroy {
         { emitEvent: false },
       );
 
+      this.actualizarTituloCondicion(params['condicion'] || '');
+      this.actualizarTituloOrden(params['orden'] || 'relevancia');
+
       if (params['marca']) this.cargarModelos(params['marca']);
       this.formSub = this.filterForm.valueChanges
-        .pipe(debounceTime(600), takeUntil(this.destroy$))
+        .pipe(debounceTime(300), takeUntil(this.destroy$))
         .subscribe((v) => this.actualizarURL(v));
       this.realizarBusqueda(true);
     });
+  }
+
+  toggleMapa(): void {
+    this.mostrandoMapaModal = !this.mostrandoMapaModal;
+    if (this.mostrandoMapaModal) {
+      this.scrollService.lock();
+      setTimeout(() => this.initMapa(), 100);
+    } else {
+      this.scrollService.unlock();
+    }
+  }
+
+  limpiarUbicacion(): void {
+    this.filterForm.patchValue({
+      ubicacion: '',
+      lat: null,
+      lng: null
+    });
+    if (this.marker) {
+      this.marker.remove();
+      this.marker = null;
+    }
+    if (this.radiusCircle) {
+      this.radiusCircle.remove();
+      this.radiusCircle = null;
+    }
+    // No cerramos el modal si está abierto, pero si estamos en el modo normal, 
+    // la URL se actualizará por el valueChanges
+  }
+
+  private initMapa(): void {
+    if (typeof L === 'undefined') return;
+    
+    // Si ya existe una instancia, la removemos para evitar conflictos con el DOM recreado por @if
+    if (this.map) {
+      try {
+        this.map.remove();
+        this.map = null;
+        this.marker = null;
+        this.radiusCircle = null;
+      } catch (e) {
+        console.error('Error al limpiar el mapa:', e);
+      }
+    }
+
+    const initialLat = this.filterForm.get('lat')?.value || 40.4168; // Madrid (solo fallback)
+    const initialLng = this.filterForm.get('lng')?.value || -3.7038;
+
+    this.map = L.map('nx-search-map', { 
+      attributionControl: false,
+      zoomControl: false // Opcional para un look más limpio
+    }).setView(
+      [initialLat, initialLng],
+      13,
+    );
+
+    // Tile layer Premium Black (CartoDB Dark Matter)
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+      maxZoom: 19
+    }).addTo(this.map);
+
+    this.marker = L.marker([initialLat, initialLng], { 
+      draggable: true,
+      icon: L.divIcon({
+        className: 'nx-custom-marker',
+        html: '<div class="nx-marker-dot"></div><div class="nx-marker-pulse"></div>',
+        iconSize: [20, 20],
+        iconAnchor: [10, 10]
+      })
+    }).addTo(this.map);
+
+    this.marker.on('dragend', () => this.updateRadiusCircle());
+    this.map.on('click', (e: any) => {
+      this.marker.setLatLng(e.latlng);
+      this.updateRadiusCircle();
+    });
+
+    this.updateRadiusCircle();
+  }
+
+  updateRadiusCircle(): void {
+    if (!this.map || !this.marker) return;
+    const pos = this.marker.getLatLng();
+    const radiusKm = this.filterForm.get('radius')?.value || 5;
+
+    if (this.radiusCircle) {
+      this.radiusCircle.setLatLng(pos);
+      this.radiusCircle.setRadius(radiusKm * 1000);
+    } else {
+      this.radiusCircle = L.circle(pos, {
+        radius: radiusKm * 1000,
+        color: '#6366f1',
+        fillColor: '#6366f1',
+        fillOpacity: 0.1,
+        weight: 1
+      }).addTo(this.map);
+    }
+
+    // Centrar y ajustar zoom para ver todo el radio con un margen generoso
+    this.map.fitBounds(this.radiusCircle.getBounds(), { padding: [20, 20] });
+  }
+
+  confirmarUbicacionMapa(): void {
+    if (!this.marker) return;
+    const pos = this.marker.getLatLng();
+    this.filterForm.patchValue({
+      lat: pos.lat,
+      lng: pos.lng,
+    });
+    this.reverseGeocode(pos.lat, pos.lng);
+    this.mostrandoMapaModal = false;
+    this.mostrandoSugerenciasUbi = false;
+    this.scrollService.unlock();
+  }
+
+  private reverseGeocode(lat: number, lng: number): void {
+    this.http
+      .get<any>(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (res) => {
+          const ciudad =
+            res?.address?.city ||
+            res?.address?.town ||
+            res?.address?.village ||
+            res?.address?.municipality ||
+            `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
+          this.filterForm.patchValue({ ubicacion: ciudad });
+        },
+        error: () => {
+          this.filterForm.patchValue({ ubicacion: `${lat.toFixed(4)}, ${lng.toFixed(4)}` });
+        },
+      });
   }
 
   private actualizarURL(valores: any): void {
@@ -261,14 +437,24 @@ export class SearchComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     const fv = this.filterForm.value;
+    
+    // CASO ESPECIAL: Nuevo / Oferta
+    let tipoFinal = fv.tipo;
+    let condicionFinal = fv.condicion;
+    if (condicionFinal === 'NUEVO_OFERTA') {
+      tipoFinal = 'OFERTA';
+      condicionFinal = 'NUEVO';
+    }
+
     const params: SearchParams = {
       ...fv,
+      tipo: tipoFinal,
       page: this.paginaActual,
       size: this.sizePorPagina,
       categoria: fv.categoria || undefined,
       precioMin: fv.precioMin || undefined,
       precioMax: fv.precioMax || undefined,
-      condicion: fv.condicion || undefined,
+      condicion: condicionFinal || undefined,
       ubicacion: fv.ubicacion || undefined,
       conEnvio: fv.conEnvio || undefined,
     };
@@ -299,7 +485,13 @@ export class SearchComponent implements OnInit, AfterViewInit, OnDestroy {
   private setupIntersectionObserver(): void {
     this.observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting && !this.cargando && !this.cargandoMas && this.hayMasResultados) {
+        if (
+          entry.isIntersecting && 
+          !this.cargando && 
+          !this.cargandoMas && 
+          this.hayMasResultados &&
+          this.paginaActual < PAGINAS_AUTO_LOAD
+        ) {
           this.paginaActual++;
           this.realizarBusqueda(false);
         }
@@ -351,9 +543,36 @@ export class SearchComponent implements OnInit, AfterViewInit, OnDestroy {
       });
   }
 
-  seleccionarUbicacion(u: string): void {
+  seleccionarUbicacion(u: string, coords?: {lat: number, lng: number}): void {
+    if (!u) return;
     this.filterForm.patchValue({ ubicacion: u });
     this.mostrandoSugerenciasUbi = false;
+
+    if (coords && this.map && this.marker) {
+      // Usar coordenadas directas de la sugerencia (Precisión 100%)
+      this.filterForm.patchValue({ 
+        lat: coords.lat, 
+        lng: coords.lng 
+      }, { emitEvent: false });
+      
+      this.marker.setLatLng([coords.lat, coords.lng]);
+      this.map.setView([coords.lat, coords.lng], 13);
+      this.updateRadiusCircle();
+    } else {
+      // Geocodificar si no tenemos coordenadas (ej. Enter en el input)
+      this.searchService.getCoordenadas(u).subscribe((newCoords) => {
+        if (newCoords && this.map && this.marker) {
+          this.filterForm.patchValue({ 
+            lat: newCoords.lat, 
+            lng: newCoords.lng 
+          }, { emitEvent: false });
+          
+          this.marker.setLatLng([newCoords.lat, newCoords.lng]);
+          this.map.setView([newCoords.lat, newCoords.lng], 13);
+          this.updateRadiusCircle();
+        }
+      });
+    }
   }
 
   private slugEsVehiculo(s: string): boolean {
@@ -363,11 +582,83 @@ export class SearchComponent implements OnInit, AfterViewInit, OnDestroy {
   private actualizarTituloCat(slug: string): void {
     if (!slug) {
       this.categoriaNombreActual.set('');
+      this.categoriaIconoActual.set('fas fa-layer-group');
       return;
     }
     const cat = this.categoriasDisponibles.find((c) => c.slug === slug);
     this.categoriaNombreActual.set(cat ? cat.nombre : slug.charAt(0).toUpperCase() + slug.slice(1));
-    this.categoriaIconoActual.set(cat?.icono || 'fas fa-layer-group');
+    this.categoriaIconoActual.set(this.getIconoCategoria(cat || null));
+  }
+
+  toggleCategorias(event: Event): void {
+    event.stopPropagation();
+    this.mostrandoCategorias = !this.mostrandoCategorias;
+    this.mostrandoCondiciones = false;
+    this.mostrandoOrden = false;
+  }
+
+  seleccionarCategoria(cat: Categoria | null): void {
+    const slug = cat ? cat.slug : '';
+    this.filterForm.patchValue({ categoria: slug });
+    this.mostrandoCategorias = false;
+    this.actualizarTituloCat(slug);
+    this.cdr.detectChanges();
+  }
+
+  actualizarPrecioMax(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    this.filterForm.patchValue({ precioMax: input.value ? Number(input.value) : null });
+  }
+
+  cargarMasResultados(): void {
+    if (!this.cargando && !this.cargandoMas && this.hayMasResultados) {
+      this.paginaActual++;
+      this.realizarBusqueda(false);
+    }
+  }
+
+  get mostrarBotonCargarMas(): boolean {
+    return this.hayMasResultados && !this.cargandoMas && this.paginaActual >= PAGINAS_AUTO_LOAD;
+  }
+
+  toggleCondiciones(event: Event): void {
+    event.stopPropagation();
+    this.mostrandoCondiciones = !this.mostrandoCondiciones;
+    this.mostrandoCategorias = false;
+    this.mostrandoOrden = false;
+  }
+
+  seleccionarCondicion(val: string): void {
+    this.filterForm.patchValue({ condicion: val });
+    this.mostrandoCondiciones = false;
+    this.actualizarTituloCondicion(val);
+    this.cdr.detectChanges();
+  }
+
+  private actualizarTituloCondicion(val: string): void {
+    const opt = this.condicionesDisponibles.find(c => c.value === val) || this.condicionesDisponibles[0];
+    this.condicionNombreActual.set(opt.label);
+    this.condicionIconoActual.set(opt.icon);
+  }
+
+  toggleOrden(event: Event): void {
+    event.stopPropagation();
+    this.mostrandoOrden = !this.mostrandoOrden;
+    this.mostrandoCategorias = false;
+    this.mostrandoCondiciones = false;
+  }
+
+  seleccionarOrden(val: string): void {
+    this.filterForm.patchValue({ orden: val });
+    this.mostrandoOrden = false;
+    this.actualizarTituloOrden(val);
+    this.cdr.detectChanges();
+  }
+
+  private actualizarTituloOrden(val: string): void {
+    const opt = this.opcionesOrden.find(o => o.value === val) || this.opcionesOrden[0];
+    this.ordenNombreActual.set(opt.label);
+    this.ordenIconoActual.set(opt.icon);
   }
 
   limpiarFiltros(): void {
@@ -375,6 +666,8 @@ export class SearchComponent implements OnInit, AfterViewInit, OnDestroy {
     this.filterForm.reset({ q, tipo: 'TODOS', orden: 'relevancia' });
     this.esBusquedaVehiculo = false;
     this.categoriaNombreActual.set('');
+    this.actualizarTituloCondicion('');
+    this.actualizarTituloOrden('relevancia');
   }
 
   private limpiarFiltrosMotor(): void {
@@ -400,11 +693,30 @@ export class SearchComponent implements OnInit, AfterViewInit, OnDestroy {
 
   usarUbicacionActual(): void {
     if (!navigator.geolocation) return;
-    this.obteniendoUbicacion = true;
-    this.cdr.detectChanges();
+    
+    // Fix ExpressionChangedAfterItHasBeenCheckedError
+    Promise.resolve().then(() => {
+      this.obteniendoUbicacion = true;
+      this.cdr.detectChanges();
+    });
+
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         const { latitude, longitude } = pos.coords;
+        
+        // Actualizar formulario
+        this.filterForm.patchValue({ 
+          lat: latitude, 
+          lng: longitude 
+        }, { emitEvent: false });
+
+        // Actualizar Mapa si existe
+        if (this.map && this.marker) {
+          this.marker.setLatLng([latitude, longitude]);
+          this.map.setView([latitude, longitude], 13);
+          this.updateRadiusCircle();
+        }
+
         this.http
           .get<any>(
             `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`,
@@ -412,14 +724,27 @@ export class SearchComponent implements OnInit, AfterViewInit, OnDestroy {
           .pipe(takeUntil(this.destroy$))
           .subscribe({
             next: (res) => {
-              const ciudad =
-                res?.address?.city ||
-                res?.address?.town ||
-                res?.address?.village ||
-                res?.address?.municipality ||
-                `${latitude.toFixed(4)}, ${longitude.toFixed(4)}`;
+              const addr = res?.address;
+              let ciudad = '';
+              
+              if (addr) {
+                const loc = addr.city || addr.town || addr.village || addr.municipality || addr.suburb || '';
+                const prov = addr.county || addr.province || addr.state || '';
+                
+                if (loc && prov && loc !== prov) {
+                  ciudad = `${loc}, ${prov}`;
+                } else {
+                  ciudad = loc || prov || '';
+                }
+              }
+              
+              if (!ciudad) {
+                ciudad = `${latitude.toFixed(4)}, ${longitude.toFixed(4)}`;
+              }
+              
               this.filterForm.patchValue({ ubicacion: ciudad });
               this.obteniendoUbicacion = false;
+              this.mostrandoSugerenciasUbi = false;
               this.cdr.detectChanges();
             },
             error: () => {
@@ -427,6 +752,7 @@ export class SearchComponent implements OnInit, AfterViewInit, OnDestroy {
                 ubicacion: `${latitude.toFixed(4)}, ${longitude.toFixed(4)}`,
               });
               this.obteniendoUbicacion = false;
+              this.mostrandoSugerenciasUbi = false;
               this.cdr.detectChanges();
             },
           });
@@ -436,5 +762,46 @@ export class SearchComponent implements OnInit, AfterViewInit, OnDestroy {
         this.cdr.detectChanges();
       },
     );
+  }
+
+  getIconoCategoria(cat: Categoria | null): string {
+    if (!cat) return 'fas fa-layer-group';
+    
+    // Mapa de iconos por slug para asegurar que siempre haya uno "de verdad"
+    const iconMap: { [key: string]: string } = {
+      'juguetes': 'fas fa-gamepad',
+      'motos': 'fas fa-motorcycle',
+      'moto': 'fas fa-motorcycle',
+      'moviles': 'fas fa-mobile-screen-button',
+      'telefonia': 'fas fa-mobile-screen-button',
+      'informatica': 'fas fa-laptop',
+      'electronica': 'fas fa-microchip',
+      'coches': 'fas fa-car',
+      'coche': 'fas fa-car',
+      'hogar': 'fas fa-house-user',
+      'muebles': 'fas fa-couch',
+      'inmuebles': 'fas fa-building',
+      'deportes': 'fas fa-basketball',
+      'libros': 'fas fa-book',
+      'camaras': 'fas fa-camera',
+      'audio': 'fas fa-headphones',
+      'consolas': 'fas fa-gamepad',
+      'electrodomesticos': 'fas fa-blender',
+      'zapatillas': 'fas fa-shoe-prints',
+      'zapatos': 'fas fa-shoe-prints',
+      'calzado': 'fas fa-shoe-prints',
+      'moda': 'fas fa-shirt',
+      'ropa': 'fas fa-shirt'
+    };
+
+    const slug = cat.slug?.toLowerCase();
+    if (slug && iconMap[slug]) return iconMap[slug];
+
+    let ico = cat.icono || 'fas fa-tag';
+    // Normalizar icono si viene incompleto
+    if (ico && !ico.includes('fa-')) ico = 'fa-' + ico;
+    if (ico && !ico.includes('fas') && !ico.includes('fab') && !ico.includes('far')) ico = 'fas ' + ico;
+    
+    return ico;
   }
 }
