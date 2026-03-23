@@ -227,6 +227,20 @@ export const routes: Routes = [
     canActivate: [authGuard],
   },
 
+  {
+    path: 'denegado',
+    loadComponent: () =>
+      import('./components/errors/forbidden/forbidden.component').then((m) => m.ForbiddenComponent),
+  },
+  {
+    path: 'not-found',
+    loadComponent: () =>
+      import('./components/errors/not-found/not-found.component').then((m) => m.NotFoundComponent),
+  },
   // Wildcard (404 / Redirect)
-  { path: '**', redirectTo: '' },
+  {
+    path: '**',
+    loadComponent: () =>
+      import('./components/errors/not-found/not-found.component').then((m) => m.NotFoundComponent),
+  },
 ];

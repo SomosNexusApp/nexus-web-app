@@ -8,6 +8,7 @@ import {
   OnDestroy,
   OnChanges,
   SimpleChanges,
+  ChangeDetectorRef,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
@@ -35,6 +36,7 @@ export class OfertaCardComponent implements OnInit, OnDestroy, OnChanges {
   private router = inject(Router);
   private http = inject(HttpClient);
   private authStore = inject(AuthStore);
+  private cdr = inject(ChangeDetectorRef);
 
   // Estados locales para reactividad inmediata
   sparkScore = signal(0);
@@ -164,8 +166,11 @@ export class OfertaCardComponent implements OnInit, OnDestroy, OnChanges {
       else if (newVoto === 'DRIP') newScore += -1;
     }
 
+    // Aplicar cambios optimistas en los signals locales
     this.sparkScore.set(newScore);
     this.miVoto.set(newVoto);
+    
+    // Sincronizar también el objeto oferta por si se usa fuera
     (this.oferta as any).sparkScore = newScore;
     (this.oferta as any).miVoto = newVoto;
 
@@ -177,13 +182,21 @@ export class OfertaCardComponent implements OnInit, OnDestroy, OnChanges {
       .post(`${environment.apiUrl}/oferta/${this.oferta.id}/votar`, {}, { params })
       .subscribe({
         next: (res: any) => {
+          this.votando.set(false);
+          
+          // Log para depuración en producción/desarrollo
+          console.log(`[Voto Fix] Oferta ${this.oferta.id}: Score devuelto=${res.sparkScore}, MiVoto=${res.miVoto}`);
+
+          // Actualizar signals con la confirmación real del servidor (ya no debería haber "bounce")
           this.sparkScore.set(res.sparkScore);
           this.miVoto.set(res.miVoto);
-          this.votando.set(false);
+          
           // Sincronizar objeto original
           (this.oferta as any).sparkScore = res.sparkScore;
           (this.oferta as any).badge = res.badge;
           (this.oferta as any).miVoto = res.miVoto;
+          
+          this.cdr.detectChanges();
         },
         error: (err) => {
           console.error('Error al votar:', err);

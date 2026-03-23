@@ -54,6 +54,90 @@
 
 @keyframes spin { to { transform: rotate(360deg); } }
 
+/* ─── Error / No Disponible ───────────────────────────────── */
+.ck-error-page {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: calc(100vh - 130px);
+  width: 100%;
+  padding: 2rem;
+  background: radial-gradient(circle at center, #1a1a2e, #0a0a0f);
+  position: relative;
+  overflow: hidden;
+}
+
+.ck-error-card {
+  position: relative;
+  max-width: 500px;
+  width: 100%;
+  padding: 4rem 2rem;
+  text-align: center;
+  background: rgba(255, 255, 255, 0.02);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 40px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  z-index: 10;
+}
+
+.ck-error-glow {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(circle, rgba(251, 113, 133, 0.15) 0%, transparent 70%);
+  filter: blur(50px);
+  z-index: -1;
+}
+
+.ck-error-icon-wrap {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 2rem;
+  background: rgba(251, 113, 133, 0.1);
+  border: 1px solid rgba(251, 113, 133, 0.3);
+  border-radius: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fb7185;
+  font-size: 2.5rem;
+  filter: drop-shadow(0 0 15px rgba(251, 113, 133, 0.4));
+  animation: pulse-red 2s infinite;
+}
+
+@keyframes pulse-red {
+  0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(251, 113, 133, 0.4); }
+  70% { transform: scale(1.05); box-shadow: 0 0 0 15px rgba(251, 113, 133, 0); }
+  100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(251, 113, 133, 0); }
+}
+
+.ck-error-title {
+  font-size: 2.25rem;
+  font-weight: 800;
+  color: #fff;
+  margin-bottom: 1rem;
+  letter-spacing: -0.02em;
+}
+
+.ck-error-text {
+  color: #94a3b8;
+  font-size: 1.1rem;
+  line-height: 1.6;
+  margin-bottom: 2.5rem;
+  max-width: 350px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.ck-error-actions {
+  display: flex;
+  justify-content: center;
+}
+
 /* ─── Top Bar ────────────────────────────────────────────── */
 .ck-topbar {
   display: flex;
@@ -100,6 +184,7 @@
   letter-spacing: -0.02em;
   background: linear-gradient(135deg, #fff 30%, #94a3b8 100%);
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 

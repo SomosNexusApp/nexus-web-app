@@ -27,6 +27,7 @@ import { CompraService } from '../../../core/services/compra.service';
 import { Producto } from '../../../models/producto.model';
 import { TipoEnvio } from '../../../models/compra.model';
 import { PuntoRecogidaSelector, PuntoRecogida } from '../../../shared/components/punto-recogida-selector/punto-recogida-selector';
+import { ScrollService } from '../../../core/services/scroll.service';
 
 const MAX_PRICE = 1000;
 
@@ -47,6 +48,7 @@ export class CheckoutComponent implements OnInit, OnDestroy {
   private compraSrv = inject(CompraService);
   private pagoService = inject(PagoService);
   private cdr = inject(ChangeDetectorRef);
+  private scrollService = inject(ScrollService);
 
   // ── Estado ────────────────────────────────────────────────────────────
   producto = signal<Producto | null>(null);
@@ -129,6 +131,7 @@ export class CheckoutComponent implements OnInit, OnDestroy {
     this.cardNumberEl?.unmount();
     this.cardExpiryEl?.unmount();
     this.cardCvcEl?.unmount();
+    this.scrollService.unlock();
   }
 
   // ── Formularios ───────────────────────────────────────────────────────
@@ -189,6 +192,7 @@ export class CheckoutComponent implements OnInit, OnDestroy {
       next: (p) => {
         if (p.estado !== 'DISPONIBLE') {
           this.errorGeneral.set('Este producto ya no está disponible.');
+          this.scrollService.lock();
           this.cargando.set(false);
           this.cdr.markForCheck();
           return;
@@ -236,6 +240,7 @@ export class CheckoutComponent implements OnInit, OnDestroy {
       },
       error: () => {
         this.errorGeneral.set('No se pudo cargar el producto. Inténtalo de nuevo.');
+        this.scrollService.lock();
         this.cargando.set(false);
         this.cdr.markForCheck();
       },

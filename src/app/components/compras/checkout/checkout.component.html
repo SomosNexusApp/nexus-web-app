@@ -33,15 +33,21 @@
 
 <!-- ════════════ ERROR / NO DISPONIBLE -->
 @if (!cargando() && errorGeneral() && !producto()) {
-  <div class="ck-error-page">
-    <div class="ck-error-icon">
-      <i class="fa-solid fa-triangle-exclamation" style="font-size: 3rem; color: #fb7185; margin-bottom: 1rem;"></i>
+  <div class="ck-error-page animate-fade-in">
+    <div class="ck-error-card glassmorphism">
+      <div class="ck-error-glow"></div>
+      <div class="ck-error-icon-wrap">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+      </div>
+      <h2 class="ck-error-title">Vaya, algo ha fallado</h2>
+      <p class="ck-error-text">{{ errorGeneral() }}</p>
+      
+      <div class="ck-error-actions">
+        <button class="ck-btn--pay" (click)="volver()">
+          <i class="fa-solid fa-arrow-left"></i> Volver atrás
+        </button>
+      </div>
     </div>
-    <h2 style="font-weight: 800; font-size: 2rem;">Vaya, algo ha fallado</h2>
-    <p style="color: #94a3b8; max-width: 400px; text-align: center; line-height: 1.6;">{{ errorGeneral() }}</p>
-    <button class="ck-btn ck-btn--pay" (click)="volver()" style="width: auto; padding: 1rem 2rem; margin-top: 1rem;">
-      <i class="fa-solid fa-arrow-left"></i> Volver atrás
-    </button>
   </div>
 }
 
