@@ -1,22 +1,26 @@
-<app-toast-container></app-toast-container>
+@if (!isEmbedded) {
+  <app-toast-container></app-toast-container>
+}
 
-<div class="configuracion-page">
-  <div class="page-container">
+<div class="configuracion-page" [class.is-embedded]="isEmbedded">
+  <div class="config-layout-grid">
     <!-- Sidebar / ScrollSpy -->
-    <aside class="config-sidebar">
-      <h3>Preferencias</h3>
-      <nav class="config-nav">
-        <a
-          *ngFor="let sec of sections"
-          (click)="scrollToSection(sec.id)"
-          [class.active]="activeSection() === sec.id"
-          class="nav-item"
-        >
-          <i [class]="sec.icon"></i>
-          <span>{{ sec.title }}</span>
-        </a>
-      </nav>
-    </aside>
+    @if (!isEmbedded) {
+      <aside class="config-sidebar">
+        <h3>Preferencias</h3>
+        <nav class="config-nav">
+          <a
+            *ngFor="let sec of sections"
+            (click)="scrollToSection(sec.id)"
+            [class.active]="activeSection() === sec.id"
+            class="nav-item"
+          >
+            <i [class]="sec.icon"></i>
+            <span>{{ sec.title }}</span>
+          </a>
+        </nav>
+      </aside>
+    }
 
     <!-- Main Content -->
     <main class="config-content">

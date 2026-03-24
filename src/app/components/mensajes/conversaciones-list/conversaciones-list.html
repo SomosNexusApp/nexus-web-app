@@ -14,9 +14,10 @@
         <div class="avatar-container">
           <img
             [src]="
+              getOtroUsuario(msg)?.fotoPerfil ||
               getOtroUsuario(msg)?.avatar ||
               'https://ui-avatars.com/api/?name=' +
-                (getOtroUsuario(msg)?.nombre || 'U') +
+                (getOtroUsuario(msg)?.nombre || getOtroUsuario(msg)?.user || 'U') +
                 '&background=random'
             "
             class="avatar-img"

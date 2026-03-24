@@ -46,13 +46,17 @@ export class PublishProductoComponent implements OnInit {
   private guestPopupService = inject(GuestPopupService);
   private searchService = inject(SearchService);
   private toast = inject(ToastService);
+  private route = inject(ActivatedRoute);
 
   // ── ESTADO ────────────────────────────────────────────────────────
   currentStep = signal<PublishStep>(0);
   categorias = signal<Categoria[]>([]);
   selectedCategory = signal<Categoria | null>(null);
 
-  images = signal<{ url: string; file?: File; isPrincipal: boolean }[]>([]);
+  isEditMode = signal(false);
+  productId = signal<number | null>(null);
+
+  images = signal<{ url: string; file?: File; isPrincipal: boolean; isExisting?: boolean }[]>([]);
   uploading = signal(false);
 
   // Formularios con tipado explícito para evitar inferencia restrictiva de 'null'

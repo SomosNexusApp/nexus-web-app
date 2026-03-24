@@ -11,125 +11,175 @@ Copiaré y ajustaré los estilos de la cabecera. */
 
 /* Sobrescribir estilos para la cabecera premium que importamos de cerca-de-ti */
 .vehicle-header {
-  position: relative;
-  width: 100%;
-  margin-bottom: 24px;
-  border-radius: 24px;
-  overflow: hidden;
-  background: rgba(20, 20, 25, 0.4);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  padding: 32px;
+  position: relative !important;
+  width: 100% !important;
+  margin-bottom: 32px !important;
+  border-radius: 20px !important;
+  padding: 40px !important;
+  background: linear-gradient(135deg, rgba(20, 20, 28, 0.95) 0%, rgba(10, 10, 15, 0.98) 100%) !important;
+  border: 1px solid rgba(99, 102, 241, 0.3) !important;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5), inset 0 0 0 1px rgba(255, 255, 255, 0.05) !important;
+  display: flex !important;
+  align-items: center !important;
+  overflow: hidden !important;
+  min-height: 250px !important;
+  box-sizing: border-box !important;
+  flex-shrink: 0 !important;
 }
 
 .vehicle-header .glow-bg {
-  position: absolute;
-  top: -50%;
-  left: -50%;
-  width: 200%;
-  height: 200%;
-  background: radial-gradient(circle at center, rgba(99, 102, 241, 0.15) 0%, transparent 50%);
-  z-index: 0;
-  pointer-events: none;
+  position: absolute !important;
+  top: -50% !important;
+  left: 30% !important;
+  width: 100% !important;
+  height: 200% !important;
+  background: radial-gradient(circle at center, rgba(99, 102, 241, 0.15) 0%, transparent 60%) !important;
+  z-index: 0 !important;
+  pointer-events: none !important;
+}
+
+.vehicle-header::after {
+  content: '' !important;
+  position: absolute !important;
+  top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important;
+  background-image: 
+    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px) !important;
+  background-size: 20px 20px !important;
+  pointer-events: none !important;
+  z-index: 0 !important;
 }
 
 .vehicle-header .header-main {
-  position: relative;
-  z-index: 1;
-  width: 100%;
-  display: flex;
-  align-items: center;
+  position: relative !important;
+  z-index: 2 !important;
+  width: 100% !important;
 }
 
 .nexus-local-experience {
-  display: flex;
-  align-items: center;
-  gap: 32px;
+  display: flex !important;
+  align-items: center !important;
+  gap: 30px !important;
 }
 
 .radar-container {
-  width: 80px;
-  height: 80px;
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(99, 102, 241, 0.1);
-  border-radius: 50%;
-  border: 1px solid rgba(99, 102, 241, 0.2);
-  box-shadow: 0 0 20px rgba(99, 102, 241, 0.2);
-  flex-shrink: 0;
+  width: 90px !important;
+  height: 90px !important;
+  position: relative !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background: rgba(99, 102, 241, 0.1) !important;
+  border-radius: 50% !important;
+  border: 2px solid rgba(99, 102, 241, 0.4) !important;
+  box-shadow: 0 0 25px rgba(99, 102, 241, 0.3), inset 0 0 15px rgba(99, 102, 241, 0.2) !important;
+  flex-shrink: 0 !important;
+}
+
+.radar-icon {
+  z-index: 2 !important;
 }
 
 .radar-icon i {
-  font-size: 2rem;
-  color: #a5b4fc;
-  text-shadow: 0 0 10px rgba(165, 180, 252, 0.5);
+  font-size: 2.2rem !important;
+  color: #c7d2fe !important;
+  text-shadow: 0 0 15px rgba(165, 180, 252, 0.8) !important;
+  margin: 0 !important;
+  padding: 0 !important;
 }
 
 .radar-circle {
-  border-color: rgba(99, 102, 241, 0.3) !important;
+  position: absolute !important;
+  width: 100% !important;
+  height: 100% !important;
+  border: 1px solid rgba(99, 102, 241, 0.5) !important;
+  border-radius: 50% !important;
+  animation: radarPulse 3s infinite linear !important;
+  opacity: 0;
+  box-sizing: border-box !important;
+  top: 0 !important;
+  left: 0 !important;
+}
+
+.circle-1 { animation-delay: 0s !important; }
+.circle-2 { animation-delay: 1s !important; }
+.circle-3 { animation-delay: 2s !important; }
+
+@keyframes radarPulse {
+  0% { transform: scale(0.6); opacity: 0; }
+  20% { opacity: 0.8; }
+  100% { transform: scale(2.2); opacity: 0; }
+}
+
+.experience-text {
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  z-index: 2 !important;
+}
+
+.experience-text .brand-tag {
+  display: inline-block !important;
+  padding: 6px 14px !important;
+  background: rgba(99, 102, 241, 0.15) !important;
+  border: 1px solid rgba(99, 102, 241, 0.3) !important;
+  color: #a5b4fc !important;
+  border-radius: 20px !important;
+  font-size: 0.8rem !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.08em !important;
+  text-transform: uppercase !important;
+  margin-bottom: 12px !important;
+  width: fit-content !important;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2) !important;
 }
 
 .experience-text h1 {
-  font-size: 2.5rem;
-  font-weight: 800;
-  margin: 0 0 8px;
-  background: linear-gradient(135deg, #fff 0%, #a5b4fc 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  letter-spacing: -0.02em;
+  font-size: 3.5rem !important;
+  font-weight: 900 !important;
+  margin: 0 0 8px 0 !important;
+  background: linear-gradient(135deg, #ffffff 0%, #a5b4fc 100%) !important;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  letter-spacing: -0.02em !important;
+  line-height: 1.1 !important;
+  display: block !important;
 }
 
-.brand-tag {
-  display: inline-block;
-  padding: 4px 12px;
-  background: rgba(99, 102, 241, 0.15);
-  border: 1px solid rgba(99, 102, 241, 0.3);
-  color: #a5b4fc;
-  border-radius: 20px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  margin-bottom: 12px;
-}
-
-.subtitle {
-  color: rgba(255, 255, 255, 0.7);
-  font-size: 1.1rem;
-  margin: 0;
-  max-width: 500px;
-  line-height: 1.5;
+.experience-text .subtitle {
+  color: rgba(255, 255, 255, 0.7) !important;
+  font-size: 1.15rem !important;
+  font-weight: 400 !important;
+  margin: 0 !important;
+  max-width: 500px !important;
+  line-height: 1.5 !important;
+  display: block !important;
 }
 
 @media (max-width: 768px) {
   .vehicle-header {
-    padding: 24px;
-    border-radius: 16px;
+    padding: 24px !important;
+    flex-direction: column !important;
+    text-align: center !important;
+    justify-content: center !important;
   }
-  
   .nexus-local-experience {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 24px;
+    flex-direction: column !important;
+    gap: 20px !important;
   }
-  
+  .experience-text {
+    align-items: center !important;
+  }
   .experience-text h1 {
-    font-size: 2rem;
-  }
-  
-  .subtitle {
-    font-size: 1rem;
+    font-size: 2.5rem !important;
   }
 }
 
-.mt-8 { margin-top: 2rem; }
-.mt-6 { margin-top: 1.5rem; }
+.mt-8 { margin-top: 2rem !important; }
+.mt-6 { margin-top: 1.5rem !important; }
 
 .fade-in {
   animation: fadeInBase 0.5s ease backwards;

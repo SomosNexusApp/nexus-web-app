@@ -22,14 +22,32 @@
   /* overflow-x: hidden; - Removed to fix sticky sidebar */
 }
 
-.page-container {
+.config-layout-grid {
   max-width: 1400px;
   margin: 0 auto;
-  display: grid;
+  display: grid !important;
   grid-template-columns: 320px 1fr;
-  align-items: start; /* Crucial for sticky children to work as expected */
+  align-items: start;
   gap: 80px;
   padding: 0 40px;
+}
+
+/* Embedded mode overrides */
+.configuracion-page.is-embedded {
+  padding: 0;
+  min-height: auto;
+  background: transparent;
+}
+
+.configuracion-page.is-embedded .config-layout-grid {
+  display: block !important;
+  padding: 0;
+  max-width: none;
+}
+
+.configuracion-page.is-embedded .config-content {
+  gap: 60px;
+  padding-bottom: 50px;
 }
 
 /* ================= SIDEBAR NEXUS GLASS ================= */
@@ -633,7 +651,7 @@ input:checked + .elite-slider:before {
 
 /* ================= RESPONSIVE ELITE ================= */
 @media (max-width: 1100px) {
-  .page-container { grid-template-columns: 1fr; gap: 40px; }
+  .config-layout-grid { grid-template-columns: 1fr; gap: 40px; }
   .config-sidebar { position: static; }
   .config-nav { flex-direction: row; overflow-x: auto; padding-bottom: 12px; }
   .nav-item { white-space: nowrap; }

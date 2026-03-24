@@ -22,13 +22,14 @@
     </div>
 
     @if (conversacion.producto) {
-      <div class="header-product">
+      <div class="header-product" [routerLink]="['/productos', conversacion.producto.id]">
         <img [src]="conversacion.producto | coverImage" class="thumb" />
         <div class="prod-info">
           <span class="prod-title">{{ conversacion.producto.titulo }}</span>
-          <a [href]="'/productos/' + conversacion.producto.id" target="_blank" class="prod-link">
-            Ver anuncio <i class="fas fa-external-link-alt"></i>
-          </a>
+          <span class="prod-price">{{ conversacion.producto.precio | currencyEs }}</span>
+        </div>
+        <div class="prod-chevron">
+          <i class="fas fa-chevron-right"></i>
         </div>
       </div>
     }
@@ -43,6 +44,11 @@
           <button class="menu-item" (click)="reportar()">
             <i class="fas fa-flag"></i> Reportar Usuario
           </button>
+          @if (conversacion.producto) {
+            <button class="menu-item" (click)="reportarProducto()">
+              <i class="fas fa-box"></i> Reportar Producto
+            </button>
+          }
           <button class="menu-item danger" (click)="bloquear()">
             <i class="fas fa-user-slash"></i> 
             {{ usuarioBloqueado() ? 'Desbloquear' : 'Bloquear Usuario' }}
@@ -109,10 +115,35 @@
               </div>
             }
 
-            <!-- AUDIO -->
+            <!-- AUDIO SPECTACULAR -->
             @if (msg.tipo === 'AUDIO' && msg.mediaUrl) {
-              <div class="audio-wrapper">
-                <audio controls [src]="msg.mediaUrl"></audio>
+              <div class="audio-elite-player" (click)="$event.stopPropagation()">
+                <div class="player-left">
+                  <button class="elite-play-btn" (click)="toggleAudio(audioEl)">
+                    <i class="fas" [ngClass]="audioEl.paused ? 'fa-play' : 'fa-pause'"></i>
+                    <div class="btn-glow"></div>
+                  </button>
+                  <button class="speed-toggle" (click)="changeSpeed(audioEl)">
+                    {{ audioEl.playbackRate }}x
+                  </button>
+                </div>
+                
+                <div class="player-center">
+                  <div class="waveform-visual">
+                    <div class="wave-bar" *ngFor="let i of [1,2,3,4,5,6,7,8,9,10]" [class.active]="audioEl.currentTime > 0"></div>
+                  </div>
+                  <div class="elite-progress-container" (click)="seek(audioEl, $event)">
+                    <div class="elite-progress-bg">
+                      <div class="elite-progress-fill" [style.width.%]="(audioEl.currentTime / (audioEl.duration || 1)) * 100"></div>
+                    </div>
+                  </div>
+                  <div class="elite-time-info">
+                    <span>{{ formatTime(audioEl.currentTime) }}</span>
+                    <span>{{ formatTime(audioEl.duration) }}</span>
+                  </div>
+                </div>
+
+                <audio #audioEl [src]="msg.mediaUrl" (timeupdate)="0" (ended)="audioEl.pause()" (play)="0" (pause)="0" (ratechange)="0"></audio>
               </div>
             }
 

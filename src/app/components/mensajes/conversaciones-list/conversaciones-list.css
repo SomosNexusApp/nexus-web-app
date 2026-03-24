@@ -22,12 +22,13 @@
 .conversaciones {
   flex: 1;
   overflow-y: auto;
+  overflow-x: hidden;
   background-color: #020204;
 }
 
 .conversacion-item {
   display: flex;
-  padding: 16px;
+  padding: 16px 16px 16px 24px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.04);
   cursor: pointer;
   transition: all 0.2s ease;

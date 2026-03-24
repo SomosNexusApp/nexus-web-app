@@ -1,4 +1,4 @@
-import { Component, OnInit, AfterViewInit, OnDestroy, signal, ElementRef } from '@angular/core';
+import { Component, OnInit, AfterViewInit, OnDestroy, signal, ElementRef, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
@@ -21,6 +21,7 @@ import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
   styleUrls: ['./configuracion.component.css'],
 })
 export class ConfiguracionComponent implements OnInit, AfterViewInit, OnDestroy {
+  @Input() isEmbedded = false;
   private observer: IntersectionObserver | null = null;
   activeSection = signal<string>('perfil');
   private backendUrl = environment.apiUrl;

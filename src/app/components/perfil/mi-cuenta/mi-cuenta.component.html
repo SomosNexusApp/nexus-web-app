@@ -326,13 +326,70 @@
     @if (activeSection() === 'estadisticas') {
       <section class="section">
         <h2 class="section-title"><i class="fas fa-chart-bar"></i> Estadísticas</h2>
-        <div class="stats-placeholder">
-          <i class="fas fa-chart-line"></i>
-          <h3>Próximamente</h3>
-          <p>
-            Los gráficos de ventas, vistas y distribución por categoría estarán disponibles pronto.
-          </p>
-        </div>
+        
+        @if (hasEnoughData()) {
+          <div class="stats-elite-grid">
+            <!-- Card 1: Actividad -->
+            <div class="stats-main-card">
+              <div class="stats-card-header">
+                <h3>Resumen de Actividad</h3>
+                <span class="badge-elite">Nivel {{ (kpis().ventas + kpis().compras) > 10 ? 'Elite Pro' : 'Explorer' }}</span>
+              </div>
+              <div class="activity-bars">
+                <div class="activity-item">
+                  <div class="label">Ventas completadas <span>{{ kpis().ventas }}</span></div>
+                  <div class="bar-bg"><div class="bar-fill ventas" [style.width.%]="(kpis().ventas / 20) * 100"></div></div>
+                </div>
+                <div class="activity-item">
+                  <div class="label">Compras realizadas <span>{{ kpis().compras }}</span></div>
+                  <div class="bar-bg"><div class="bar-fill compras" [style.width.%]="(kpis().compras / 20) * 100"></div></div>
+                </div>
+                <div class="activity-item">
+                  <div class="label">Tasa de respuesta <span>{{ kpis().tasaRespuesta }}%</span></div>
+                  <div class="bar-bg"><div class="bar-fill tasa" [style.width.%]="kpis().tasaRespuesta"></div></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Card 2: Categorías -->
+            <div class="stats-side-card">
+              <h3>Distribución de Inventario</h3>
+              @if (statsByType().length > 0) {
+                <div class="cat-list">
+                  @for (cat of statsByType(); track cat.name) {
+                    <div class="cat-pill">
+                      <span class="cat-name">{{ cat.name }}</span>
+                      <span class="cat-count">{{ cat.value }}</span>
+                    </div>
+                  }
+                </div>
+              } @else {
+                <p class="text-mini">No hay datos de categorías aún.</p>
+              }
+            </div>
+          </div>
+
+          <div class="stats-footer-info">
+            <i class="fas fa-info-circle"></i>
+            <span>Tus estadísticas se actualizan automáticamente después de cada transacción completada.</span>
+          </div>
+        } @else {
+          <div class="stats-placeholder-elite">
+            <div class="placeholder-icon-wrapper">
+              <i class="fas fa-chart-line"></i>
+              <div class="glow-pulse"></div>
+            </div>
+            <h3>Análisis en preparación</h3>
+            <p>
+              ¡Hola, {{ user()?.nombre || user()?.user }}! Aún es pronto para generar informes detallados. 
+              Vende o compra un poco más para desbloquear tus gráficos de rendimiento.
+            </p>
+            <div class="unlock-steps">
+              <div class="step"><i class="fas fa-plus"></i> Publica algo hoy</div>
+              <div class="step"><i class="fas fa-comments"></i> Chatea con usuarios</div>
+            </div>
+          </div>
+        }
       </section>
     }
 
@@ -348,74 +405,36 @@
     @if (activeSection() === 'configuracion') {
       <section class="section">
         <h2 class="section-title"><i class="fas fa-cog"></i> Configuración</h2>
-
-        <div class="config-card">
-          <h3>Avatar</h3>
-          <div class="config-avatar-row">
-            @if (user()?.avatar) {
-              <img [src]="user()!.avatar" class="config-avatar" />
-            } @else {
-              <div class="config-avatar config-avatar-iniciales">{{ iniciales() }}</div>
-            }
-            <label class="btn-secondary btn-sm">
-              <i class="fas fa-camera"></i> Cambiar avatar
-              <input type="file" accept="image/*" hidden (change)="onAvatarChange($event)" />
-            </label>
-          </div>
-        </div>
-
-        <div class="config-card">
-          <h3>Datos personales</h3>
-          <div class="config-form">
-            <div class="form-group">
-              <label>Nombre</label>
-              <input
-                type="text"
-                [ngModel]="editForm().nombre"
-                (ngModelChange)="updateConfigField('nombre', $event)"
-              />
-            </div>
-            <div class="form-group">
-              <label>Email</label>
-              <input type="email" [value]="user()?.email" disabled />
-              <small>El email no se puede cambiar.</small>
-            </div>
-            <div class="form-group">
-              <label>Teléfono</label>
-              <input
-                type="tel"
-                [ngModel]="editForm().telefono"
-                (ngModelChange)="updateConfigField('telefono', $event)"
-              />
-            </div>
-            <div class="form-group">
-              <label>Ubicación</label>
-              <input
-                type="text"
-                [ngModel]="editForm().ubicacion"
-                (ngModelChange)="updateConfigField('ubicacion', $event)"
-              />
-            </div>
-            <div class="form-group">
-              <label>Biografía</label>
-              <textarea
-                rows="3"
-                [ngModel]="editForm().biografia"
-                (ngModelChange)="updateConfigField('biografia', $event)"
-              ></textarea>
-            </div>
-            <button class="btn-primary" (click)="guardarPerfil()">
-              <i class="fas fa-save"></i> Guardar cambios
-            </button>
-          </div>
-        </div>
+        <app-configuracion [isEmbedded]="true"></app-configuracion>
       </section>
     }
+
 
     <!-- ═══ AYUDA ═══ -->
     @if (activeSection() === 'ayuda') {
       <section class="section">
-        <h2 class="section-title"><i class="fas fa-question-circle"></i> Ayuda</h2>
+        <div class="help-center-header">
+          <h2 class="section-title"><i class="fas fa-life-ring"></i> Centro de Soporte</h2>
+          <p>Encuentra respuestas rápidas o contacta con nuestro equipo de expertos.</p>
+        </div>
+
+        <div class="help-intro-grid">
+          <div class="help-card">
+            <i class="fas fa-shopping-cart"></i>
+            <h4>Ventas y Pagos</h4>
+            <p>Todo sobre el Monedero y cobros.</p>
+          </div>
+          <div class="help-card">
+            <i class="fas fa-truck"></i>
+            <h4>Envíos y Entregas</h4>
+            <p>Guías para enviar tus paquetes.</p>
+          </div>
+          <div class="help-card">
+            <i class="fas fa-user-shield"></i>
+            <h4>Seguridad</h4>
+            <p>Protección al comprador y vendedor.</p>
+          </div>
+        </div>
 
         <div class="faq-list">
           @for (faq of faqs; track $index) {
@@ -435,9 +454,12 @@
         </div>
 
         <div class="ayuda-actions">
-          <a href="mailto:somosnexusapp@gmail.com" class="btn-primary">
-            <i class="fas fa-envelope"></i> Contactar con soporte
-          </a>
+          <div class="contact-card">
+            <p>¿No encuentras lo que buscas?</p>
+            <a href="mailto:somosnexusapp@gmail.com" class="btn-primary">
+              <i class="fas fa-envelope"></i> Contactar con soporte
+            </a>
+          </div>
         </div>
       </section>
     }

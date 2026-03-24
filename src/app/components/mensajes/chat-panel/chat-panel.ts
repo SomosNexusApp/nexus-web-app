@@ -11,6 +11,7 @@ import {
   OnDestroy,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { ChatService } from '../../../core/services/chat.service';
 import { ChatMensaje, WebSocketService } from '../../../core/services/websocket.service';
@@ -30,6 +31,7 @@ import { Subscription } from 'rxjs';
   standalone: true,
   imports: [
     CommonModule, 
+    RouterLink,
     FormsModule,
     TimeAgoPipe, 
     CurrencyEsPipe, 
@@ -235,6 +237,43 @@ export class ChatPanelComponent implements OnChanges, AfterViewChecked, OnDestro
     if (!otro) return;
     this.showMenu.set(false);
     this.reporteModal.abrir('USUARIO', otro.id);
+  }
+
+  reportarProducto() {
+    if (!this.conversacion.producto) return;
+    this.showMenu.set(false);
+    this.reporteModal.abrir('PRODUCTO', this.conversacion.producto.id);
+  }
+
+  formatTime(seconds: number): string {
+    if (isNaN(seconds) || seconds === Infinity) return '0:00';
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  }
+
+  toggleAudio(player: HTMLAudioElement) {
+    if (player.paused) {
+      player.play();
+    } else {
+      player.pause();
+    }
+  }
+
+  changeSpeed(player: HTMLAudioElement) {
+    const rates = [1, 1.5, 2];
+    const currentIndex = rates.indexOf(player.playbackRate);
+    const nextIndex = (currentIndex + 1) % rates.length;
+    player.playbackRate = rates[nextIndex];
+  }
+
+  seek(player: HTMLAudioElement, event: MouseEvent) {
+    const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
+    const x = event.clientX - rect.left;
+    const percentage = Math.max(0, Math.min(1, x / rect.width));
+    if (player.duration) {
+      player.currentTime = percentage * player.duration;
+    }
   }
 
   actualizarMensajeLista(updatedMsg: ChatMensaje) {

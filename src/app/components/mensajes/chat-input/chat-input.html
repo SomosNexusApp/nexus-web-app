@@ -40,6 +40,16 @@
     <i class="fas fa-sticky-note text-yellow-500"></i>
   </button>
 
+  <button
+    type="button"
+    class="btn-icon"
+    title="Emojis"
+    (click)="toggleEmojis()"
+    [disabled]="isRecording()"
+  >
+    <i class="fas fa-smile text-nexus-primary"></i>
+  </button>
+
   <!-- Area de Texto o Indicador de Grabación -->
   <div class="input-container">
     @if (!isRecording()) {
@@ -55,8 +65,9 @@
       </textarea>
     } @else {
       <div class="recording-indicator">
-        <i class="fas fa-circle text-red-500 fa-pulse mr-2"></i> Grabando audio... Selta para enviar
-        (Max 60s)
+        <div class="recording-dot"></div>
+        <span class="recording-text">Grabando audio... <strong>Suelta</strong> para enviar</span>
+        <span class="recording-timer">(Max 60s)</span>
       </div>
     }
   </div>
@@ -110,6 +121,36 @@
         />
       } @empty {
         <p class="text-center w-full text-slate-400 p-4">No se encontraron resultados</p>
+      }
+    </div>
+  </div>
+}
+
+<!-- Emoji Selector Overlay -->
+@if (mostrarEmojis()) {
+  <div class="emojis-overlay">
+    <div class="emojis-header-advanced">
+      <div class="search-box">
+        <i class="fas fa-search"></i>
+        <input 
+          type="text" 
+          [ngModel]="emojiSearch()" 
+          (ngModelChange)="emojiSearch.set($event)"
+          placeholder="Buscar emoji..." 
+          autofocus
+        />
+      </div>
+      <button class="btn-close-sm" (click)="toggleEmojis()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <div class="emojis-grid-view">
+      @for (emoji of filteredEmojis(); track emoji.c) {
+        <button type="button" class="emoji-tap-item" (click)="agregarEmoji(emoji.c)">
+          {{ emoji.c }}
+        </button>
+      } @empty {
+        <div class="no-emojis">No hay resultados</div>
       }
     </div>
   </div>

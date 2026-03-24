@@ -16,6 +16,7 @@ import { ProductoCardComponent } from '../../../shared/components/marketplace/pr
 import { MisComprasComponent } from '../../compras/mis-compras/mis-compras.component';
 import { ConversacionesListComponent } from '../../mensajes/conversaciones-list/conversaciones-list';
 import { PagosComponent } from '../pagos/pagos.component';
+import { ConfiguracionComponent } from '../configuracion/configuracion.component';
 
 type SidebarSection =
   | 'resumen'
@@ -45,6 +46,7 @@ type SidebarSection =
     ConversacionesListComponent,
     PagosComponent,
     ConfirmModalComponent,
+    ConfiguracionComponent,
   ],
   templateUrl: './mi-cuenta.component.html',
   styleUrls: ['./mi-cuenta.component.css'],
@@ -89,31 +91,47 @@ export class MiCuentaComponent implements OnInit {
   favTab = signal<'productos' | 'ofertas'>('productos');
   cargandoFavs = signal(false);
 
-  // Configuración
-  editando = signal(false);
-  editForm = signal<any>({});
-
   // Ayuda FAQs
   faqs = [
     {
-      q: '¿Cómo publico un producto?',
-      a: 'Ve a "Publicar" en el menú superior y rellena el formulario con los datos y fotos de tu producto.',
+      q: '¿Cómo publico un producto de forma efectiva?',
+      a: 'Haz clic en el botón "Publicar" en la cabecera. Te recomendamos usar fotos con luz natural, una descripción detallada y etiquetas relevantes para que los algoritmos de Nexus te posicionen mejor.',
     },
     {
-      q: '¿Cómo funciona el envío?',
-      a: 'El vendedor se encarga del envío. Puedes elegir entre envío a domicilio o recogida en persona según el anuncio.',
+      q: '¿Qué es el Sistema de Protección Nexus?',
+      a: 'Es nuestro escudo de seguridad que retiene el pago hasta que el comprador confirma que el producto es correcto. Si hay algún problema, nuestro equipo de soporte intervendrá para mediar.',
     },
     {
-      q: '¿Cómo cancelo una compra?',
-      a: 'Ve a "Mis Compras" y selecciona la compra. Si aún no ha sido enviada, podrás solicitar la cancelación.',
+      q: '¿Quién se hace cargo de los gastos de envío?',
+      a: 'Por defecto, los gastos de envío los asume el comprador, a menos que el vendedor decida ofrecer "Envío Gratuito" como promoción especial en su anuncio.',
     },
     {
-      q: '¿Cómo contacto con soporte?',
-      a: 'Envía un email a somosnexusapp@gmail.com o usa el formulario de "Reportar un problema" más abajo.',
+      q: '¿Cuándo recibiré el dinero de mi venta?',
+      a: 'Una vez que el comprador recibe el paquete y confirma que todo está correcto (o pasan 48h desde la entrega sin disputas), el saldo se liberará en tu Monedero Nexus y podrás transferirlo a tu banco.',
     },
     {
-      q: '¿Cómo dejo una valoración?',
-      a: 'Después de que tu compra se marque como completada, podrás dejar una valoración desde el detalle de la compra.',
+      q: '¿Cómo puedo verificar mi perfil para ganar confianza?',
+      a: 'Puedes verificar tu identidad en la sección de Configuración > Seguridad. Un perfil verificado con el sello azul genera hasta un 40% más de ventas.',
+    },
+    {
+      q: '¿Qué hago si recibo un producto que no coincide?',
+      a: 'No confirmes la recepción. Abre una disputa desde el chat del pedido adjuntando fotos del problema. Nuestro equipo revisará el caso en menos de 24 horas.',
+    },
+    {
+      q: '¿Puedo cancelar una venta ya aceptada?',
+      a: 'Sí, pero te recomendamos hacerlo solo en casos excepcionales. Las cancelaciones frecuentes pueden afectar negativamente a tu valoración de vendedor.',
+    },
+    {
+      q: '¿Cómo funcionan los destacados de Nexus?',
+      a: 'Puedes potenciar tus anuncios para que aparezcan en las primeras posiciones de búsqueda y en el feed principal. Consulta los planes disponibles al editar tu producto.',
+    },
+    {
+      q: '¿Cómo cambio mi cuenta a nivel Profesional/Empresa?',
+      a: 'Ve a Configuración > Tipo de Cuenta. La cuenta de empresa te permite subir stock ilimitado, acceder a analíticas avanzadas y emitir facturas legales.',
+    },
+    {
+      q: '¿Nexus cobra comisiones por cada venta?',
+      a: 'Somos transparentes: Nexus solo cobra una pequeña comisión de gestión para mantener la plataforma y el sistema de pagos seguros. No hay cuotas mensuales para usuarios particulares.',
     },
   ];
   faqOpen = signal<number>(-1);
@@ -124,6 +142,21 @@ export class MiCuentaComponent implements OnInit {
 
   // Computed
   user = this.authStore.user;
+  hasEnoughData = computed(() => {
+    const total = (this.kpis().ventas || 0) + (this.kpis().compras || 0);
+    return total >= 3;
+  });
+
+  statsByType = computed(() => {
+    const ps = this.misProductos();
+    const map: any = {};
+    ps.forEach((p) => {
+      const cat = p.categoria || 'Otros';
+      map[cat] = (map[cat] || 0) + 1;
+    });
+    return Object.entries(map).map(([name, value]) => ({ name, value: (value as number) }));
+  });
+
   iniciales = computed(() => {
     const u = this.user();
     if (!u?.nombre) return u?.user?.[0]?.toUpperCase() || '?';
@@ -174,7 +207,7 @@ export class MiCuentaComponent implements OnInit {
         if (this.favProductos().length === 0) this.cargarFavoritos();
         break;
       case 'configuracion':
-        this.prepararEdicion();
+        // Ahora usa el componente embebido directamente
         break;
     }
   }
@@ -312,55 +345,6 @@ export class MiCuentaComponent implements OnInit {
         this.favProductos.update((fs) => fs.filter((f) => f.id !== favId));
         this.favOfertas.update((fs) => fs.filter((f) => f.id !== favId));
       },
-    });
-  }
-
-  // ── Configuración ────────────────────────
-  prepararEdicion() {
-    const u = this.user();
-    if (!u) return;
-    this.editForm.set({
-      nombre: u.nombre || '',
-      user: u.user || '',
-      email: u.email || '',
-      telefono: (u as any).telefono || '',
-      biografia: u.biografia || '',
-      ubicacion: u.ubicacion || '',
-    });
-  }
-
-  updateConfigField(field: string, value: any) {
-    this.editForm.update((f: any) => ({ ...f, [field]: value }));
-  }
-
-  guardarPerfil() {
-    const u = this.user();
-    if (!u) return;
-    this.http.put(`${environment.apiUrl}/usuario/${u.id}`, this.editForm()).subscribe({
-      next: () => {
-        this.toast.success('Perfil actualizado correctamente.');
-        this.editando.set(false);
-      },
-      error: () => this.toast.error('Error al guardar los cambios.'),
-    });
-  }
-
-  onAvatarChange(event: Event) {
-    const u = this.user();
-    if (!u) return;
-    const input = event.target as HTMLInputElement;
-    if (!input.files?.length) return;
-
-    const fd = new FormData();
-    fd.append('file', input.files[0]);
-
-    this.http.post<any>(`${environment.apiUrl}/usuario/${u.id}/avatar`, fd).subscribe({
-      next: (res) => {
-        this.toast.success('Avatar actualizado.');
-        // Actualizar localmente
-        this.authStore.setUser({ ...u, avatar: res.url } as any);
-      },
-      error: () => this.toast.error('Error al subir el avatar.'),
     });
   }
 

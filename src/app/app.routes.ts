@@ -100,6 +100,14 @@ export const routes: Routes = [
     canActivate: [authGuard],
   },
   {
+    path: 'publicar/editar/:id',
+    loadComponent: () =>
+      import('./components/marketplace/publish-producto/publish-producto.component').then(
+        (m) => m.PublishProductoComponent,
+      ),
+    canActivate: [authGuard],
+  },
+  {
     path: 'publicar/oferta',
     loadComponent: () =>
       import('./components/marketplace/publish-oferta/publish-oferta.component').then(
