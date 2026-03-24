@@ -14,7 +14,7 @@ export class ConfirmModalComponent {
   @Input() confirmText: string = 'Confirmar';
   @Input() cancelText: string = 'Cancelar';
   @Input() icon: string = 'fas fa-exclamation-triangle';
-  @Input() type: 'danger' | 'warning' | 'info' = 'warning';
+  @Input() type: 'danger' | 'warning' | 'info' | 'success' | 'primary' = 'warning';
 
   @Output() confirmed = new EventEmitter<void>();
   @Output() cancelled = new EventEmitter<void>();

@@ -513,6 +513,59 @@
   background: rgba(255, 255, 255, 0.08);
 }
 
+/* COMPOSER TOOLBAR */
+.composer-container {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    overflow: hidden;
+    transition: 0.2s;
+}
+
+.composer-container:focus-within {
+    border-color: #6366f1;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.composer-toolbar {
+    display: flex;
+    gap: 8px;
+    padding: 8px 12px;
+    background: rgba(255, 255, 255, 0.02);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.composer-toolbar button {
+    width: 32px;
+    height: 32px;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    color: #94a3b8;
+    cursor: pointer;
+    transition: 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.composer-toolbar button:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: #fff;
+}
+
+.composer-textarea {
+    width: 100%;
+    min-height: 120px;
+    background: transparent;
+    border: none;
+    padding: 16px;
+    color: #fff;
+    font-size: 15px;
+    resize: vertical;
+    outline: none;
+}
+
 .input-currency {
   position: relative;
 }
@@ -646,13 +699,42 @@
   display: none;
 }
 
-@media (max-width: 1000px) {
-  .publish-content.grid-layout {
-    grid-template-columns: 1fr;
-  }
-  .preview-column {
-    display: none;
-  }
+.input-group.error input, 
+.input-group.error textarea, 
+.input-group.error .dark-select,
+.input-group.error .composer-container { 
+  border-color: #ef4444 !important; 
+  box-shadow: 0 0 10px rgba(239, 68, 68, 0.2);
+}
+
+.error-msg { 
+  color: #ef4444; 
+  font-size: 12px; 
+  margin-top: 6px; 
+  display: block; 
+  font-weight: 600;
+  animation: slideInLeft 0.3s ease;
+}
+
+.cat-card.invalid, 
+.condition-card.invalid,
+.select-card.invalid,
+.console-card.error {
+  border-color: #ef4444 !important;
+  background: rgba(239, 68, 68, 0.05);
+  animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+}
+
+@keyframes shake {
+  10%, 90% { transform: translate3d(-1px, 0, 0); }
+  20%, 80% { transform: translate3d(2px, 0, 0); }
+  30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+  40%, 60% { transform: translate3d(4px, 0, 0); }
+}
+
+@keyframes slideInLeft {
+  from { opacity: 0; transform: translateX(-10px); }
+  to { opacity: 1; transform: translateX(0); }
 }
 
 /* ─── Section label ─────────────────────────────────────────── */
@@ -1014,4 +1096,43 @@
 @media (max-width: 800px) {
   .summary-stack { grid-template-columns: 1fr; }
   .btn-launch-final { font-size: 1.1rem; letter-spacing: 2px; }
+}
+
+/* ─── ERROR FEEDBACK ─────────────────────────────────────────── */
+.input-group.error input, 
+.input-group.error textarea, 
+.input-group.error .dark-select,
+.input-group.error .composer-container { 
+  border-color: #ef4444 !important; 
+  box-shadow: 0 0 10px rgba(239, 68, 68, 0.2) !important;
+}
+
+.error-msg { 
+  color: #ef4444; 
+  font-size: 12px; 
+  margin-top: 6px; 
+  display: block; 
+  font-weight: 600;
+  animation: slideInLeft 0.3s ease;
+}
+
+.cat-card.invalid, 
+.condition-card.invalid,
+.select-card.invalid,
+.console-card.error {
+  border-color: #ef4444 !important;
+  background: rgba(239, 68, 68, 0.05) !important;
+  animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+}
+
+@keyframes shake {
+  10%, 90% { transform: translate3d(-1px, 0, 0); }
+  20%, 80% { transform: translate3d(2px, 0, 0); }
+  30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+  40%, 60% { transform: translate3d(4px, 0, 0); }
+}
+
+@keyframes slideInLeft {
+  from { opacity: 0; transform: translateX(-10px); }
+  to { opacity: 1; transform: translateX(0); }
 }

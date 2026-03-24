@@ -228,6 +228,7 @@
                   type="button"
                   class="cat-card"
                   [class.active]="selectedCategory()?.id === cat.id"
+                  [class.invalid]="step1Form.touched && !selectedCategory()"
                   (click)="selectCategory(cat)"
                 >
                   <div class="cat-icon-wrapper">
@@ -244,6 +245,7 @@
                 <div
                   class="condition-card"
                   [class.active]="step1Form.get('condicion')?.value === c.val"
+                  [class.invalid]="step1Form.get('condicion')?.touched && step1Form.get('condicion')?.invalid"
                   (click)="step1Form.patchValue({ condicion: c.val })"
                 >
                   <div class="cond-icon">
@@ -288,21 +290,37 @@
               </div>
             }
 
-            <div class="input-group mt-40">
+            <div class="input-group mt-40" [class.error]="getErrorMessage(step2Form, 'titulo')">
               <label>Título del anuncio *</label>
               <input
                 type="text"
                 formControlName="titulo"
                 placeholder="Ej: Bicicleta de montaña casi nueva"
               />
+              @if (getErrorMessage(step2Form, 'titulo')) {
+                <span class="error-msg">{{ getErrorMessage(step2Form, 'titulo') }}</span>
+              }
             </div>
-            <div class="input-group">
+            <div class="input-group" [class.error]="getErrorMessage(step2Form, 'descripcion')">
               <label>Descripción detallada *</label>
-              <textarea
-                formControlName="descripcion"
-                rows="6"
-                placeholder="Detalla las características, mantenimiento..."
-              ></textarea>
+              <div class="composer-container">
+                  <div class="composer-toolbar">
+                      <button type="button" (click)="formatText('bold')" title="Negrita"><i class="fas fa-bold"></i></button>
+                      <button type="button" (click)="formatText('italic')" title="Cursiva"><i class="fas fa-italic"></i></button>
+                      <button type="button" (click)="formatText('list')" title="Lista"><i class="fas fa-list"></i></button>
+                      <button type="button" (click)="formatText('header')" title="Título"><i class="fas fa-heading"></i></button>
+                  </div>
+                  <textarea
+                    #descInput
+                    formControlName="descripcion"
+                    class="composer-textarea"
+                    rows="6"
+                    placeholder="Detalla las características, mantenimiento..."
+                  ></textarea>
+              </div>
+              @if (getErrorMessage(step2Form, 'descripcion')) {
+                <span class="error-msg">{{ getErrorMessage(step2Form, 'descripcion') }}</span>
+              }
             </div>
           </form>
         }
@@ -312,12 +330,15 @@
           <div [formGroup]="step3Form" class="step-form-ultra">
             
             <!-- PRICE HERO -->
-            <div class="console-card price-hero">
+            <div class="console-card price-hero" [class.error]="getErrorMessage(step3Form, 'precio')">
               <div class="console-label"><i class="fas fa-coins"></i> Detalles de la venta</div>
               <div class="price-input-zone">
                 <input type="number" formControlName="precio" placeholder="00">
                 <span class="currency">€</span>
               </div>
+              @if (getErrorMessage(step3Form, 'precio')) {
+                <span class="error-msg">{{ getErrorMessage(step3Form, 'precio') }}</span>
+              }
               <div class="console-toggle-row">
                 <label class="elite-toggle">
                   <input type="checkbox" formControlName="precioNegociable">
@@ -367,7 +388,7 @@
             </div>
 
             <!-- LOCATION HERO -->
-            <div class="console-card location-hero">
+            <div class="console-card location-hero" [class.error]="!locationConfirmed() && step3Form.get('ubicacion')?.touched">
               <div class="console-label"><i class="fas fa-map-location-dot"></i> Ubicación del producto</div>
               <div class="location-hero-bar">
                 <i class="fas fa-location-dot"></i>
@@ -382,12 +403,15 @@
                   }
                 </div>
               </div>
+              @if (!locationConfirmed() && step3Form.get('ubicacion')?.touched) {
+                <span class="error-msg">Debes seleccionar una ubicación de la lista</span>
+              }
             </div>
 
             <!-- CONSOLE FOOTER -->
             <footer class="console-footer">
               <button type="button" class="btn-console-back" (click)="prevStep()">VOLVER ATRÁS</button>
-              <button type="button" class="btn-console-next" (click)="nextStep()" [disabled]="!canAdvance()">
+              <button type="button" class="btn-console-next" (click)="nextStep()">
                 CONFIRMAR Y CONTINUAR <i class="fas fa-chevron-right" style="margin-left: 15px;"></i>
               </button>
             </footer>
@@ -460,7 +484,6 @@
                 type="button"
                 class="btn-primary"
                 (click)="nextStep()"
-                [disabled]="!canAdvance()"
               >
                 Continuar
               </button>

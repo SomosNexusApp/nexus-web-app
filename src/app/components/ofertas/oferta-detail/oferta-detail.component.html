@@ -42,6 +42,20 @@
 
                 <h1 class="main-title">{{ oferta().titulo }}</h1>
 
+                <!-- AUTHOR BADGE -->
+                <div class="author-badge">
+                    <img [src]="oferta().actor?.avatar || 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + oferta().actor?.id" class="author-avatar" alt="Autor">
+                    <div class="author-info">
+                        <span class="author-label">Chollo compartido por</span>
+                        <a [routerLink]="['/perfil', oferta().actor?.user]" class="author-link">{{ oferta().actor?.user }}</a>
+                    </div>
+                </div>
+
+                <!-- DESCRIPTION -->
+                <div class="description-box" *ngIf="oferta().descripcion">
+                    <div [innerHTML]="parseMarkdown(oferta().descripcion)"></div>
+                </div>
+
                 <div class="pricing-card">
                     <div class="price-stack">
                         <div class="price-row">

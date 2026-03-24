@@ -116,7 +116,23 @@ export const routes: Routes = [
     canActivate: [authGuard],
   },
   {
+    path: 'publicar/oferta/editar/:id',
+    loadComponent: () =>
+      import('./components/marketplace/publish-oferta/publish-oferta.component').then(
+        (m) => m.PublishOfertaComponent,
+      ),
+    canActivate: [authGuard],
+  },
+  {
     path: 'publicar/vehiculo',
+    loadComponent: () =>
+      import('./components/marketplace/publish-vehiculo/publish-vehiculo.component').then(
+        (m) => m.PublishVehiculoComponent,
+      ),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'publicar/vehiculo/editar/:id',
     loadComponent: () =>
       import('./components/marketplace/publish-vehiculo/publish-vehiculo.component').then(
         (m) => m.PublishVehiculoComponent,

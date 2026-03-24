@@ -43,6 +43,8 @@
 .modal-glow.warning { background: #f59e0b; }
 .modal-glow.danger { background: #ef4444; }
 .modal-glow.info { background: #6366f1; }
+.modal-glow.success { background: #10b981; }
+.modal-glow.primary { background: #6366f1; }
 
 .icon-wrapper {
   width: 80px;
@@ -59,6 +61,8 @@
 .icon-wrapper.warning { background: rgba(245, 158, 11, 0.1); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.2); }
 .icon-wrapper.danger { background: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.2); }
 .icon-wrapper.info { background: rgba(99, 102, 241, 0.1); color: #6366f1; border: 1px solid rgba(99, 102, 241, 0.2); }
+.icon-wrapper.success { background: rgba(16, 185, 129, 0.1); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.2); }
+.icon-wrapper.primary { background: rgba(99, 102, 241, 0.1); color: #6366f1; border: 1px solid rgba(99, 102, 241, 0.2); }
 
 h2 {
   font-family: 'Outfit', sans-serif;
@@ -122,6 +126,8 @@ h2 {
 .btn-confirm.warning { background: linear-gradient(135deg, #f59e0b, #d97706); }
 .btn-confirm.danger { background: linear-gradient(135deg, #ef4444, #991b1b); }
 .btn-confirm.info { background: linear-gradient(135deg, #6366f1, #3730a3); }
+.btn-confirm.success { background: linear-gradient(135deg, #10b981, #059669); }
+.btn-confirm.primary { background: linear-gradient(135deg, #6366f1, #3730a3); }
 
 .btn-confirm:hover {
   transform: translateY(-3px);

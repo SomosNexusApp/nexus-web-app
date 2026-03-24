@@ -5,10 +5,13 @@ import {
   signal,
   computed,
   ChangeDetectionStrategy,
+  ViewChild,
+  ElementRef,
+  HostListener,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router, RouterModule } from '@angular/router';
+import { Router, RouterModule, ActivatedRoute } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { Observable, startWith, delay, of, debounceTime, distinctUntilChanged, switchMap, filter } from 'rxjs';
@@ -16,6 +19,7 @@ import { Observable, startWith, delay, of, debounceTime, distinctUntilChanged, s
 import { environment } from '../../../../environments/enviroment';
 import { AuthStore } from '../../../core/auth/auth-store';
 import { SearchService } from '../../../core/services/search.service';
+import { ToastService } from '../../../core/services/toast.service';
 import { Categoria } from '../../../models/categoria.model';
 import { OfertaCardComponent } from '../../../shared/components/marketplace/oferta-card/oferta-card.component';
 
@@ -33,6 +37,8 @@ export class PublishOfertaComponent implements OnInit {
   private router = inject(Router);
   private authStore = inject(AuthStore);
   private searchService = inject(SearchService);
+  private route = inject(ActivatedRoute);
+  private toast = inject(ToastService);
 
   categorias = signal<Categoria[]>([]);
   selectedCategory = signal<Categoria | null>(null);
@@ -44,6 +50,11 @@ export class PublishOfertaComponent implements OnInit {
   sugerenciasUbi = signal<any[]>([]);
   buscandoUbi = signal(false);
   locationConfirmed = signal(false);
+
+  isEditMode = signal(false);
+  ofertaId = signal<number | null>(null);
+
+  @ViewChild('descInput') descInput!: ElementRef<HTMLTextAreaElement>;
 
   // Mapa de iconos SVG basado en el campo 'icono' del backend
   iconPaths: Record<string, string> = {
@@ -123,6 +134,49 @@ export class PublishOfertaComponent implements OnInit {
         priceControl?.enable();
       }
     });
+
+    this.route.paramMap.subscribe(params => {
+      const idStr = params.get('id');
+      if (idStr) {
+        this.isEditMode.set(true);
+        this.ofertaId.set(Number(idStr));
+        this.cargarOfertaParaEdicion(Number(idStr));
+      }
+    });
+  }
+
+  private cargarOfertaParaEdicion(id: number): void {
+    this.http.get<any>(`${environment.apiUrl}/oferta/${id}`).subscribe({
+      next: (oferta) => {
+        this.selectedCategory.set(oferta.categoria || null);
+        this.ofertaForm.patchValue({
+          urlOferta: oferta.urlOferta,
+          titulo: oferta.titulo,
+          descripcion: oferta.descripcion,
+          precioOferta: oferta.precioOferta,
+          precioOriginal: oferta.precioOriginal,
+          tienda: oferta.tienda,
+          codigoDescuento: oferta.codigoDescuento,
+          esOnline: oferta.esOnline,
+          esGratis: oferta.esGratis,
+          ciudadOferta: oferta.ciudadOferta,
+          latitude: oferta.latitude,
+          longitude: oferta.longitude,
+          gastosEnvio: oferta.gastosEnvio,
+          fechaExpiracion: oferta.fechaExpiracion ? new Date(oferta.fechaExpiracion).toISOString().substring(0, 16) : ''
+        });
+        
+        if (oferta.imagenPrincipal) {
+            this.images.update(imgs => [...imgs, { url: oferta.imagenPrincipal, isPrincipal: true }]);
+        }
+        if (oferta.galeria && oferta.galeria.length > 0) {
+            oferta.galeria.forEach((imgUrl: string) => {
+                this.images.update(imgs => [...imgs, { url: imgUrl, isPrincipal: false }]);
+            });
+        }
+      },
+      error: () => this.toast.error('Error al cargar la oferta')
+    });
   }
 
   private cargarCategorias(): void {
@@ -141,6 +195,80 @@ export class PublishOfertaComponent implements OnInit {
     if (!off || !orig || orig <= 0) return 'NUEVA';
     const pct = Math.round(((orig - off) / orig) * 100);
     return pct >= 50 ? 'CHOLLAZO' : 'PORCENTAJE';
+  }
+
+  // ── DESCRIPCIÓN Y PEGADO DE IMÁGENES ───────────────────────────────
+  formatText(type: string): void {
+    const el = this.descInput?.nativeElement;
+    if (!el) return;
+    
+    const start = el.selectionStart;
+    const end = el.selectionEnd;
+    const text = el.value;
+    const before = text.substring(0, start);
+    const selected = text.substring(start, end);
+    const after = text.substring(end);
+    
+    let result = '';
+    let newCursorPos = end;
+
+    switch (type) {
+        case 'bold':
+            result = before + `**${selected || 'texto'}**` + after;
+            newCursorPos = selected ? end + 4 : start + 2;
+            break;
+        case 'italic':
+            result = before + `*${selected || 'texto'}*` + after;
+            newCursorPos = selected ? end + 2 : start + 1;
+            break;
+        case 'list':
+            result = before + `\n- ${selected || 'elemento'}` + after;
+            newCursorPos = selected ? end + 3 : start + 3;
+            break;
+        case 'header':
+            result = before + `\n### ${selected || 'Título'}` + after;
+            newCursorPos = selected ? end + 5 : start + 5;
+            break;
+    }
+
+    if (result) {
+        this.ofertaForm.patchValue({ descripcion: result });
+        setTimeout(() => {
+            el.focus();
+            el.setSelectionRange(newCursorPos, newCursorPos);
+        }, 0);
+    }
+  }
+
+  @HostListener('window:paste', ['$event'])
+  onPaste(event: ClipboardEvent): void {
+    const items = event.clipboardData?.items;
+    if (!items) return;
+    
+    const files: File[] = [];
+    for (let i = 0; i < items.length; i++) {
+        if (items[i].type.indexOf('image') !== -1) {
+            const file = items[i].getAsFile();
+            if (file) files.push(file);
+        }
+    }
+    
+    if (files.length > 0) {
+        if (this.images().length + files.length > 5) {
+            alert('Máximo 5 fotos por oferta'); // Asumimos alert o hay toast
+            return;
+        }
+        files.forEach((file) => {
+            const reader = new FileReader();
+            reader.onload = (e: any) => {
+                this.images.update((imgs) => [
+                    ...imgs,
+                    { url: e.target.result, file, isPrincipal: imgs.length === 0 },
+                ]);
+            };
+            reader.readAsDataURL(file);
+        });
+    }
   }
 
   verifyLink(): void {
@@ -239,18 +367,62 @@ export class PublishOfertaComponent implements OnInit {
     return 'Inválido';
   }
 
+  private scrollToFirstError() {
+    setTimeout(() => {
+      const firstError = document.querySelector('.ng-invalid.ng-touched, .cat-card.invalid');
+      if (firstError) {
+        firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        if (firstError instanceof HTMLInputElement || firstError instanceof HTMLTextAreaElement) {
+          firstError.focus();
+        }
+      }
+    }, 100);
+  }
+
   async onSubmit(): Promise<void> {
-    if (this.ofertaForm.invalid || !this.selectedCategory()) { this.ofertaForm.markAllAsTouched(); return; }
+    if (this.uploading()) return;
+
+    if (this.ofertaForm.invalid || !this.selectedCategory()) {
+      this.ofertaForm.markAllAsTouched();
+      
+      if (!this.selectedCategory()) {
+        this.toast.warning('Selecciona una categoría para tu oferta');
+        document.querySelector('.category-grid')?.scrollIntoView({ behavior: 'smooth' });
+      } else {
+        this.toast.warning('Revisa los campos obligatorios marcados en rojo');
+        this.scrollToFirstError();
+      }
+      return;
+    }
+
+    if (this.images().length === 0) {
+      this.toast.warning('Sube al menos una imagen de la oferta');
+      document.querySelector('.upload-zone')?.scrollIntoView({ behavior: 'smooth' });
+      return;
+    }
+
+    if (!this.locationConfirmed()) {
+        this.toast.warning('Confirma la ubicación seleccionándola de la lista');
+        document.querySelector('.location-hero-bar')?.scrollIntoView({ behavior: 'smooth' });
+        return;
+    }
     this.uploading.set(true);
     const formData = new FormData();
     const val = this.ofertaForm.getRawValue();
     const ofertaData = { ...val, categoria: { id: this.selectedCategory()?.id } };
     formData.append('oferta', new Blob([JSON.stringify(ofertaData)], { type: 'application/json' }));
+    
+    // Identificar imagen principal (ya sea un File nuevo o una URL existente)
     const principal = this.images().find(img => img.isPrincipal) || this.images()[0];
     if (principal?.file) formData.append('imagenPrincipal', principal.file);
+    
     this.images().filter(img => img !== principal && img.file).forEach(img => formData.append('galeria', img.file!));
-    const uid = this.authStore.user()?.id;
-    this.http.post(`${environment.apiUrl}/oferta/${uid}`, formData).subscribe({
+    
+    const obs$ = this.isEditMode() 
+      ? this.http.put(`${environment.apiUrl}/oferta/${this.ofertaId()}`, formData)
+      : this.http.post(`${environment.apiUrl}/oferta/${this.authStore.user()?.id}`, formData);
+
+    obs$.subscribe({
       next: (res: any) => this.router.navigate(['/search'], { queryParams: { q: res.titulo, tipo: 'OFERTA' } }),
       error: () => this.uploading.set(false)
     });

@@ -24,6 +24,7 @@ type SidebarSection =
   | 'ofertas'
   | 'compras'
   | 'ventas'
+  | 'vehiculos'
   | 'buzon'
   | 'favoritos'
   | 'estadisticas'
@@ -59,10 +60,27 @@ export class MiCuentaComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private toast = inject(ToastService);
 
-  @ViewChild('confirmDeleteModal') confirmDeleteModal!: ConfirmModalComponent;
+  @ViewChild('confirmDeleteModal') confirmDeleteModal!: any;
   @ViewChild('logoutModal') logoutModal!: ConfirmModalComponent;
-  private idToDelete: number | null = null;
-  private typeToDelete: 'producto' | 'oferta' | null = null;
+  @ViewChild('confirmStatusModal') confirmStatusModal!: any;
+
+  idToDelete: number | null = null;
+  typeToDelete: 'producto' | 'oferta' | 'vehiculo' | null = null;
+
+  statusToChange = signal<{ id: number; status: string; type: 'producto' | 'oferta' | 'vehiculo' } | null>(null);
+  modalStatusConfig = signal<{
+    title: string;
+    message: string;
+    confirmText: string;
+    type: 'primary' | 'danger' | 'warning' | 'success';
+    icon: string;
+  }>({
+    title: '',
+    message: '',
+    confirmText: '',
+    type: 'primary',
+    icon: '',
+  });
 
   // Sidebar
   activeSection = signal<SidebarSection>('resumen');
@@ -83,7 +101,13 @@ export class MiCuentaComponent implements OnInit {
 
   // Mis Ofertas
   misOfertas = signal<any[]>([]);
+  ofertaTab = signal<string>('ACTIVA');
   cargandoOfertas = signal(false);
+
+  // Mis Vehiculos
+  misVehiculos = signal<any[]>([]);
+  vehiculoTab = signal<string>('DISPONIBLE');
+  cargandoVehiculos = signal(false);
 
   // Favoritos
   favProductos = signal<any[]>([]);
@@ -172,6 +196,7 @@ export class MiCuentaComponent implements OnInit {
     { id: 'resumen', icon: 'fa-user', label: 'Resumen' },
     { id: 'productos', icon: 'fa-box-open', label: 'Mis Productos' },
     { id: 'ofertas', icon: 'fa-tags', label: 'Mis Ofertas' },
+    { id: 'vehiculos', icon: 'fa-car', label: 'Mis Vehículos' },
     { id: 'compras', icon: 'fa-shopping-cart', label: 'Mis Compras' },
     { id: 'ventas', icon: 'fa-coins', label: 'Mis Ventas' },
     { id: 'buzon', icon: 'fa-comments', label: 'Buzón' },
@@ -202,6 +227,9 @@ export class MiCuentaComponent implements OnInit {
         break;
       case 'ofertas':
         if (this.misOfertas().length === 0) this.cargarMisOfertas();
+        break;
+      case 'vehiculos':
+        if (this.misVehiculos().length === 0) this.cargarMisVehiculos();
         break;
       case 'favoritos':
         if (this.favProductos().length === 0) this.cargarFavoritos();
@@ -258,14 +286,232 @@ export class MiCuentaComponent implements OnInit {
           this.misProductos.update((ps) =>
             ps.map((p) => (p.id === productoId ? { ...p, estado: nuevoEstado } : p)),
           );
+          this.toast.success(`Estado actualizado a ${nuevoEstado}`);
         },
+        error: () => this.toast.error('Error al cambiar el estado'),
       });
+  }
+
+  confirmStatusChange(productoId: number, nuevoEstado: string) {
+    this.statusToChange.set({ id: productoId, status: nuevoEstado, type: 'producto' });
+
+    let config: any = {
+      title: 'Confirmar cambio',
+      message: '¿Estás seguro de cambiar el estado de este producto?',
+      confirmText: 'Confirmar',
+      type: 'primary',
+      icon: 'fas fa-exchange-alt',
+    };
+
+    if (nuevoEstado === 'VENDIDO') {
+      config = {
+        title: '¡Producto Vendido!',
+        message: '¿Confirmas que has vendido este producto? Pasará a tu historial de ventas.',
+        confirmText: 'Sí, vendido',
+        type: 'success',
+        icon: 'fas fa-check-circle',
+      };
+    } else if (nuevoEstado === 'RESERVADO') {
+      config = {
+        title: 'Reservar Producto',
+        message: 'El producto se marcará como reservado y no aparecerá en las búsquedas.',
+        confirmText: 'Reservar ahora',
+        type: 'warning',
+        icon: 'fas fa-bookmark',
+      };
+    } else if (nuevoEstado === 'PAUSADO') {
+      config = {
+        title: 'Pausar Anuncio',
+        message: 'Tu anuncio dejará de ser visible temporalmente. Puedes reactivarlo cuando quieras.',
+        confirmText: 'Pausar',
+        type: 'danger',
+        icon: 'fas fa-eye-slash',
+      };
+    } else if (nuevoEstado === 'DISPONIBLE') {
+      config = {
+        title: 'Reactivar Anuncio',
+        message: '¡Genial! Tu producto volverá a estar visible para todos los compradores.',
+        confirmText: 'Reactivar',
+        type: 'success',
+        icon: 'fas fa-play',
+      };
+    }
+
+    this.modalStatusConfig.set(config);
+    this.confirmStatusModal.open();
+  }
+
+  confirmOfferStatusChange(ofertaId: number, nuevoEstado: string) {
+    this.statusToChange.set({ id: ofertaId, status: nuevoEstado, type: 'oferta' });
+
+    let config: any = {
+      title: 'Confirmar cambio',
+      message: '¿Estás seguro de cambiar el estado de esta oferta?',
+      confirmText: 'Confirmar',
+      type: 'primary',
+      icon: 'fas fa-exchange-alt',
+    };
+
+    if (nuevoEstado === 'AGOTADA') {
+      config = {
+        title: 'Oferta Agotada',
+        message: '¿La oferta ya no es válida o se ha agotado el stock? Marcarla como agotada informará a otros usuarios.',
+        confirmText: 'Sí, agotada',
+        type: 'danger',
+        icon: 'fas fa-fire-extinguisher',
+      };
+    } else if (nuevoEstado === 'PAUSADA') {
+      config = {
+        title: 'Pausar Oferta',
+        message: 'La oferta se ocultará temporalmente. Podrás reactivarla más tarde.',
+        confirmText: 'Pausar',
+        type: 'warning',
+        icon: 'fas fa-pause-circle',
+      };
+    } else if (nuevoEstado === 'ACTIVA') {
+      config = {
+        title: 'Reactivar Oferta',
+        message: 'La oferta volverá a ser visible para toda la comunidad.',
+        confirmText: 'Reactivar',
+        type: 'success',
+        icon: 'fas fa-bolt',
+      };
+    }
+
+    this.modalStatusConfig.set(config);
+    this.confirmStatusModal.open();
+  }
+
+  proceedStatusChange() {
+    const data = this.statusToChange();
+    if (!data) return;
+
+    if (data.type === 'producto') {
+      this.cambiarEstadoProducto(data.id, data.status);
+    } else if (data.type === 'oferta') {
+      this.cambiarEstadoOferta(data.id, data.status);
+    } else if (data.type === 'vehiculo') {
+      this.cambiarEstadoVehiculo(data.id, data.status);
+    }
+  }
+
+  cambiarEstadoOferta(ofertaId: number, nuevoEstado: string) {
+    this.http
+      .patch(`${environment.apiUrl}/oferta/${ofertaId}/estado`, { estado: nuevoEstado })
+      .subscribe({
+        next: () => {
+          this.misOfertas.update((os) =>
+            os.map((o) => (o.id === ofertaId ? { ...o, estado: nuevoEstado } : o)),
+          );
+          this.toast.success(`Oferta actualizada a ${nuevoEstado}`);
+        },
+        error: () => this.toast.error('Error al cambiar el estado de la oferta'),
+      });
+  }
+
+  ofertasFiltradas() {
+    return this.misOfertas().filter((o) => o.estado === this.ofertaTab());
   }
 
   eliminarProducto(productoId: number) {
     this.idToDelete = productoId;
     this.typeToDelete = 'producto';
     this.confirmDeleteModal.open();
+  }
+
+  editarProducto(productoId: number) {
+    this.router.navigate(['/publicar/editar', productoId]);
+  }
+
+  // ── Mis Vehículos ────────────────────────
+  cargarMisVehiculos() {
+    const u = this.user();
+    if (!u) return;
+    this.cargandoVehiculos.set(true);
+    this.http.get<any[]>(`${environment.apiUrl}/vehiculo/usuario/${u.id}`).subscribe({
+      next: (res) => {
+        this.misVehiculos.set(res || []);
+        this.cargandoVehiculos.set(false);
+      },
+      error: () => this.cargandoVehiculos.set(false)
+    });
+  }
+
+  eliminarVehiculo(id: number) {
+    this.idToDelete = id;
+    this.typeToDelete = 'vehiculo';
+    this.confirmDeleteModal.open();
+  }
+
+  editarVehiculo(id: number) {
+    this.router.navigate(['/publicar/vehiculo/editar', id]);
+  }
+
+  vehiculosFiltrados() {
+    return this.misVehiculos().filter((v) => v.estadoVehiculo === this.vehiculoTab());
+  }
+
+  confirmVehicleStatusChange(id: number, nuevoEstado: string) {
+    this.statusToChange.set({ id, status: nuevoEstado, type: 'vehiculo' });
+
+    let config: any = {
+      title: 'Confirmar cambio',
+      message: '¿Estás seguro de cambiar el estado de este vehículo?',
+      confirmText: 'Confirmar',
+      type: 'primary',
+      icon: 'fas fa-exchange-alt',
+    };
+
+    if (nuevoEstado === 'VENDIDO') {
+      config = {
+        title: '¡Vehículo Vendido!',
+        message: '¿Confirmas que has vendido este vehículo? Pasará a tu historial de ventas.',
+        confirmText: 'Sí, vendido',
+        type: 'success',
+        icon: 'fas fa-check-circle',
+      };
+    } else if (nuevoEstado === 'RESERVADO') {
+      config = {
+        title: 'Reservar Vehículo',
+        message: 'El vehículo se marcará como reservado y no aparecerá en las búsquedas.',
+        confirmText: 'Reservar ahora',
+        type: 'warning',
+        icon: 'fas fa-bookmark',
+      };
+    } else if (nuevoEstado === 'PAUSADO') {
+      config = {
+        title: 'Pausar Anuncio',
+        message: 'Tu anuncio dejará de ser visible temporalmente. Puedes reactivarlo cuando quieras.',
+        confirmText: 'Pausar',
+        type: 'danger',
+        icon: 'fas fa-eye-slash',
+      };
+    } else if (nuevoEstado === 'DISPONIBLE') {
+      config = {
+        title: 'Reactivar Anuncio',
+        message: '¡Genial! Tu vehículo volverá a estar visible para todos los compradores.',
+        confirmText: 'Reactivar',
+        type: 'success',
+        icon: 'fas fa-play',
+      };
+    }
+
+    this.modalStatusConfig.set(config);
+    this.confirmStatusModal.open();
+  }
+
+  cambiarEstadoVehiculo(id: number, nuevoEstado: string) {
+    this.http
+      .patch(`${environment.apiUrl}/vehiculo/${id}/estado`, { estado: nuevoEstado })
+      .subscribe({
+        next: () => {
+          this.misVehiculos.update((vs) =>
+            vs.map((v) => (v.id === id ? { ...v, estadoVehiculo: nuevoEstado } : v)),
+          );
+          this.toast.success(`Estado actualizado a ${nuevoEstado}`);
+        },
+        error: () => this.toast.error('Error al cambiar el estado del vehículo'),
+      });
   }
 
   confirmAction() {
@@ -280,9 +526,12 @@ export class MiCuentaComponent implements OnInit {
         if (this.typeToDelete === 'producto') {
           this.misProductos.update((ps) => ps.filter((p) => p.id !== this.idToDelete));
           this.toast.success('Producto eliminado');
-        } else {
+        } else if (this.typeToDelete === 'oferta') {
           this.misOfertas.update((os) => os.filter((o) => o.id !== this.idToDelete));
           this.toast.success('Oferta eliminada');
+        } else {
+          this.misVehiculos.update((vs) => vs.filter((v) => v.id !== this.idToDelete));
+          this.toast.success('Vehículo eliminado');
         }
         this.idToDelete = null;
         this.typeToDelete = null;
@@ -370,10 +619,14 @@ export class MiCuentaComponent implements OnInit {
   getEstadoColor(estado: string): string {
     switch (estado) {
       case 'DISPONIBLE':
+      case 'ACTIVA':
         return '#22c55e';
       case 'RESERVADO':
         return '#f59e0b';
       case 'VENDIDO':
+      case 'AGOTADA':
+      case 'PAUSADO':
+      case 'PAUSADA':
         return '#6b7280';
       default:
         return '#9ca3af';

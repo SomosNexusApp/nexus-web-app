@@ -186,10 +186,67 @@
     font-size: 2.75rem;
     font-weight: 950;
     line-height: 1.1;
-    margin-bottom: 40px;
+    margin-bottom: 24px;
     color: #fff;
     letter-spacing: -0.02em;
     font-family: 'Outfit', sans-serif;
+}
+
+.author-badge {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 32px;
+    padding: 16px 24px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    width: fit-content;
+}
+
+.author-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 14px;
+    object-fit: cover;
+}
+
+.author-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.author-label {
+    font-size: 0.8rem;
+    color: #94a3b8;
+    font-weight: 600;
+}
+
+.author-link {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: #fff;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.author-link:hover {
+    color: #8b5cf6;
+}
+
+.description-box {
+    margin-bottom: 40px;
+    color: #cbd5e1;
+    font-size: 1.1rem;
+    line-height: 1.7;
+}
+
+.description-box ::ng-deep p {
+    margin-bottom: 16px;
+}
+
+.description-box ::ng-deep strong {
+    color: #fff;
 }
 
 .pricing-card {

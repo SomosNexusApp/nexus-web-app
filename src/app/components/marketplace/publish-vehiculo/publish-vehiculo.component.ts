@@ -1,7 +1,7 @@
-import { Component, OnInit, inject, signal, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, inject, signal, ChangeDetectionStrategy, ViewChild, ElementRef, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router, RouterModule } from '@angular/router';
+import { Router, RouterModule, ActivatedRoute } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { debounceTime, distinctUntilChanged, switchMap, of, startWith, tap } from 'rxjs';
 import { toSignal } from '@angular/core/rxjs-interop';
@@ -29,10 +29,16 @@ export class PublishVehiculoComponent implements OnInit {
   private authStore = inject(AuthStore);
   private searchService = inject(SearchService);
   private toast = inject(ToastService);
+  private route = inject(ActivatedRoute);
 
   currentStep = signal<PublishStep>(1);
   uploading = signal(false);
   images = signal<{ url: string; file?: File; isPrincipal: boolean }[]>([]);
+  
+  isEditMode = signal(false);
+  vehiculoId = signal<number | null>(null);
+
+  @ViewChild('descInput') descInput!: ElementRef<HTMLTextAreaElement>;
 
   // --- FORMULARIOS ---
   step1Form = this.fb.group({
@@ -148,6 +154,61 @@ export class PublishVehiculoComponent implements OnInit {
     if (!this.authStore.isLoggedIn()) {
       this.router.navigate(['/login']);
     }
+
+    this.route.paramMap.subscribe(params => {
+      const idStr = params.get('id');
+      if (idStr) {
+        this.isEditMode.set(true);
+        this.vehiculoId.set(Number(idStr));
+        this.cargarVehiculoParaEdicion(Number(idStr));
+      }
+    });
+  }
+
+  private cargarVehiculoParaEdicion(id: number): void {
+    this.http.get<any>(`${environment.apiUrl}/vehiculo/${id}`).subscribe({
+      next: (v) => {
+        // Mapear datos a los formularios
+        this.step1Form.patchValue({ tipoVehiculo: v.tipoVehiculo });
+        this.step2Form.patchValue({
+          marca: v.marca,
+          modelo: v.modelo,
+          anio: v.anio,
+          kilometros: v.kilometros,
+          combustible: v.combustible,
+          cambio: v.cambio,
+          potencia: v.potencia,
+          cilindrada: v.cilindrada,
+          color: v.color,
+          numeroPuertas: v.numeroPuertas,
+          plazas: v.plazas,
+          itv: v.itv,
+          garantia: v.garantia
+        });
+        this.step3Form.patchValue({
+          condicion: v.condicion,
+          precio: v.precio,
+          tipoOferta: v.tipoOferta,
+          matricula: v.matricula,
+          ubicacion: v.ubicacion
+        });
+        this.step4Form.patchValue({
+          titulo: v.titulo,
+          descripcion: v.descripcion
+        });
+
+        // Imágenes
+        if (v.imagenPrincipal) {
+          this.images.update(imgs => [...imgs, { url: v.imagenPrincipal, isPrincipal: true }]);
+        }
+        if (v.galeriaImagenes && v.galeriaImagenes.length > 0) {
+          v.galeriaImagenes.forEach((url: string) => {
+            this.images.update(imgs => [...imgs, { url, isPrincipal: false }]);
+          });
+        }
+      },
+      error: () => this.toast.error('Error al cargar el vehículo')
+    });
   }
 
   // Métodos para abrir paneles SOLO al escribir
@@ -203,14 +264,38 @@ export class PublishVehiculoComponent implements OnInit {
     return 'Inválido';
   }
 
+  private scrollToFirstError() {
+    setTimeout(() => {
+      const firstError = document.querySelector('.ng-invalid.ng-touched');
+      if (firstError) {
+        firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        // Si es un input, darle foco
+        (firstError as HTMLElement).focus();
+      }
+    }, 100);
+  }
+
   nextStep() {
+    const s = this.currentStep();
     if (this.canAdvance()) {
       this.currentStep.update(s => (s + 1) as PublishStep);
       window.scrollTo(0, 0);
     } else {
-      // Marcar todo como touched para mostrar errores al intentar avanzar
+      // Feedback específico según el paso
       const currentForm = this.getCurrentForm();
-      currentForm?.markAllAsTouched();
+      if (currentForm) {
+        currentForm.markAllAsTouched();
+        this.toast.warning('Revisa los campos marcados en rojo');
+        this.scrollToFirstError();
+      } else if (s === 1 && this.step1Form.invalid) {
+        this.step1Form.markAllAsTouched();
+        this.toast.warning('Selecciona el tipo de vehículo para continuar');
+        document.querySelector('.step-0-grid')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      } else if (s === 4 && this.images().length === 0) {
+        this.toast.warning('Sube al menos una imagen del vehículo');
+        // Scroll al área de imágenes
+        document.querySelector('.upload-zone')?.scrollIntoView({ behavior: 'smooth' });
+      }
     }
   }
 
@@ -259,8 +344,92 @@ export class PublishVehiculoComponent implements OnInit {
     });
   }
 
+  // ── DESCRIPCIÓN Y PEGADO DE IMÁGENES ───────────────────────────────
+  formatText(type: string): void {
+    const el = this.descInput?.nativeElement;
+    if (!el) return;
+    
+    const start = el.selectionStart;
+    const end = el.selectionEnd;
+    const text = el.value;
+    const before = text.substring(0, start);
+    const selected = text.substring(start, end);
+    const after = text.substring(end);
+    
+    let result = '';
+    let newCursorPos = end;
+
+    switch (type) {
+        case 'bold':
+            result = before + `**${selected || 'texto'}**` + after;
+            newCursorPos = selected ? end + 4 : start + 2;
+            break;
+        case 'italic':
+            result = before + `*${selected || 'texto'}*` + after;
+            newCursorPos = selected ? end + 2 : start + 1;
+            break;
+        case 'list':
+            result = before + `\n- ${selected || 'elemento'}` + after;
+            newCursorPos = selected ? end + 3 : start + 3;
+            break;
+        case 'header':
+            result = before + `\n### ${selected || 'Título'}` + after;
+            newCursorPos = selected ? end + 5 : start + 5;
+            break;
+    }
+
+    if (result) {
+        this.step4Form.patchValue({ descripcion: result });
+        setTimeout(() => {
+            el.focus();
+            el.setSelectionRange(newCursorPos, newCursorPos);
+        }, 0);
+    }
+  }
+
+  @HostListener('window:paste', ['$event'])
+  onPaste(event: ClipboardEvent): void {
+    if (this.currentStep() !== 4) return;
+    const items = event.clipboardData?.items;
+    if (!items) return;
+    
+    const files: File[] = [];
+    for (let i = 0; i < items.length; i++) {
+        if (items[i].type.indexOf('image') !== -1) {
+            const file = items[i].getAsFile();
+            if (file) files.push(file);
+        }
+    }
+    
+    if (files.length > 0) {
+        if (this.images().length + files.length > 10) {
+            this.toast.warning('Máximo 10 fotos por vehículo');
+            return;
+        }
+        files.forEach((file) => {
+            const reader = new FileReader();
+            reader.onload = (e: any) => {
+                this.images.update((imgs) => [
+                    ...imgs,
+                    { url: e.target.result, file, isPrincipal: imgs.length === 0 },
+                ]);
+            };
+            reader.readAsDataURL(file);
+        });
+    }
+  }
+
   async onSubmit() {
     if (this.uploading()) return;
+
+    if (!this.canAdvance()) {
+      const currentForm = this.getCurrentForm();
+      currentForm?.markAllAsTouched();
+      this.toast.warning('Por favor, completa todos los campos requeridos');
+      this.scrollToFirstError();
+      return;
+    }
+
     const uid = this.authStore.user()?.id;
     if (!uid) return;
 
@@ -303,7 +472,11 @@ export class PublishVehiculoComponent implements OnInit {
       formData.append('galeria', img.file!);
     });
 
-    this.http.post(`${environment.apiUrl}/vehiculo/publicar/${uid}`, formData).subscribe({
+    const obs$ = this.isEditMode()
+      ? this.http.put(`${environment.apiUrl}/vehiculo/${this.vehiculoId()}`, formData)
+      : this.http.post(`${environment.apiUrl}/vehiculo/publicar/${uid}`, formData);
+
+    obs$.subscribe({
       next: (res: any) => this.router.navigate(['/vehiculos', res.id]),
       error: () => {
         this.uploading.set(false);

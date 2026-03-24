@@ -83,7 +83,10 @@
           <label class="section-label">Selecciona Categoría *</label>
           <div class="category-grid">
             @for (cat of categorias(); track cat.id) {
-              <button type="button" class="cat-card" [class.active]="selectedCategory()?.id === cat.id" (click)="selectCategory(cat)">
+              <button type="button" class="cat-card" 
+                [class.active]="selectedCategory()?.id === cat.id" 
+                [class.invalid]="ofertaForm.touched && !selectedCategory()"
+                (click)="selectCategory(cat)">
                 <div class="cat-icon-wrapper">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path [attr.d]="getIconPath(cat)"></path>
@@ -157,7 +160,7 @@
 
         <footer class="publish-footer">
           <button type="button" class="btn-secondary" routerLink="/publicar">Cancelar</button>
-          <button type="submit" class="btn-success" [disabled]="uploading() || ofertaForm.invalid">
+          <button type="submit" class="btn-success" [disabled]="uploading()">
             {{ uploading() ? 'Subiendo...' : 'Publicar Oferta' }}
           </button>
         </footer>

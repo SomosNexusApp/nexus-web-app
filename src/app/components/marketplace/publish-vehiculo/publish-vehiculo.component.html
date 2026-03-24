@@ -21,28 +21,36 @@
       <!-- PASO 1: TIPO -->
       @if (currentStep() === 1) {
         <div class="step-0-grid">
-          <div class="type-card" (click)="selectTipo('COCHE')" [class.active]="step1Form.value.tipoVehiculo === 'COCHE'">
+          <div class="type-card" (click)="selectTipo('COCHE')" 
+            [class.active]="step1Form.value.tipoVehiculo === 'COCHE'"
+            [class.invalid]="step1Form.touched && step1Form.get('tipoVehiculo')?.invalid">
             <div class="icon-circle car">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12.4V16c0 .6.4 1 1 1h2"/><circle cx="7" cy="17" r="2"/><path d="M9 17h6"/><circle cx="17" cy="17" r="2"/></svg>
             </div>
             <h3>Coche</h3>
             <p>Turismos, SUVs, deportivos...</p>
           </div>
-          <div class="type-card" (click)="selectTipo('MOTO')" [class.active]="step1Form.value.tipoVehiculo === 'MOTO'">
+          <div class="type-card" (click)="selectTipo('MOTO')" 
+            [class.active]="step1Form.value.tipoVehiculo === 'MOTO'"
+            [class.invalid]="step1Form.touched && step1Form.get('tipoVehiculo')?.invalid">
             <div class="icon-circle tool">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="7" cy="15" r="5"/><circle cx="18" cy="15" r="5"/><path d="M12 15h.01"/><path d="M10 8.5a15 15 0 0 1 5 0"/><path d="M17 10l1.5-2"/><path d="M11 5l1.5-2"/><path d="M4.5 10L3 8"/></svg>
             </div>
             <h3>Moto</h3>
             <p>Naked, racing, custom...</p>
           </div>
-          <div class="type-card" (click)="selectTipo('FURGONETA')" [class.active]="step1Form.value.tipoVehiculo === 'FURGONETA'">
+          <div class="type-card" (click)="selectTipo('FURGONETA')" 
+            [class.active]="step1Form.value.tipoVehiculo === 'FURGONETA'"
+            [class.invalid]="step1Form.touched && step1Form.get('tipoVehiculo')?.invalid">
             <div class="icon-circle box">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><circle cx="7" cy="18" r="2"/><path d="M9 18h5"/><path d="M16 18h3a1 1 0 0 0 1-1v-3.34a4 4 0 0 0-1.17-2.83L15 7.17V18Z"/><circle cx="18" cy="18" r="2"/></svg>
             </div>
             <h3>Furgoneta</h3>
             <p>Comerciales, campers...</p>
           </div>
-          <div class="type-card" (click)="selectTipo('SCOOTER')" [class.active]="step1Form.value.tipoVehiculo === 'SCOOTER'">
+          <div class="type-card" (click)="selectTipo('SCOOTER')" 
+            [class.active]="step1Form.value.tipoVehiculo === 'SCOOTER'"
+            [class.invalid]="step1Form.touched && step1Form.get('tipoVehiculo')?.invalid">
             <div class="icon-circle tag">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 15h.01"/><path d="M15 15h.01"/><path d="M11 11V7a1 1 0 0 1 1-1h3a2 2 0 0 1 2 2v3"/><path d="M17 11h2l.5 2"/><path d="M3 13v2a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-2"/><path d="M5 11h2l.5 2"/><circle cx="7" cy="17" r="1"/><circle cx="17" cy="17" r="1"/></svg>
             </div>
@@ -214,7 +222,15 @@
           </div>
           <div class="input-group" [class.error]="getErrorMessage(step4Form, 'descripcion')">
             <label>Descripción *</label>
-            <textarea formControlName="descripcion" rows="4"></textarea>
+            <div class="composer-container">
+                <div class="composer-toolbar">
+                    <button type="button" (click)="formatText('bold')" title="Negrita"><i class="fas fa-bold"></i></button>
+                    <button type="button" (click)="formatText('italic')" title="Cursiva"><i class="fas fa-italic"></i></button>
+                    <button type="button" (click)="formatText('list')" title="Lista"><i class="fas fa-list"></i></button>
+                    <button type="button" (click)="formatText('header')" title="Título"><i class="fas fa-heading"></i></button>
+                </div>
+                <textarea #descInput formControlName="descripcion" class="composer-textarea" rows="4"></textarea>
+            </div>
             <span class="error-msg">{{ getErrorMessage(step4Form, 'descripcion') }}</span>
           </div>
         </form>
@@ -234,7 +250,7 @@
 
       <footer class="publish-footer">
         @if (currentStep() > 1) { <button class="btn-secondary" (click)="prevStep()">Atrás</button> } @else { <div></div> }
-        @if (currentStep() < 5) { <button class="btn-primary" (click)="nextStep()" [disabled]="!canAdvance()">Continuar</button> }
+        @if (currentStep() < 5) { <button class="btn-primary" (click)="nextStep()">Continuar</button> }
         @else { <button class="btn-success" (click)="onSubmit()" [disabled]="uploading()">Publicar</button> }
       </footer>
     </div>

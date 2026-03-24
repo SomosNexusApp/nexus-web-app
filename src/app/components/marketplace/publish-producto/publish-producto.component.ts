@@ -11,7 +11,7 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router, RouterModule } from '@angular/router';
+import { Router, RouterModule, ActivatedRoute } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { debounceTime, distinctUntilChanged, switchMap, of, startWith } from 'rxjs';
 import { toSignal } from '@angular/core/rxjs-interop';
@@ -52,6 +52,12 @@ export class PublishProductoComponent implements OnInit {
   currentStep = signal<PublishStep>(0);
   categorias = signal<Categoria[]>([]);
   selectedCategory = signal<Categoria | null>(null);
+
+  verificandoLink = signal(false);
+  linkVerificado = signal(false);
+  favicon = signal<string | null>(null);
+
+  @ViewChild('descInput') descInput!: ElementRef<HTMLTextAreaElement>;
 
   isEditMode = signal(false);
   productId = signal<number | null>(null);
@@ -169,6 +175,15 @@ export class PublishProductoComponent implements OnInit {
     this.cargarCategorias();
     this.setupLocationSearch();
 
+    // Check for edit mode
+    this.route.params.subscribe(params => {
+      if (params['id']) {
+        this.isEditMode.set(true);
+        this.productId.set(+params['id']);
+        this.cargarProducto(+params['id']);
+      }
+    });
+
     this.step3Form.get('esRegalo')?.valueChanges.subscribe(isRegalo => {
       const priceControl = this.step3Form.get('precio');
       if (isRegalo) {
@@ -176,6 +191,61 @@ export class PublishProductoComponent implements OnInit {
         priceControl?.disable();
       } else {
         priceControl?.enable();
+      }
+    });
+  }
+
+  private cargarProducto(id: number): void {
+    this.http.get<any>(`${environment.apiUrl}/producto/${id}`).subscribe({
+      next: (p) => {
+        // Step 1
+        this.step1Form.patchValue({
+          categoriaId: p.categoria?.id,
+          condicion: p.condicion
+        });
+        if (p.categoria) {
+          this.selectedCategory.set(p.categoria);
+        }
+
+        // Step 2
+        this.step2Form.patchValue({
+          titulo: p.titulo,
+          descripcion: p.descripcion,
+          marca: p.marca,
+          modelo: p.modelo
+        });
+
+        // Step 3
+        const envioVal = p.admiteEnvio ? 'SI' : 'NO';
+        this.step3Form.patchValue({
+          precio: p.precio,
+          tipoOferta: p.tipoOferta,
+          envio: envioVal,
+          peso: p.peso,
+          ubicacion: p.ubicacion,
+          latitude: p.latitude,
+          longitude: p.longitude
+        });
+        this.locationConfirmed.set(true);
+
+        // Images
+        const imgs: any[] = [];
+        if (p.imagenPrincipal) {
+          imgs.push({ url: p.imagenPrincipal, isPrincipal: true, isExisting: true });
+        }
+        if (p.galeriaImagenes) {
+          p.galeriaImagenes.forEach((url: string) => {
+            imgs.push({ url, isPrincipal: false, isExisting: true });
+          });
+        }
+        this.images.set(imgs);
+
+        // Saltar a paso 1
+        this.currentStep.set(1);
+      },
+      error: (err) => {
+        this.toast.error('No se pudo cargar el producto para editar');
+        this.router.navigate(['/perfil']);
       }
     });
   }
@@ -241,6 +311,7 @@ export class PublishProductoComponent implements OnInit {
 
   // ── NAVEGACIÓN ─────────────────────────────────────────────────────
   setStep0(type: string): void {
+    if (this.isEditMode()) return;
     if (type === 'VEHICULO') this.router.navigate(['/publicar/vehiculo']);
     else if (type === 'OFERTA') this.router.navigate(['/publicar/oferta']);
     else if (type === 'SERVICIO') {
@@ -255,7 +326,66 @@ export class PublishProductoComponent implements OnInit {
   }
 
   nextStep(): void {
-    if (this.canAdvance()) this.currentStep.update((s) => (s + 1) as PublishStep);
+    const s = this.currentStep();
+    if (this.canAdvance()) {
+      this.currentStep.update((s) => (s + 1) as PublishStep);
+      window.scrollTo(0, 0);
+    } else {
+      // VALIDACIONES ESPECÍFICAS PASO 1
+      if (s === 1) {
+        this.step1Form.markAllAsTouched();
+        if (!this.selectedCategory()) {
+          this.toast.warning('Selecciona una categoría para tu producto');
+          document.querySelector('.category-grid')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        } else if (this.step1Form.get('condicion')?.invalid) {
+          this.toast.warning('Selecciona el estado de conservación del producto');
+          document.querySelector('.condition-grid')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+        return;
+      }
+
+      const currentForm = this.getCurrentForm();
+      if (currentForm) {
+        currentForm.markAllAsTouched();
+        this.toast.warning('Revisa los campos obligatorios en rojo');
+        this.scrollToFirstError();
+      } else if (s === 2 && this.images().length === 0) {
+        this.toast.warning('Sube al menos una foto de tu producto');
+        document.querySelector('.upload-zone')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      } else if (s === 3 && !this.locationConfirmed()) {
+        this.toast.warning('Confirma la ubicación seleccionándola de la lista');
+        document.querySelector('.input-group input')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }
+  }
+
+  private getCurrentForm() {
+    const s = this.currentStep();
+    if (s === 1) return this.step1Form;
+    if (s === 2) return this.step2Form;
+    if (s === 3) return this.step3Form;
+    return null;
+  }
+
+  private scrollToFirstError() {
+    setTimeout(() => {
+      const firstError = document.querySelector('.ng-invalid.ng-touched, .select-card.invalid, .cat-card.invalid');
+      if (firstError) {
+        firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        if (firstError instanceof HTMLInputElement || firstError instanceof HTMLTextAreaElement) {
+          firstError.focus();
+        }
+      }
+    }, 100);
+  }
+
+  getErrorMessage(form: FormGroup, controlName: string): string {
+    const control = form.get(controlName);
+    if (!control || !control.invalid || (!control.dirty && !control.touched)) return '';
+    if (control.hasError('required')) return 'Obligatorio';
+    if (control.hasError('maxlength')) return `Máximo ${control.errors?.['maxlength'].requiredLength} caracteres`;
+    if (control.hasError('min')) return `Mínimo ${control.errors?.['min'].min}`;
+    return 'Inválido';
   }
 
   prevStep(): void {
@@ -312,6 +442,81 @@ export class PublishProductoComponent implements OnInit {
     });
   }
 
+  // ── DESCRIPCIÓN Y PEGADO DE IMÁGENES ───────────────────────────────
+  formatText(type: string): void {
+    const el = this.descInput?.nativeElement;
+    if (!el) return;
+    
+    const start = el.selectionStart;
+    const end = el.selectionEnd;
+    const text = el.value;
+    const before = text.substring(0, start);
+    const selected = text.substring(start, end);
+    const after = text.substring(end);
+    
+    let result = '';
+    let newCursorPos = end;
+
+    switch (type) {
+        case 'bold':
+            result = before + `**${selected || 'texto'}**` + after;
+            newCursorPos = selected ? end + 4 : start + 2;
+            break;
+        case 'italic':
+            result = before + `*${selected || 'texto'}*` + after;
+            newCursorPos = selected ? end + 2 : start + 1;
+            break;
+        case 'list':
+            result = before + `\n- ${selected || 'elemento'}` + after;
+            newCursorPos = selected ? end + 3 : start + 3;
+            break;
+        case 'header':
+            result = before + `\n### ${selected || 'Título'}` + after;
+            newCursorPos = selected ? end + 5 : start + 5;
+            break;
+    }
+
+    if (result) {
+        this.step2Form.patchValue({ descripcion: result });
+        setTimeout(() => {
+            el.focus();
+            el.setSelectionRange(newCursorPos, newCursorPos);
+        }, 0);
+    }
+  }
+
+  @HostListener('window:paste', ['$event'])
+  onPaste(event: ClipboardEvent): void {
+    if (this.currentStep() !== 2) return;
+    const items = event.clipboardData?.items;
+    if (!items) return;
+    
+    const files: File[] = [];
+    for (let i = 0; i < items.length; i++) {
+        if (items[i].type.indexOf('image') !== -1) {
+            const file = items[i].getAsFile();
+            if (file) files.push(file);
+        }
+    }
+    
+    if (files.length > 0) {
+        if (this.images().length + files.length > 8) {
+            this.toast.warning('Máximo 8 fotos por producto');
+            return;
+        }
+        files.forEach((file) => {
+            const reader = new FileReader();
+            reader.onload = (e: any) => {
+                this.images.update((imgs) => [
+                    ...imgs,
+                    { url: e.target.result, file, isPrincipal: imgs.length === 0 },
+                ]);
+            };
+            reader.readAsDataURL(file);
+        });
+    }
+  }
+
   // ── GEOLOCALIZACIÓN ────────────────────────────────────────────────
   useLocation(): void {
     if (!navigator.geolocation) return;
@@ -357,7 +562,15 @@ export class PublishProductoComponent implements OnInit {
 
   // ── PUBLICAR ───────────────────────────────────────────────────────
   async onSubmit(): Promise<void> {
-    if (!this.canAdvance() || this.uploading()) return;
+    if (this.uploading()) return;
+
+    if (!this.canAdvance()) {
+      const currentForm = this.getCurrentForm();
+      currentForm?.markAllAsTouched();
+      this.toast.warning('Por favor, completa todos los requisitos antes de publicar');
+      this.scrollToFirstError();
+      return;
+    }
     
     const uid = this.authStore.user()?.id;
     if (!uid) {
@@ -411,12 +624,18 @@ export class PublishProductoComponent implements OnInit {
         formData.append('galeria', img.file!);
       });
 
-    this.http.post(`${environment.apiUrl}/producto/publicar/${uid}`, formData).subscribe({
+    const obs = this.isEditMode()
+      ? this.http.put(`${environment.apiUrl}/producto/${this.productId()}`, formData)
+      : this.http.post(`${environment.apiUrl}/producto/publicar/${uid}`, formData);
+
+    obs.subscribe({
       next: (res: any) => {
-        this.router.navigate(['/productos', res.id]);
+        const id = res.id || this.productId();
+        this.router.navigate(['/productos', id || '']);
+        this.toast.success(this.isEditMode() ? 'Producto actualizado' : '¡Producto publicado!');
       },
       error: (err) => {
-        console.error('Error al publicar:', err);
+        console.error('Error al guardar:', err);
         const msg = err.error?.error || 'Error inesperado al publicar el producto';
         this.toast.error(msg);
         this.uploading.set(false);

@@ -110,7 +110,7 @@
         </div>
 
         <div class="sub-tabs">
-          @for (tab of ['DISPONIBLE', 'RESERVADO', 'VENDIDO']; track tab) {
+          @for (tab of ['DISPONIBLE', 'RESERVADO', 'VENDIDO', 'PAUSADO']; track tab) {
             <button
               class="sub-tab"
               [class.active]="productoTab() === tab"
@@ -143,31 +143,65 @@
                   </span>
                 </div>
                 <div class="product-list-actions">
+                  <button
+                    class="action-btn"
+                    title="Editar"
+                    (click)="editarProducto(p.id)"
+                  >
+                    <i class="fas fa-edit"></i>
+                  </button>
+
                   @if (p.estado === 'DISPONIBLE') {
                     <button
                       class="action-btn"
                       title="Marcar vendido"
-                      (click)="cambiarEstadoProducto(p.id, 'VENDIDO')"
+                      (click)="confirmStatusChange(p.id, 'VENDIDO')"
                     >
                       <i class="fas fa-check"></i>
                     </button>
                     <button
                       class="action-btn"
                       title="Reservar"
-                      (click)="cambiarEstadoProducto(p.id, 'RESERVADO')"
+                      (click)="confirmStatusChange(p.id, 'RESERVADO')"
                     >
                       <i class="fas fa-bookmark"></i>
                     </button>
+                    <button
+                      class="action-btn"
+                      title="Pausar anuncio"
+                      (click)="confirmStatusChange(p.id, 'PAUSADO')"
+                    >
+                      <i class="fas fa-eye-slash"></i>
+                    </button>
                   }
+
                   @if (p.estado === 'RESERVADO') {
                     <button
                       class="action-btn"
-                      title="Disponible"
-                      (click)="cambiarEstadoProducto(p.id, 'DISPONIBLE')"
+                      title="Volver a disponible"
+                      (click)="confirmStatusChange(p.id, 'DISPONIBLE')"
                     >
                       <i class="fas fa-undo"></i>
                     </button>
+                    <button
+                      class="action-btn"
+                      title="Marcar vendido"
+                      (click)="confirmStatusChange(p.id, 'VENDIDO')"
+                    >
+                      <i class="fas fa-check"></i>
+                    </button>
                   }
+
+                  @if (p.estado === 'PAUSADO') {
+                    <button
+                      class="action-btn"
+                      title="Reactivar anuncio"
+                      (click)="confirmStatusChange(p.id, 'DISPONIBLE')"
+                    >
+                      <i class="fas fa-play"></i>
+                    </button>
+                  }
+
                   <button
                     class="action-btn danger"
                     title="Eliminar"
@@ -178,6 +212,15 @@
                 </div>
               </div>
             }
+          </div>
+
+          <div class="product-legend">
+            <div class="legend-item"><i class="fas fa-edit"></i> <span>Editar</span></div>
+            <div class="legend-item"><i class="fas fa-check"></i> <span>Vendido</span></div>
+            <div class="legend-item"><i class="fas fa-bookmark"></i> <span>Reservar</span></div>
+            <div class="legend-item"><i class="fas fa-eye-slash"></i> <span>Pausar</span></div>
+            <div class="legend-item"><i class="fas fa-play"></i> <span>Reactivar</span></div>
+            <div class="legend-item danger"><i class="fas fa-trash"></i> <span>Eliminar</span></div>
           </div>
         }
       </section>
@@ -193,31 +236,190 @@
           </a>
         </div>
 
+        <div class="sub-tabs">
+          <button class="sub-tab" [class.active]="ofertaTab() === 'ACTIVA'" (click)="ofertaTab.set('ACTIVA')">Activas</button>
+          <button class="sub-tab" [class.active]="ofertaTab() === 'PAUSADA'" (click)="ofertaTab.set('PAUSADA')">Pausadas</button>
+          <button class="sub-tab" [class.active]="ofertaTab() === 'AGOTADA'" (click)="ofertaTab.set('AGOTADA')">Agotadas</button>
+        </div>
+
         @if (cargandoOfertas()) {
           <div class="tab-loading"><div class="spinner-sm"></div></div>
-        } @else if (misOfertas().length === 0) {
+        } @else if (ofertasFiltradas().length === 0) {
           <div class="empty-state">
             <i class="fas fa-tags"></i>
-            <p>No tienes ofertas publicadas.</p>
+            <p>No hay ofertas en este estado.</p>
           </div>
         } @else {
           <div class="product-list">
-            @for (o of misOfertas(); track o.id) {
-              <div class="product-list-item">
+            @for (o of ofertasFiltradas(); track o.id) {
+              <div class="product-list-item" [class.paused]="o.estado === 'PAUSADA'" [class.sold]="o.estado === 'AGOTADA'">
                 <img [src]="o | coverImage" class="product-list-thumb" alt="Oferta" />
                 <div class="product-list-info">
                   <a [routerLink]="['/ofertas', o.id]" class="product-list-title">{{ o.titulo }}</a>
-                  <span class="product-list-price"
-                    >{{ o.precioOriginal | currencyEs }} → {{ o.precioOferta | currencyEs }}</span
-                  >
+                  <span class="product-list-price">
+                    {{ o.precioOriginal | currencyEs }} &rarr; {{ o.precioOferta | currencyEs }}
+                  </span>
+                  @if (o.estado === 'AGOTADA') {
+                    <span class="status-badge sold">AGOTADA</span>
+                  }
+                  @if (o.estado === 'PAUSADA') {
+                    <span class="status-badge paused">PAUSADA</span>
+                  }
                 </div>
                 <div class="product-list-actions">
+                  <button
+                    class="action-btn primary"
+                    title="Editar"
+                    [routerLink]="['/publicar/oferta/editar', o.id]"
+                  >
+                    <i class="fas fa-edit"></i>
+                  </button>
+
+                  @if (o.estado === 'ACTIVA') {
+                    <button class="action-btn warning" title="Marcar Agotada" (click)="confirmOfferStatusChange(o.id, 'AGOTADA')">
+                      <i class="fas fa-fire-extinguisher"></i>
+                    </button>
+                    <button class="action-btn" title="Pausar" (click)="confirmOfferStatusChange(o.id, 'PAUSADA')">
+                      <i class="fas fa-pause-circle"></i>
+                    </button>
+                  } @else {
+                    <button class="action-btn success" title="Reactivar" (click)="confirmOfferStatusChange(o.id, 'ACTIVA')">
+                      <i class="fas fa-bolt"></i>
+                    </button>
+                  }
                   <button class="action-btn danger" title="Eliminar" (click)="eliminarOferta(o.id)">
                     <i class="fas fa-trash"></i>
                   </button>
                 </div>
               </div>
             }
+          </div>
+        }
+
+        <div class="product-legend">
+          <div class="legend-item"><i class="fas fa-edit"></i> <span>Editar</span></div>
+          <div class="legend-item"><i class="fas fa-fire-extinguisher"></i> <span>Agotar</span></div>
+          <div class="legend-item"><i class="fas fa-pause-circle"></i> <span>Pausar</span></div>
+          <div class="legend-item"><i class="fas fa-bolt"></i> <span>Reactivar</span></div>
+          <div class="legend-item danger"><i class="fas fa-trash"></i> <span>Eliminar</span></div>
+        </div>
+      </section>
+    }
+
+    <!-- ═══ MIS VEHÍCULOS ═══ -->
+    @if (activeSection() === 'vehiculos') {
+      <section class="section">
+        <div class="section-header-row">
+          <h2 class="section-title"><i class="fas fa-car"></i> Mis Vehículos</h2>
+          <a routerLink="/publicar/vehiculo" class="btn-primary btn-sm">
+            <i class="fas fa-plus"></i> Publicar vehículo
+          </a>
+        </div>
+
+        <div class="sub-tabs">
+          @for (tab of ['DISPONIBLE', 'RESERVADO', 'VENDIDO', 'PAUSADO']; track tab) {
+            <button
+              class="sub-tab"
+              [class.active]="vehiculoTab() === tab"
+              (click)="vehiculoTab.set(tab)"
+            >
+              {{ tab }}
+            </button>
+          }
+        </div>
+
+        @if (cargandoVehiculos()) {
+          <div class="tab-loading"><div class="spinner-sm"></div></div>
+        } @else if (vehiculosFiltrados().length === 0) {
+          <div class="empty-state">
+            <i class="fas fa-car-side"></i>
+            <p>No tienes vehículos en esta categoría.</p>
+          </div>
+        } @else {
+          <div class="product-list">
+            @for (v of vehiculosFiltrados(); track v.id) {
+              <div class="product-list-item">
+                <img [src]="v.imagenPrincipal" class="product-list-thumb" alt="Vehículo" />
+                <div class="product-list-info">
+                  <a [routerLink]="['/vehiculos', v.id]" class="product-list-title">
+                    {{ v.marca }} {{ v.modelo }} ({{ v.anio }})
+                  </a>
+                  <span class="product-list-price">{{ v.precio | currencyEs }}</span>
+                  <span class="product-list-badge" [style.background]="getEstadoColor(v.estadoVehiculo)">
+                    {{ v.estadoVehiculo }}
+                  </span>
+                </div>
+                <div class="product-list-actions">
+                  <button class="action-btn primary" title="Editar" (click)="editarVehiculo(v.id)">
+                    <i class="fas fa-edit"></i>
+                  </button>
+
+                  @if (v.estadoVehiculo === 'DISPONIBLE') {
+                    <button
+                      class="action-btn"
+                      title="Marcar vendido"
+                      (click)="confirmVehicleStatusChange(v.id, 'VENDIDO')"
+                    >
+                      <i class="fas fa-check"></i>
+                    </button>
+                    <button
+                      class="action-btn"
+                      title="Reservar"
+                      (click)="confirmVehicleStatusChange(v.id, 'RESERVADO')"
+                    >
+                      <i class="fas fa-bookmark"></i>
+                    </button>
+                    <button
+                      class="action-btn"
+                      title="Pausar anuncio"
+                      (click)="confirmVehicleStatusChange(v.id, 'PAUSADO')"
+                    >
+                      <i class="fas fa-eye-slash"></i>
+                    </button>
+                  }
+
+                  @if (v.estadoVehiculo === 'RESERVADO') {
+                    <button
+                      class="action-btn"
+                      title="Volver a disponible"
+                      (click)="confirmVehicleStatusChange(v.id, 'DISPONIBLE')"
+                    >
+                      <i class="fas fa-undo"></i>
+                    </button>
+                    <button
+                      class="action-btn"
+                      title="Marcar vendido"
+                      (click)="confirmVehicleStatusChange(v.id, 'VENDIDO')"
+                    >
+                      <i class="fas fa-check"></i>
+                    </button>
+                  }
+
+                  @if (v.estadoVehiculo === 'PAUSADO') {
+                    <button
+                      class="action-btn"
+                      title="Reactivar anuncio"
+                      (click)="confirmVehicleStatusChange(v.id, 'DISPONIBLE')"
+                    >
+                      <i class="fas fa-play"></i>
+                    </button>
+                  }
+
+                  <button class="action-btn danger" title="Eliminar" (click)="eliminarVehiculo(v.id)">
+                    <i class="fas fa-trash"></i>
+                  </button>
+                </div>
+              </div>
+            }
+          </div>
+
+          <div class="product-legend">
+            <div class="legend-item"><i class="fas fa-edit"></i> <span>Editar</span></div>
+            <div class="legend-item"><i class="fas fa-check"></i> <span>Vendido</span></div>
+            <div class="legend-item"><i class="fas fa-bookmark"></i> <span>Reservar</span></div>
+            <div class="legend-item"><i class="fas fa-eye-slash"></i> <span>Pausar</span></div>
+            <div class="legend-item"><i class="fas fa-play"></i> <span>Reactivar</span></div>
+            <div class="legend-item danger"><i class="fas fa-trash"></i> <span>Eliminar</span></div>
           </div>
         }
       </section>
@@ -487,4 +689,14 @@
   type="danger"
   icon="fas fa-trash-alt"
   (confirmed)="confirmAction()"
+/>
+<app-confirm-modal
+  #confirmStatusModal
+  [title]="modalStatusConfig().title"
+  [message]="modalStatusConfig().message"
+  [confirmText]="modalStatusConfig().confirmText"
+  cancelText="Cancelar"
+  [type]="modalStatusConfig().type"
+  [icon]="modalStatusConfig().icon"
+  (confirmed)="proceedStatusChange()"
 />
