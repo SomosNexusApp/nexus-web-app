@@ -100,8 +100,9 @@ export class PublishProductoComponent implements OnInit {
   );
 
   // Autocompletado Ubicación
-  sugerenciasUbi = signal<string[]>([]);
+  sugerenciasUbi = signal<any[]>([]);
   buscandoUbi = signal(false);
+  locationConfirmed = signal(false);
 
   // Mapa de iconos para las categorías (Sincronizado con el backend)
   private iconPaths: Record<string, string> = {
@@ -211,9 +212,10 @@ export class PublishProductoComponent implements OnInit {
       ?.valueChanges.pipe(
         debounceTime(400),
         distinctUntilChanged(),
-        switchMap((q) =>
-          q && q.length > 2 ? this.searchService.buscarUbicacionExterna(q) : of([]),
-        ),
+        switchMap((q) => {
+          this.locationConfirmed.set(false); // Reset on change
+          return q && q.length > 1 ? this.searchService.buscarUbicacionEstructurada(q) : of([]);
+        }),
       )
       .subscribe((res) => this.sugerenciasUbi.set(res));
   }
@@ -245,7 +247,7 @@ export class PublishProductoComponent implements OnInit {
     const s = this.currentStep();
     if (s === 1) return this.step1Form.valid;
     if (s === 2) return this.step2Form.valid && this.images().length > 0;
-    if (s === 3) return this.step3Form.valid;
+    if (s === 3) return this.step3Form.valid && this.locationConfirmed();
     return true;
   }
 
@@ -310,7 +312,10 @@ export class PublishProductoComponent implements OnInit {
                 res?.address?.village ||
                 res?.address?.municipality ||
                 '';
-              if (ciudad) this.step3Form.patchValue({ ubicacion: ciudad });
+              if (ciudad) {
+                this.step3Form.patchValue({ ubicacion: ciudad });
+                this.locationConfirmed.set(true);
+              }
               this.buscandoUbi.set(false);
             },
             error: () => this.buscandoUbi.set(false),
@@ -320,8 +325,10 @@ export class PublishProductoComponent implements OnInit {
     );
   }
 
-  selectUbi(u: string): void {
-    this.step3Form.patchValue({ ubicacion: u }, { emitEvent: false });
+  selectUbi(u: any): void {
+    const cityName = u.display || u;
+    this.step3Form.patchValue({ ubicacion: cityName }, { emitEvent: false });
+    this.locationConfirmed.set(true);
     this.sugerenciasUbi.set([]);
   }
 
@@ -390,5 +397,68 @@ export class PublishProductoComponent implements OnInit {
         this.uploading.set(false);
       },
     });
+  }
+
+  getCategoryIcon(cat: any): string {
+    if (!cat) return 'fas fa-layer-group';
+    const iconMap: { [key: string]: string } = {
+      // Vehículos & Motor
+      'vehiculos': 'fas fa-car',
+      'coches': 'fas fa-car',
+      'coche': 'fas fa-car',
+      'motos': 'fas fa-motorcycle',
+      'moto': 'fas fa-motorcycle',
+      'accesorios-vehiculos': 'fas fa-tools',
+      
+      // Inmuebles
+      'inmuebles': 'fas fa-building',
+      'alquiler': 'fas fa-key',
+      
+      // Electrónica & Tecnología
+      'electronica': 'fas fa-microchip',
+      'informatica': 'fas fa-laptop',
+      'telefonia': 'fas fa-mobile-screen-button',
+      'moviles': 'fas fa-mobile-screen-button',
+      'tv-audio-foto': 'fas fa-camera',
+      'camaras': 'fas fa-camera',
+      'audio': 'fas fa-headphones',
+      
+      // Entretenimiento
+      'videojuegos': 'fas fa-gamepad',
+      'consolas': 'fas fa-gamepad',
+      'juguetes': 'fas fa-gamepad',
+      'libros': 'fas fa-book',
+      'musica': 'fas fa-music',
+      
+      // Hogar & Moda
+      'hogar': 'fas fa-house-user',
+      'muebles': 'fas fa-couch',
+      'electrodomesticos': 'fas fa-blender',
+      'moda': 'fas fa-shirt',
+      'ropa': 'fas fa-shirt',
+      'calzado': 'fas fa-shoe-prints',
+      'zapatillas': 'fas fa-shoe-prints',
+      'zapatos': 'fas fa-shoe-prints',
+      
+      // Otros
+      'otros': 'fas fa-ellipsis-h',
+      'servicios': 'fas fa-concierge-bell',
+      'deportes': 'fas fa-basketball',
+      'coleccionismo': 'fas fa-gem',
+      'bebes': 'fas fa-baby'
+    };
+    const slug = cat.slug?.toLowerCase();
+    return iconMap[slug] || cat.icono || 'fas fa-tag';
+  }
+
+  getConditionIcon(val: string): string {
+    const iconMap: { [key: string]: string } = {
+      'NUEVO': 'fas fa-star',
+      'COMO_NUEVO': 'fas fa-wand-magic-sparkles',
+      'MUY_BUEN_ESTADO': 'fas fa-check-double',
+      'BUEN_ESTADO': 'fas fa-check',
+      'ACEPTABLE': 'fas fa-thumbs-up'
+    };
+    return iconMap[val] || 'fas fa-tag';
   }
 }

@@ -13,73 +13,94 @@ export class FacebookAuthService {
   private ngZone = inject(NgZone);
   private guestPopup = inject(GuestPopupService);
 
+  private fbInitialized = false;
+  private initPromise: Promise<void> | null = null;
+
   constructor() {
     this.initFacebook();
   }
 
-  private initFacebook() {
-    (window as any).fbAsyncInit = () => {
-      FB.init({
-        appId: environment.facebookAppId,
-        cookie: true,
-        xfbml: true,
-        version: 'v18.0',
-      });
-    };
+  /**
+   * Carga el SDK de Facebook si no existe e inicializa el servicio.
+   */
+  private initFacebook(): Promise<void> {
+    if (this.initPromise) return this.initPromise;
+
+    this.initPromise = new Promise((resolve) => {
+      // 1. Definir fbAsyncInit que llamará el SDK al cargar
+      (window as any).fbAsyncInit = () => {
+        FB.init({
+          appId: environment.facebookAppId,
+          cookie: true,
+          xfbml: true,
+          version: 'v18.0',
+          autoLogAppEvents: true,
+        });
+        this.fbInitialized = true;
+        console.log('Facebook SDK Inicializado correctamente');
+        resolve();
+      };
+
+      // 2. Cargar el script si aún no está en el DOM
+      if (!document.getElementById('facebook-jssdk')) {
+        const fjs = document.getElementsByTagName('script')[0];
+        const js = document.createElement('script') as HTMLScriptElement;
+        js.id = 'facebook-jssdk';
+        js.src = 'https://connect.facebook.net/es_ES/sdk.js';
+        js.async = true;
+        js.defer = true;
+        js.onerror = () => {
+          console.error('Error cargando el script de Facebook SDK. Posible adblocker.');
+          resolve(); // Resolvemos igual para no bloquear, pero login() fallará
+        };
+        fjs.parentNode?.insertBefore(js, fjs);
+      } else if (typeof FB !== 'undefined') {
+        // Si el script ya estaba pero FB ya existe (segunda carga de la app sin recarga de página)
+        this.fbInitialized = true;
+        resolve();
+      }
+    });
+
+    return this.initPromise;
   }
 
   /**
-   * Espera a que el SDK esté disponible y lanza el popup de Facebook.
+   * Lanza el popup de Facebook.
    */
-  login(): Promise<void> {
-    return new Promise((resolve, reject) => {
-      this.waitForFB()
-        .then(() => {
-          FB.login(
-            (response: any) => {
-              this.ngZone.run(() => {
-                if (response?.authResponse?.accessToken) {
-                  this.authService.facebookLogin(response.authResponse.accessToken).subscribe({
-                    next: (res) => {
-                      if (res.esNuevoUsuario) {
-                        this.guestPopup.showOAuthTermsPopup();
-                      } else {
-                        this.guestPopup.closePopup();
-                        this.router.navigate(['/']);
-                      }
-                      resolve();
-                    },
-                    error: (err) => {
-                      console.error('Error Facebook login backend:', err);
-                      reject(err);
-                    },
-                  });
-                } else {
-                  reject('El usuario canceló el login de Facebook.');
-                }
-              });
-            },
-            { scope: 'email,public_profile' },
-          );
-        })
-        .catch(reject);
-    });
-  }
+  async login(): Promise<void> {
+    await this.initFacebook();
 
-  /** Espera hasta 5 segundos a que FB SDK esté disponible */
-  private waitForFB(maxMs = 5000): Promise<void> {
     return new Promise((resolve, reject) => {
-      const start = Date.now();
-      const check = () => {
-        if (typeof FB !== 'undefined') {
-          resolve();
-        } else if (Date.now() - start > maxMs) {
-          reject('Facebook SDK no se cargó a tiempo. Comprueba tu conexión.');
-        } else {
-          setTimeout(check, 200);
-        }
-      };
-      check();
+      if (typeof FB === 'undefined') {
+        return reject('Facebook SDK no está disponible. Comprueba tu conexión o adblocker.');
+      }
+
+      FB.login(
+        (response: any) => {
+          this.ngZone.run(() => {
+            if (response?.authResponse?.accessToken) {
+              this.authService.facebookLogin(response.authResponse.accessToken).subscribe({
+                next: (res) => {
+                  if (res.esNuevoUsuario) {
+                    this.guestPopup.showOAuthTermsPopup();
+                  } else {
+                    this.guestPopup.closePopup();
+                    this.router.navigate(['/']);
+                  }
+                  resolve();
+                },
+                error: (err) => {
+                  console.error('Error Facebook login backend:', err);
+                  reject('Error al sincronizar con el servidor de Nexus.');
+                },
+              });
+            } else {
+              reject('El usuario canceló el login de Facebook.');
+            }
+          });
+        },
+        { scope: 'email,public_profile' },
+      );
     });
   }
 }

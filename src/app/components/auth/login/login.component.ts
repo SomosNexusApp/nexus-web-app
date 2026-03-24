@@ -115,10 +115,12 @@ export class LoginComponent implements OnInit, OnDestroy {
 
     this.http.post<any>(url, payload).subscribe({
       next: (res) => {
-        localStorage.setItem('nexus_jwt', res.token);
-        this.authService.loadCurrentUser().subscribe(() => {
-          this.isLoading.set(false);
-          this.loginExitoso();
+        this.authService.procesarTokenSuccess(res.token).subscribe({
+          next: () => {
+            this.isLoading.set(false);
+            this.loginExitoso();
+          },
+          error: () => this.isLoading.set(false)
         });
       },
       error: () => {

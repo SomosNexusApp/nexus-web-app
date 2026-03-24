@@ -36,10 +36,7 @@ export class AuthService {
 
     return this.http.post<AuthResponse>(`${this.AUTH_URL}/login`, payload).pipe(
       switchMap((response) => {
-        if (response.requires2FA) {
-          this.router.navigate(['/auth/2fa'], {
-            queryParams: { userId: (response as any).usuarioId },
-          });
+        if (response.requires2FA || (response as any).requiere2FA) {
           return of(response);
         }
 
@@ -120,7 +117,7 @@ export class AuthService {
   /**
    * RECUPERACIÓN DE CONTRASEÑA
    */
-  requestPasswordReset(email: string, captchaToken: string = ''): Observable<void> {
+  requestPasswordReset(email: string, captchaToken: string = 'token-omitido-en-dev'): Observable<void> {
     return this.http.post<void>(`${this.AUTH_URL}/forgot-password`, { email, captchaToken });
   }
 
@@ -150,15 +147,25 @@ export class AuthService {
   }
 
   /**
-   * Helper interno para manejar el login de OAuth y cargar el store
+   * Helper publico para manejar el login de OAuth y cargar el store
    */
-  private procesarLoginExitoso(response: AuthResponse): Observable<AuthResponse> {
+  procesarLoginExitoso(response: AuthResponse): Observable<AuthResponse> {
     this.jwt.saveToken(response.token);
     return this.loadCurrentUser().pipe(
       map((usuario) => {
-        this.guestPopup.closePopup(); // CORRECCIÓN: Método sincronizado
+        this.guestPopup.closePopup();
         return { ...response, usuario };
-      }),
+      })
+    );
+  }
+
+  /**
+   * Versión para el componente de login cuando ya se tiene el token (ej: 2FA)
+   */
+  procesarTokenSuccess(token: string): Observable<Usuario> {
+    this.jwt.saveToken(token);
+    return this.loadCurrentUser().pipe(
+      tap(() => this.guestPopup.closePopup())
     );
   }
 }

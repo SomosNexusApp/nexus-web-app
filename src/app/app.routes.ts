@@ -181,19 +181,19 @@ export const routes: Routes = [
     canActivate: [authGuard],
   },
 
-  // // Legal
-  // {
-  //   path: 'legal/terminos',
-  //   loadComponent: () =>
-  //     import('./components/legal/terminos/terminos.component').then((m) => m.TerminosComponent),
-  // },
-  // {
-  //   path: 'legal/privacidad',
-  //   loadComponent: () =>
-  //     import('./components/legal/privacidad/privacidad.component').then(
-  //       (m) => m.PrivacidadComponent,
-  //     ),
-  // },
+  // Legal
+  {
+    path: 'legal/terminos',
+    loadComponent: () =>
+      import('./components/legal/terminos/terminos.component').then((m) => m.TerminosComponent),
+  },
+  {
+    path: 'legal/privacidad',
+    loadComponent: () =>
+      import('./components/legal/privacidad/privacidad.component').then(
+        (m) => m.PrivacidadComponent,
+      ),
+  },
 
   // // Admin
   // {

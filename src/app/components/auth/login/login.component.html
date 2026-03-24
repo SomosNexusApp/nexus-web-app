@@ -21,11 +21,8 @@
     }
 
     @if (step() === 1) {
-      <div
-        class="oauth-section"
-        style="display: flex; flex-direction: column; gap: 10px; align-items: center"
-      >
-        <div id="google-btn-container" class="w-full flex justify-center"></div>
+      <div class="oauth-section">
+        <div id="google-btn-container" class="w-full"></div>
 
         <button type="button" class="btn-oauth facebook w-full" (click)="continuarConFacebook()">
           <i class="fab fa-facebook-f"></i> Continuar con Facebook
@@ -82,6 +79,12 @@
             <i class="fas fa-spinner fa-spin"></i>
           }
         </button>
+
+        <p class="legal-notice mt-4 text-center text-xs text-muted">
+          Al continuar, aceptas nuestros
+          <a routerLink="/legal/terminos">Términos</a> y
+          <a routerLink="/legal/privacidad">Política de Privacidad</a>.
+        </p>
       </form>
 
       <div class="auth-footer mt-4 text-center">

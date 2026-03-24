@@ -9,11 +9,8 @@
     </div>
 
     @if (step() === 1) {
-      <div
-        class="oauth-section"
-        style="display: flex; flex-direction: column; gap: 10px; align-items: center"
-      >
-        <div id="google-btn-container" class="w-full flex justify-center"></div>
+      <div class="oauth-section">
+        <div id="google-btn-container" class="w-full"></div>
 
         <button type="button" class="btn-oauth facebook w-full" (click)="continuarConFacebook()">
           <i class="fab fa-facebook-f"></i> Continuar con Facebook
@@ -146,8 +143,8 @@
             <span class="checkmark"></span>
             <span class="label-text">
               He leído y acepto las
-              <a routerLink="/legal/terminos" target="_blank">Condiciones de uso</a> y la
-              <a routerLink="/legal/privacidad" target="_blank">Política de privacidad</a> de Nexus.
+              <a routerLink="/legal/terminos">Condiciones de uso</a> y la
+              <a routerLink="/legal/privacidad">Política de privacidad</a> de Nexus.
               *
             </span>
           </label>

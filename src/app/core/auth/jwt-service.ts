@@ -19,7 +19,16 @@ export class JwtService {
   }
 
   getToken(): string | null {
-    return localStorage.getItem(this.KEY);
+    const token = localStorage.getItem(this.KEY);
+    if (token) {
+      if (token.split('.').length !== 3) {
+        console.warn('Nexus: Token malformado detectado en localStorage. Limpiando...');
+        this.removeToken();
+        return null;
+      }
+      return token;
+    }
+    return null;
   }
 
   removeToken(): void {
@@ -31,8 +40,15 @@ export class JwtService {
     if (!token) return null;
 
     try {
-      // Decodificar Base64Url
-      const base64Url = token.split('.')[1];
+      const parts = token.split('.');
+      if (parts.length !== 3) {
+        console.warn('JWT malformado: no tiene 3 partes');
+        return null;
+      }
+
+      const base64Url = parts[1];
+      if (!base64Url) return null;
+
       const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
       const jsonPayload = decodeURIComponent(
         atob(base64)

@@ -80,13 +80,14 @@ export class GoogleAuthService {
 
       const btnContainer = document.getElementById(elementId);
       if (btnContainer) {
-        const parentWidth = btnContainer.parentElement?.clientWidth || 320;
-        const finalWidth = parentWidth > 400 ? 400 : parentWidth;
+        // Obtenemos el ancho real del contenedor para que Google lo herede
+        const containerWidth = btnContainer.offsetWidth || 320;
+        const finalWidth = Math.min(Math.max(containerWidth, 200), 400);
 
         google.accounts.id.renderButton(btnContainer, {
-          theme: 'outline', // <-- Volvemos al blanco neutro
-          size: 'large', // <-- Esto fuerza los 40px de alto
-          shape: 'rectangular',
+          theme: 'outline',
+          size: 'large',
+          shape: 'pill',
           text: 'continue_with',
           logo_alignment: 'center',
           width: finalWidth.toString(),
