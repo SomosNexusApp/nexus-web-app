@@ -227,6 +227,29 @@ export const routes: Routes = [
     canActivate: [authGuard],
   },
 
+  // Marketplace Secciones
+  {
+    path: 'ofertas',
+    loadComponent: () =>
+      import('./components/ofertas/ofertas-flash/ofertas-flash.component').then(
+        (m) => m.OfertasFlashComponent,
+      ),
+  },
+  {
+    path: 'cerca',
+    loadComponent: () =>
+      import('./components/marketplace/cerca-de-ti/cerca-de-ti.component').then(
+        (m) => m.CercaDeTiComponent,
+      ),
+  },
+  {
+    path: 'gratis',
+    loadComponent: () =>
+      import('./components/marketplace/ofertas-gratis/ofertas-gratis.component').then(
+        (m) => m.OfertasGratisComponent,
+      ),
+  },
+
   {
     path: 'denegado',
     loadComponent: () =>

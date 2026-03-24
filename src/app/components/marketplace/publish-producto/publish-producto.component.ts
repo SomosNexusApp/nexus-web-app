@@ -89,6 +89,8 @@ export class PublishProductoComponent implements OnInit {
       validators: [Validators.required],
       nonNullable: true,
     }),
+    latitude: this.fb.control<number | null>(null),
+    longitude: this.fb.control<number | null>(null),
   });
 
   // Signals para reactividad de los formularios
@@ -162,6 +164,16 @@ export class PublishProductoComponent implements OnInit {
     }
     this.cargarCategorias();
     this.setupLocationSearch();
+
+    this.step3Form.get('esRegalo')?.valueChanges.subscribe(isRegalo => {
+      const priceControl = this.step3Form.get('precio');
+      if (isRegalo) {
+        priceControl?.setValue(0);
+        priceControl?.disable();
+      } else {
+        priceControl?.enable();
+      }
+    });
   }
 
   @HostListener('mousemove', ['$event'])
@@ -330,7 +342,11 @@ export class PublishProductoComponent implements OnInit {
 
   selectUbi(u: any): void {
     const cityName = u.display || u;
-    this.step3Form.patchValue({ ubicacion: cityName }, { emitEvent: false });
+    this.step3Form.patchValue({ 
+      ubicacion: cityName,
+      latitude: u.lat ?? null,
+      longitude: u.lng ?? null
+    }, { emitEvent: false });
     this.locationConfirmed.set(true);
     this.sugerenciasUbi.set([]);
   }
@@ -350,9 +366,9 @@ export class PublishProductoComponent implements OnInit {
     const formData = new FormData();
     
     // Extraemos los valores de los formularios de forma limpia
-    const s1 = this.step1Form.value;
-    const s2 = this.step2Form.value;
-    const s3 = this.step3Form.value;
+    const s1 = this.step1Form.getRawValue();
+    const s2 = this.step2Form.getRawValue();
+    const s3 = this.step3Form.getRawValue();
 
     const productData = {
       titulo: s2.titulo,
@@ -367,7 +383,9 @@ export class PublishProductoComponent implements OnInit {
       ubicacion: s3.ubicacion,
       condicion: s1.condicion,
       estado: 'DISPONIBLE',
-      categoria: { id: s1.categoriaId }
+      categoria: { id: s1.categoriaId },
+      latitude: s3.latitude,
+      longitude: s3.longitude
     };
 
     formData.append(

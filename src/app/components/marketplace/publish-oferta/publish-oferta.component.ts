@@ -11,10 +11,11 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { startWith, delay, of, debounceTime } from 'rxjs';
+import { Observable, startWith, delay, of, debounceTime, distinctUntilChanged, switchMap, filter } from 'rxjs';
 
 import { environment } from '../../../../environments/enviroment';
 import { AuthStore } from '../../../core/auth/auth-store';
+import { SearchService } from '../../../core/services/search.service';
 import { Categoria } from '../../../models/categoria.model';
 import { OfertaCardComponent } from '../../../shared/components/marketplace/oferta-card/oferta-card.component';
 
@@ -31,6 +32,7 @@ export class PublishOfertaComponent implements OnInit {
   private http = inject(HttpClient);
   private router = inject(Router);
   private authStore = inject(AuthStore);
+  private searchService = inject(SearchService);
 
   categorias = signal<Categoria[]>([]);
   selectedCategory = signal<Categoria | null>(null);
@@ -39,6 +41,9 @@ export class PublishOfertaComponent implements OnInit {
   verificandoLink = signal(false);
   linkVerificado = signal(false);
   favicon = signal<string | null>(null);
+  sugerenciasUbi = signal<any[]>([]);
+  buscandoUbi = signal(false);
+  locationConfirmed = signal(false);
 
   // Mapa de iconos SVG basado en el campo 'icono' del backend
   iconPaths: Record<string, string> = {
@@ -63,7 +68,10 @@ export class PublishOfertaComponent implements OnInit {
     tienda: ['', [Validators.required]],
     codigoDescuento: [''],
     esOnline: [true],
+    esGratis: [false],
     ciudadOferta: [''],
+    latitude: [null as number | null],
+    longitude: [null as number | null],
     gastosEnvio: [null as number | null],
     fechaExpiracion: [''],
   });
@@ -104,6 +112,17 @@ export class PublishOfertaComponent implements OnInit {
   ngOnInit(): void {
     if (!this.authStore.isLoggedIn()) { this.router.navigate(['/login']); return; }
     this.cargarCategorias();
+    this.setupLocationSearch();
+
+    this.ofertaForm.get('esGratis')?.valueChanges.subscribe(isGratis => {
+      const priceControl = this.ofertaForm.get('precioOferta');
+      if (isGratis) {
+        priceControl?.setValue(0);
+        priceControl?.disable();
+      } else {
+        priceControl?.enable();
+      }
+    });
   }
 
   private cargarCategorias(): void {
@@ -165,6 +184,52 @@ export class PublishOfertaComponent implements OnInit {
 
   selectCategory(cat: Categoria): void { this.selectedCategory.set(cat); }
 
+  private setupLocationSearch(): void {
+    (this.ofertaForm.get('ciudadOferta')?.valueChanges as Observable<string | null>).pipe(
+      filter((q): q is string => !!q && q.length > 1),
+      debounceTime(400),
+      distinctUntilChanged(),
+      switchMap((q: string) => this.searchService.buscarUbicacionEstructurada(q))
+    ).subscribe(res => this.sugerenciasUbi.set(res));
+  }
+
+  selectUbi(u: any): void {
+    const cityName = u.display || u;
+    this.ofertaForm.patchValue({ 
+      ciudadOferta: cityName,
+      latitude: u.lat ?? null,
+      longitude: u.lng ?? null
+    }, { emitEvent: false });
+    this.locationConfirmed.set(true);
+    this.sugerenciasUbi.set([]);
+  }
+
+  useLocation(): void {
+    if (!navigator.geolocation) return;
+    this.buscandoUbi.set(true);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        this.http.get<any>(`https://nominatim.openstreetmap.org/reverse?lat=${pos.coords.latitude}&lon=${pos.coords.longitude}&format=json`)
+          .subscribe({
+            next: (res) => {
+              const ciudad = res?.address?.city || res?.address?.town || res?.address?.village || '';
+              if (ciudad) {
+                this.ofertaForm.patchValue({ 
+                  ciudadOferta: ciudad,
+                  latitude: pos.coords.latitude,
+                  longitude: pos.coords.longitude
+                });
+                this.locationConfirmed.set(true);
+              }
+              this.buscandoUbi.set(false);
+            },
+            error: () => this.buscandoUbi.set(false)
+          });
+      },
+      () => this.buscandoUbi.set(false)
+    );
+  }
+
   getErrorMessage(controlName: string): string {
     const control = this.ofertaForm.get(controlName);
     if (!control || !control.invalid || !control.touched) return '';
@@ -178,7 +243,7 @@ export class PublishOfertaComponent implements OnInit {
     if (this.ofertaForm.invalid || !this.selectedCategory()) { this.ofertaForm.markAllAsTouched(); return; }
     this.uploading.set(true);
     const formData = new FormData();
-    const val = this.ofertaForm.value;
+    const val = this.ofertaForm.getRawValue();
     const ofertaData = { ...val, categoria: { id: this.selectedCategory()?.id } };
     formData.append('oferta', new Blob([JSON.stringify(ofertaData)], { type: 'application/json' }));
     const principal = this.images().find(img => img.isPrincipal) || this.images()[0];

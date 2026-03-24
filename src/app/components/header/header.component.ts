@@ -55,10 +55,11 @@ export class HeaderComponent implements OnInit, OnDestroy {
     {
       label: 'Vehículos',
       route: '/search',
-      queryParams: { tipo: 'VEHICULO' }, // ← va directo al buscador con filtros de vehículo
+      queryParams: { tipo: 'VEHICULO' },
       icon: 'car',
     },
     { label: 'Cerca de ti', route: '/cerca', icon: 'pin' },
+    { label: 'Gratis', route: '/gratis', icon: 'gift' },
   ];
 
   ngOnInit() {

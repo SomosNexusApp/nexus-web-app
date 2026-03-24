@@ -1,0 +1,83 @@
+<div class="flash-page">
+  <div class="glow-bg"></div>
+
+  <div class="container main-content">
+    <header class="page-header-premium flash">
+      <div class="header-main">
+        <div class="nexus-experience">
+          <div class="visual-container">
+            <div class="lightning-bolt">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+              </svg>
+            </div>
+            <div class="energy-rings">
+              <div class="ring r1"></div>
+              <div class="ring r2"></div>
+            </div>
+          </div>
+          <div class="experience-text">
+            <span class="brand-tag orange">Nexus Elite Events</span>
+            <h1>Nexus Flash</h1>
+            <p class="subtitle">Ofertas que desaparecen en un abrir y cerrar de ojos</p>
+          </div>
+        </div>
+
+        <div class="header-stats glass-premium">
+          <div class="stat-item">
+            <span class="stat-value">{{ ofertas().length }}</span>
+            <span class="stat-label">Chollos Activos</span>
+          </div>
+          <div class="stat-divider"></div>
+          <div class="stat-item">
+            <span class="stat-value">24h</span>
+            <span class="stat-label">Actualización</span>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <div class="offers-grid">
+      <!-- Skeletons -->
+      @if (loading() && ofertas().length === 0) {
+        @for (s of skeletons; track $index) {
+          <app-oferta-card [isSkeleton]="true"></app-oferta-card>
+        }
+      }
+
+      <!-- Error -->
+      @if (!loading() && error()) {
+        <div class="error-card glass">
+          <div class="error-icon">
+             <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          </div>
+          <h3>Vaya, algo ha fallado</h3>
+          <p>No hemos podido conectar con el reactor de ofertas. Prueba a recargar.</p>
+          <button class="btn-primary" (click)="cargarOfertas()">Reintentar</button>
+        </div>
+      }
+
+      <!-- Empty -->
+      @if (!loading() && !error() && ofertas().length === 0) {
+        <div class="empty-card glass">
+          <div class="empty-icon shadow-pulse">
+            <svg viewBox="0 0 24 24" fill="currentColor" width="48" height="48">
+              <path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z" />
+            </svg>
+          </div>
+          <h3>El radar está despejado</h3>
+          <p>Parece que ahora mismo no hay chollos trending. ¡Vuelve en unos minutos!</p>
+        </div>
+      }
+
+      <!-- Results -->
+      @if (!loading() && !error()) {
+        @for (oferta of ofertas(); track oferta.id) {
+          <div class="offer-item fade-in" [style.animation-delay]="($index * 50) + 'ms'">
+            <app-oferta-card [oferta]="$any(oferta)"></app-oferta-card>
+          </div>
+        }
+      }
+    </div>
+  </div>
+</div>

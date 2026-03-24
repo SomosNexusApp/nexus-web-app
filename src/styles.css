@@ -1,5 +1,5 @@
 /* =========================================
-   NEXUS DESIGN SYSTEM v1.0
+   NEXUS ESTILOS GENERALES
    ========================================= */
 
 :root {
@@ -202,4 +202,17 @@ body {
 }
 ::-webkit-scrollbar-thumb:hover {
   background: var(--nexus-purple);
+}
+
+/* --- Layout Containers --- */
+.container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 0 16px;
+  }
 }

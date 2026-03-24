@@ -1,0 +1,83 @@
+<div class="gratis-page">
+  <div class="glow-bg"></div>
+
+  <div class="container main-content">
+    <header class="page-header-premium gifts">
+      <div class="header-main">
+        <div class="nexus-experience">
+          <div class="visual-container">
+            <div class="gift-box-premium">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M20 12v10H4V12M2 7h20v5H2zM12 22V7M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7zM12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/>
+              </svg>
+            </div>
+            <div class="aura-rings">
+              <div class="aura a1"></div>
+              <div class="aura a2"></div>
+            </div>
+          </div>
+          <div class="experience-text">
+            <span class="brand-tag purple">Nexus Elite Charity</span>
+            <h1>Regalos Nexus</h1>
+            <p class="subtitle">Artículos compartidos con el corazón por la comunidad</p>
+          </div>
+        </div>
+
+        <div class="header-banner glass-premium">
+          <div class="banner-content">
+            <span class="banner-title">Nexus Gratis</span>
+            <span class="banner-desc">Todo a 0.00€ para ti</span>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <div class="results-grid">
+      <!-- Skeletons -->
+      @if (loading() && resultados().length === 0) {
+        @for (s of skeletons; track $index) {
+          <div class="skeleton-wrapper">
+             <div class="skeleton-card"></div>
+          </div>
+        }
+      }
+
+      <!-- Error -->
+      @if (!loading() && error()) {
+        <div class="state-card glass error">
+          <div class="icon-box">
+             <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          </div>
+          <h3>Vaya, algo ha fallado</h3>
+          <p>La sección de regalos está bajo mantenimiento o hay un error de conexión.</p>
+          <button class="btn-primary" (click)="cargarGratis()">Reintentar</button>
+        </div>
+      }
+
+      <!-- Empty -->
+      @if (!loading() && !error() && resultados().length === 0) {
+        <div class="state-card glass empty">
+          <div class="icon-box">
+             <svg xmlns="http://www.w3.org/2000/svg" width="54" height="54" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+          </div>
+          <h3>No hay regalos hoy...</h3>
+          <p>Parece que todo el mundo está vendiendo. ¡Vuelve pronto por si alguien regala algo!</p>
+          <button class="btn-primary" routerLink="/">Volver a Inicio</button>
+        </div>
+      }
+
+      <!-- Results Grid -->
+      @if (!loading() && !error()) {
+        @for (item of resultados(); track item.id) {
+          <div class="result-item fade-in" [style.animation-delay]="($index * 40) + 'ms'">
+            <ng-container [ngSwitch]="item.searchType">
+              <app-producto-card *ngSwitchCase="'PRODUCTO'" [producto]="item" />
+              <app-oferta-card *ngSwitchCase="'OFERTA'" [oferta]="$any(item)" />
+              <app-vehiculo-card *ngSwitchCase="'VEHICULO'" [vehiculo]="$any(item)" />
+            </ng-container>
+          </div>
+        }
+      }
+    </div>
+  </div>
+</div>

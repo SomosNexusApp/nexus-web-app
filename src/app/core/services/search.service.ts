@@ -202,7 +202,7 @@ export class SearchService {
 
   /** Valor no vacío y no nulo */
   private hasValue(v: any): boolean {
-    return v !== null && v !== undefined && v !== '' && v !== 0;
+    return v !== null && v !== undefined && v !== '';
   }
 
   /** Mapea el orden del frontend a los parámetros que acepta OfertaController */
@@ -294,10 +294,11 @@ export class SearchService {
             const provincia = addr.county || addr.province || addr.state || '';
             const cp = addr.postcode || '';
 
-            // Creamos un display amigable: "Ciudad, Provincia"
+            const lat = parseFloat(res.lat);
+            const lng = parseFloat(res.lon);
             const display = `${ciudad}${provincia ? ', ' + provincia : ''}`.trim();
 
-            return { ciudad, provincia, cp, display };
+            return { ciudad, provincia, cp, display, lat, lng };
           })
           .filter((l) => {
             // Solo ciudades válidas y evitar duplicados visuales
