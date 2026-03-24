@@ -8,6 +8,7 @@ import { CurrencyEsPipe } from '../../../shared/pipes/currency-es.pipe';
 import { TimeAgoPipe } from '../../../shared/pipes/time-ago.pipe';
 import { FormsModule } from '@angular/forms';
 import { ReporteModalComponent } from '../../../shared/components/reporte-modal/reporte-modal.component';
+import { ToastService } from '../../../core/services/toast.service';
 import { ConfirmacionModalComponent } from '../../../shared/components/confirmacion-modal/confirmacion-modal.component';
 
 export interface PollOption { text: string; votes: number; }
@@ -24,6 +25,7 @@ export class OfertaDetailComponent implements OnInit, OnDestroy {
   private route = inject(ActivatedRoute);
   private http = inject(HttpClient);
   authStore = inject(AuthStore);
+  private toast = inject(ToastService);
 
   @ViewChild(ReporteModalComponent) reporteModal!: ReporteModalComponent;
   @ViewChild(ConfirmacionModalComponent) confirmModal!: ConfirmacionModalComponent;
@@ -185,7 +187,7 @@ export class OfertaDetailComponent implements OnInit, OnDestroy {
 
   abrirReporte() {
     if (!this.authStore.isLoggedIn()) {
-      alert('Inicia sesión para reportar.');
+      this.toast.warning('Inicia sesión para reportar.');
       return;
     }
     this.reporteModal.abrir('OFERTA', this.oferta().id);
@@ -302,7 +304,7 @@ export class OfertaDetailComponent implements OnInit, OnDestroy {
     }).subscribe({
       error: () => {
         comentario.poll = oldPoll;
-        alert('Error al guardar tu voto.');
+        this.toast.error('Error al guardar tu voto.');
       }
     });
   }

@@ -20,6 +20,8 @@ import { TimeAgoPipe } from '../../../shared/pipes/time-ago.pipe';
 import { CurrencyEsPipe } from '../../../shared/pipes/currency-es.pipe';
 import { CoverImagePipe } from '../../../shared/pipes/cover-image.pipe';
 import { ChatInputComponent, ChatDraft } from '../chat-input/chat-input';
+import { ToastService } from '../../../core/services/toast.service';
+import { ConfirmModalComponent } from '../../../shared/components/confirm-modal/confirm-modal.component';
 import { ReporteModalComponent } from '../../../shared/components/reporte-modal/reporte-modal.component';
 import { Subscription } from 'rxjs';
 
@@ -33,7 +35,8 @@ import { Subscription } from 'rxjs';
     CurrencyEsPipe, 
     ChatInputComponent, 
     CoverImagePipe, 
-    ReporteModalComponent
+    ReporteModalComponent,
+    ConfirmModalComponent
   ],
   templateUrl: './chat-panel.html',
   styleUrl: './chat-panel.css',
@@ -42,11 +45,13 @@ export class ChatPanelComponent implements OnChanges, AfterViewChecked, OnDestro
   @Input() conversacion: any;
   @ViewChild('scrollContainer') private scrollContainer!: ElementRef;
   @ViewChild('reporteModal') reporteModal!: ReporteModalComponent;
+  @ViewChild('confirmBlockModal') confirmBlockModal!: ConfirmModalComponent;
 
   chatService = inject(ChatService);
   wsService = inject(WebSocketService);
   authStore = inject(AuthStore);
   bloqueoService = inject(BloqueoService);
+  private toast = inject(ToastService);
 
   mensajes = signal<ChatMensaje[]>([]);
   otroUsuario = signal<any>(null);
@@ -54,7 +59,6 @@ export class ChatPanelComponent implements OnChanges, AfterViewChecked, OnDestro
   cargando = signal(false);
   usuarioBloqueado = signal(false);
   showMenu = signal(false);
-  showConfirmBloqueo = signal(false);
   mostrarOfertaModal = signal(false);
   precioOferta = signal<number | null>(null);
   private autoScrollActivado = true;
@@ -199,13 +203,17 @@ export class ChatPanelComponent implements OnChanges, AfterViewChecked, OnDestro
     if (!otro) return;
 
     if (this.usuarioBloqueado()) {
-      this.bloqueoService.desbloquear(otro.id).subscribe(() => {
-        this.usuarioBloqueado.set(false);
-        this.showMenu.set(false);
+      this.bloqueoService.desbloquear(otro.id).subscribe({
+        next: () => {
+          this.usuarioBloqueado.set(false);
+          this.showMenu.set(false);
+          this.toast.success('Usuario desbloqueado');
+        },
+        error: (err) => this.toast.error('Error al desbloquear: ' + (err.error?.error || err.message))
       });
     } else {
       this.showMenu.set(false);
-      this.showConfirmBloqueo.set(true);
+      this.confirmBlockModal.open();
     }
   }
 
@@ -213,9 +221,12 @@ export class ChatPanelComponent implements OnChanges, AfterViewChecked, OnDestro
     const otro = this.otroUsuario();
     if (!otro) return;
     
-    this.bloqueoService.bloquearUsuario(otro.id, 'Bloqueado desde chat').subscribe(() => {
-      this.usuarioBloqueado.set(true);
-      this.showConfirmBloqueo.set(false);
+    this.bloqueoService.bloquearUsuario(otro.id, 'Bloqueado desde chat').subscribe({
+      next: () => {
+        this.usuarioBloqueado.set(true);
+        this.toast.success('Usuario bloqueado');
+      },
+      error: (err) => this.toast.error('Error al bloquear: ' + (err.error?.error || err.message))
     });
   }
 
@@ -285,7 +296,7 @@ export class ChatPanelComponent implements OnChanges, AfterViewChecked, OnDestro
             error: () => {
               // Revertir optimistic
               this.mensajes.update((msgs) => msgs.filter((m) => m.id !== optimisticMsg.id));
-              alert('Error al enviar el mensaje.');
+              this.toast.error('Error al enviar el mensaje.');
             },
           });
       }
@@ -325,7 +336,7 @@ export class ChatPanelComponent implements OnChanges, AfterViewChecked, OnDestro
           },
           error: () => {
             this.mensajes.update((msgs) => msgs.filter((m) => m.id !== placeholderMsg.id));
-            alert('Error al subir el archivo multimedia.');
+            this.toast.error('Error al subir el archivo multimedia.');
           },
         });
     } else if (draft.tipo === 'GIF' || draft.tipo === 'OFERTA_PRECIO') {

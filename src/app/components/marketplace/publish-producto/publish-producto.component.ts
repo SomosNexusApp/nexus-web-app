@@ -21,7 +21,9 @@ import { GuestPopupService } from '../../../core/services/guest-popup.service';
 import { AuthService } from '../../../core/auth/auth.service';
 import { AuthStore } from '../../../core/auth/auth-store';
 import { SearchService } from '../../../core/services/search.service';
+import { ToastService } from '../../../core/services/toast.service';
 import { Categoria } from '../../../models/categoria.model';
+
 import { CondicionProducto } from '../../../models/producto.model';
 import { ProductoCardComponent } from '../../../shared/components/marketplace/product-card/producto-card.component';
 
@@ -43,6 +45,7 @@ export class PublishProductoComponent implements OnInit {
   private authService = inject(AuthService);
   private guestPopupService = inject(GuestPopupService);
   private searchService = inject(SearchService);
+  private toast = inject(ToastService);
 
   // ── ESTADO ────────────────────────────────────────────────────────
   currentStep = signal<PublishStep>(0);
@@ -261,7 +264,7 @@ export class PublishProductoComponent implements OnInit {
   onFileSelected(event: any): void {
     const files: FileList = event.target.files;
     if (this.images().length + files.length > 8) {
-      alert('Máximo 8 fotos');
+      this.toast.warning('Máximo 8 fotos por producto');
       return;
     }
     Array.from(files).forEach((file) => {
@@ -338,7 +341,7 @@ export class PublishProductoComponent implements OnInit {
     
     const uid = this.authStore.user()?.id;
     if (!uid) {
-      alert('Debes estar identificado para publicar.');
+      this.toast.error('Debes estar identificado para publicar.');
       return;
     }
 
@@ -393,7 +396,7 @@ export class PublishProductoComponent implements OnInit {
       error: (err) => {
         console.error('Error al publicar:', err);
         const msg = err.error?.error || 'Error inesperado al publicar el producto';
-        alert(msg);
+        this.toast.error(msg);
         this.uploading.set(false);
       },
     });

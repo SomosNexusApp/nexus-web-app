@@ -55,23 +55,16 @@
   <!-- Componente Modal de Reporte -->
   <app-reporte-modal #reporteModal></app-reporte-modal>
 
-  <!-- Modal de Confirmación de Bloqueo -->
-  @if (showConfirmBloqueo()) {
-    <div class="confirm-modal-overlay" (click)="showConfirmBloqueo.set(false)">
-      <div class="confirm-modal-content animate-pop" (click)="$event.stopPropagation()">
-        <div class="confirm-icon danger">
-          <i class="fas fa-user-slash"></i>
-        </div>
-        <h3>¿Bloquear a {{ otroUsuario()?.nombre }}?</h3>
-        <p>No podréis enviaros mensajes ni ver vuestros perfiles. Puedes desbloquearlo en cualquier momento desde tu configuración.</p>
-        
-        <div class="confirm-actions">
-          <button class="btn-cancel" (click)="showConfirmBloqueo.set(false)">Cancelar</button>
-          <button class="btn-confirm-danger" (click)="confirmarBloqueo()">Bloquear Usuario</button>
-        </div>
-      </div>
-    </div>
-  }
+  <app-confirm-modal
+    #confirmBlockModal
+    title="Bloquear Usuario"
+    [message]="'¿Estás seguro de que deseas bloquear a ' + (otroUsuario()?.nombre || 'este usuario') + '? No podréis enviaros mensajes ni ver vuestros perfiles. Puedes deshacerlo en cualquier momento.'"
+    confirmText="Bloquear"
+    cancelText="Cancelar"
+    type="danger"
+    icon="fas fa-user-slash"
+    (confirmed)="confirmarBloqueo()"
+  />
 
   <!-- Lista de Mensajes -->
   <div class="messages-container" #scrollContainer (scroll)="onScroll($event)">

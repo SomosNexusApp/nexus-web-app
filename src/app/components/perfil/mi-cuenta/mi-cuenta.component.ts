@@ -7,6 +7,9 @@ import { AuthStore } from '../../../core/auth/auth-store';
 import { AuthService } from '../../../core/auth/auth.service';
 import { environment } from '../../../../environments/enviroment';
 import { CurrencyEsPipe } from '../../../shared/pipes/currency-es.pipe';
+import { ToastService } from '../../../core/services/toast.service';
+import { ConfirmModalComponent } from '../../../shared/components/confirm-modal/confirm-modal.component';
+import { ViewChild } from '@angular/core';
 
 import { CoverImagePipe } from '../../../shared/pipes/cover-image.pipe';
 import { ProductoCardComponent } from '../../../shared/components/marketplace/product-card/producto-card.component';
@@ -41,6 +44,7 @@ type SidebarSection =
     MisComprasComponent,
     ConversacionesListComponent,
     PagosComponent,
+    ConfirmModalComponent,
   ],
   templateUrl: './mi-cuenta.component.html',
   styleUrls: ['./mi-cuenta.component.css'],
@@ -51,6 +55,12 @@ export class MiCuentaComponent implements OnInit {
   private http = inject(HttpClient);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
+  private toast = inject(ToastService);
+
+  @ViewChild('confirmDeleteModal') confirmDeleteModal!: ConfirmModalComponent;
+  @ViewChild('logoutModal') logoutModal!: ConfirmModalComponent;
+  private idToDelete: number | null = null;
+  private typeToDelete: 'producto' | 'oferta' | null = null;
 
   // Sidebar
   activeSection = signal<SidebarSection>('resumen');
@@ -220,11 +230,31 @@ export class MiCuentaComponent implements OnInit {
   }
 
   eliminarProducto(productoId: number) {
-    if (!confirm('¿Seguro que quieres eliminar este producto?')) return;
-    this.http.delete(`${environment.apiUrl}/producto/${productoId}`).subscribe({
+    this.idToDelete = productoId;
+    this.typeToDelete = 'producto';
+    this.confirmDeleteModal.open();
+  }
+
+  confirmAction() {
+    if (!this.idToDelete || !this.typeToDelete) return;
+
+    const url = this.typeToDelete === 'producto' 
+      ? `${environment.apiUrl}/producto/${this.idToDelete}`
+      : `${environment.apiUrl}/oferta/${this.idToDelete}`;
+
+    this.http.delete(url).subscribe({
       next: () => {
-        this.misProductos.update((ps) => ps.filter((p) => p.id !== productoId));
+        if (this.typeToDelete === 'producto') {
+          this.misProductos.update((ps) => ps.filter((p) => p.id !== this.idToDelete));
+          this.toast.success('Producto eliminado');
+        } else {
+          this.misOfertas.update((os) => os.filter((o) => o.id !== this.idToDelete));
+          this.toast.success('Oferta eliminada');
+        }
+        this.idToDelete = null;
+        this.typeToDelete = null;
       },
+      error: () => this.toast.error('Error al eliminar')
     });
   }
 
@@ -249,12 +279,9 @@ export class MiCuentaComponent implements OnInit {
   }
 
   eliminarOferta(ofertaId: number) {
-    if (!confirm('¿Seguro que quieres eliminar esta oferta?')) return;
-    this.http.delete(`${environment.apiUrl}/oferta/${ofertaId}`).subscribe({
-      next: () => {
-        this.misOfertas.update((os) => os.filter((o) => o.id !== ofertaId));
-      },
-    });
+    this.idToDelete = ofertaId;
+    this.typeToDelete = 'oferta';
+    this.confirmDeleteModal.open();
   }
 
   // ── Favoritos ────────────────────────────
@@ -311,10 +338,10 @@ export class MiCuentaComponent implements OnInit {
     if (!u) return;
     this.http.put(`${environment.apiUrl}/usuario/${u.id}`, this.editForm()).subscribe({
       next: () => {
-        alert('Perfil actualizado correctamente.');
+        this.toast.success('Perfil actualizado correctamente.');
         this.editando.set(false);
       },
-      error: () => alert('Error al guardar los cambios.'),
+      error: () => this.toast.error('Error al guardar los cambios.'),
     });
   }
 
@@ -329,11 +356,11 @@ export class MiCuentaComponent implements OnInit {
 
     this.http.post<any>(`${environment.apiUrl}/usuario/${u.id}/avatar`, fd).subscribe({
       next: (res) => {
-        alert('Avatar actualizado.');
+        this.toast.success('Avatar actualizado.');
         // Actualizar localmente
         this.authStore.setUser({ ...u, avatar: res.url } as any);
       },
-      error: () => alert('Error al subir el avatar.'),
+      error: () => this.toast.error('Error al subir el avatar.'),
     });
   }
 
@@ -342,9 +369,8 @@ export class MiCuentaComponent implements OnInit {
     this.faqOpen.set(this.faqOpen() === index ? -1 : index);
   }
 
-  // ── Logout ───────────────────────────────
   confirmarLogout() {
-    this.showLogoutModal.set(true);
+    this.logoutModal.open();
   }
 
   logout() {

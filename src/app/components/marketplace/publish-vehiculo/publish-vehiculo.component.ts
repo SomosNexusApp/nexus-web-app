@@ -9,6 +9,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { environment } from '../../../../environments/enviroment';
 import { AuthStore } from '../../../core/auth/auth-store';
 import { SearchService } from '../../../core/services/search.service';
+import { ToastService } from '../../../core/services/toast.service';
 import { TipoVehiculo } from '../../../models/vehiculo.model';
 
 export type PublishStep = 1 | 2 | 3 | 4 | 5;
@@ -27,6 +28,7 @@ export class PublishVehiculoComponent implements OnInit {
   private router = inject(Router);
   private authStore = inject(AuthStore);
   private searchService = inject(SearchService);
+  private toast = inject(ToastService);
 
   currentStep = signal<PublishStep>(1);
   uploading = signal(false);
@@ -305,7 +307,7 @@ export class PublishVehiculoComponent implements OnInit {
       next: (res: any) => this.router.navigate(['/vehiculos', res.id]),
       error: () => {
         this.uploading.set(false);
-        alert('Error al publicar. Revisa los datos.');
+        this.toast.error('Error al publicar. Revisa los datos.');
       }
     });
   }

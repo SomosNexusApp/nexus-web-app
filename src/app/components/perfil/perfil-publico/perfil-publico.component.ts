@@ -116,7 +116,7 @@ export class PerfilPublicoComponent implements OnInit, OnDestroy {
         if (this.authStore.isLoggedIn() && data.id !== this.authStore.user()?.id) {
           this.bloqueoService.estaBloqueado(data.id).subscribe({
             next: (res) => this.estaBloqueado.set(res.bloqueado),
-            error: () => this.estaBloqueado.set(false)
+            error: () => this.estaBloqueado.set(false),
           });
         }
       },
@@ -206,7 +206,7 @@ export class PerfilPublicoComponent implements OnInit, OnDestroy {
   }
 
   toggleOptionMenu() {
-    this.mostrandoMenu.update(v => !v);
+    this.mostrandoMenu.update((v) => !v);
   }
 
   abrirReporte() {
@@ -229,13 +229,15 @@ export class PerfilPublicoComponent implements OnInit, OnDestroy {
     if (this.estaBloqueado()) {
       this.bloqueoService.desbloquear(userId).subscribe({
         next: () => this.estaBloqueado.set(false),
-        error: (err) => alert('Error al desbloquear: ' + (err.error?.error || err.message))
+        error: (err) => alert('Error al desbloquear: ' + (err.error?.error || err.message)),
       });
     } else {
-      if (confirm('¿Estás seguro de que deseas bloquear a este usuario? No podrá enviarte mensajes.')) {
+      if (
+        confirm('¿Estás seguro de que deseas bloquear a este usuario? No podrá enviarte mensajes.')
+      ) {
         this.bloqueoService.bloquearUsuario(userId).subscribe({
           next: () => this.estaBloqueado.set(true),
-          error: (err) => alert('Error al bloquear: ' + (err.error?.error || err.message))
+          error: (err) => alert('Error al bloquear: ' + (err.error?.error || err.message)),
         });
       }
     }

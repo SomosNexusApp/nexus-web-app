@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../../environments/enviroment';
 import { AuthStore } from '../../../core/auth/auth-store';
+import { ToastService } from '../../../core/services/toast.service';
 import { StarRatingComponent } from '../star-rating/star-rating.component';
 
 @Component({
@@ -157,6 +158,7 @@ import { StarRatingComponent } from '../star-rating/star-rating.component';
 export class ValoracionModalComponent {
   private http = inject(HttpClient);
   private authStore = inject(AuthStore);
+  private toast = inject(ToastService);
 
   isOpen = signal(false);
   vendedorUsername = signal<string>('');
@@ -173,7 +175,7 @@ export class ValoracionModalComponent {
 
   abrir(vendedorUsername: string, compraId: number) {
     if (!this.authStore.isLoggedIn()) {
-      alert('Debes iniciar sesión para valorar.');
+      this.toast.warning('Debes iniciar sesión para valorar.');
       return;
     }
     this.vendedorUsername.set(vendedorUsername);

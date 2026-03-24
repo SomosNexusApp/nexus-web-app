@@ -8,6 +8,7 @@ import { CurrencyEsPipe } from '../../../shared/pipes/currency-es.pipe';
 import { TimeAgoPipe } from '../../../shared/pipes/time-ago.pipe';
 import { FormsModule } from '@angular/forms';
 import { ReporteModalComponent } from '../../../shared/components/reporte-modal/reporte-modal.component';
+import { ToastService } from '../../../core/services/toast.service';
 import { ViewChild } from '@angular/core';
 import { FavoritoService } from '../../../core/services/favorito.service';
 
@@ -24,6 +25,7 @@ export class VehiculoDetailComponent implements OnInit {
   private http = inject(HttpClient);
   private favoritoService = inject(FavoritoService);
   authStore = inject(AuthStore);
+  private toast = inject(ToastService);
 
   @ViewChild(ReporteModalComponent) reporteModal!: ReporteModalComponent;
 
@@ -89,7 +91,7 @@ export class VehiculoDetailComponent implements OnInit {
 
   contactar() {
     if (!this.authStore.isLoggedIn()) {
-      alert('Inicia sesión para contactar');
+      this.toast.error('Inicia sesión para contactar');
       return;
     }
     this.router.navigate(['/mensajes'], { queryParams: { productoId: this.vehiculo()?.id } });
@@ -97,7 +99,7 @@ export class VehiculoDetailComponent implements OnInit {
 
   abrirReporte() {
     if (!this.authStore.isLoggedIn()) {
-      alert('Inicia sesión para reportar.');
+      this.toast.warning('Inicia sesión para reportar.');
       return;
     }
     this.reporteModal.abrir('VEHICULO', this.vehiculo().id);
@@ -113,7 +115,7 @@ export class VehiculoDetailComponent implements OnInit {
 
   toggleFavorito() {
     if (!this.authStore.isLoggedIn()) {
-      alert('Inicia sesión para guardar en favoritos');
+      this.toast.warning('Inicia sesión para guardar en favoritos');
       return;
     }
     const id = this.vehiculo().id;

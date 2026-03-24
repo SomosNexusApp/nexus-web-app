@@ -8,6 +8,8 @@ import { AuthStore } from '../../core/auth/auth-store';
 import { AuthService } from '../../core/auth/auth.service';
 import { GuestPopupService } from '../../core/services/guest-popup.service';
 import { CategoriaPanelComponent } from '../../shared/components/categoria-panel/categoria-panel.component';
+import { ConfirmModalComponent } from '../../shared/components/confirm-modal/confirm-modal.component';
+import { ViewChild } from '@angular/core';
 
 interface NavLink {
   label: string;
@@ -19,7 +21,7 @@ interface NavLink {
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [CommonModule, RouterModule, ReactiveFormsModule, CategoriaPanelComponent],
+  imports: [CommonModule, RouterModule, ReactiveFormsModule, CategoriaPanelComponent, ConfirmModalComponent],
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.css'],
 })
@@ -44,6 +46,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   // Categorias
   readonly isCategoriasPanelOpen = signal(false);
+
+  @ViewChild('logoutModal') logoutModal!: ConfirmModalComponent;
 
   navLinks: NavLink[] = [
     { label: 'Categorías', route: '/categorias', icon: 'grid' },
@@ -142,9 +146,11 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   logout() {
-    if (confirm('¿Cerrar sesión en Nexus?')) {
-      this.authService.logout();
-    }
+    this.logoutModal.open();
+  }
+
+  confirmLogout() {
+    this.authService.logout();
   }
 
   getIniciales(nombre?: string, apellidos?: string): string {

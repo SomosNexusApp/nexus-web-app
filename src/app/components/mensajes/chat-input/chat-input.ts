@@ -11,6 +11,7 @@ import {
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
+import { ToastService } from '../../../core/services/toast.service';
 
 export interface ChatDraft {
   tipo: 'TEXTO' | 'IMAGEN' | 'AUDIO' | 'OFERTA_PRECIO' | 'GIF';
@@ -37,6 +38,7 @@ export class ChatInputComponent {
   @ViewChild('textArea') textArea!: ElementRef<HTMLTextAreaElement>;
 
   private http = inject(HttpClient);
+  private toast = inject(ToastService);
 
   texto = signal('');
   isRecording = signal(false);
@@ -238,7 +240,7 @@ export class ChatInputComponent {
       this.isRecording.set(true);
     } catch (err) {
       console.error('Error accediendo al micrófono:', err);
-      alert('No se pudo acceder al micrófono. Asegúrate de dar permiso.');
+      this.toast.error('No se pudo acceder al micrófono. Asegúrate de dar permiso.');
     }
   }
 

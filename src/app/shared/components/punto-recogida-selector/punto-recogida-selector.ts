@@ -1,6 +1,7 @@
-import { Component, EventEmitter, Output, signal, AfterViewInit, OnDestroy } from '@angular/core';
+import { Component, EventEmitter, Output, signal, AfterViewInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { ToastService } from '../../../core/services/toast.service';
 
 declare var L: any;
 
@@ -26,6 +27,7 @@ export interface PuntoRecogida {
 export class PuntoRecogidaSelector implements AfterViewInit, OnDestroy {
   @Output() puntoSeleccionado = new EventEmitter<PuntoRecogida>();
   @Output() cerrar = new EventEmitter<void>();
+  private toast = inject(ToastService);
 
   busqueda = signal('');
   buscando = signal(false);
@@ -177,7 +179,7 @@ export class PuntoRecogidaSelector implements AfterViewInit, OnDestroy {
 
   usarMiUbicacion() {
     if (!navigator.geolocation) {
-      alert('La geolocalización no está soportada por tu navegador.');
+      this.toast.error('La geolocalización no está soportada por tu navegador.');
       return;
     }
 
@@ -240,7 +242,7 @@ export class PuntoRecogidaSelector implements AfterViewInit, OnDestroy {
       },
       (err) => {
         console.error(err);
-        alert('No se pudo obtener tu ubicación.');
+        this.toast.error('No se pudo obtener tu ubicación.');
         this.buscando.set(false);
       }
     );

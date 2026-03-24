@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../../environments/enviroment';
 import { AuthStore } from '../../../core/auth/auth-store';
+import { ToastService } from '../../../core/services/toast.service';
 
 @Component({
   selector: 'app-reporte-modal',
@@ -189,6 +190,7 @@ import { AuthStore } from '../../../core/auth/auth-store';
 export class ReporteModalComponent {
   private http = inject(HttpClient);
   private authStore = inject(AuthStore);
+  private toast = inject(ToastService);
 
   // En la app real se usa guestPopupService si no está logueado, pero el llamador comprobará.
   
@@ -219,9 +221,7 @@ export class ReporteModalComponent {
   abrir(tipo: string, id: number) {
     // Si no está logueado, el llamador debería manejarlo, pero podemos añadir un safe-check.
     if (!this.authStore.isLoggedIn()) {
-      // Ideal: inject(GuestPopupService).showPopup();
-      // Asumiremos que el parent verificará el login antes de invocar `abrir()`
-      alert('Debes iniciar sesión para reportar.');
+      this.toast.warning('Debes iniciar sesión para reportar.');
       return;
     }
     

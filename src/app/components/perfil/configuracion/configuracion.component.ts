@@ -6,7 +6,9 @@ import { Router } from '@angular/router';
 import { AuthStore } from '../../../core/auth/auth-store';
 import { AuthService } from '../../../core/auth/auth.service';
 import { ToastContainerComponent } from '../../../shared/components/toast-container/toast-container.component';
+import { ConfirmModalComponent } from '../../../shared/components/confirm-modal/confirm-modal.component';
 import { ToastService } from '../../../core/services/toast.service';
+import { ViewChild } from '@angular/core';
 import { environment } from '../../../../environments/enviroment';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
@@ -14,7 +16,7 @@ import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
 @Component({
   selector: 'app-configuracion',
   standalone: true,
-  imports: [CommonModule, FormsModule, ToastContainerComponent],
+  imports: [CommonModule, FormsModule, ToastContainerComponent, ConfirmModalComponent],
   templateUrl: './configuracion.component.html',
   styleUrls: ['./configuracion.component.css'],
 })
@@ -83,6 +85,8 @@ export class ConfiguracionComponent implements OnInit, AfterViewInit, OnDestroy 
   showModalEmpresa = signal(false);
   showDeleteModal = signal(false);
   deleteAccount = signal({ confirmText: '', password: '' });
+
+  @ViewChild('disable2FAModal') disable2FAModal!: ConfirmModalComponent;
 
   sesionesActivas = signal<any[]>([]);
 
@@ -357,10 +361,23 @@ export class ConfiguracionComponent implements OnInit, AfterViewInit, OnDestroy 
 
   cambiarPassword() {
     const s = this.security();
-    if (!s.passwordActual || !s.passwordNueva || s.passwordNueva !== s.passwordConfirm) {
-      this.toast.warning('Verifica los campos. Las contraseñas nuevas deben coincidir.');
+    
+    // Front-end basic validation
+    if (!s.passwordActual || !s.passwordNueva || !s.passwordConfirm) {
+      this.toast.warning('Todos los campos son obligatorios.');
       return;
     }
+
+    if (s.passwordNueva.length < 8) {
+      this.toast.warning('La nueva contraseña debe tener al menos 8 caracteres.');
+      return;
+    }
+
+    if (s.passwordNueva !== s.passwordConfirm) {
+      this.toast.warning('Las nuevas contraseñas no coinciden.');
+      return;
+    }
+
     this.http
       .post(`${this.backendUrl}/usuario/me/cambiar-password`, {
         passwordActual: s.passwordActual,
@@ -368,12 +385,18 @@ export class ConfiguracionComponent implements OnInit, AfterViewInit, OnDestroy 
       })
       .subscribe({
         next: () => {
-          this.toast.success('Contraseña modificada con éxito');
-          this.updateSecurityField('passwordActual', '');
-          this.updateSecurityField('passwordNueva', '');
-          this.updateSecurityField('passwordConfirm', '');
+          this.toast.success('Contraseña actualizada correctamente.');
+          // Limpiar campos
+          this.security.set({
+            passwordActual: '',
+            passwordNueva: '',
+            passwordConfirm: '',
+          });
         },
-        error: (err) => this.toast.error(err.error?.error || 'La contraseña actual es incorrecta'),
+        error: (err) => {
+          const msg = err.error?.error || 'No se pudo cambiar la contraseña. Inténtalo de nuevo.';
+          this.toast.error(msg);
+        },
       });
   }
 
@@ -384,24 +407,7 @@ export class ConfiguracionComponent implements OnInit, AfterViewInit, OnDestroy 
     const currentMethod = this.user()?.twoFactorMethod;
 
     if (isCurrentlyEnabled && currentMethod === metodo) {
-      if (
-        confirm(
-          '¿Seguro que quieres desactivar la Autenticación en 2 Pasos? Tu cuenta será menos segura.',
-        )
-      ) {
-        this.loading2FA.set(true);
-        this.http.post(`${this.backendUrl}/usuario/me/2fa/disable`, {}).subscribe({
-          next: () => {
-            this.toast.success('2FA Desactivado');
-            this.show2FASetup.set(false);
-            this.qrCodeUrl.set(null);
-            this.authService.loadCurrentUser().subscribe({
-              complete: () => this.loading2FA.set(false)
-            });
-          },
-          error: () => this.loading2FA.set(false)
-        });
-      }
+      this.disable2FAModal.open();
       return;
     }
 
@@ -442,6 +448,21 @@ export class ConfiguracionComponent implements OnInit, AfterViewInit, OnDestroy 
           },
         });
     }
+  }
+
+  confirmDisable2FA() {
+    this.loading2FA.set(true);
+    this.http.post(`${this.backendUrl}/usuario/me/2fa/disable`, {}).subscribe({
+      next: () => {
+        this.toast.success('2FA Desactivado');
+        this.show2FASetup.set(false);
+        this.qrCodeUrl.set(null);
+        this.authService.loadCurrentUser().subscribe({
+          complete: () => this.loading2FA.set(false)
+        });
+      },
+      error: () => this.loading2FA.set(false)
+    });
   }
 
   confirmar2FAApp() {

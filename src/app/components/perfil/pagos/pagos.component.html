@@ -1,4 +1,14 @@
 <div class="pagos-container">
+  <app-confirm-modal
+    #confirmDeleteModal
+    title="Eliminar Tarjeta"
+    message="¿Estás seguro de que deseas eliminar este método de pago? Tendrás que añadirlo de nuevo para futuras compras."
+    confirmText="Eliminar"
+    cancelText="Cancelar"
+    type="danger"
+    icon="fas fa-credit-card"
+    (confirmed)="confirmarEliminacion()"
+  />
   <div class="header-actions">
     <p>Agrega o elimina tarjetas para facilitar tus compras en Nexus.</p>
     @if (!mostrandoFormulario()) {

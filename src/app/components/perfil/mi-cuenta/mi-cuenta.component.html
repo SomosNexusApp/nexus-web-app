@@ -445,16 +445,24 @@
 </div>
 
 <!-- Modal Logout -->
-@if (showLogoutModal()) {
-  <div class="modal-overlay" (click)="showLogoutModal.set(false)">
-    <div class="modal-box" (click)="$event.stopPropagation()">
-      <div class="modal-icon"><i class="fas fa-sign-out-alt"></i></div>
-      <h3>¿Cerrar sesión?</h3>
-      <p>¿Seguro que quieres cerrar sesión?</p>
-      <div class="modal-actions">
-        <button class="btn-secondary" (click)="showLogoutModal.set(false)">Cancelar</button>
-        <button class="btn-danger" (click)="logout()">Cerrar sesión</button>
-      </div>
-    </div>
-  </div>
-}
+<app-confirm-modal
+  #logoutModal
+  title="Cerrar Sesión"
+  message="¿Estás seguro de que quieres salir de Nexus? Perderás el acceso a tus herramientas de publicación hasta que vuelvas a entrar."
+  confirmText="Cerrar Sesión"
+  cancelText="Volver"
+  type="danger"
+  icon="fas fa-sign-out-alt"
+  (confirmed)="logout()"
+/>
+
+<app-confirm-modal
+  #confirmDeleteModal
+  title="Eliminar elemento"
+  message="¿Estás seguro de que deseas eliminar este elemento? Esta acción no se puede deshacer."
+  confirmText="Eliminar"
+  cancelText="Cancelar"
+  type="danger"
+  icon="fas fa-trash-alt"
+  (confirmed)="confirmAction()"
+/>

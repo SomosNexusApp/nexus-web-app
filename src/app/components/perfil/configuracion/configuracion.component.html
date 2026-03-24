@@ -276,34 +276,59 @@
         <h2><i class="fas fa-shield-alt"></i> Seguridad</h2>
         <div class="section-card">
           <div class="security-group">
-            <h3>Cambiar Contraseña</h3>
-            <div class="form-group">
-              <input
-                type="password"
-                placeholder="Contraseña actual"
-                [ngModel]="security().passwordActual"
-                (ngModelChange)="updateSecurityField('passwordActual', $event)"
-              />
-            </div>
-            <div class="form-row">
+            <h3><i class="fas fa-key"></i> Gestión de Contraseña</h3>
+            
+            @if (user(); as u) {
+              @if (!u.isSocial && !u.googleId && !u.facebookId) {
+                <!-- Usuarios Locales (JWT) -->
               <div class="form-group">
                 <input
                   type="password"
-                  placeholder="Nueva contraseña"
-                  [ngModel]="security().passwordNueva"
-                  (ngModelChange)="updateSecurityField('passwordNueva', $event)"
+                  placeholder="Contraseña actual"
+                  [ngModel]="security().passwordActual"
+                  (ngModelChange)="updateSecurityField('passwordActual', $event)"
                 />
               </div>
-              <div class="form-group">
-                <input
-                  type="password"
-                  placeholder="Repetir nueva contraseña"
-                  [ngModel]="security().passwordConfirm"
-                  (ngModelChange)="updateSecurityField('passwordConfirm', $event)"
-                />
+              <div class="form-row">
+                <div class="form-group">
+                  <input
+                    type="password"
+                    placeholder="Nueva contraseña (min. 8 caracteres)"
+                    [ngModel]="security().passwordNueva"
+                    (ngModelChange)="updateSecurityField('passwordNueva', $event)"
+                  />
+                </div>
+                <div class="form-group">
+                  <input
+                    type="password"
+                    placeholder="Confirmar nueva contraseña"
+                    [ngModel]="security().passwordConfirm"
+                    (ngModelChange)="updateSecurityField('passwordConfirm', $event)"
+                  />
+                </div>
               </div>
-            </div>
-            <button class="btn-outline" (click)="cambiarPassword()">Cambiar Contraseña</button>
+              <button class="btn-primary" (click)="cambiarPassword()">
+                Actualizar Contraseña
+              </button>
+            } @else {
+              <!-- Usuarios Sociales (Google/Facebook) -->
+              <div class="alert alert-premium social-identity-card">
+                <i class="fas fa-shield-halved"></i>
+                <div class="alert-content">
+                  <strong>Identidad Gestionada Externamente</strong>
+                  <p>
+                    Tu cuenta está vinculada a 
+                    <strong>{{ user()?.googleId ? 'Google' : 'Facebook' }}</strong>. 
+                    Por seguridad, debes gestionar tu contraseña directamente en su plataforma.
+                  </p>
+                  <a [href]="user()?.googleId ? 'https://myaccount.google.com/security' : 'https://www.facebook.com/settings?tab=security'" 
+                     target="_blank" class="btn-text">
+                    Ir a ajustes de seguridad <i class="fas fa-external-link-alt"></i>
+                  </a>
+                </div>
+              </div>
+            }
+          }
           </div>
 
           <div class="divider-soft"></div>
@@ -589,4 +614,15 @@
       <button class="btn-primary" (click)="ejecutarMigracionEmpresa()">Sí, convertir cuenta</button>
     </div>
   </div>
+
+  <app-confirm-modal
+    #disable2FAModal
+    title="Desactivar Seguridad"
+    message="¿Seguro que quieres desactivar la Autenticación en 2 Pasos? Tu cuenta será mucho menos segura y vulnerable a accesos no autorizados."
+    confirmText="Desactivar"
+    cancelText="Mantener Seguridad"
+    type="danger"
+    icon="fas fa-user-shield"
+    (confirmed)="confirmDisable2FA()"
+  />
 </div>

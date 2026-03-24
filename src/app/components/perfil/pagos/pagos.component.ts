@@ -6,9 +6,12 @@ import {
   signal,
   ChangeDetectionStrategy,
   ChangeDetectorRef,
+  ViewChild,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { PagoService } from '../../../core/services/pago.service';
+import { ToastService } from '../../../core/services/toast.service';
+import { ConfirmModalComponent } from '../../../shared/components/confirm-modal/confirm-modal.component';
 import { AuthStore } from '../../../core/auth/auth-store';
 import { environment } from '../../../../environments/enviroment';
 import { loadStripe, Stripe, StripeCardElement } from '@stripe/stripe-js';
@@ -16,7 +19,7 @@ import { loadStripe, Stripe, StripeCardElement } from '@stripe/stripe-js';
 @Component({
   selector: 'app-pagos',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, ConfirmModalComponent],
   templateUrl: './pagos.component.html',
   styleUrls: ['./pagos.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -25,6 +28,10 @@ export class PagosComponent implements OnInit, OnDestroy {
   private pagoService = inject(PagoService);
   private authStore = inject(AuthStore);
   private cdr = inject(ChangeDetectorRef);
+  private toast = inject(ToastService);
+
+  @ViewChild('confirmDeleteModal') confirmDeleteModal!: ConfirmModalComponent;
+  private methodIdToDelete: string | null = null;
 
   user = this.authStore.user;
 
@@ -66,11 +73,20 @@ export class PagosComponent implements OnInit, OnDestroy {
   }
 
   eliminarMetodo(id: string) {
-    if (!confirm('¿Seguro que quieres eliminar esta tarjeta?')) return;
-    this.pagoService.eliminarMetodo(id).subscribe({
+    this.methodIdToDelete = id;
+    this.confirmDeleteModal.open();
+  }
+
+  confirmarEliminacion() {
+    if (!this.methodIdToDelete) return;
+
+    this.pagoService.eliminarMetodo(this.methodIdToDelete).subscribe({
       next: () => {
-        this.metodos.update((ms) => ms.filter((m) => m.id !== id));
+        this.metodos.update((ms) => ms.filter((m) => m.id !== this.methodIdToDelete));
+        this.toast.success('Método de pago eliminado');
+        this.methodIdToDelete = null;
       },
+      error: () => this.toast.error('Error al eliminar el método de pago')
     });
   }
 

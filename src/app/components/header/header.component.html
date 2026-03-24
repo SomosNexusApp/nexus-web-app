@@ -330,4 +330,15 @@
     [isOpen]="isCategoriasPanelOpen()"
     (cerrar)="toggleCategoriasPanel()"
   ></app-categoria-panel>
+
+  <app-confirm-modal
+    #logoutModal
+    title="Cerrar Sesión"
+    message="¿Estás seguro de que deseas salir de Nexus? Perderás el acceso a tus herramientas de publicación hasta que vuelvas a entrar."
+    confirmText="Cerrar Sesión"
+    cancelText="Volver"
+    type="danger"
+    icon="fas fa-sign-out-alt"
+    (confirmed)="confirmLogout()"
+  />
 </ng-container>

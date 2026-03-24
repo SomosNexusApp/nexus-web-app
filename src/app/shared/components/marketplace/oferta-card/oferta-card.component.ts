@@ -20,6 +20,7 @@ import { CoverImagePipe } from '../../../pipes/cover-image.pipe';
 import { MarketplaceItem } from '../../../../models/marketplace-item.model';
 import { environment } from '../../../../../environments/enviroment';
 import { AuthStore } from '../../../../core/auth/auth-store';
+import { ToastService } from '../../../../core/services/toast.service';
 
 @Component({
   selector: 'app-oferta-card',
@@ -37,6 +38,7 @@ export class OfertaCardComponent implements OnInit, OnDestroy, OnChanges {
   private http = inject(HttpClient);
   private authStore = inject(AuthStore);
   private cdr = inject(ChangeDetectorRef);
+  private toast = inject(ToastService);
 
   // Estados locales para reactividad inmediata
   sparkScore = signal(0);
@@ -132,7 +134,7 @@ export class OfertaCardComponent implements OnInit, OnDestroy, OnChanges {
     event.preventDefault();
 
     if (!this.isLoggedIn) {
-      alert('Inicia sesión para votar ofertas.');
+      this.toast.warning('Inicia sesión para votar ofertas.');
       return;
     }
 

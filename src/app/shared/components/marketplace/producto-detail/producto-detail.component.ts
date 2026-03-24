@@ -22,6 +22,7 @@ import { environment } from '../../../../../environments/enviroment';
 import { AuthStore } from '../../../../core/auth/auth-store';
 import { FavoritoService } from '../../../../core/services/favorito.service';
 import { ChatService } from '../../../../core/services/chat.service';
+import { ToastService } from '../../../../core/services/toast.service';
 import { ReporteModalComponent } from '../../reporte-modal/reporte-modal.component';
 
 @Component({
@@ -47,6 +48,7 @@ export class ProductoDetailComponent implements OnInit, OnDestroy {
   private authStore = inject(AuthStore);
   private favoritoService = inject(FavoritoService);
   private chatService = inject(ChatService);
+  private toast = inject(ToastService);
 
   // ── Estado principal ────────────────────────────────────────────────
   producto = signal<Producto | null>(null);
@@ -245,7 +247,7 @@ export class ProductoDetailComponent implements OnInit, OnDestroy {
           this.router.navigate(['/checkout', id]);
         } else {
           this.producto.set(p);
-          if (p.tipoOferta === 'INTERCAMBIO') alert('Los productos de intercambio deben negociarse por chat.');
+          if (p.tipoOferta === 'INTERCAMBIO') this.toast.info('Los productos de intercambio deben negociarse por chat.');
         }
       },
     });
@@ -342,7 +344,7 @@ export class ProductoDetailComponent implements OnInit, OnDestroy {
         },
         error: (err) => {
           console.error('Error enviando oferta:', err);
-          alert('No se pudo enviar la oferta. Inténtalo de nuevo.');
+          this.toast.error('No se pudo enviar la oferta. Inténtalo de nuevo.');
         }
       });
   }
@@ -350,7 +352,7 @@ export class ProductoDetailComponent implements OnInit, OnDestroy {
   // ── Reporte ───────────────────────────────────────────────────────────
   reportarAnuncio(): void {
     if (!this.isLoggedIn()) {
-      alert('Inicia sesión para reportar anuncios.');
+      this.toast.warning('Inicia sesión para reportar anuncios.');
       return;
     }
     const p = this.producto();
