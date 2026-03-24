@@ -17,7 +17,7 @@
             </div>
           </div>
           <div class="experience-text">
-            <span class="brand-tag">Nexus Elite Discovery</span>
+            <span class="brand-tag">Nexus - Buscando en tu ubicación...</span>
             <h1>Cerca de ti</h1>
             <p class="subtitle">Explorando tesoros locales en tiempo real</p>
           </div>
@@ -46,7 +46,7 @@
       @if (loading() && resultados().length === 0) {
         @for (s of skeletons; track $index) {
           <div class="skeleton-wrapper">
-             <div class="skeleton-card"></div>
+            <div class="skeleton-card"></div>
           </div>
         }
       }
@@ -55,10 +55,27 @@
       @if (locationDenied()) {
         <div class="state-card glass warning">
           <div class="icon-box">
-            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s-8-4.5-8-11.8A8 8 0 0 1 12 2a8 8 0 0 1 8 8.2c0 7.3-8 11.8-8 11.8z"/><circle cx="12" cy="10" r="3"/><line x1="1" x2="23" y1="1" y2="23"/></svg>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="48"
+              height="48"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M12 22s-8-4.5-8-11.8A8 8 0 0 1 12 2a8 8 0 0 1 8 8.2c0 7.3-8 11.8-8 11.8z" />
+              <circle cx="12" cy="10" r="3" />
+              <line x1="1" x2="23" y1="1" y2="23" />
+            </svg>
           </div>
           <h3>Acceso a la ubicación denegado</h3>
-          <p>Para mostrarte lo que hay cerca, necesitamos saber dónde estás. Por favor, habilita la ubicación en tu navegador.</p>
+          <p>
+            Para mostrarte lo que hay cerca, necesitamos saber dónde estás. Por favor, habilita la
+            ubicación en tu navegador.
+          </p>
           <button class="btn-primary" (click)="obtenerUbicacion()">Intentar de nuevo</button>
         </div>
       }
@@ -67,7 +84,21 @@
       @if (!loading() && error()) {
         <div class="state-card glass error">
           <div class="icon-box">
-             <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="48"
+              height="48"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <circle cx="12" cy="12" r="10" />
+              <line x1="12" y1="8" x2="12" y2="12" />
+              <line x1="12" y1="16" x2="12.01" y2="16" />
+            </svg>
           </div>
           <h3>Error en el radar</h3>
           <p>Algo ha fallado al intentar triangular tu posición. ¿Tienes el GPS encendido?</p>
@@ -79,10 +110,25 @@
       @if (!loading() && !error() && !locationDenied() && resultados().length === 0) {
         <div class="state-card glass empty">
           <div class="icon-box">
-            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m16 10-4 4-4-4"/></svg>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="48"
+              height="48"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <circle cx="12" cy="12" r="10" />
+              <path d="m16 10-4 4-4-4" />
+            </svg>
           </div>
           <h3>No hay nada por aquí...</h3>
-          <p>Pruesta a aumentar el radio de búsqueda o sé el primero en publicar algo en tu zona.</p>
+          <p>
+            Pruesta a aumentar el radio de búsqueda o sé el primero en publicar algo en tu zona.
+          </p>
           <div class="empty-actions">
             <button class="btn-outline" (click)="cambiarRadio(150)">Aumentar a 150km</button>
             <button class="btn-primary" routerLink="/publicar">Publicar anuncio</button>
@@ -93,7 +139,7 @@
       <!-- Results Grid -->
       @if (!loading() && !error() && !locationDenied()) {
         @for (item of resultados(); track item.id) {
-          <div class="result-item fade-in" [style.animation-delay]="($index * 40) + 'ms'">
+          <div class="result-item fade-in" [style.animation-delay]="$index * 40 + 'ms'">
             <ng-container [ngSwitch]="item.searchType">
               <app-producto-card *ngSwitchCase="'PRODUCTO'" [producto]="item" />
               <app-oferta-card *ngSwitchCase="'OFERTA'" [oferta]="$any(item)" />

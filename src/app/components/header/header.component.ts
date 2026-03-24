@@ -54,8 +54,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
     { label: 'Ofertas Flash', route: '/ofertas', icon: 'flash' },
     {
       label: 'Vehículos',
-      route: '/search',
-      queryParams: { tipo: 'VEHICULO' },
+      route: '/vehiculos',
       icon: 'car',
     },
     { label: 'Cerca de ti', route: '/cerca', icon: 'pin' },

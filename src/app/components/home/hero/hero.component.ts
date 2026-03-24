@@ -1,5 +1,8 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
+import { AuthStore } from '../../../core/auth/auth-store';
+import { GuestPopupService } from '../../../core/services/guest-popup.service';
 
 interface ProductSlide {
   user: string;
@@ -20,6 +23,10 @@ interface ProductSlide {
   styleUrls: ['./hero.component.css'],
 })
 export class HeroComponent implements OnInit, OnDestroy {
+  private router = inject(Router);
+  private authStore = inject(AuthStore);
+  private guestPopupService = inject(GuestPopupService);
+
   slides: ProductSlide[] = [
     {
       user: '@Malegro32',
@@ -97,5 +104,17 @@ export class HeroComponent implements OnInit, OnDestroy {
     this.currentIndex = index;
     this.stopAutoPlay();
     this.startAutoPlay();
+  }
+
+  onSellNowClick(): void {
+    if (this.authStore.isLoggedIn()) {
+      this.router.navigate(['/publicar']);
+    } else {
+      this.guestPopupService.showPopup('Regístrate para empezar a vender en Nexus');
+    }
+  }
+
+  onExploreClick(): void {
+    this.router.navigate(['/search']);
   }
 }

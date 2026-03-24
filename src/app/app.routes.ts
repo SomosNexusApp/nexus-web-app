@@ -77,6 +77,13 @@ export const routes: Routes = [
       ),
   },
   {
+    path: 'vehiculos',
+    loadComponent: () =>
+      import('./components/vehiculos/vehiculos.component').then(
+        (m) => m.VehiculosComponent,
+      ),
+  },
+  {
     path: 'vehiculos/:id',
     loadComponent: () =>
       import('./components/vehiculos/vehiculo-detail/vehiculo-detail.component').then(

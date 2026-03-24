@@ -130,7 +130,7 @@ export class ConfiguracionComponent implements OnInit, AfterViewInit, OnDestroy 
 
   ngAfterViewInit(): void {
     if (typeof window !== 'undefined') {
-      setTimeout(() => this.initScrollSpy(), 500);
+      setTimeout(() => this.initScrollSpy(), 100);
     }
   }
 
@@ -145,8 +145,8 @@ export class ConfiguracionComponent implements OnInit, AfterViewInit, OnDestroy 
 
     const options = {
       root: null,
-      rootMargin: '-10% 0px -60% 0px',
-      threshold: 0.1
+      rootMargin: '-20% 0px -40% 0px', /* Adjusted for 150px sticky top */
+      threshold: [0, 0.1, 0.2]
     };
 
     this.observer = new IntersectionObserver((entries) => {
@@ -195,7 +195,7 @@ export class ConfiguracionComponent implements OnInit, AfterViewInit, OnDestroy 
     this.activeSection.set(id);
     const element = document.getElementById(id);
     if (element) {
-      const y = element.getBoundingClientRect().top + window.scrollY - 100;
+      const y = element.getBoundingClientRect().top + window.scrollY - 150;
       window.scrollTo({ top: y, behavior: 'smooth' });
     }
   }
