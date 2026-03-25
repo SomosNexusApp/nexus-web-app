@@ -30,14 +30,12 @@
         <div class="section-card">
           <div class="avatar-edit">
             <div class="avatar-preview">
-              <img
-                [src]="
-                  user()?.avatar && !user()?.avatar?.includes('default')
-                    ? user()?.avatar
-                    : 'https://ui-avatars.com/api/?name=' + (user()?.user || 'Nexus') + '&background=random&color=fff'
-                "
-                alt="Avatar"
-              />
+              <app-avatar 
+                [avatarUrl]="user()?.avatar"
+                [nombre]="user()?.nombre"
+                [username]="user()?.user"
+                [size]="140"
+              ></app-avatar>
             </div>
             <div class="avatar-actions">
               <h3 class="user-handle">@{{ user()?.user }}</h3>

@@ -9,6 +9,7 @@ import { AuthService } from '../../core/auth/auth.service';
 import { GuestPopupService } from '../../core/services/guest-popup.service';
 import { CategoriaPanelComponent } from '../../shared/components/categoria-panel/categoria-panel.component';
 import { ConfirmModalComponent } from '../../shared/components/confirm-modal/confirm-modal.component';
+import { AvatarComponent } from '../../shared/components/avatar/avatar.component';
 import { ViewChild } from '@angular/core';
 
 interface NavLink {
@@ -21,7 +22,7 @@ interface NavLink {
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [CommonModule, RouterModule, ReactiveFormsModule, CategoriaPanelComponent, ConfirmModalComponent],
+  imports: [CommonModule, RouterModule, ReactiveFormsModule, CategoriaPanelComponent, ConfirmModalComponent, AvatarComponent],
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.css'],
 })

@@ -1,0 +1,32 @@
+:host {
+  display: block; padding: 32px; min-height: 100%;
+  font-family: 'Outfit', sans-serif; color: #f0f0fa;
+  --accent: #7c3aed; --border: rgba(255,255,255,0.07); --bg-card: rgba(255,255,255,0.03);
+  --text-dim: #6b6b8a; --transition: all 0.3s cubic-bezier(0.16,1,0.3,1);
+  --danger: #ef4444; --warning: #f59e0b; --success: #10b981;
+}
+.page-title { font-size: 1.6rem; font-weight: 900; letter-spacing: -0.5px; margin: 0 0 24px; display: flex; align-items: center; gap: 12px; background: linear-gradient(135deg,#fff,rgba(255,255,255,.5)); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+.page-title i { -webkit-text-fill-color: var(--accent); }
+.section-header { margin: 24px 0 12px; }
+.section-header h2 { font-size: 1rem; font-weight: 700; opacity: 0.7; }
+.mb-card { margin-bottom: 24px; }
+.admin-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 20px; overflow: hidden; }
+.table-wrap { overflow-x: auto; }
+.admin-table { width: 100%; border-collapse: collapse; }
+.admin-table th { padding: 12px 16px; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--text-dim); border-bottom: 1px solid var(--border); text-align: left; }
+.admin-table td { padding: 12px 16px; font-size: 0.875rem; border-bottom: 1px solid rgba(255,255,255,0.04); vertical-align: middle; }
+.admin-table tr:last-child td { border-bottom: none; }
+.user-cell { display: flex; align-items: center; gap: 10px; }
+.product-cell { display: flex; align-items: center; gap: 10px; }
+.product-thumb { width: 36px; height: 36px; object-fit: cover; border-radius: 8px; }
+.motivo-cell { font-size: 0.8rem; color: var(--text-dim); max-width: 200px; }
+.dim-cell { color: var(--text-dim); font-size: 0.8rem; }
+.count-badge { background: rgba(239,68,68,0.15); color: #f87171; padding: 2px 10px; border-radius: 8px; font-size: 0.8rem; font-weight: 700; }
+.count-badge.warn { background: rgba(245,158,11,0.15); color: #fbbf24; }
+.estado-badge { padding: 3px 10px; border-radius: 8px; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; }
+.estado-badge.pendiente { background: rgba(245,158,11,0.15); color: #f59e0b; }
+.estado-badge.revisado { background: rgba(16,185,129,0.15); color: #10b981; }
+.pct-badge { background: rgba(239,68,68,0.15); color: #f87171; padding: 3px 10px; border-radius: 8px; font-size: 0.8rem; font-weight: 700; }
+.btn-action-sm { padding: 5px 14px; border-radius: 8px; border: 1px solid rgba(16,185,129,0.3); background: rgba(16,185,129,0.1); color: #34d399; font-size: 0.75rem; font-weight: 600; cursor: pointer; font-family: 'Outfit', sans-serif; transition: var(--transition); }
+.btn-action-sm:hover { background: rgba(16,185,129,0.2); }
+.empty-row { text-align: center; color: var(--text-dim); padding: 40px 16px !important; }

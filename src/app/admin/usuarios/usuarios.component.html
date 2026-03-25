@@ -1,0 +1,269 @@
+<div class="admin-page">
+
+  <!-- Header -->
+  <div class="page-header">
+    <div>
+      <h1 class="page-title"><i class="fa-solid fa-users"></i> Usuarios</h1>
+      <p class="page-subtitle">{{ result()?.totalElements || 0 }} usuarios registrados</p>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="filters-bar">
+    <div class="search-wrap">
+      <i class="fa-solid fa-magnifying-glass"></i>
+      <input type="text" [(ngModel)]="q" (ngModelChange)="onSearch()" placeholder="Buscar por nombre, username o email..." class="search-input"/>
+    </div>
+    <select [(ngModel)]="tipo" (ngModelChange)="page = 0; loadUsuarios()" class="filter-select">
+      <option value="">Todos los tipos</option>
+      <option value="USUARIO">Usuario</option>
+      <option value="EMPRESA">Empresa</option>
+      <option value="ADMIN">Admin</option>
+    </select>
+    <select [(ngModel)]="verificado" (ngModelChange)="page = 0; loadUsuarios()" class="filter-select">
+      <option value="">Verificación</option>
+      <option value="true">Verificado</option>
+      <option value="false">No verificado</option>
+    </select>
+    <select [(ngModel)]="estado" (ngModelChange)="page = 0; loadUsuarios()" class="filter-select">
+      <option value="">Todos los estados</option>
+      <option value="ACTIVO">Activo</option>
+      <option value="SUSPENDIDO_TEMP">Suspendido</option>
+      <option value="BANEADO">Baneado</option>
+    </select>
+  </div>
+
+  <!-- Table -->
+  <div class="admin-card">
+    <div class="table-wrap">
+      @if (loading()) {
+        <div class="loading-overlay"><i class="fa-solid fa-spinner fa-spin"></i></div>
+      }
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>Usuario</th>
+            <th>Email</th>
+            <th>Tipo</th>
+            <th>Verificado</th>
+            <th>Estado</th>
+            <th>Registro</th>
+            <th>Ventas</th>
+            <th>Reportes</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (u of result()?.content || []; track u.id) {
+            <tr class="clickable-row" (click)="openPanel(u)">
+              <td>
+                <div class="user-cell">
+                  <app-avatar [avatarUrl]="u.avatar" [nombre]="u.nombre" [username]="u.user" [size]="34"></app-avatar>
+                  <div class="user-meta">
+                    <span class="user-name">{{ u.nombre || u.user }}</span>
+                    <span class="user-username">&#64;{{ u.user }}</span>
+                  </div>
+                </div>
+              </td>
+              <td class="email-cell">{{ u.email }}</td>
+              <td><span class="tipo-badge">{{ u.tipoCuenta || u.rol }}</span></td>
+              <td>
+                @if (u.esVerificado) {
+                  <i class="fa-solid fa-circle-check verified-icon"></i>
+                } @else {
+                  <i class="fa-regular fa-circle unverified-icon"></i>
+                }
+              </td>
+              <td><span class="status-badge" [ngClass]="estadoClass(u)">{{ estadoLabel(u) }}</span></td>
+              <td class="dim-cell">{{ u.fechaRegistro | date:'dd MMM yyyy' }}</td>
+              <td><strong>{{ u.totalVentas }}</strong></td>
+              <td>
+                @if (u.reportesRecibidos > 0) {
+                  <span class="reports-count">{{ u.reportesRecibidos }}</span>
+                } @else { <span class="dim">—</span> }
+              </td>
+              <td>
+                <button class="action-icon-btn" (click)="$event.stopPropagation(); openPanel(u)">
+                  <i class="fa-solid fa-chevron-right"></i>
+                </button>
+              </td>
+            </tr>
+          } @empty {
+            <tr><td colspan="9" class="empty-row">Sin resultados</td></tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    @if (result() && result()!.totalPages > 1) {
+      <div class="pagination">
+        <button class="page-btn" [disabled]="page === 0" (click)="prevPage()">
+          <i class="fa-solid fa-chevron-left"></i>
+        </button>
+        <span>{{ page + 1 }} / {{ result()!.totalPages }}</span>
+        <button class="page-btn" [disabled]="page >= result()!.totalPages - 1" (click)="nextPage()">
+          <i class="fa-solid fa-chevron-right"></i>
+        </button>
+      </div>
+    }
+  </div>
+</div>
+
+<!-- SLIDE PANEL -->
+@if (panelOpen() && selectedUser()) {
+  <div class="panel-overlay" (click)="closePanel()"></div>
+  <div class="slide-panel">
+    <div class="panel-header">
+      <div class="panel-user-row">
+        <app-avatar [avatarUrl]="selectedUser()!.avatar" [nombre]="selectedUser()!.nombre" [username]="selectedUser()!.user" [size]="52" [shadow]="true"></app-avatar>
+        <div>
+          <h2>{{ selectedUser()!.nombre || selectedUser()!.user }}</h2>
+          <p class="panel-username">&#64;{{ selectedUser()!.user }}</p>
+        </div>
+      </div>
+      <button class="close-panel-btn" (click)="closePanel()"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+
+    <div class="panel-body">
+      <!-- Info -->
+      <div class="info-grid">
+        <div class="info-item"><span class="info-label">Email</span><span>{{ selectedUser()!.email }}</span></div>
+        <div class="info-item"><span class="info-label">Tipo</span><span>{{ selectedUser()!.tipoCuenta || selectedUser()!.rol }}</span></div>
+        <div class="info-item"><span class="info-label">Estado</span><span class="status-badge" [ngClass]="estadoClass(selectedUser()!)">{{ estadoLabel(selectedUser()!) }}</span></div>
+        <div class="info-item"><span class="info-label">Verificado</span><span>{{ selectedUser()!.esVerificado ? 'Sí' : 'No' }}</span></div>
+        <div class="info-item"><span class="info-label">Ventas</span><span>{{ selectedUser()!.totalVentas }}</span></div>
+        <div class="info-item"><span class="info-label">Reputación</span><span>⭐ {{ selectedUser()!.reputacion | number:'1.1-1' }}</span></div>
+        <div class="info-item"><span class="info-label">Reportes recibidos</span><span>{{ selectedUser()!.reportesRecibidos }}</span></div>
+        @if (selectedUser()!.motivoSuspension) {
+          <div class="info-item full"><span class="info-label">Motivo suspensión</span><span>{{ selectedUser()!.motivoSuspension }}</span></div>
+        }
+        @if (selectedUser()!.motivoBan) {
+          <div class="info-item full"><span class="info-label">Motivo ban</span><span>{{ selectedUser()!.motivoBan }}</span></div>
+        }
+      </div>
+
+      <!-- Acciones -->
+      <div class="actions-section">
+        <h3 class="actions-title">Acciones</h3>
+        <div class="actions-grid">
+          <button class="action-btn" (click)="openApp(selectedUser()!.user)">
+            <i class="fa-solid fa-arrow-up-right-from-square"></i> Ver perfil
+          </button>
+          @if (!selectedUser()!.esVerificado) {
+            <button class="action-btn action-verify" (click)="verificar()">
+              <i class="fa-solid fa-circle-check"></i> Verificar
+            </button>
+          }
+          <button class="action-btn" (click)="showAvisoModal.set(true)">
+            <i class="fa-solid fa-bell"></i> Enviar aviso
+          </button>
+          @if (!selectedUser()!.baneado && !selectedUser()!.suspendidoHasta) {
+            <button class="action-btn action-warn" (click)="showSuspenderModal.set(true)">
+              <i class="fa-solid fa-clock"></i> Suspender
+            </button>
+            <button class="action-btn action-danger" (click)="showBanModal.set(true)">
+              <i class="fa-solid fa-ban"></i> Banear
+            </button>
+          }
+          @if (selectedUser()!.baneado || selectedUser()!.suspendidoHasta) {
+            <button class="action-btn action-success" (click)="showDesbanModal.set(true)">
+              <i class="fa-solid fa-unlock"></i> Levantar sanción
+            </button>
+          }
+          <button class="action-btn action-impersonate" (click)="showImpersonarModal.set(true)">
+            <i class="fa-solid fa-user-secret"></i> Impersonar
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- MODAL SUSPENDER -->
+@if (showSuspenderModal()) {
+  <div class="modal-overlay">
+    <div class="modal">
+      <h3><i class="fa-solid fa-clock"></i> Suspender usuario</h3>
+      <textarea [(ngModel)]="motivoSuspension" placeholder="Motivo de la suspensión (obligatorio)..." rows="4" class="modal-textarea"></textarea>
+      <div class="modal-field">
+        <label>Duración</label>
+        <select [(ngModel)]="duracionHoras" class="filter-select full-w">
+          <option [value]="24">24 horas</option>
+          <option [value]="48">48 horas</option>
+          <option [value]="168">7 días</option>
+          <option [value]="336">14 días</option>
+          <option [value]="720">30 días</option>
+        </select>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-modal-cancel" (click)="showSuspenderModal.set(false)">Cancelar</button>
+        <button class="btn-modal-confirm warn" [disabled]="!motivoSuspension" (click)="doSuspender()">Suspender</button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- MODAL BAN -->
+@if (showBanModal()) {
+  <div class="modal-overlay">
+    <div class="modal">
+      <h3><i class="fa-solid fa-ban"></i> Banear permanentemente</h3>
+      <div class="modal-warning">⚠️ Esta acción pausará todos los productos activos del usuario.</div>
+      <textarea [(ngModel)]="motivoBan" placeholder="Motivo del ban (obligatorio)..." rows="4" class="modal-textarea"></textarea>
+      <div class="modal-actions">
+        <button class="btn-modal-cancel" (click)="showBanModal.set(false)">Cancelar</button>
+        <button class="btn-modal-confirm danger" [disabled]="!motivoBan" (click)="doBanear()">Banear</button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- MODAL DESBAN -->
+@if (showDesbanModal()) {
+  <div class="modal-overlay">
+    <div class="modal">
+      <h3><i class="fa-solid fa-unlock"></i> Levantar sanción</h3>
+      <textarea [(ngModel)]="motivoDesban" placeholder="Motivo del levantamiento (para auditoría)..." rows="4" class="modal-textarea"></textarea>
+      <div class="modal-actions">
+        <button class="btn-modal-cancel" (click)="showDesbanModal.set(false)">Cancelar</button>
+        <button class="btn-modal-confirm success" [disabled]="!motivoDesban" (click)="doDesbanear()">Levantar</button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- MODAL AVISO -->
+@if (showAvisoModal()) {
+  <div class="modal-overlay">
+    <div class="modal">
+      <h3><i class="fa-solid fa-bell"></i> Enviar aviso</h3>
+      <textarea [(ngModel)]="mensajeAviso" placeholder="Mensaje del aviso (mín 20 caracteres)..." rows="5" class="modal-textarea"></textarea>
+      <p class="char-count" [class.under]="mensajeAviso.length < 20">{{ mensajeAviso.length }}/20 mín</p>
+      <div class="modal-actions">
+        <button class="btn-modal-cancel" (click)="showAvisoModal.set(false)">Cancelar</button>
+        <button class="btn-modal-confirm" [disabled]="mensajeAviso.length < 20" (click)="doEnviarAviso()">Enviar aviso</button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- MODAL IMPERSONAR (doble confirmación) -->
+@if (showImpersonarModal()) {
+  <div class="modal-overlay">
+    <div class="modal">
+      <h3><i class="fa-solid fa-user-secret"></i> Impersonar usuario</h3>
+      <div class="modal-warning danger">
+        ⚠️ Esta acción abrirá la app como <strong>&#64;{{ selectedUser()!.user }}</strong> en modo de solo lectura. Queda registrado en el Audit Log.
+      </div>
+      <label class="checkbox-row">
+        <input type="checkbox" [(ngModel)]="confirmarImpersonar">
+        <span>Confirmo que esta impersonación tiene una razón legítima.</span>
+      </label>
+      <div class="modal-actions">
+        <button class="btn-modal-cancel" (click)="showImpersonarModal.set(false); confirmarImpersonar = false">Cancelar</button>
+        <button class="btn-modal-confirm danger" [disabled]="!confirmarImpersonar" (click)="doImpersonar()">Impersonar</button>
+      </div>
+    </div>
+  </div>
+}

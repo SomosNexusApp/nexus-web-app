@@ -2,15 +2,13 @@
   <!-- Cabecera -->
   <header class="chat-header">
     <div class="header-left">
-      <img
-        [src]="
-          otroUsuario()?.avatar ||
-          'https://ui-avatars.com/api/?name=' +
-            (otroUsuario()?.nombre || 'Nexus') +
-            '&background=random'
-        "
-        class="avatar-small"
-      />
+      <app-avatar 
+        [avatarUrl]="otroUsuario()?.avatar"
+        [nombre]="otroUsuario()?.nombre"
+        [username]="otroUsuario()?.user"
+        [size]="40"
+        customClass="avatar-small"
+      ></app-avatar>
       <div class="user-info">
         <span class="user-name">
           {{ otroUsuario()?.nombre || otroUsuario()?.user || 'Usuario' }}

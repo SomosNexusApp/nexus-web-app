@@ -361,19 +361,12 @@
             @if (producto()!.vendedor) {
               <div class="ck-seller">
                 <div class="ck-seller-avatar">
-                  @if ($any(producto()!.vendedor)?.rol === 'EMPRESA') {
-                    @if ($any(producto()!.vendedor)?.logo) {
-                      <img [src]="$any(producto()!.vendedor)?.logo" alt="logo" style="width:100%; height:100%; border-radius: inherit; object-fit: cover;" />
-                    } @else {
-                      <span>{{ getAvatarFallback($any(producto()!.vendedor)?.nombreComercial) }}</span>
-                    }
-                  } @else {
-                    @if ($any(producto()!.vendedor)?.avatar) {
-                      <img [src]="$any(producto()!.vendedor)?.avatar" alt="avatar" style="width:100%; height:100%; border-radius: inherit; object-fit: cover;" />
-                    } @else {
-                      <span>{{ getAvatarFallback($any(producto()!.vendedor)?.nombre) }}</span>
-                    }
-                  }
+                  <app-avatar 
+                    [avatarUrl]="$any(producto()!.vendedor)?.rol === 'EMPRESA' ? $any(producto()!.vendedor)?.logo : $any(producto()!.vendedor)?.avatar"
+                    [nombre]="$any(producto()!.vendedor)?.rol === 'EMPRESA' ? $any(producto()!.vendedor)?.nombreComercial : $any(producto()!.vendedor)?.nombre"
+                    [username]="$any(producto()!.vendedor)?.user"
+                    [size]="40"
+                  ></app-avatar>
                 </div>
                 <div style="display: flex; flex-direction: column;">
                   <span class="ck-seller-name">{{ $any(producto()!.vendedor)?.user }}</span>

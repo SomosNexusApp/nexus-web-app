@@ -24,6 +24,7 @@ import { ChatInputComponent, ChatDraft } from '../chat-input/chat-input';
 import { ToastService } from '../../../core/services/toast.service';
 import { ConfirmModalComponent } from '../../../shared/components/confirm-modal/confirm-modal.component';
 import { ReporteModalComponent } from '../../../shared/components/reporte-modal/reporte-modal.component';
+import { AvatarComponent } from '../../../shared/components/avatar/avatar.component';
 import { Subscription } from 'rxjs';
 
 @Component({
@@ -38,7 +39,8 @@ import { Subscription } from 'rxjs';
     ChatInputComponent, 
     CoverImagePipe, 
     ReporteModalComponent,
-    ConfirmModalComponent
+    ConfirmModalComponent,
+    AvatarComponent
   ],
   templateUrl: './chat-panel.html',
   styleUrl: './chat-panel.css',

@@ -149,7 +149,12 @@
     <div class="section-divider"></div>
     <div class="seller-card">
       <div class="seller-avatar">
-        <img [src]="vehiculo().publicador?.avatar || 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + vehiculo().publicador?.user">
+        <app-avatar 
+          [avatarUrl]="vehiculo().publicador?.avatar"
+          [nombre]="vehiculo().publicador?.nombre"
+          [username]="vehiculo().publicador?.user"
+          [size]="60"
+        ></app-avatar>
         @if (vehiculo().publicador?.esVerificado) {
           <div class="verified-badge" title="Vendedor verificado">
             <i class="fa-solid fa-check"></i>
@@ -211,7 +216,13 @@
         <div class="review-item">
           <div class="review-header">
             <div class="reviewer-info">
-              <img [src]="v.comprador?.avatar || 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + v.comprador?.user" class="reviewer-avatar">
+              <app-avatar 
+                [avatarUrl]="v.comprador?.avatar"
+                [nombre]="v.comprador?.nombre"
+                [username]="v.comprador?.user"
+                [size]="40"
+                customClass="reviewer-avatar"
+              ></app-avatar>
               <div class="reviewer-meta">
                 <span class="reviewer-name">{{ v.comprador?.nombre || v.comprador?.user }}</span>
                 <span class="review-date">{{ v.fechaCreacion | timeAgo }}</span>

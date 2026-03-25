@@ -211,8 +211,16 @@ body {
   padding: 0 24px;
 }
 
-@media (max-width: 768px) {
-  .container {
-    padding: 0 16px;
-  }
+/* --- Avatar Initials Utility --- */
+.nexus-avatar-iniciales {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--gradient-primary);
+  color: #000;
+  font-weight: 700;
+  border-radius: var(--radius-full);
+  text-align: center;
+  user-select: none;
+  font-family: var(--font-display);
 }

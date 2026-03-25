@@ -11,6 +11,7 @@ import { ToastService } from '../../../core/services/toast.service';
 import { ConfirmModalComponent } from '../../../shared/components/confirm-modal/confirm-modal.component';
 import { ViewChild } from '@angular/core';
 
+import { AvatarComponent } from '../../../shared/components/avatar/avatar.component';
 import { CoverImagePipe } from '../../../shared/pipes/cover-image.pipe';
 import { ProductoCardComponent } from '../../../shared/components/marketplace/product-card/producto-card.component';
 import { MisComprasComponent } from '../../compras/mis-compras/mis-compras.component';
@@ -40,7 +41,6 @@ type SidebarSection =
     RouterModule,
     FormsModule,
     CurrencyEsPipe,
-
     CoverImagePipe,
     ProductoCardComponent,
     MisComprasComponent,
@@ -48,6 +48,7 @@ type SidebarSection =
     PagosComponent,
     ConfirmModalComponent,
     ConfiguracionComponent,
+    AvatarComponent,
   ],
   templateUrl: './mi-cuenta.component.html',
   styleUrls: ['./mi-cuenta.component.css'],
@@ -179,17 +180,6 @@ export class MiCuentaComponent implements OnInit {
       map[cat] = (map[cat] || 0) + 1;
     });
     return Object.entries(map).map(([name, value]) => ({ name, value: (value as number) }));
-  });
-
-  iniciales = computed(() => {
-    const u = this.user();
-    if (!u?.nombre) return u?.user?.[0]?.toUpperCase() || '?';
-    return u.nombre
-      .split(' ')
-      .map((n: string) => n[0])
-      .join('')
-      .toUpperCase()
-      .slice(0, 2);
   });
 
   sidebarItems: { id: SidebarSection; icon: string; label: string }[] = [

@@ -13,10 +13,18 @@ import { environment } from '../../../../environments/enviroment';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
 
+import { AvatarComponent } from '../../../shared/components/avatar/avatar.component';
+
 @Component({
   selector: 'app-configuracion',
   standalone: true,
-  imports: [CommonModule, FormsModule, ToastContainerComponent, ConfirmModalComponent],
+  imports: [
+    CommonModule, 
+    FormsModule, 
+    ToastContainerComponent, 
+    ConfirmModalComponent,
+    AvatarComponent
+  ],
   templateUrl: './configuracion.component.html',
   styleUrls: ['./configuracion.component.css'],
 })

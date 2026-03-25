@@ -3,11 +3,13 @@
   <aside class="sidebar" [class.open]="mobileMenuOpen()">
     <!-- Perfil mini -->
     <div class="sidebar-profile">
-      @if (user()?.avatar) {
-        <img [src]="user()!.avatar" class="sidebar-avatar" alt="Avatar" />
-      } @else {
-        <div class="sidebar-avatar sidebar-avatar-iniciales">{{ iniciales() }}</div>
-      }
+      <app-avatar 
+        [avatarUrl]="user()?.avatar"
+        [nombre]="user()?.nombre"
+        [username]="user()?.user"
+        [size]="40"
+        customClass="sidebar-avatar"
+      ></app-avatar>
       <div class="sidebar-user-info">
         <span class="sidebar-name">{{ user()?.nombre || user()?.user }}</span>
         <span class="sidebar-username user-handle">@{{ user()?.user }}</span>
@@ -48,11 +50,13 @@
         <h2 class="section-title"><i class="fas fa-user"></i> Resumen</h2>
 
         <div class="resumen-header">
-          @if (user()?.avatar) {
-            <img [src]="user()!.avatar" class="resumen-avatar" alt="Avatar" />
-          } @else {
-            <div class="resumen-avatar resumen-avatar-iniciales">{{ iniciales() }}</div>
-          }
+          <app-avatar 
+            [avatarUrl]="user()?.avatar"
+            [nombre]="user()?.nombre"
+            [username]="user()?.user"
+            [size]="100"
+            customClass="resumen-avatar"
+          ></app-avatar>
           <div>
             <h3 class="resumen-name">{{ user()?.nombre || user()?.user }}</h3>
             <p class="resumen-username user-handle">@{{ user()?.user }}</p>

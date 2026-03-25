@@ -1,0 +1,169 @@
+<div class="admin-page">
+  <div class="page-header">
+    <h1 class="page-title"><i class="fa-solid fa-rotate-left"></i> Devoluciones</h1>
+  </div>
+
+  <div class="tabs-bar">
+    @for (tab of tabs; track tab) {
+      <button class="tab-btn" [class.active]="activeTab() === tab" (click)="setTab(tab)">{{ tab }}</button>
+    }
+  </div>
+
+  <div class="admin-card">
+    <div class="table-wrap">
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Comprador</th>
+            <th>Vendedor</th>
+            <th>Producto</th>
+            <th>Precio</th>
+            <th>Motivo</th>
+            <th>Fecha</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (d of result()?.content || []; track d.id) {
+            <tr class="clickable-row" (click)="openPanel(d)">
+              <td class="id-cell">#{{ d.id }}</td>
+              <td>
+                <div class="user-cell">
+                  <app-avatar [avatarUrl]="d.compra.comprador.avatar" [username]="d.compra.comprador.user" [size]="28"></app-avatar>
+                  <span>&#64;{{ d.compra.comprador.user }}</span>
+                </div>
+              </td>
+              <td class="dim-cell">&#64;{{ d.compra.vendedor?.user || '—' }}</td>
+              <td class="product-name">{{ d.compra.producto.titulo }}</td>
+              <td><strong>{{ d.compra.precioFinal | number:'1.2-2' }} €</strong></td>
+              <td class="dim-cell">{{ d.motivo }}</td>
+              <td class="dim-cell">{{ formatDate(d.fechaSolicitud) }}</td>
+              <td><button class="action-icon-btn"><i class="fa-solid fa-chevron-right"></i></button></td>
+            </tr>
+          } @empty {
+            <tr><td colspan="8" class="empty-row">Sin devoluciones en este estado ✅</td></tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    @if (result() && result()!.totalPages > 1) {
+      <div class="pagination">
+        <button class="page-btn" [disabled]="page === 0" (click)="prevPage()"><i class="fa-solid fa-chevron-left"></i></button>
+        <span>{{ page + 1 }} / {{ result()!.totalPages }}</span>
+        <button class="page-btn" [disabled]="page >= result()!.totalPages - 1" (click)="nextPage()"><i class="fa-solid fa-chevron-right"></i></button>
+      </div>
+    }
+  </div>
+</div>
+
+<!-- PANEL -->
+@if (panelOpen() && selectedDev()) {
+  <div class="panel-overlay" (click)="closePanel()"></div>
+  <div class="slide-panel">
+    <div class="panel-header">
+      <h2>#{{ selectedDev()!.id }} — {{ selectedDev()!.motivo }}</h2>
+      <button class="close-panel-btn" (click)="closePanel()"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="panel-body">
+      <div class="info-grid">
+        <div class="info-item">
+          <span class="info-label">Comprador</span>
+          <div class="user-cell">
+            <app-avatar [avatarUrl]="selectedDev()!.compra.comprador.avatar" [username]="selectedDev()!.compra.comprador.user" [size]="28"></app-avatar>
+            <span>&#64;{{ selectedDev()!.compra.comprador.user }}</span>
+          </div>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Vendedor</span>
+          <span>&#64;{{ selectedDev()!.compra.vendedor?.user || '—' }}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Producto</span>
+          <span>{{ selectedDev()!.compra.producto.titulo }}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Precio pagado</span>
+          <strong>{{ selectedDev()!.compra.precioFinal | number:'1.2-2' }} €</strong>
+        </div>
+        <div class="info-item full">
+          <span class="info-label">Descripción</span>
+          <p>{{ selectedDev()!.descripcion || 'Sin descripción.' }}</p>
+        </div>
+      </div>
+
+      @if (activeTab() === 'SOLICITADA' || activeTab() === 'EN_REVISION') {
+        <div class="actions-section">
+          <span class="meta-label">Acciones</span>
+          <div class="actions-grid-v">
+            <button class="action-btn action-success" (click)="showAceptarModal.set(true)">
+              <i class="fa-solid fa-check"></i> Aceptar y reembolsar
+            </button>
+            <button class="action-btn action-danger" (click)="showRechazarModal.set(true)">
+              <i class="fa-solid fa-xmark"></i> Rechazar
+            </button>
+            <button class="action-btn" (click)="showCerrarModal.set(true)">
+              <i class="fa-solid fa-lock"></i> Forzar cierre
+            </button>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+}
+
+<!-- MODAL ACEPTAR -->
+@if (showAceptarModal()) {
+  <div class="modal-overlay">
+    <div class="modal">
+      <h3><i class="fa-solid fa-check"></i> Aceptar y reembolsar</h3>
+      <div class="modal-field">
+        <label>Nota para el comprador</label>
+        <textarea [(ngModel)]="notaAceptar" rows="3" class="modal-textarea" placeholder="Opcional..."></textarea>
+      </div>
+      <label class="checkbox-row">
+        <input type="checkbox" [(ngModel)]="esReembolsoParcial">
+        <span>Reembolso parcial</span>
+      </label>
+      @if (esReembolsoParcial) {
+        <div class="modal-field">
+          <label>Importe a reembolsar (€)</label>
+          <input type="number" [(ngModel)]="importeReembolso" class="modal-input" [max]="selectedDev()!.compra.precioFinal">
+        </div>
+      }
+      <div class="modal-actions">
+        <button class="btn-modal-cancel" (click)="showAceptarModal.set(false)">Cancelar</button>
+        <button class="btn-modal-confirm success" (click)="doAceptar()">Confirmar reembolso</button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- MODAL RECHAZAR -->
+@if (showRechazarModal()) {
+  <div class="modal-overlay">
+    <div class="modal">
+      <h3><i class="fa-solid fa-xmark"></i> Rechazar devolución</h3>
+      <textarea [(ngModel)]="motivoRechazo" rows="4" class="modal-textarea" placeholder="Motivo del rechazo (obligatorio)..."></textarea>
+      <div class="modal-actions">
+        <button class="btn-modal-cancel" (click)="showRechazarModal.set(false)">Cancelar</button>
+        <button class="btn-modal-confirm danger" [disabled]="!motivoRechazo" (click)="doRechazar()">Rechazar</button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- MODAL CERRAR -->
+@if (showCerrarModal()) {
+  <div class="modal-overlay">
+    <div class="modal">
+      <h3><i class="fa-solid fa-lock"></i> Forzar cierre</h3>
+      <div class="modal-warning">Esta acción cierra la disputa. Queda en el Audit Log.</div>
+      <textarea [(ngModel)]="motivoCierre" rows="4" class="modal-textarea" placeholder="Motivo del cierre forzado (obligatorio)..."></textarea>
+      <div class="modal-actions">
+        <button class="btn-modal-cancel" (click)="showCerrarModal.set(false)">Cancelar</button>
+        <button class="btn-modal-confirm danger" [disabled]="!motivoCierre" (click)="doCerrar()">Cerrar</button>
+      </div>
+    </div>
+  </div>
+}

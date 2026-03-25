@@ -12,10 +12,20 @@ import { ToastService } from '../../../core/services/toast.service';
 import { ViewChild } from '@angular/core';
 import { FavoritoService } from '../../../core/services/favorito.service';
 
+import { AvatarComponent } from '../../../shared/components/avatar/avatar.component';
+
 @Component({
   selector: 'app-vehiculo-detail',
   standalone: true,
-  imports: [CommonModule, RouterModule, CurrencyEsPipe, TimeAgoPipe, FormsModule, ReporteModalComponent],
+  imports: [
+    CommonModule,
+    RouterModule,
+    CurrencyEsPipe,
+    TimeAgoPipe,
+    FormsModule,
+    ReporteModalComponent,
+    AvatarComponent,
+  ],
   templateUrl: './vehiculo-detail.component.html',
   styleUrls: ['./vehiculo-detail.component.css'],
 })

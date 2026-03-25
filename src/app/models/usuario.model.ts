@@ -14,7 +14,6 @@ export interface DireccionEnvio {
 }
 
 export interface Usuario extends Actor {
-  avatar?: string;
   biografia?: string;
   ubicacion?: string;
   tipoCuenta: TipoCuenta;

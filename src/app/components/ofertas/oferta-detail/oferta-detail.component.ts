@@ -14,10 +14,21 @@ import { ConfirmacionModalComponent } from '../../../shared/components/confirmac
 export interface PollOption { text: string; votes: number; }
 export interface PollData { question: string; options: PollOption[]; totalVotes: number; votedUsers: number[]; }
 
+import { AvatarComponent } from '../../../shared/components/avatar/avatar.component';
+
 @Component({
   selector: 'app-oferta-detail',
   standalone: true,
-  imports: [CommonModule, RouterModule, CurrencyEsPipe, TimeAgoPipe, FormsModule, ReporteModalComponent, ConfirmacionModalComponent],
+  imports: [
+    CommonModule, 
+    RouterModule, 
+    CurrencyEsPipe, 
+    TimeAgoPipe, 
+    FormsModule, 
+    ReporteModalComponent, 
+    ConfirmacionModalComponent,
+    AvatarComponent
+  ],
   templateUrl: './oferta-detail.component.html',
   styleUrls: ['./oferta-detail.component.css']
 })

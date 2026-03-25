@@ -55,7 +55,12 @@
           >
             <div class="card-header">
               <div class="user-badge">
-                <img [src]="slide.avatar" [alt]="slide.user" class="circle-avatar-img" />
+                <app-avatar 
+                  [avatarUrl]="slide.avatar"
+                  [username]="slide.user.startsWith('@') ? slide.user.slice(1) : slide.user"
+                  [size]="32"
+                  customClass="circle-avatar-img"
+                ></app-avatar>
                 <span class="username">{{ slide.user }}</span>
               </div>
               <span class="price-tag">{{ slide.price }}</span>

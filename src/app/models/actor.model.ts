@@ -14,4 +14,5 @@ export interface Actor {
   stripeCustomerId?: string;
   // El rol genérico ayuda a diferenciar interfaces en el Front
   rol?: 'USUARIO' | 'ADMIN' | 'EMPRESA';
+  avatar?: string;
 }

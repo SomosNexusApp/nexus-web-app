@@ -44,7 +44,13 @@
 
                 <!-- AUTHOR BADGE -->
                 <div class="author-badge">
-                    <img [src]="oferta().actor?.avatar || 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + oferta().actor?.id" class="author-avatar" alt="Autor">
+                  <app-avatar 
+                    [avatarUrl]="oferta().actor?.avatar"
+                    [nombre]="oferta().actor?.nombre"
+                    [username]="oferta().actor?.user"
+                    [size]="45"
+                    customClass="author-avatar"
+                  ></app-avatar>
                     <div class="author-info">
                         <span class="author-label">Chollo compartido por</span>
                         <a [routerLink]="['/perfil', oferta().actor?.user]" class="author-link">{{ oferta().actor?.user }}</a>
@@ -154,7 +160,13 @@
                         <div class="comment-card glass-card animate-fade-up">
                             <div class="c-header">
                                 <a [routerLink]="['/perfil', c.actor?.user]" class="user-link">
-                                    <img [src]="c.actor?.avatar || 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + c.actor?.id" class="user-ava">
+                                  <app-avatar 
+                                    [avatarUrl]="c.actor?.avatar"
+                                    [nombre]="c.actor?.nombre"
+                                    [username]="c.actor?.user"
+                                    [size]="35"
+                                    customClass="user-ava"
+                                  ></app-avatar>
                                 </a>
                                 <div class="user-meta">
                                     <a [routerLink]="['/perfil', c.actor?.user]" class="u-name user-link">{{ c.actor?.user }}</a>

@@ -8,10 +8,12 @@ import { TruncatePipe } from '../../../shared/pipes/truncate.pipe';
 import { TimeAgoPipe } from '../../../shared/pipes/time-ago.pipe';
 import { CoverImagePipe } from '../../../shared/pipes/cover-image.pipe';
 
+import { AvatarComponent } from '../../../shared/components/avatar/avatar.component';
+
 @Component({
   selector: 'app-conversaciones-list',
   standalone: true,
-  imports: [CommonModule, TruncatePipe, TimeAgoPipe, CoverImagePipe],
+  imports: [CommonModule, TruncatePipe, TimeAgoPipe, CoverImagePipe, AvatarComponent],
   templateUrl: './conversaciones-list.html',
   styleUrl: './conversaciones-list.css',
 })

@@ -1,0 +1,162 @@
+<div class="dashboard">
+
+  <!-- Header -->
+  <div class="dash-header">
+    <div>
+      <h1 class="dash-title">Dashboard</h1>
+      <p class="dash-subtitle">Última actualización: {{ lastRefresh() | date:'HH:mm:ss' }}</p>
+    </div>
+    <button class="refresh-btn" (click)="loadAll()">
+      <i class="fa-solid fa-rotate-right" [class.spinning]="loading()"></i>
+      Actualizar
+    </button>
+  </div>
+
+  <!-- KPI Cards -->
+  @if (loading() && !kpis()) {
+    <div class="kpi-grid">
+      @for (i of [1,2,3,4,5,6]; track i) {
+        <div class="kpi-skeleton"></div>
+      }
+    </div>
+  } @else if (kpis()) {
+    <div class="kpi-grid">
+      @for (card of kpiCards; track card.label) {
+        <div class="kpi-card" [class.kpi-urgent]="card['urgent']">
+          @if (card['urgent']) {
+            <div class="kpi-pulse-ring"></div>
+          }
+          <div class="kpi-icon-wrap" [ngClass]="'kpi-icon-' + card.color">
+            <i class="fa-solid {{ card.icon }}"></i>
+          </div>
+          <div class="kpi-body">
+            <span class="kpi-label">{{ card.label }}</span>
+            <span class="kpi-value">{{ card.value }}</span>
+            <span class="kpi-delta" [class.delta-pos]="card.delta > 0" [class.delta-neg]="card.delta < 0">
+              <i class="fa-solid" [ngClass]="card.delta >= 0 ? 'fa-arrow-trend-up' : 'fa-arrow-trend-down'"></i>
+              {{ card.delta > 0 ? '+' : '' }}{{ card.delta }}% vs ayer
+            </span>
+          </div>
+        </div>
+      }
+    </div>
+  }
+
+  <!-- Bottom section: 2 columns -->
+  <div class="dash-grid-2">
+    <!-- Top Vendedores -->
+    <div class="admin-card">
+      <div class="card-header-row">
+        <h2 class="card-title"><i class="fa-solid fa-trophy"></i> Top Vendedores</h2>
+      </div>
+      <div class="table-wrap">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Vendedor</th>
+              <th>Ventas</th>
+              <th>Revenue</th>
+              <th>Valoración</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (v of topVendedores(); track v.id; let i = $index) {
+              <tr>
+                <td class="rank-cell">
+                  @if (i === 0) { <span class="rank gold">🥇</span> }
+                  @else if (i === 1) { <span class="rank silver">🥈</span> }
+                  @else if (i === 2) { <span class="rank bronze">🥉</span> }
+                  @else { <span class="rank plain">{{ i + 1 }}</span> }
+                </td>
+                <td>
+                  <div class="user-cell">
+                    <app-avatar [avatarUrl]="v.avatar" [username]="v.user" [size]="32"></app-avatar>
+                    <span>&#64;{{ v.user }}</span>
+                  </div>
+                </td>
+                <td><strong>{{ v.totalVentas }}</strong></td>
+                <td>{{ v.revenue | number:'1.2-2' }} €</td>
+                <td>
+                  <span class="rating-pill">⭐ {{ v.valoracion | number:'1.1-1' }}</span>
+                </td>
+              </tr>
+            } @empty {
+              <tr><td colspan="5" class="empty-row">Sin datos</td></tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Últimos Reportes -->
+    <div class="admin-card">
+      <div class="card-header-row">
+        <h2 class="card-title"><i class="fa-solid fa-flag"></i> Reportes Pendientes</h2>
+        <a class="card-link" routerLink="/admin/reportes">Ver todos</a>
+      </div>
+      <div class="report-list">
+        @for (r of ultimosReportes(); track r.id) {
+          <div class="report-row">
+            <span class="report-chip" [ngClass]="'chip-' + r.tipo?.toLowerCase()">
+              {{ r.tipo }}
+            </span>
+            <div class="report-info">
+              <span class="report-motivo">{{ r.motivo }}</span>
+              <span class="report-date">{{ formatDate(r.fecha) }}</span>
+            </div>
+            <a class="btn-mini" [routerLink]="['/admin/reportes']" [queryParams]="{ id: r.id }">
+              Gestionar
+            </a>
+          </div>
+        } @empty {
+          <div class="empty-state-mini">
+            <i class="fa-solid fa-check-circle"></i>
+            <span>Sin reportes pendientes</span>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+
+  <!-- Últimas Compras -->
+  <div class="admin-card mt-card">
+    <div class="card-header-row">
+      <h2 class="card-title"><i class="fa-solid fa-bag-shopping"></i> Últimas Compras</h2>
+    </div>
+    <div class="table-wrap">
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>#ID</th>
+            <th>Comprador</th>
+            <th>Producto</th>
+            <th>Precio</th>
+            <th>Estado</th>
+            <th>Fecha</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (c of ultimasCompras(); track c.id) {
+            <tr>
+              <td class="id-cell">#{{ c.id }}</td>
+              <td>
+                <div class="user-cell">
+                  <app-avatar [avatarUrl]="c.comprador?.avatar" [username]="c.comprador?.user" [size]="28"></app-avatar>
+                  <span>&#64;{{ c.comprador?.user }}</span>
+                </div>
+              </td>
+              <td class="product-cell">{{ c.producto?.titulo }}</td>
+              <td><strong>{{ c.precioFinal | number:'1.2-2' }} €</strong></td>
+              <td><span class="estado-pill" [ngClass]="estadoColor(c.estado)">{{ c.estado }}</span></td>
+              <td class="date-cell">{{ formatDate(c.fechaCompra) }}</td>
+            </tr>
+          } @empty {
+            <tr><td colspan="6" class="empty-row">Sin compras recientes</td></tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>

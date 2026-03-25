@@ -145,15 +145,12 @@
             <!-- LOGUEADO -->
             <div class="user-menu-wrapper" [style.display]="isLoggedIn() ? 'block' : 'none'">
               <button class="user-avatar-btn" (click)="toggleUserDropdown($event)">
-                <img
-                  class="avatar-img"
-                  [src]="
-                    usuario()?.avatar && !usuario()?.avatar?.includes('default')
-                      ? usuario()?.avatar
-                      : 'https://ui-avatars.com/api/?name=' + (usuario()?.nombre || usuario()?.user || 'Nexus') + '&background=random&color=fff'
-                  "
-                  alt="Perfil"
-                />
+                <app-avatar 
+                  [avatarUrl]="usuario()?.avatar"
+                  [nombre]="usuario()?.nombre"
+                  [username]="usuario()?.user"
+                  [size]="40"
+                ></app-avatar>
               </button>
 
               <div

@@ -28,13 +28,14 @@ import { Producto } from '../../../models/producto.model';
 import { TipoEnvio } from '../../../models/compra.model';
 import { PuntoRecogidaSelector, PuntoRecogida } from '../../../shared/components/punto-recogida-selector/punto-recogida-selector';
 import { ScrollService } from '../../../core/services/scroll.service';
+import { AvatarComponent } from '../../../shared/components/avatar/avatar.component';
 
 const MAX_PRICE = 1000;
 
 @Component({
   selector: 'app-checkout',
   standalone: true,
-  imports: [CommonModule, RouterModule, ReactiveFormsModule, PuntoRecogidaSelector],
+  imports: [CommonModule, RouterModule, ReactiveFormsModule, PuntoRecogidaSelector, AvatarComponent],
   templateUrl: './checkout.component.html',
   styleUrls: ['./checkout.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -595,9 +596,6 @@ export class CheckoutComponent implements OnInit, OnDestroy {
   }
 
   // ── Helpers ───────────────────────────────────────────────────────────
-  getAvatarFallback(nombre?: string): string {
-    return nombre ? nombre.charAt(0).toUpperCase() : 'N';
-  }
 
   formatPrice(val: number): string {
     return (

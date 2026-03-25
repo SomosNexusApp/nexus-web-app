@@ -10,19 +10,14 @@
         [class.active]="msg.id === convSeleccionada?.id || (msg.producto?.id === convSeleccionada?.producto?.id && convSeleccionada?.id === -1)"
         (click)="seleccionar(msg)"
       >
-        <!-- Avatar del otro usuario -->
         <div class="avatar-container">
-          <img
-            [src]="
-              getOtroUsuario(msg)?.fotoPerfil ||
-              getOtroUsuario(msg)?.avatar ||
-              'https://ui-avatars.com/api/?name=' +
-                (getOtroUsuario(msg)?.nombre || getOtroUsuario(msg)?.user || 'U') +
-                '&background=random'
-            "
-            class="avatar-img"
-            alt="Avatar"
-          />
+          <app-avatar 
+            [avatarUrl]="getOtroUsuario(msg)?.avatar"
+            [nombre]="getOtroUsuario(msg)?.nombre"
+            [username]="getOtroUsuario(msg)?.user"
+            [size]="50"
+            customClass="avatar-img"
+          ></app-avatar>
         </div>
 
         <!-- Info principal -->

@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { AuthStore } from '../../../core/auth/auth-store';
 import { GuestPopupService } from '../../../core/services/guest-popup.service';
+import { AvatarComponent } from '../../../shared/components/avatar/avatar.component';
 
 interface ProductSlide {
   user: string;
@@ -18,7 +19,7 @@ interface ProductSlide {
 @Component({
   selector: 'app-hero',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, AvatarComponent],
   templateUrl: './hero.component.html',
   styleUrls: ['./hero.component.css'],
 })

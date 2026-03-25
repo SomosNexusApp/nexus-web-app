@@ -7,13 +7,20 @@ import { AuthStore } from '../../../core/auth/auth-store';
 import { TimeAgoPipe } from '../../../shared/pipes/time-ago.pipe';
 import { BloqueoService } from '../../../core/services/bloqueo.service';
 import { ReporteModalComponent } from '../../../shared/components/reporte-modal/reporte-modal.component';
-
 import { ProductoCardComponent } from '../../../shared/components/marketplace/product-card/producto-card.component';
+import { AvatarComponent } from '../../../shared/components/avatar/avatar.component';
 
 @Component({
   selector: 'app-perfil-publico',
   standalone: true,
-  imports: [CommonModule, RouterModule, TimeAgoPipe, ProductoCardComponent, ReporteModalComponent],
+  imports: [
+    CommonModule,
+    RouterModule,
+    TimeAgoPipe,
+    ProductoCardComponent,
+    ReporteModalComponent,
+    AvatarComponent,
+  ],
   templateUrl: './perfil-publico.component.html',
   styleUrls: ['./perfil-publico.component.css'],
 })
@@ -42,18 +49,6 @@ export class PerfilPublicoComponent implements OnInit, OnDestroy {
   valoraciones = signal<any[]>([]);
   resumenValoraciones = signal<any>(null);
   cargandoTab = signal(false);
-
-  // Computeds
-  iniciales = computed(() => {
-    const p = this.perfil();
-    if (!p?.nombre) return p?.username?.[0]?.toUpperCase() || '?';
-    return p.nombre
-      .split(' ')
-      .map((n: string) => n[0])
-      .join('')
-      .toUpperCase()
-      .slice(0, 2);
-  });
 
   esMiPerfil = computed(() => {
     const p = this.perfil();
