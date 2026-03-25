@@ -83,6 +83,12 @@ export class CheckoutComponent implements OnInit, OnDestroy {
   metodoSeleccionado = signal<string | null>(null);
   cargandoMetodos = signal(true);
   usarNuevaTarjeta = signal(false);
+  nombreTitular = signal('');
+  guardarDireccion = signal(true); // Por defecto true para animar al usuario
+  mostrarCupon = signal(false);
+  cupon = signal('');
+  mensajeCupon = signal<string | null>(null);
+  procesandoCupon = signal(false);
 
   // ── Formularios ───────────────────────────────────────────────────────
   personalForm!: FormGroup; // nombre, apellidos, email, telefono
@@ -136,21 +142,33 @@ export class CheckoutComponent implements OnInit, OnDestroy {
 
   // ── Formularios ───────────────────────────────────────────────────────
   private buildForms(): void {
-    const user = this.currentUser();
+    const userSnapshot = this.authStore.user();
+    
     this.personalForm = this.fb.group({
-      nombre: [user?.nombre ?? '', [Validators.required, Validators.minLength(2)]],
-      apellidos: [user?.apellidos ?? '', [Validators.required, Validators.minLength(2)]],
-      email: [user?.email ?? '', [Validators.required, Validators.email]],
-      telefono: [user?.telefono ?? '', [Validators.pattern(/^[+\d\s\-]{7,20}$/)]],
+      nombre: [userSnapshot?.nombre ?? '', [Validators.required, Validators.minLength(2)]],
+      apellidos: [userSnapshot?.apellidos ?? '', [Validators.required, Validators.minLength(2)]],
+      email: [userSnapshot?.email ?? '', [Validators.required, Validators.email]],
+      telefono: [userSnapshot?.telefono ?? '', [Validators.pattern(/^[+\d\s\-]{7,20}$/)]],
     });
 
+    // Datos de dirección guardados
+    const dir = userSnapshot?.direccionPorDefecto;
+
     this.addressForm = this.fb.group({
-      calle: ['', [Validators.required]],
-      ciudad: ['', [Validators.required]],
-      cp: ['', [Validators.required, Validators.pattern(/^\d{4,10}$/)]],
-      pais: ['España', [Validators.required]],
+      nombre: [dir?.nombre ?? userSnapshot?.nombre ?? '', [Validators.required]],
+      apellidos: [dir?.apellidos ?? userSnapshot?.apellidos ?? '', [Validators.required]],
+      calle: [dir?.direccion ?? '', [Validators.required]],
+      pisoPuerta: [dir?.pisoPuerta ?? ''],
+      cp: [dir?.codigoPostal ?? '', [Validators.required, Validators.pattern(/^\d{4,10}$/)]],
+      ciudad: [dir?.ciudad ?? '', [Validators.required]],
+      telefono: [dir?.telefono ?? userSnapshot?.telefono ?? '', [Validators.required]],
+      pais: [dir?.pais ?? 'España', [Validators.required]],
       puntoRecogidaId: ['']
     });
+
+    if (dir?.nombre && !userSnapshot?.nombre) {
+        // Fallback si el nombre de la dirección es más completo
+    }
   }
 
   // ── Cargar Tarjetas ───────────────────────────────────────────────────
@@ -249,14 +267,15 @@ export class CheckoutComponent implements OnInit, OnDestroy {
 
   // ── Stripe — tres elementos individuales ───────────────────────────────
   private async initStripe(): Promise<void> {
-    if (this.stripeReady) return;
+    // Si ya están listos y montados, no hacer nada
+    if (this.stripeReady && this.cardNumberEl) return;
 
-    // Verificar que los 3 divs existen
-    if (
-      !document.getElementById('card-number') ||
-      !document.getElementById('card-expiry') ||
-      !document.getElementById('card-cvc')
-    ) {
+    // Verificar que los 3 divs existen en el DOM
+    const el1 = document.getElementById('card-number');
+    const el2 = document.getElementById('card-expiry');
+    const el3 = document.getElementById('card-cvc');
+
+    if (!el1 || !el2 || !el3) {
       if (this.usarNuevaTarjeta() || this.metodosGuardados().length === 0) {
         setTimeout(() => this.initStripe(), 100);
       }
@@ -290,6 +309,7 @@ export class CheckoutComponent implements OnInit, OnDestroy {
       this.cardExpiryEl = elements.create('cardExpiry', { style });
       this.cardCvcEl = elements.create('cardCvc', { style });
 
+      // Desmontar si ya existían para evitar conflictos
       this.cardNumberEl.mount('#card-number');
       this.cardExpiryEl.mount('#card-expiry');
       this.cardCvcEl.mount('#card-cvc');
@@ -492,7 +512,7 @@ export class CheckoutComponent implements OnInit, OnDestroy {
           payment_method: {
             card: this.cardNumberEl!,
             billing_details: {
-              name: `${personal.nombre} ${personal.apellidos}`.trim(),
+              name: this.nombreTitular() || `${personal.nombre} ${personal.apellidos}`.trim(),
               email: personal.email,
               phone: personal.telefono || undefined,
               address:
@@ -541,13 +561,33 @@ export class CheckoutComponent implements OnInit, OnDestroy {
 
       await this.compraSrv.confirmarPago(compraId, confirmBody).toPromise();
 
+      // PASO 3.5 — Guardar dirección si se solicitó
+      if (this.guardarDireccion() && tipoEnv === 'DOMICILIO') {
+        const dirPayload = {
+          nombre: addr.nombre,
+          apellidos: addr.apellidos,
+          direccion: addr.calle,
+          pisoPuerta: addr.pisoPuerta,
+          ciudad: addr.ciudad,
+          codigoPostal: addr.cp,
+          pais: addr.pais,
+          telefono: addr.telefono
+        };
+        this.http.patch(`${environment.apiUrl}/usuario/me/direccion`, dirPayload).subscribe({
+            next: () => console.log('Dirección guardada correctamente'),
+            error: (err) => console.error('Error al guardar dirección', err)
+        });
+      }
+
       // PASO 4 — navegar a confirmación
       this.router.navigate(['/compras', compraId], {
         queryParams: { pago: 'ok' },
         replaceUrl: true,
       });
     } catch (err: any) {
-      const msg = err?.error?.error ?? err?.message ?? 'Error al procesar el pago.';
+      console.error('Error al procesar el pago:', err);
+      // El backend ahora devuelve un Map con "error" para los 400
+      const msg = err?.error?.error || err?.error || err?.message || 'Error al procesar el pago.';
       this.errorGeneral.set(msg);
       this.procesando.set(false);
       this.cdr.markForCheck();
@@ -556,7 +596,7 @@ export class CheckoutComponent implements OnInit, OnDestroy {
 
   // ── Helpers ───────────────────────────────────────────────────────────
   getAvatarFallback(nombre?: string): string {
-    return nombre ? nombre.charAt(0).toUpperCase() : 'V';
+    return nombre ? nombre.charAt(0).toUpperCase() : 'N';
   }
 
   formatPrice(val: number): string {
@@ -595,7 +635,15 @@ export class CheckoutComponent implements OnInit, OnDestroy {
       }
     } else {
       this.metodoSeleccionado.set(null);
-      this.stripeReady = false; // Reset to force elements recreation
+      this.stripeReady = false; 
+      // Limpiamos referencias previas
+      this.cardNumberEl?.unmount();
+      this.cardExpiryEl?.unmount();
+      this.cardCvcEl?.unmount();
+      this.cardNumberEl = null;
+      this.cardExpiryEl = null;
+      this.cardCvcEl = null;
+
       setTimeout(() => this.initStripe(), 50);
     }
   }
@@ -603,5 +651,20 @@ export class CheckoutComponent implements OnInit, OnDestroy {
   seleccionarMetodo(id: string) {
     this.metodoSeleccionado.set(id);
     this.usarNuevaTarjeta.set(false);
+  }
+
+  validarCupon() {
+    const code = this.cupon().trim();
+    if (!code) return;
+
+    this.procesandoCupon.set(true);
+    this.mensajeCupon.set(null);
+
+    // Simulación de validación (el backend se implementará más adelante)
+    setTimeout(() => {
+      this.procesandoCupon.set(false);
+      this.mensajeCupon.set('El cupón introducido no es válido o ha expirado.');
+      this.cdr.markForCheck();
+    }, 1000);
   }
 }

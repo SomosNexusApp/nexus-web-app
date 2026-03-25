@@ -117,7 +117,6 @@ export class CompraDetailComponent implements OnInit {
     const c = this.compra();
     if (!c) return [];
 
-    // Timeline básico. Se puede hacer más complejo según las fechas.
     const steps = [
       { id: 'PENDIENTE', label: 'Pago Inicial' },
       { id: 'PAGADO', label: 'Pago Confirmado' },
@@ -136,6 +135,16 @@ export class CompraDetailComponent implements OnInit {
         current: s.id === c.estado,
       };
     });
+  }
+
+  calcProgressWidth(): string {
+    const steps = this.getTimelineSteps();
+    const activeIndex = [...steps].reverse().findIndex(s => s.active);
+    if (activeIndex === -1) return '0%';
+    
+    const realIndex = (steps.length - 1) - activeIndex;
+    const percentage = (realIndex / (steps.length - 1)) * 100;
+    return `${percentage}%`;
   }
 
   abrirValoracion() {

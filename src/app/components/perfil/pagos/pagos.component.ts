@@ -42,6 +42,7 @@ export class PagosComponent implements OnInit, OnDestroy {
   mostrandoFormulario = signal(false);
   procesando = signal(false);
   errorStripe = signal<string | null>(null);
+  nombreTitular = signal('');
 
   private stripe: Stripe | null = null;
   private cardEl: StripeCardElement | null = null;
@@ -143,6 +144,7 @@ export class PagosComponent implements OnInit, OnDestroy {
     this.mostrandoFormulario.set(false);
     this.cardEl?.unmount();
     this.clientSecret = null;
+    this.nombreTitular.set('');
   }
 
   async confirmarTarjeta() {
@@ -155,6 +157,9 @@ export class PagosComponent implements OnInit, OnDestroy {
     const { setupIntent, error } = await this.stripe.confirmCardSetup(this.clientSecret, {
       payment_method: {
         card: this.cardEl,
+        billing_details: {
+          name: this.nombreTitular() || this.user()?.nombre + ' ' + this.user()?.apellidos
+        }
       },
     });
 

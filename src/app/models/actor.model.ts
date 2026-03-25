@@ -11,6 +11,7 @@ export interface Actor {
   cuentaVerificada: boolean;
   cuentaEliminada: boolean;
   fechaRegistro?: string; // LocalDateTime como string ISO
+  stripeCustomerId?: string;
   // El rol genérico ayuda a diferenciar interfaces en el Front
   rol?: 'USUARIO' | 'ADMIN' | 'EMPRESA';
 }

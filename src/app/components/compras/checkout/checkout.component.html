@@ -56,25 +56,289 @@
   <div class="ck-page animate-fade-in">
     <!-- Top bar con progreso -->
     <header class="ck-topbar" id="checkout-header">
-      <button class="ck-back-btn" (click)="volver()" type="button" aria-label="Volver">
-        <i class="fa-solid fa-chevron-left"></i>
-        <span>Cancelar</span>
-      </button>
-      
-      <div class="ck-topbar-brand">
-        <i class="fa-solid fa-shield-halved" style="color: #6366f1;"></i>
-        <span>PAGO SEGURO NEXUS</span>
-      </div>
+      <div class="ck-header-container">
+        <button class="ck-back-btn" (click)="volver()" type="button" aria-label="Volver">
+          <i class="fa-solid fa-arrow-left"></i>
+          <span>Volver</span>
+        </button>
+        
+        <div class="ck-topbar-brand">
+          <div class="ck-lock-visual">
+            <i class="fa-solid fa-shield-halved"></i>
+          </div>
+          <div class="ck-brand-text">
+            <span class="ck-brand-tag">NEXUS ELITE SAFE</span>
+            <span class="ck-brand-main">Checkout Seguro</span>
+          </div>
+        </div>
 
-      <div class="ck-topbar-ssl">
-        <i class="fa-solid fa-lock"></i>
-        <span>SSL 256-BIT</span>
+        <div class="ck-topbar-ssl">
+          <i class="fa-solid fa-lock"></i>
+          <span>SSL ENCRYPTED</span>
+        </div>
       </div>
     </header>
 
-    <!-- 2 columnas -->
+    <!-- 2 columnas (Ultra-Elite Reversed: Pasos Izquierda, Resumen Derecha) -->
     <main class="ck-grid">
-      <!-- ══════════ COLUMNA IZQUIERDA — Resumen (STICKY) ══════════ -->
+      <!-- ══════════ COLUMNA IZQUIERDA — Pasos ══════════ -->
+      <div class="ck-main-content">
+        <section class="ck-payment-flow">
+          <!-- ── PASO 1: Datos personales ──────────────── -->
+          <div class="ck-step-card animate-fade-in" style="animation-delay: 0.1s;">
+            <div class="ck-step-header">
+              <span class="ck-step-num">1</span>
+              <h2 class="ck-step-title">Tus Datos</h2>
+            </div>
+            <form [formGroup]="personalForm" class="ck-form">
+              <div class="ck-form-row--split">
+                <div class="ck-field" [class.invalid]="hasError(personalForm, 'nombre')">
+                  <label>Nombre</label>
+                  <input type="text" formControlName="nombre" placeholder="Tu nombre" autocomplete="given-name" />
+                </div>
+                <div class="ck-field" [class.invalid]="hasError(personalForm, 'apellidos')">
+                  <label>Apellidos</label>
+                  <input type="text" formControlName="apellidos" placeholder="Tus apellidos" autocomplete="family-name" />
+                </div>
+              </div>
+              <div class="ck-form-row--split">
+                <div class="ck-field" [class.invalid]="hasError(personalForm, 'email')">
+                  <label>Email de contacto</label>
+                  <input type="email" formControlName="email" placeholder="ejemplo@email.com" autocomplete="email" />
+                </div>
+                <div class="ck-field" [class.invalid]="hasError(personalForm, 'telefono')">
+                  <label>Teléfono móvil</label>
+                  <input type="tel" formControlName="telefono" placeholder="Número de contacto" autocomplete="tel" />
+                </div>
+              </div>
+            </form>
+          </div>
+
+          <!-- ── PASO 2: Método de envío ───── -->
+          <div class="ck-step-card animate-fade-in" style="animation-delay: 0.2s;">
+            <div class="ck-step-header">
+              <span class="ck-step-num">2</span>
+              <h2 class="ck-step-title">Método de Envío</h2>
+            </div>
+
+            <div class="ck-shipping-options">
+              <label class="ck-shipping-opt" [class.selected]="!esRecogida()">
+                <input type="radio" name="tipoEntrega" [checked]="!esRecogida()" (change)="onEntregaChange(false)" />
+                <div class="ck-shipping-icon"><i class="fa-solid fa-house"></i></div>
+                <div class="ck-shipping-label">
+                  <strong>A Domicilio</strong>
+                  <span>2-4 días laborales</span>
+                </div>
+              </label>
+
+              <label class="ck-shipping-opt" [class.selected]="esRecogida()">
+                <input type="radio" name="tipoEntrega" [checked]="esRecogida()" (change)="onEntregaChange(true)" />
+                <div class="ck-shipping-icon"><i class="fa-solid fa-shop"></i></div>
+                <div class="ck-shipping-label">
+                  <strong>Punto Pack</strong>
+                  <span>Ahorra en el envío</span>
+                </div>
+                @if (ahorroRecogida() > 0) {
+                  <span class="ck-saving-badge"><i class="fa-solid fa-leaf"></i> -{{ formatPrice(ahorroRecogida()) }}</span>
+                }
+              </label>
+            </div>
+
+            @if (esRecogida()) {
+              <div class="ck-punto-container" style="background: rgba(99, 102, 241, 0.05); border: 1px dashed rgba(99, 102, 241, 0.3); border-radius: 20px; padding: 1.5rem; text-align: center; margin-bottom: 2rem;">
+                @if (puntoRecogidaSeleccionado()) {
+                  <div style="display: flex; align-items: center; justify-content: space-between; text-align: left;">
+                    <div style="display: flex; gap: 1rem; align-items: center;">
+                      <div style="width: 48px; height: 48px; background: rgba(99, 102, 241, 0.1); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #818cf8; font-size: 1.25rem;">
+                        <i class="fa-solid fa-location-dot"></i>
+                      </div>
+                      <div>
+                        <strong style="display: block; font-size: 1.05rem; color: #fff;">{{ puntoRecogidaSeleccionado()!.nombre }}</strong>
+                        <span style="font-size: 0.85rem; color: #94a3b8;">{{ puntoRecogidaSeleccionado()!.direccion }}, {{ puntoRecogidaSeleccionado()!.cp }} {{ puntoRecogidaSeleccionado()!.ciudad }}</span>
+                      </div>
+                    </div>
+                    <button type="button" (click)="mostrarSelectorPunto.set(true)" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); color: #fff; padding: 0.5rem 1rem; border-radius: 10px; cursor: pointer; transition: 0.2s;">Cambiar</button>
+                  </div>
+                } @else {
+                  <i class="fa-solid fa-map-location-dot" style="font-size: 2.5rem; color: #6366f1; margin-bottom: 1rem; opacity: 0.8;"></i>
+                  <h3 style="font-size: 1.1rem; color: #fff; margin-bottom: 0.5rem;">Elige dónde recogerlo</h3>
+                  <p style="font-size: 0.85rem; color: #94a3b8; margin-bottom: 1.25rem;">Encuentra una oficina de Correos cerca de ti.</p>
+                  <button type="button" (click)="mostrarSelectorPunto.set(true)" style="background: #6366f1; color: #fff; border: none; padding: 0.75rem 1.5rem; border-radius: 12px; font-weight: 700; cursor: pointer; transition: 0.2s;">Buscar Punto</button>
+                }
+              </div>
+            } @else {
+              <!-- Dirección -->
+              <form [formGroup]="addressForm" class="ck-form">
+                <div class="ck-form-row--split">
+                  <div class="ck-field" [class.invalid]="hasError(addressForm, 'nombre')">
+                    <label>Nombre</label>
+                    <input type="text" formControlName="nombre" placeholder="Nombre" autocomplete="given-name" />
+                  </div>
+                  <div class="ck-field" [class.invalid]="hasError(addressForm, 'apellidos')">
+                    <label>Apellidos</label>
+                    <input type="text" formControlName="apellidos" placeholder="Apellidos" autocomplete="family-name" />
+                  </div>
+                </div>
+
+                <div class="ck-field" [class.invalid]="hasError(addressForm, 'calle')">
+                  <label>Calle y número</label>
+                  <input type="text" formControlName="calle" placeholder="Calle, número, bloque..." autocomplete="street-address" />
+                </div>
+
+                <div class="ck-form-row--split">
+                  <div class="ck-field">
+                    <label>Piso y puerta (Opcional)</label>
+                    <input type="text" formControlName="pisoPuerta" placeholder="Piso, puerta, oficina..." />
+                  </div>
+                  <div class="ck-field" [class.invalid]="hasError(addressForm, 'cp')">
+                    <label>Código Postal</label>
+                    <input type="text" formControlName="cp" placeholder="Código postal" maxlength="5" autocomplete="postal-code" />
+                  </div>
+                </div>
+
+                <div class="ck-form-row--split">
+                  <div class="ck-field" [class.invalid]="hasError(addressForm, 'ciudad')">
+                    <label>Población</label>
+                    <input type="text" formControlName="ciudad" placeholder="Ciudad o municipio" autocomplete="address-level2" />
+                  </div>
+                  <div class="ck-field" [class.invalid]="hasError(addressForm, 'telefono')">
+                    <label>Teléfono de contacto</label>
+                    <input type="tel" formControlName="telefono" placeholder="Número de contacto" autocomplete="tel" />
+                  </div>
+                </div>
+              </form>
+
+              <!-- Checkbox Guardar Dirección -->
+              <div class="ck-save-address animate-fade-in">
+                <label class="ck-checkbox-container">
+                  <input type="checkbox" [checked]="guardarDireccion()" (change)="guardarDireccion.set(!guardarDireccion())" />
+                  <span class="ck-checkmark"></span>
+                  <div class="ck-checkbox-label">
+                    <strong>Guardar dirección para próximas compras</strong>
+                    <span>Nexus recordará estos datos de forma segura</span>
+                  </div>
+                </label>
+              </div>
+            }
+
+            <!-- Transportista Único (El más barato) -->
+            @if (opcionesEnvio().length > 0) {
+              <div class="ck-carrier-section animate-fade-in">
+                <div class="ck-carrier-info">
+                  <span class="ck-carrier-label">Envío Estándar</span>
+                  <div class="ck-carrier-main">
+                    <div class="ck-carrier-logo">
+                      <i class="fa-solid fa-envelope"></i>
+                    </div>
+                    <span class="ck-carrier-name">{{ opcionesEnvio()[0].nombre }}</span>
+                  </div>
+                </div>
+                <span class="ck-carrier-price">
+                  {{ opcionesEnvio()[0].precio === 0 ? 'Gratis' : formatPrice(opcionesEnvio()[0].precio) }}
+                </span>
+              </div>
+            }
+          </div>
+
+          <!-- ── PASO 3: Pago ─────────────────── -->
+          <div class="ck-step-card animate-fade-in" style="animation-delay: 0.3s;">
+            <div class="ck-step-header">
+              <span class="ck-step-num">3</span>
+              <h2 class="ck-step-title">Método de Pago</h2>
+              <div class="ck-stripe-badge">
+                <i class="fa-brands fa-stripe"></i>
+                <span>Stripe Secure</span>
+              </div>
+            </div>
+
+            @if (cargandoMetodos()) {
+               <div class="ck-skeleton" style="width: 100%; height: 60px; border-radius: 12px; margin-bottom: 1rem;"></div>
+            } @else if (metodosGuardados().length > 0) {
+              <div class="saved-cards" style="display: flex; flex-direction: column; gap: 1rem; margin-bottom: 2rem;">
+                 @for (m of metodosGuardados(); track m.id) {
+                   <label class="ck-shipping-opt" [class.selected]="metodoSeleccionado() === m.id && !usarNuevaTarjeta()" style="flex-direction: row; text-align: left; padding: 1.25rem;">
+                      <input type="radio" [checked]="metodoSeleccionado() === m.id && !usarNuevaTarjeta()" (change)="seleccionarMetodo(m.id)" />
+                      <i [class]="getBrandIcon(m.card.brand)" style="font-size: 2rem; color: #fff;"></i>
+                      <div style="flex: 1; margin-left: 1.5rem;">
+                        <strong style="display: block; font-size: 1rem; letter-spacing: 0.05em;">•••• •••• •••• {{ m.card.last4 }}</strong>
+                        <span style="font-size: 0.75rem; opacity: 0.6;">Vence {{ m.card.exp_month }}/{{ m.card.exp_year }}</span>
+                      </div>
+                   </label>
+                 }
+                 <label class="ck-shipping-opt" [class.selected]="usarNuevaTarjeta()" style="flex-direction: row; padding: 1.25rem;">
+                    <input type="radio" [checked]="usarNuevaTarjeta()" (change)="toggleNuevaTarjeta(true)" />
+                    <i class="fa-solid fa-plus-circle" style="font-size: 1.5rem;"></i>
+                    <span style="margin-left: 1.5rem; font-weight: 600;">Utilizar una nueva tarjeta</span>
+                 </label>
+              </div>
+            }
+
+            @if (usarNuevaTarjeta() || metodosGuardados().length === 0) {
+              <div class="animate-fade-in">
+                <div class="ck-field" style="margin-bottom: 1.5rem;">
+                  <label>Nombre del titular</label>
+                  <input 
+                    type="text" 
+                    [value]="nombreTitular()" 
+                    (input)="nombreTitular.set($any($event.target).value)"
+                    placeholder="Nombre completo del titular"
+                    class="ck-input-standard"
+                    autocomplete="cc-name"
+                  />
+                </div>
+                <div class="ck-field" style="margin-bottom: 1.5rem;">
+                  <label>Número de Tarjeta</label>
+                  <div id="card-number" class="ck-stripe-element"></div>
+                </div>
+                <div class="ck-form-row--split">
+                  <div class="ck-field">
+                    <label>Expiración</label>
+                    <div id="card-expiry" class="ck-stripe-element"></div>
+                  </div>
+                  <div class="ck-field">
+                    <label>CVC / CVV</label>
+                    <div id="card-cvc" class="ck-stripe-element"></div>
+                  </div>
+                </div>
+                @if (errorStripe()) {
+                  <div class="ck-alert-error" style="margin-top: 1.5rem;">
+                    <i class="fa-solid fa-circle-exclamation"></i>
+                    <span>{{ errorStripe() }}</span>
+                  </div>
+                }
+              </div>
+            }
+          </div>
+
+          @if (errorGeneral()) {
+            <div class="ck-alert-error animate-fade-in">
+              <i class="fa-solid fa-circle-xmark"></i>
+              <span>{{ errorGeneral() }}</span>
+            </div>
+          }
+
+          <button 
+            class="ck-btn--pay" 
+            [disabled]="procesando() || !puedeComprar()"
+            (click)="pagar()"
+            id="btn-pagar-final"
+          >
+            @if (procesando()) {
+              <span class="ck-btn-spinner"></span>
+              <span>Confirmando Pago...</span>
+            } @else {
+              <i class="fa-solid fa-lock"></i>
+              <span>Pagar {{ formatPrice(total()) }} con Garantía Nexus</span>
+            }
+          </button>
+
+          <p class="ck-terms-note">
+            Pago 100% seguro con encriptación AES-256. Al pagar aceptas nuestras <a routerLink="/legal/condiciones" target="_blank">Condiciones de Compra</a>.
+          </p>
+        </section>
+      </div> <!-- /ck-main-content -->
+
+      <!-- ══════════ COLUMNA DERECHA — Resumen (STICKY) ══════════ -->
       <aside class="ck-summary">
         <h3 class="ck-sub-title" style="margin-bottom: 0.5rem; opacity: 0.6;">Tu Compra</h3>
 
@@ -97,10 +361,18 @@
             @if (producto()!.vendedor) {
               <div class="ck-seller">
                 <div class="ck-seller-avatar">
-                  @if ($any(producto()!.vendedor)?.avatar) {
-                    <img [src]="$any(producto()!.vendedor)?.avatar" alt="avatar" style="width:100%; height:100%; border-radius: inherit; object-fit: cover;" />
+                  @if ($any(producto()!.vendedor)?.rol === 'EMPRESA') {
+                    @if ($any(producto()!.vendedor)?.logo) {
+                      <img [src]="$any(producto()!.vendedor)?.logo" alt="logo" style="width:100%; height:100%; border-radius: inherit; object-fit: cover;" />
+                    } @else {
+                      <span>{{ getAvatarFallback($any(producto()!.vendedor)?.nombreComercial) }}</span>
+                    }
                   } @else {
-                    <span>{{ getAvatarFallback($any(producto()!.vendedor)?.nombre) }}</span>
+                    @if ($any(producto()!.vendedor)?.avatar) {
+                      <img [src]="$any(producto()!.vendedor)?.avatar" alt="avatar" style="width:100%; height:100%; border-radius: inherit; object-fit: cover;" />
+                    } @else {
+                      <span>{{ getAvatarFallback($any(producto()!.vendedor)?.nombre) }}</span>
+                    }
                   }
                 </div>
                 <div style="display: flex; flex-direction: column;">
@@ -126,10 +398,53 @@
               {{ costoEnvio() === 0 ? '¡Gratis!' : formatPrice(costoEnvio()) }}
             </span>
           </div>
-          <div class="ck-breakdown-row" style="cursor: help;" title="Cubre roturas, pérdidas y devoluciones seguras.">
-            <span>Protección Nexus <i class="fa-solid fa-circle-info" style="font-size: 0.7rem; opacity: 0.5;"></i></span>
+          <div class="ck-breakdown-row ck-protection-row">
+            <span>
+              Protección Nexus 
+              <span class="ck-tooltip-wrap">
+                <i class="fa-solid fa-circle-info ck-info-icon"></i>
+                <span class="ck-tooltip animate-fade-in">
+                  Cubre roturas, pérdidas y devoluciones seguras durante los primeros 7 días.
+                </span>
+              </span>
+            </span>
             <span>{{ formatPrice(comisionNexus()) }}</span>
           </div>
+          <div class="ck-breakdown-divider"></div>
+          
+          <!-- Cupones -->
+          <div class="ck-coupon-section">
+            @if (!mostrarCupon()) {
+              <button class="ck-coupon-toggle" (click)="mostrarCupon.set(true)">
+                <i class="fa-solid fa-tag"></i>
+                ¿Tienes un cupón o código profesional?
+              </button>
+            } @else {
+              <div class="ck-coupon-input-wrap animate-fade-in">
+                <input 
+                  type="text" 
+                  [value]="cupon()" 
+                  (input)="cupon.set($any($event.target).value)"
+                  placeholder="Código de descuento"
+                  class="ck-coupon-input"
+                  (keyup.enter)="validarCupon()"
+                />
+                <button class="ck-coupon-btn" [disabled]="!cupon() || procesandoCupon()" (click)="validarCupon()">
+                  @if (procesandoCupon()) {
+                    <i class="fa-solid fa-spinner fa-spin"></i>
+                  } @else {
+                    Aplicar
+                  }
+                </button>
+              </div>
+              @if (mensajeCupon()) {
+                <p class="ck-coupon-msg error animate-fade-in">
+                  <i class="fa-solid fa-circle-exclamation"></i> {{ mensajeCupon() }}
+                </p>
+              }
+            }
+          </div>
+
           <div class="ck-breakdown-divider"></div>
           <div class="ck-breakdown-row ck-breakdown-total">
             <span>Total</span>
@@ -159,216 +474,6 @@
           }
         </div>
       </aside>
-
-      <!-- ══════════ COLUMNA DERECHA — Pasos ══════════ -->
-      <section class="ck-payment">
-        <!-- ── PASO 1: Datos personales ──────────────── -->
-        <div class="ck-step-card animate-fade-in" style="animation-delay: 0.1s;">
-          <div class="ck-step-header">
-            <span class="ck-step-num">1</span>
-            <h2 class="ck-step-title">Tus Datos</h2>
-          </div>
-          <form [formGroup]="personalForm" class="ck-form">
-            <div class="ck-form-row--split">
-              <div class="ck-field" [class.invalid]="hasError(personalForm, 'nombre')">
-                <label>Nombre</label>
-                <input type="text" formControlName="nombre" placeholder="Nombre" />
-              </div>
-              <div class="ck-field" [class.invalid]="hasError(personalForm, 'apellidos')">
-                <label>Apellidos</label>
-                <input type="text" formControlName="apellidos" placeholder="Apellidos" />
-              </div>
-            </div>
-            <div class="ck-form-row--split">
-              <div class="ck-field" [class.invalid]="hasError(personalForm, 'email')">
-                <label>Email de contacto</label>
-                <input type="email" formControlName="email" placeholder="email@ejemplo.com" />
-              </div>
-              <div class="ck-field" [class.invalid]="hasError(personalForm, 'telefono')">
-                <label>Teléfono móvil</label>
-                <input type="tel" formControlName="telefono" placeholder="+34 ..." />
-              </div>
-            </div>
-          </form>
-        </div>
-
-        <!-- ── PASO 2: Método de envío ───── -->
-        <div class="ck-step-card animate-fade-in" style="animation-delay: 0.2s;">
-          <div class="ck-step-header">
-            <span class="ck-step-num">2</span>
-            <h2 class="ck-step-title">Método de Envío</h2>
-          </div>
-
-          <div class="ck-shipping-options">
-            <label class="ck-shipping-opt" [class.selected]="!esRecogida()">
-              <input type="radio" name="tipoEntrega" [checked]="!esRecogida()" (change)="onEntregaChange(false)" />
-              <div class="ck-shipping-icon"><i class="fa-solid fa-house"></i></div>
-              <div class="ck-shipping-label">
-                <strong>A Domicilio</strong>
-                <span>2-4 días laborales</span>
-              </div>
-            </label>
-
-            <label class="ck-shipping-opt" [class.selected]="esRecogida()">
-              <input type="radio" name="tipoEntrega" [checked]="esRecogida()" (change)="onEntregaChange(true)" />
-              <div class="ck-shipping-icon"><i class="fa-solid fa-shop"></i></div>
-              <div class="ck-shipping-label">
-                <strong>Punto Pack</strong>
-                <span>Ahorra en el envío</span>
-              </div>
-              @if (ahorroRecogida() > 0) {
-                <span class="ck-saving-badge"><i class="fa-solid fa-leaf"></i> -{{ formatPrice(ahorroRecogida()) }}</span>
-              }
-            </label>
-          </div>
-
-          @if (esRecogida()) {
-            <div class="ck-punto-container" style="background: rgba(99, 102, 241, 0.05); border: 1px dashed rgba(99, 102, 241, 0.3); border-radius: 20px; padding: 1.5rem; text-align: center; margin-bottom: 2rem;">
-              @if (puntoRecogidaSeleccionado()) {
-                <div style="display: flex; align-items: center; justify-content: space-between; text-align: left;">
-                  <div style="display: flex; gap: 1rem; align-items: center;">
-                    <div style="width: 48px; height: 48px; background: rgba(99, 102, 241, 0.1); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #818cf8; font-size: 1.25rem;">
-                      <i class="fa-solid fa-location-dot"></i>
-                    </div>
-                    <div>
-                      <strong style="display: block; font-size: 1.05rem; color: #fff;">{{ puntoRecogidaSeleccionado()!.nombre }}</strong>
-                      <span style="font-size: 0.85rem; color: #94a3b8;">{{ puntoRecogidaSeleccionado()!.direccion }}, {{ puntoRecogidaSeleccionado()!.cp }} {{ puntoRecogidaSeleccionado()!.ciudad }}</span>
-                    </div>
-                  </div>
-                  <button type="button" (click)="mostrarSelectorPunto.set(true)" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); color: #fff; padding: 0.5rem 1rem; border-radius: 10px; cursor: pointer; transition: 0.2s;">Cambiar</button>
-                </div>
-              } @else {
-                <i class="fa-solid fa-map-location-dot" style="font-size: 2.5rem; color: #6366f1; margin-bottom: 1rem; opacity: 0.8;"></i>
-                <h3 style="font-size: 1.1rem; color: #fff; margin-bottom: 0.5rem;">Elige dónde recogerlo</h3>
-                <p style="font-size: 0.85rem; color: #94a3b8; margin-bottom: 1.25rem;">Encuentra una oficina de Correos cerca de ti.</p>
-                <button type="button" (click)="mostrarSelectorPunto.set(true)" style="background: #6366f1; color: #fff; border: none; padding: 0.75rem 1.5rem; border-radius: 12px; font-weight: 700; cursor: pointer; transition: 0.2s;">Buscar Punto</button>
-              }
-            </div>
-          } @else {
-            <!-- Dirección -->
-            <form [formGroup]="addressForm" class="ck-form">
-              <div class="ck-field" [class.invalid]="hasError(addressForm, 'calle')">
-                <label>Dirección completa</label>
-                <input type="text" formControlName="calle" placeholder="Calle, número, piso, puerta..." />
-              </div>
-              <div class="ck-form-row--split">
-                <div class="ck-field" [class.invalid]="hasError(addressForm, 'cp')">
-                  <label>Código Postal</label>
-                  <input type="text" formControlName="cp" placeholder="28001" maxlength="5" />
-                </div>
-                <div class="ck-field" [class.invalid]="hasError(addressForm, 'ciudad')">
-                  <label>Ciudad / Localidad</label>
-                  <input type="text" formControlName="ciudad" placeholder="Madrid" />
-                </div>
-              </div>
-            </form>
-          }
-
-          <!-- Transportista Único (El más barato) -->
-          @if (opcionesEnvio().length > 0) {
-            <div class="ck-carrier-section animate-fade-in">
-              <div class="ck-carrier-info">
-                <span class="ck-carrier-label">Envío Estándar</span>
-                <div class="ck-carrier-main">
-                  <div class="ck-carrier-logo">
-                    <i class="fa-solid fa-envelope"></i>
-                  </div>
-                  <span class="ck-carrier-name">{{ opcionesEnvio()[0].nombre }}</span>
-                </div>
-              </div>
-              <span class="ck-carrier-price">
-                {{ opcionesEnvio()[0].precio === 0 ? 'Gratis' : formatPrice(opcionesEnvio()[0].precio) }}
-              </span>
-            </div>
-          }
-        </div>
-
-        <!-- ── PASO 3: Pago ─────────────────── -->
-        <div class="ck-step-card animate-fade-in" style="animation-delay: 0.3s;">
-          <div class="ck-step-header">
-            <span class="ck-step-num">3</span>
-            <h2 class="ck-step-title">Método de Pago</h2>
-            <div class="ck-stripe-badge">
-              <i class="fa-brands fa-stripe"></i>
-              <span>Stripe Secure</span>
-            </div>
-          </div>
-
-          @if (cargandoMetodos()) {
-             <div class="ck-skeleton" style="width: 100%; height: 60px; border-radius: 12px; margin-bottom: 1rem;"></div>
-          } @else if (metodosGuardados().length > 0) {
-            <div class="saved-cards" style="display: flex; flex-direction: column; gap: 1rem; margin-bottom: 2rem;">
-               @for (m of metodosGuardados(); track m.id) {
-                 <label class="ck-shipping-opt" [class.selected]="metodoSeleccionado() === m.id && !usarNuevaTarjeta()" style="flex-direction: row; text-align: left; padding: 1.25rem;">
-                    <input type="radio" [checked]="metodoSeleccionado() === m.id && !usarNuevaTarjeta()" (change)="seleccionarMetodo(m.id)" />
-                    <i [class]="getBrandIcon(m.card.brand)" style="font-size: 2rem; color: #fff;"></i>
-                    <div style="flex: 1; margin-left: 1.5rem;">
-                      <strong style="display: block; font-size: 1rem; letter-spacing: 0.05em;">•••• •••• •••• {{ m.card.last4 }}</strong>
-                      <span style="font-size: 0.75rem; opacity: 0.6;">Vence {{ m.card.exp_month }}/{{ m.card.exp_year }}</span>
-                    </div>
-                 </label>
-               }
-               <label class="ck-shipping-opt" [class.selected]="usarNuevaTarjeta()" style="flex-direction: row; padding: 1.25rem;">
-                  <input type="radio" [checked]="usarNuevaTarjeta()" (change)="toggleNuevaTarjeta(true)" />
-                  <i class="fa-solid fa-plus-circle" style="font-size: 1.5rem;"></i>
-                  <span style="margin-left: 1.5rem; font-weight: 600;">Utilizar una nueva tarjeta</span>
-               </label>
-            </div>
-          }
-
-          @if (usarNuevaTarjeta() || metodosGuardados().length === 0) {
-            <div class="animate-fade-in">
-              <div class="ck-field" style="margin-bottom: 1.5rem;">
-                <label>Número de Tarjeta</label>
-                <div id="card-number" class="ck-stripe-element"></div>
-              </div>
-              <div class="ck-form-row--split">
-                <div class="ck-field">
-                  <label>Expiración</label>
-                  <div id="card-expiry" class="ck-stripe-element"></div>
-                </div>
-                <div class="ck-field">
-                  <label>CVC / CVV</label>
-                  <div id="card-cvc" class="ck-stripe-element"></div>
-                </div>
-              </div>
-              @if (errorStripe()) {
-                <div class="ck-alert-error" style="margin-top: 1.5rem;">
-                  <i class="fa-solid fa-circle-exclamation"></i>
-                  <span>{{ errorStripe() }}</span>
-                </div>
-              }
-            </div>
-          }
-        </div>
-
-        @if (errorGeneral()) {
-          <div class="ck-alert-error animate-fade-in">
-            <i class="fa-solid fa-circle-xmark"></i>
-            <span>{{ errorGeneral() }}</span>
-          </div>
-        }
-
-        <button 
-          class="ck-btn--pay" 
-          [disabled]="procesando() || !puedeComprar()"
-          (click)="pagar()"
-          id="btn-pagar-final"
-        >
-          @if (procesando()) {
-            <span class="ck-btn-spinner"></span>
-            <span>Confirmando Pago...</span>
-          } @else {
-            <i class="fa-solid fa-lock"></i>
-            <span>Pagar {{ formatPrice(total()) }} con Garantía Nexus</span>
-          }
-        </button>
-
-        <p class="ck-terms-note">
-          Pago 100% seguro con encriptación AES-256. Al pagar aceptas nuestras <a routerLink="/legal/condiciones" target="_blank">Condiciones de Compra</a>.
-        </p>
-
-      </section>
     </main>
   </div>
 

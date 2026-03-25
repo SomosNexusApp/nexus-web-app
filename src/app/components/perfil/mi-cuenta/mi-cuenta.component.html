@@ -338,12 +338,19 @@
         } @else {
           <div class="product-list">
             @for (v of vehiculosFiltrados(); track v.id) {
-              <div class="product-list-item">
+              <div class="product-list-item" [class.sold]="v.estadoVehiculo === 'VENDIDO'" [class.reserved]="v.estadoVehiculo === 'RESERVADO'" [class.paused]="v.estadoVehiculo === 'PAUSADO'">
                 <img [src]="v.imagenPrincipal" class="product-list-thumb" alt="Vehículo" />
                 <div class="product-list-info">
                   <a [routerLink]="['/vehiculos', v.id]" class="product-list-title">
                     {{ v.marca }} {{ v.modelo }} ({{ v.anio }})
                   </a>
+                  <div class="v-specs-mini">
+                    <span>{{ v.kilometraje | number }} km</span>
+                    <span class="dot">·</span>
+                    <span>{{ v.combustible }}</span>
+                    <span class="dot">·</span>
+                    <span>{{ v.cambio }}</span>
+                  </div>
                   <span class="product-list-price">{{ v.precio | currencyEs }}</span>
                   <span class="product-list-badge" [style.background]="getEstadoColor(v.estadoVehiculo)">
                     {{ v.estadoVehiculo }}
