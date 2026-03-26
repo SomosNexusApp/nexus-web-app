@@ -27,25 +27,25 @@ export class AuthService {
   /**
    * LOGIN
    */
-  login(credenciales: LoginRequest & { captchaToken?: string }): Observable<AuthResponse> {
+  login(credenciales: LoginRequest & { captchaToken?: string }, isAdmin = false): Observable<AuthResponse> {
     const payload = {
       user: credenciales.email || credenciales.username,
       password: credenciales.password,
       captchaToken: credenciales.captchaToken || 'token-omitido-en-dev',
     };
 
-    return this.http.post<AuthResponse>(`${this.AUTH_URL}/login`, payload).pipe(
+    const baseUrl = isAdmin ? this.API_AUTH_URL : this.AUTH_URL;
+    return this.http.post<AuthResponse>(`${baseUrl}/login`, payload).pipe(
       switchMap((response) => {
         if (response.requires2FA || (response as any).requiere2FA) {
           return of(response);
         }
 
         // Si el login es directo, guardamos token y obtenemos el usuario completo
-        this.jwt.saveToken(response.token);
-        return this.loadCurrentUser().pipe(
+        this.jwt.saveToken(response.token, isAdmin);
+        return this.loadCurrentUser(isAdmin).pipe(
           map((usuario) => {
-            // CORRECCIÓN: Ahora closePopup existe en GuestPopupService
-            this.guestPopup.closePopup();
+            if (!isAdmin) this.guestPopup.closePopup();
             return { ...response, usuario };
           }),
         );
@@ -56,10 +56,12 @@ export class AuthService {
   /**
    * LOAD CURRENT USER
    */
-  loadCurrentUser(): Observable<Usuario> {
-    return this.http.get<Usuario>(`${this.AUTH_URL}/me`).pipe(
+  loadCurrentUser(isAdmin = false): Observable<Usuario> {
+    const url = isAdmin ? `${this.API_AUTH_URL}/me` : `${this.AUTH_URL}/me`;
+    return this.http.get<Usuario>(url).pipe(
       tap((usuario) => {
-        this.store.setUser(usuario);
+        if (isAdmin) this.store.setAdminUser(usuario);
+        else this.store.setUser(usuario);
       }),
     );
   }
@@ -78,10 +80,15 @@ export class AuthService {
   /**
    * LOGOUT
    */
-  logout(): void {
-    this.jwt.removeToken();
-    this.store.clear();
-    this.router.navigate(['/']);
+  logout(isAdmin = false): void {
+    this.jwt.removeToken(isAdmin);
+    if (isAdmin) {
+      this.store.clearAdmin();
+      this.router.navigate(['/admin/login']);
+    } else {
+      this.store.clear();
+      this.router.navigate(['/']);
+    }
   }
 
   /**
@@ -160,12 +167,27 @@ export class AuthService {
   }
 
   /**
-   * Versión para el componente de login cuando ya se tiene el token (ej: 2FA)
+   * Versión para el componente de login cuando ya se tiene el token (ej: 2FA o OAuth manual)
    */
   procesarTokenSuccess(token: string): Observable<Usuario> {
     this.jwt.saveToken(token);
     return this.loadCurrentUser().pipe(
       tap(() => this.guestPopup.closePopup())
+    );
+  }
+
+  /**
+   * VERIFICAR 2FA
+   */
+  verify2FA(username: string, code: string, isAdmin = false): Observable<AuthResponse> {
+    const baseUrl = isAdmin ? this.API_AUTH_URL : this.AUTH_URL;
+    return this.http.post<AuthResponse>(`${baseUrl}/verify-2fa`, { username, code }).pipe(
+      tap((response) => {
+        this.jwt.saveToken(response.token, isAdmin);
+      }),
+      switchMap((response) => this.loadCurrentUser(isAdmin).pipe(
+        map((usuario) => ({ ...response, usuario }))
+      ))
     );
   }
 }

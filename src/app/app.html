@@ -1,8 +1,10 @@
-<app-header></app-header>
+@if (!isAdminRoute()) {
+  <app-header></app-header>
+}
 <router-outlet></router-outlet>
 <app-toast-container></app-toast-container>
 
-@if (guestPopup.isOpen()) {
+@if (guestPopup.isOpen() && !isAdminRoute()) {
   <app-register-popup></app-register-popup>
 }
 @if (guestPopup.isOAuthTermsOpen()) {

@@ -40,6 +40,12 @@ export class GoogleAuthService {
    */
   promptGoogleSignIn(): Promise<void> {
     return new Promise((resolve, reject) => {
+      // Si estamos en el panel de admin, no queremos popups de GSI estorbando
+      if (this.router.url.includes('/admin')) {
+        console.log('[GSI] One Tap suprimido en rutas administrativas.');
+        return;
+      }
+
       if (typeof google === 'undefined' || !google?.accounts?.id) {
         reject('Google SDK no disponible. Recarga la página.');
         return;

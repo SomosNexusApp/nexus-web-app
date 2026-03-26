@@ -1,7 +1,6 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth-guard';
 import { guestGuard } from './core/guards/guest-guard';
-import { adminGuard } from './core/guards/admin-guard';
 
 export const routes: Routes = [
   {
@@ -224,14 +223,6 @@ export const routes: Routes = [
       import('./components/legal/privacidad/privacidad.component').then(
         (m) => m.PrivacidadComponent,
       ),
-  },
-
-  // Admin
-  {
-    path: 'admin',
-    canActivate: [adminGuard],
-    loadChildren: () =>
-      import('./admin/admin.routes').then(m => m.ADMIN_ROUTES),
   },
 
   // Compras / Checkout

@@ -12,18 +12,20 @@ export interface JwtPayload {
 
 @Injectable({ providedIn: 'root' })
 export class JwtService {
-  private readonly KEY = 'nexus_jwt';
+  private readonly USER_KEY = 'nexus_jwt';
+  private readonly ADMIN_KEY = 'nexus_admin_jwt';
 
-  saveToken(token: string): void {
-    localStorage.setItem(this.KEY, token);
+  saveToken(token: string, isAdmin = false): void {
+    localStorage.setItem(isAdmin ? this.ADMIN_KEY : this.USER_KEY, token);
   }
 
-  getToken(): string | null {
-    const token = localStorage.getItem(this.KEY);
+  getToken(isAdmin = false): string | null {
+    const key = isAdmin ? this.ADMIN_KEY : this.USER_KEY;
+    const token = localStorage.getItem(key);
     if (token) {
       if (token.split('.').length !== 3) {
-        console.warn('Nexus: Token malformado detectado en localStorage. Limpiando...');
-        this.removeToken();
+        console.warn(`Nexus: Token ${isAdmin ? 'admin' : 'user'} malformado detectado. Limpiando...`);
+        this.removeToken(isAdmin);
         return null;
       }
       return token;
@@ -31,12 +33,12 @@ export class JwtService {
     return null;
   }
 
-  removeToken(): void {
-    localStorage.removeItem(this.KEY);
+  removeToken(isAdmin = false): void {
+    localStorage.removeItem(isAdmin ? this.ADMIN_KEY : this.USER_KEY);
   }
 
-  decodePayload(): JwtPayload | null {
-    const token = this.getToken();
+  decodePayload(isAdmin = false): JwtPayload | null {
+    const token = this.getToken(isAdmin);
     if (!token) return null;
 
     try {
@@ -63,15 +65,15 @@ export class JwtService {
     }
   }
 
-  isExpired(): boolean {
-    const payload = this.decodePayload();
+  isExpired(isAdmin = false): boolean {
+    const payload = this.decodePayload(isAdmin);
     if (!payload) return true;
 
     // exp está en segundos, Date.now() en milisegundos
     return Math.floor(Date.now() / 1000) >= payload.exp;
   }
 
-  isValid(): boolean {
-    return this.getToken() !== null && !this.isExpired();
+  isValid(isAdmin = false): boolean {
+    return this.getToken(isAdmin) !== null && !this.isExpired(isAdmin);
   }
 }

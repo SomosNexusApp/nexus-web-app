@@ -1,9 +1,11 @@
-import { Injectable, inject, signal } from '@angular/core';
+import { inject, Injectable, signal } from '@angular/core';
+import { Router } from '@angular/router';
 import { AuthStore } from '../auth/auth-store';
 
 @Injectable({ providedIn: 'root' })
 export class GuestPopupService {
   private authStore = inject(AuthStore);
+  private router    = inject(Router);
 
   // Estados del Popup de Registro/Invitado
   readonly isOpen = signal<boolean>(false);
@@ -17,6 +19,12 @@ export class GuestPopupService {
   // --- POPUP INVITADOS (REGISTRO) ---
 
   showPopup(motivo?: string): void {
+    // Si estamos en admin (comprobación redundante), bloqueamos cualquier popup comercial
+    if (this.router.url.includes('/admin') || window.location.pathname.includes('/admin')) {
+      console.log('[GuestPopup] Bloqueado popup en ruta admin.');
+      return;
+    }
+
     // Si ya está logueado, no mostramos el popup de invitado
     if (this.authStore.isLoggedIn()) return;
 
@@ -65,6 +73,9 @@ export class GuestPopupService {
   // --- LÓGICA DE PERSISTENCIA/VISITAS ---
 
   trackPageVisit(): void {
+    // Si estamos en admin, NO queremos popups comerciales
+    if (this.router.url.includes('/admin') || window.location.pathname.includes('/admin')) return;
+
     this.pageVisits.update((v) => v + 1);
 
     if (this.debeSalirPeriodico()) {

@@ -13,6 +13,6 @@ export interface Actor {
   fechaRegistro?: string; // LocalDateTime como string ISO
   stripeCustomerId?: string;
   // El rol genérico ayuda a diferenciar interfaces en el Front
-  rol?: 'USUARIO' | 'ADMIN' | 'EMPRESA';
+  rol?: 'USUARIO' | 'ADMIN' | 'EMPRESA' | 'ROLE_USUARIO' | 'ROLE_ADMIN' | 'ROLE_EMPRESA';
   avatar?: string;
 }

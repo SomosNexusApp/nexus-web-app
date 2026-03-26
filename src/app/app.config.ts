@@ -2,7 +2,7 @@ import { ApplicationConfig, APP_INITIALIZER, inject } from '@angular/core';
 import { provideRouter, withComponentInputBinding } from '@angular/router';
 import { provideHttpClient, HTTP_INTERCEPTORS, withInterceptorsFromDi } from '@angular/common/http';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
-import { catchError, of } from 'rxjs';
+import { catchError, of, Observable, forkJoin } from 'rxjs';
 import { registerLocaleData } from '@angular/common'; // <-- Añadir
 import localeEs from '@angular/common/locales/es'; // <-- Añadir
 
@@ -18,10 +18,14 @@ registerLocaleData(localeEs, 'es-ES');
 // Factory function para el inicializador
 export function initializeUserData(authService: AuthService, jwtService: JwtService) {
   return () => {
-    if (jwtService.isValid()) {
-      return authService.loadCurrentUser().pipe(catchError(() => of(null)));
+    const obs: Observable<any>[] = [];
+    if (jwtService.isValid(false)) {
+      obs.push(authService.loadCurrentUser(false).pipe(catchError(() => of(null))));
     }
-    return of(null);
+    if (jwtService.isValid(true)) {
+      obs.push(authService.loadCurrentUser(true).pipe(catchError(() => of(null))));
+    }
+    return obs.length > 0 ? forkJoin(obs) : of(null);
   };
 }
 

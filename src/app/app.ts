@@ -39,6 +39,9 @@ export class AppComponent implements OnInit {
   private wsService = inject(WebSocketService);
   private notifService = inject(NotificationService);
 
+  // Signals para controlar la visibilidad según la ruta
+  isAdminRoute = signal(window.location.pathname.startsWith('/admin'));
+
   // Signals para los popups post-registro
   showTwoFactorPopup = signal(false);
   showAccountTypePopup = signal(false);
@@ -56,9 +59,18 @@ export class AppComponent implements OnInit {
   }
 
   ngOnInit() {
-    // Escuchar cambios de ruta para el tracking de visitas (Popup periódico de invitado)
-    this.router.events.pipe(filter((event) => event instanceof NavigationEnd)).subscribe(() => {
-      this.guestPopup.trackPageVisit();
+    // Escuchar cambios de ruta para el tracking de visitas y ocultar header en admin
+    this.router.events.pipe(filter((event) => event instanceof NavigationEnd)).subscribe((event: any) => {
+      const url = event.urlAfterRedirects;
+      const isAdmin = url.startsWith('/admin');
+      
+      this.isAdminRoute.set(isAdmin);
+      
+      if (isAdmin) {
+        this.guestPopup.hidePopup();
+      } else {
+        this.guestPopup.trackPageVisit();
+      }
     });
   }
 
