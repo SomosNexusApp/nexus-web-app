@@ -15,5 +15,6 @@ export interface Actor {
   // El rol genérico ayuda a diferenciar interfaces en el Front
   rol?: 'USUARIO' | 'ADMIN' | 'EMPRESA' | 'ROLE_USUARIO' | 'ROLE_ADMIN' | 'ROLE_EMPRESA';
   avatar?: string;
+  avatarSource?: 'GOOGLE' | 'INITIALS' | 'CUSTOM';
   googleAvatarUrl?: string;
 }

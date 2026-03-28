@@ -268,7 +268,7 @@ export class MiCuentaComponent implements OnInit {
     return this.misProductos().filter((p) => p.estado === this.productoTab());
   }
 
-  renovarProducto(productoId: number) {
+  public renovarProducto(productoId: number) {
     const u = this.user();
     if (!u) return;
     this.http
@@ -461,7 +461,7 @@ export class MiCuentaComponent implements OnInit {
     return this.misVehiculos().filter((v) => v.estadoVehiculo === this.vehiculoTab());
   }
 
-  renovarVehiculo(vehiculoId: number) {
+  public renovarVehiculo(vehiculoId: number) {
     const u = this.user();
     if (!u) return;
     this.http

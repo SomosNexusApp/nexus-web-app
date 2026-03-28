@@ -29,6 +29,10 @@ export class EnviarPedidoComponent implements OnInit {
   private cdr = inject(ChangeDetectorRef);
 
   envio = signal<Envio | null>(null);
+  puntosRecogida = signal<{ nombre: string; direccion: string; ciudad: string; horario: string; transportista: string }[]>(
+    [],
+  );
+  pasosExpandido = signal(true);
   cargando = signal(true);
   error = signal<string | null>(null);
   marcandoEnviado = signal(false);
@@ -48,6 +52,7 @@ export class EnviarPedidoComponent implements OnInit {
     this.compraSrv.getEnvioPorCompra(compraId).subscribe({
       next: (e: Envio) => {
         this.envio.set(e);
+        this.cargarPuntosYContexto(compraId);
         this.cargando.set(false);
         this.cdr.markForCheck();
       },
@@ -59,6 +64,25 @@ export class EnviarPedidoComponent implements OnInit {
     });
   }
 
+  private cargarPuntosYContexto(compraId: number): void {
+    this.compraSrv.getCompra(compraId).subscribe({
+      next: (c: any) => {
+        const ubi = c?.producto?.ubicacion ?? '';
+        const q = encodeURIComponent(ubi.split(',')[0]?.trim() || 'Madrid');
+        this.http.get<{ puntos: any[] }>(`${environment.apiUrl}/envio/puntos-recogida?ciudad=${q}`).subscribe({
+          next: (r) => this.puntosRecogida.set(r.puntos ?? []),
+          error: () => this.puntosRecogida.set([]),
+        });
+        this.cdr.markForCheck();
+      },
+      error: () => {
+        this.http
+          .get<{ puntos: any[] }>(`${environment.apiUrl}/envio/puntos-recogida?ciudad=Madrid`)
+          .subscribe((r) => this.puntosRecogida.set(r.puntos ?? []));
+      },
+    });
+  }
+
   marcarComoEnviado(): void {
     const e = this.envio();
     if (!e) return;
@@ -66,7 +90,7 @@ export class EnviarPedidoComponent implements OnInit {
 
     const body = {
       transportista: e.transportistaEnum ?? e.transportista ?? 'CORREOS',
-      numeroSeguimiento: e.codigoEnvio,
+      numeroSeguimiento: '',
       diasEntregaEstimados: 5,
     };
 

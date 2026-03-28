@@ -67,6 +67,8 @@ export class ChatPanelComponent implements OnChanges, AfterViewChecked, OnDestro
   precioOferta = signal<number | null>(null);
   private autoScrollActivado = true;
   private wsSub: Subscription | null = null;
+  private leidosSub: Subscription | null = null;
+  private recibidosSub: Subscription | null = null;
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['conversacion'] && this.conversacion) {
@@ -114,6 +116,8 @@ export class ChatPanelComponent implements OnChanges, AfterViewChecked, OnDestro
 
     // Suscribirse al topic WebSocket de esta sala para recibir mensajes en tiempo real
     this.wsService.suscribirseAlChat(roomId);
+    this.wsService.suscribirseALeidos(roomId);
+    this.wsService.suscribirseARecibidos(roomId);
 
     // Cancelar suscripción anterior al observable de mensajes
     this.wsSub?.unsubscribe();
@@ -128,12 +132,53 @@ export class ChatPanelComponent implements OnChanges, AfterViewChecked, OnDestro
             return [...sinOptimistas, msg];
           });
           this.autoScrollActivado = true;
+
+          // Si el mensaje es para mí, marcarlo como leído inmediatamente (ya que tengo el chat abierto)
+          if (msg.receptor.id === currUser.id) {
+            this.wsService.marcarComoRecibido(roomId, currUser.id);
+            this.wsService.marcarComoLeido(roomId, currUser.id);
+          }
         }
       }
     });
 
-    // Marcar leídos
-    this.chatService.marcarLeidos(roomId, currUser.id).subscribe();
+    // Suscribirse a confirmaciones de entrega
+    this.recibidosSub?.unsubscribe();
+    this.recibidosSub = this.wsService.recibidos.subscribe((ev) => {
+      if (ev.roomId === roomId && ev.usuarioId !== currUser.id) {
+        // El OTRO ha recibido mis mensajes
+        this.mensajes.update((msgs) => msgs.map((m) => {
+          if (m.remitente.id === currUser.id && !m.recibido && !m.leido) {
+            return { ...m, recibido: true };
+          }
+          return m;
+        }));
+      }
+    });
+
+    // Suscribirse a confirmaciones de lectura
+    this.leidosSub?.unsubscribe();
+    this.leidosSub = this.wsService.leidos.subscribe((ev) => {
+      if (ev.roomId === roomId && ev.usuarioId !== currUser.id) {
+        // El OTRO ha leído mis mensajes
+        this.mensajes.update((msgs) => msgs.map((m) => {
+          if (m.remitente.id === currUser.id && !m.leido) {
+            // Un mensaje leído está implícitamente recibido
+            return { ...m, leido: true, recibido: true };
+          }
+          return m;
+        }));
+        // Al leer, seguramente el contador de no leídos cambie
+        this.wsService.refreshUnreadCount();
+      }
+    });
+
+    // Marcar leídos inicial
+    this.chatService.marcarLeidos(roomId, currUser.id).subscribe(() => {
+      this.wsService.refreshUnreadCount();
+    });
+    this.wsService.marcarComoRecibido(roomId, currUser.id);
+    this.wsService.marcarComoLeido(roomId, currUser.id);
 
     // Cargar historial (backend devuelve ASC → más antiguos primero, NO hacer reverse)
     this.chatService.getConversacion(roomId, currUser.id, otroId).subscribe({
@@ -430,5 +475,7 @@ export class ChatPanelComponent implements OnChanges, AfterViewChecked, OnDestro
 
   ngOnDestroy() {
     this.wsSub?.unsubscribe();
+    this.leidosSub?.unsubscribe();
+    this.recibidosSub?.unsubscribe();
   }
 }

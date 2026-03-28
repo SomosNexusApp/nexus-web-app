@@ -1,0 +1,58 @@
+@if (!hideOnAdmin()) {
+  <div class="scw-root">
+    @if (open()) {
+      <div class="scw-panel" role="dialog" aria-label="Ayuda Nexus">
+        <div class="scw-head">
+          <div>
+            <span class="scw-title">¿Te ayudamos?</span>
+            <span class="scw-sub">Asistente Nexus</span>
+          </div>
+          <button type="button" class="scw-close" (click)="toggle()" aria-label="Cerrar">×</button>
+        </div>
+        @if (escalationEmail()) {
+          <div class="scw-banner">
+            Contacto humano: <a [href]="'mailto:' + escalationEmail()">{{ escalationEmail() }}</a>
+          </div>
+        }
+        @if (humanTakeover()) {
+          <div class="scw-banner scw-banner--agent">Un agente puede responderte en breve.</div>
+        }
+        <div class="scw-messages">
+          @if (loading()) {
+            <div class="scw-loading">Conectando…</div>
+          }
+          @for (m of mensajes(); track m.id) {
+            <div
+              class="scw-bubble"
+              [class.scw-bubble--user]="m.rol === 'USER'"
+              [class.scw-bubble--ai]="m.rol === 'ASSISTANT'"
+              [class.scw-bubble--admin]="m.rol === 'ADMIN'"
+              [class.scw-bubble--sys]="m.rol === 'SYSTEM'"
+            >
+              @if (m.rol === 'ADMIN') {
+                <span class="scw-tag">Equipo Nexus</span>
+              }
+              {{ m.contenido }}
+            </div>
+          }
+        </div>
+        <div class="scw-input-row">
+          <input
+            type="text"
+            class="scw-input"
+            [(ngModel)]="input"
+            (keydown.enter)="enviar()"
+            placeholder="Escribe tu consulta…"
+            maxlength="2000"
+          />
+          <button type="button" class="scw-send" (click)="enviar()">Enviar</button>
+        </div>
+      </div>
+    }
+
+    <button type="button" class="scw-fab" (click)="toggle()" aria-label="Abrir ayuda">
+      <span class="scw-fab-icon">💬</span>
+      <span class="scw-fab-text">Ayuda</span>
+    </button>
+  </div>
+}

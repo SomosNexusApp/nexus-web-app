@@ -8,6 +8,7 @@ import { AuthStore } from '../../core/auth/auth-store';
 import { AuthService } from '../../core/auth/auth.service';
 import { GuestPopupService } from '../../core/services/guest-popup.service';
 import { NotificationService, NotificacionInAppDto } from '../../core/services/notification.service';
+import { WebSocketService } from '../../core/services/websocket.service';
 import { CategoriaPanelComponent } from '../../shared/components/categoria-panel/categoria-panel.component';
 import { ConfirmModalComponent } from '../../shared/components/confirm-modal/confirm-modal.component';
 import { AvatarComponent } from '../../shared/components/avatar/avatar.component';
@@ -33,6 +34,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   public guestPopup = inject(GuestPopupService);
   private router = inject(Router);
   public notificationService = inject(NotificationService);
+  public wsService = inject(WebSocketService);
 
   private destroy$ = new Subject<void>();
 

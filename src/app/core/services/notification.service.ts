@@ -106,8 +106,15 @@ export class NotificationService {
       t === 'COMPRA_CONFIRMADA'
     ) {
       toastType = 'success';
-    } else if (t === 'ADVERTENCIA' || t === 'CADUCIDAD_ANUNCIO' || t === 'ENVIO_PLAZO') {
+    } else if (
+      t === 'ADVERTENCIA' ||
+      t === 'CADUCIDAD_ANUNCIO' ||
+      t === 'ENVIO_PLAZO' ||
+      t === 'GUIA_ENVIO_VENDEDOR'
+    ) {
       toastType = 'warning';
+    } else if (t === 'FAVORITO_PRODUCTO' || t === 'FAVORITO_OFERTA') {
+      toastType = 'success';
     }
 
     this.toast.showToast({

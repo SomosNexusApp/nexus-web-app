@@ -1,4 +1,5 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { Subject } from 'rxjs';
 import { Client } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
@@ -18,6 +19,7 @@ export interface ChatMensaje {
   tipo: string;
   fechaEnvio: string;
   leido: boolean;
+  recibido?: boolean;
   precioPropuesto?: number;
   estadoPropuesta?: string;
   roomId?: string;
@@ -38,12 +40,18 @@ export class WebSocketService {
   private client: Client | null = null;
   private jwt = inject(JwtService);
   private auth = inject(AuthStore);
+  private http = inject(HttpClient);
 
   private mensajes$ = new Subject<ChatMensaje>();
   private notificaciones$ = new Subject<Notificacion>();
+  private leidos$ = new Subject<{ roomId: string; usuarioId: number }>();
+  private recibidos$ = new Subject<{ roomId: string; usuarioId: number }>();
+  unreadConvCount = signal(0);
 
   readonly mensajes = this.mensajes$.asObservable();
   readonly notificaciones = this.notificaciones$.asObservable();
+  readonly leidos = this.leidos$.asObservable();
+  readonly recibidos = this.recibidos$.asObservable();
 
   // Track subscribed product topics to avoid duplicates
   private subscribedTopics = new Set<string>();
@@ -63,7 +71,12 @@ export class WebSocketService {
         // Cola privada de notificaciones (badge de mensajes nuevos, etc.)
         this.client!.subscribe(`/user/queue/notificaciones`, (msg) => {
           this.notificaciones$.next(JSON.parse(msg.body));
+          // Refresh count when a new notification arrives
+          this.refreshUnreadCount();
         });
+
+        // Initial fetch
+        this.refreshUnreadCount();
       },
       onStompError: (frame) => {
         console.error('STOMP error:', frame.headers['message'], frame.body);
@@ -85,6 +98,14 @@ export class WebSocketService {
     this.client.subscribe(topicKey, (msg) => {
       this.mensajes$.next(JSON.parse(msg.body));
     });
+  }
+
+  refreshUnreadCount(): void {
+    const user = this.auth.user();
+    if (!user) return;
+    this.http
+      .get<{ noLeidos: number }>(`${environment.apiUrl}/chat/no-leidos/${user.id}/conversaciones`)
+      .subscribe((res) => this.unreadConvCount.set(res.noLeidos));
   }
 
   disconnect(): void {
@@ -170,9 +191,56 @@ export class WebSocketService {
   }
 
   /**
-   * Indicador "está escribiendo..."
-   * Destination: /app/chat.escribiendo (según ChatWebSocketController.java)
+   * Suscribirse al topic de lectura para saber cuándo el otro usuario lee mis mensajes.
    */
+  suscribirseALeidos(roomId: string): void {
+    const topicKey = `/topic/chat/${roomId}/leidos`;
+    if (!this.client?.connected || this.subscribedTopics.has(topicKey)) return;
+
+    this.subscribedTopics.add(topicKey);
+    this.client.subscribe(topicKey, (msg) => {
+      this.leidos$.next(JSON.parse(msg.body));
+    });
+  }
+
+  /**
+   * Suscribirse al topic de recibido para saber cuándo el otro usuario recibe mis mensajes.
+   */
+  suscribirseARecibidos(roomId: string): void {
+    const topicKey = `/topic/chat/${roomId}/recibidos`;
+    if (!this.client?.connected || this.subscribedTopics.has(topicKey)) return;
+
+    this.subscribedTopics.add(topicKey);
+    this.client.subscribe(topicKey, (msg) => {
+      this.recibidos$.next(JSON.parse(msg.body));
+    });
+  }
+
+  /**
+   * Notificar al backend que he recibido los mensajes de una sala (los tengo cargados o me han llegado por WS).
+   */
+  marcarComoRecibido(roomId: string, usuarioId: number): void {
+    if (this.client?.connected) {
+      this.client.publish({
+        destination: '/app/chat.recibido',
+        body: JSON.stringify({ roomId, usuarioId }),
+      });
+    }
+  }
+
+  /**
+   * Notificar al backend que he leído los mensajes de una sala.
+   * Destination: /app/chat.leer (según ChatWebSocketController.java)
+   */
+  marcarComoLeido(roomId: string, usuarioId: number): void {
+    if (this.client?.connected) {
+      this.client.publish({
+        destination: '/app/chat.leer',
+        body: JSON.stringify({ roomId, usuarioId }),
+      });
+    }
+  }
+
   notificarEscribiendo(productoId: number | null, remitenteId: number, roomId: string): void {
     if (this.client?.connected) {
       this.client.publish({

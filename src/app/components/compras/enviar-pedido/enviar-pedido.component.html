@@ -18,6 +18,37 @@
 @if (!cargando() && !error() && envio()) {
   <div class="ep-page">
     <div class="ep-card">
+      <!-- Pasos guía -->
+      <div class="ep-guide">
+        <button type="button" class="ep-guide-toggle" (click)="pasosExpandido.set(!pasosExpandido())">
+          Pasos para enviar tu paquete
+          <span>{{ pasosExpandido() ? '▼' : '▶' }}</span>
+        </button>
+        @if (pasosExpandido()) {
+          <ol class="ep-steps">
+            <li>Empaqueta el artículo con burbuja y caja resistente; incluye un papel con el código <strong>{{ envio()!.codigoEnvio }}</strong>.</li>
+            <li>Elige una oficina del transportista (Correos, SEUR o MRW) — abajo tienes sugerencias según la zona del anuncio.</li>
+            <li>En ventanilla muestra el <strong>QR</strong> o dicta el código; conserva el resguardo.</li>
+            <li>Pulsa <strong>«Ya lo entregué»</strong> aquí: generaremos el <strong>número de seguimiento Nexus</strong> y avisaremos al comprador.</li>
+            <li>Si pasas el plazo sin enviar, el pedido puede cancelarse y reembolsarse al comprador.</li>
+          </ol>
+        }
+      </div>
+
+      @if (puntosRecogida().length > 0) {
+        <div class="ep-puntos">
+          <p class="ep-puntos-title">Puntos de entrega orientativos</p>
+          <ul>
+            @for (p of puntosRecogida(); track p.nombre) {
+              <li>
+                <strong>{{ p.nombre }}</strong> — {{ p.direccion }}, {{ p.ciudad }}.
+                <span class="ep-puntos-meta">{{ p.horario }} · {{ p.transportista }}</span>
+              </li>
+            }
+          </ul>
+        </div>
+      }
+
       <!-- Header -->
       <div class="ep-header">
         <svg

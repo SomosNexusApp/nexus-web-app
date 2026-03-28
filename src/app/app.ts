@@ -11,12 +11,10 @@ import { NotificationService, NotificacionInAppDto } from './core/services/notif
 
 // Popups Globales
 import { RegisterPopupComponent } from './shared/components/register-popup/register-popup.component';
-import { OauthTermsPopupComponent } from './components/auth/oauth-terms-popup/oauth-terms-popup.component';
-import { TwoFactorPopupComponent } from './shared/components/two-factor-popup/two-factor-popup.component';
-import { AccountTypePopupComponent } from './shared/components/account-type-popup/account-type-popup.component';
-import { AvatarChoicePopupComponent } from './shared/components/avatar-choice-popup/avatar-choice-popup.component';
+import { OnboardingStepperComponent } from './shared/components/onboarding-stepper/onboarding-stepper.component';
 import { ToastContainerComponent } from './shared/components/toast-container/toast-container.component';
 import { HeaderComponent } from './components/header/header.component';
+import { SupportChatWidgetComponent } from './shared/components/support-chat-widget/support-chat-widget.component';
 
 @Component({
   selector: 'app-root',
@@ -24,14 +22,11 @@ import { HeaderComponent } from './components/header/header.component';
   imports: [
     CommonModule,
     RouterOutlet,
-    AccountTypePopupComponent,
     RegisterPopupComponent,
-    OauthTermsPopupComponent,
-    TwoFactorPopupComponent,
-    AccountTypePopupComponent,
-    AvatarChoicePopupComponent,
+    OnboardingStepperComponent,
     ToastContainerComponent,
     HeaderComponent,
+    SupportChatWidgetComponent,
   ],
   templateUrl: './app.html',
   styleUrls: ['./app.component.scss'],

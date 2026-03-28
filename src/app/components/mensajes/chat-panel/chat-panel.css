@@ -427,8 +427,27 @@
   display: block;
 }
 
-.mine .fa-check-double.text-blue-500 {
-  color: #93c5fd !important;
+.ticks-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.read-tick {
+  color: #34b7f1 !important; /* WhatsApp Blue */
+}
+
+.delivered-tick {
+  color: rgba(255, 255, 255, 0.5); /* Semi-transparent white for gray look on dark */
+}
+
+.sent-tick {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.fa-clock {
+  color: #94a3b8;
+  font-size: 0.7rem;
 }
 
 .offer-card {

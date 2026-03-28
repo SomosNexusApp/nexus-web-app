@@ -44,11 +44,11 @@
                   <i class="fas fa-camera"></i> Cambiar imagen
                   <input type="file" hidden (change)="onAvatarSelected($event)" accept="image/*" />
                 </label>
-                <div class="avatar-source-options" *ngIf="user()?.googleAvatarUrl">
-                   <button type="button" class="btn-source" [class.active]="user()?.avatar === user()?.googleAvatarUrl" (click)="setAvatarChoice('GOOGLE')">
+                <div class="avatar-source-options" *ngIf="user()?.googleId">
+                   <button type="button" class="btn-source" [class.active]="user()?.avatarSource === 'GOOGLE'" (click)="setAvatarChoice('GOOGLE')">
                      <i class="fab fa-google"></i> Google
                    </button>
-                   <button type="button" class="btn-source" [class.active]="!user()?.avatar || user()?.avatar.includes('ui-avatars.com')" (click)="setAvatarChoice('INITIALS')">
+                   <button type="button" class="btn-source" [class.active]="user()?.avatarSource === 'INITIALS'" (click)="setAvatarChoice('INITIALS')">
                      <i class="fas fa-font"></i> Iniciales
                    </button>
                 </div>

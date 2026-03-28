@@ -194,10 +194,17 @@
             <span class="msg-meta">
               {{ msg.fechaEnvio | timeAgo }}
               @if (msg.remitente.id === authStore.user()?.id) {
-                <i
-                  class="fas fa-check-double ml-1"
-                  [ngClass]="{ 'text-blue-500': msg.leido, 'text-gray-400': !msg.leido }"
-                ></i>
+                <span class="ticks-status">
+                  @if (msg.id < 0) {
+                    <i class="far fa-clock"></i>
+                  } @else if (msg.leido) {
+                    <i class="fas fa-check-double read-tick"></i>
+                  } @else if (msg.recibido) {
+                    <i class="fas fa-check-double delivered-tick"></i>
+                  } @else {
+                    <i class="fas fa-check sent-tick"></i>
+                  }
+                </span>
               }
             </span>
           </div>

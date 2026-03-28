@@ -37,6 +37,7 @@ export class GuestPopupService {
   readonly isTwoFactorOpen = signal<boolean>(false);
   readonly isAccountTypeOpen = signal<boolean>(false);
   readonly isAvatarChoiceOpen = signal<boolean>(false);
+  readonly isOnboardingOpen = signal<boolean>(false);
 
   showTwoFactorPopup(): void {
     this.isTwoFactorOpen.set(true);
@@ -64,6 +65,14 @@ export class GuestPopupService {
 
   closeAvatarChoicePopup(): void {
     this.isAvatarChoiceOpen.set(false);
+  }
+
+  showOnboarding(): void {
+    this.isOnboardingOpen.set(true);
+  }
+
+  closeOnboarding(): void {
+    this.isOnboardingOpen.set(false);
   }
 
   /**

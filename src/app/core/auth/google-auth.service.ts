@@ -108,7 +108,7 @@ export class GoogleAuthService {
       this.authService.googleLogin(response.credential).subscribe({
         next: (res) => {
           if (res.esNuevoUsuario) {
-            this.guestPopup.showOAuthTermsPopup();
+            this.guestPopup.showOnboarding();
           } else {
             this.guestPopup.closePopup();
             this.router.navigate(['/']);
@@ -128,7 +128,7 @@ export class GoogleAuthService {
       this.authService.googleLogin(response.credential).subscribe({
         next: (res) => {
           if (res.esNuevoUsuario) {
-            this.guestPopup.showOAuthTermsPopup();
+            this.guestPopup.showOnboarding();
           } else {
             this.guestPopup.closePopup();
             this.router.navigate(['/']);

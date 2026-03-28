@@ -22,24 +22,11 @@
 
 <router-outlet></router-outlet>
 <app-toast-container></app-toast-container>
+@if (!isAdminRoute()) {
+  <app-support-chat-widget />
+}
 
 @if (guestPopup.isOpen() && !isAdminRoute()) {
   <app-register-popup></app-register-popup>
 }
-@if (guestPopup.isOAuthTermsOpen()) {
-  <app-oauth-terms-popup></app-oauth-terms-popup>
-}
-@if (guestPopup.isTwoFactorOpen()) {
-  <app-two-factor-popup (completado)="onTwoFactorCompletado()"></app-two-factor-popup>
-}
-@if (guestPopup.isAccountTypeOpen()) {
-  <app-account-type-popup
-    (completado)="onAccountTypeCompletado()"
-  ></app-account-type-popup>
-}
-
-@if (guestPopup.isAvatarChoiceOpen()) {
-  <app-avatar-choice-popup
-    (completado)="guestPopup.closeAvatarChoicePopup()"
-  ></app-avatar-choice-popup>
-}
+<app-onboarding-stepper></app-onboarding-stepper>
