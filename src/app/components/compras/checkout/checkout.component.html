@@ -362,7 +362,8 @@
               <div class="ck-seller">
                 <div class="ck-seller-avatar">
                   <app-avatar 
-                    [avatarUrl]="$any(producto()!.vendedor)?.rol === 'EMPRESA' ? $any(producto()!.vendedor)?.logo : $any(producto()!.vendedor)?.avatar"
+                    [avatarUrl]="($any(producto()!.vendedor)?.rol === 'EMPRESA' ? $any(producto()!.vendedor)?.logo : $any(producto()!.vendedor)?.avatar) || $any(producto()!.vendedor)?.googleAvatarUrl"
+                    [googleAvatarUrl]="$any(producto()!.vendedor)?.googleAvatarUrl"
                     [nombre]="$any(producto()!.vendedor)?.rol === 'EMPRESA' ? $any(producto()!.vendedor)?.nombreComercial : $any(producto()!.vendedor)?.nombre"
                     [username]="$any(producto()!.vendedor)?.user"
                     [size]="40"

@@ -15,9 +15,9 @@ import { ImgFallbackDirective } from '../../directives/img-fallback.directive';
       [style.width]="size + 'px'" 
       [style.height]="size + 'px'"
     >
-      @if (avatarUrl && !isBroken()) {
+      @if (effectiveAvatarUrl() && !isBroken()) {
         <img
-          [src]="avatarUrl"
+          [src]="effectiveAvatarUrl()"
           [alt]="altText"
           class="avatar-img"
           appImgFallback
@@ -76,6 +76,7 @@ import { ImgFallbackDirective } from '../../directives/img-fallback.directive';
 })
 export class AvatarComponent {
   @Input() avatarUrl: string | null | undefined = null;
+  @Input() googleAvatarUrl: string | null | undefined = null;
   @Input() nombre: string | null | undefined = null;
   @Input() username: string | null | undefined = null;
   @Input() size = 40;
@@ -85,6 +86,13 @@ export class AvatarComponent {
   @Input() customClass = '';
 
   isBroken = signal<boolean>(false);
+
+  effectiveAvatarUrl = computed(() => {
+    if (this.avatarUrl && this.avatarUrl.trim() !== '' && !this.avatarUrl.includes('ui-avatars.com')) {
+      return this.avatarUrl;
+    }
+    return this.googleAvatarUrl;
+  });
 
   fontSize = computed(() => this.size * 0.45);
 

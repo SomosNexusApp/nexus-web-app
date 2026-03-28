@@ -5,6 +5,7 @@
     <div class="sidebar-profile">
       <app-avatar 
         [avatarUrl]="user()?.avatar"
+        [googleAvatarUrl]="user()?.googleAvatarUrl"
         [nombre]="user()?.nombre"
         [username]="user()?.user"
         [size]="40"
@@ -52,6 +53,7 @@
         <div class="resumen-header">
           <app-avatar 
             [avatarUrl]="user()?.avatar"
+            [googleAvatarUrl]="user()?.googleAvatarUrl"
             [nombre]="user()?.nombre"
             [username]="user()?.user"
             [size]="100"
@@ -114,13 +116,13 @@
         </div>
 
         <div class="sub-tabs">
-          @for (tab of ['DISPONIBLE', 'RESERVADO', 'VENDIDO', 'PAUSADO']; track tab) {
+          @for (tab of ['DISPONIBLE', 'RESERVADO', 'VENDIDO', 'PAUSADO', 'EXPIRADO']; track tab) {
             <button
               class="sub-tab"
               [class.active]="productoTab() === tab"
               (click)="productoTab.set(tab)"
             >
-              {{ tab }}
+              {{ tab === 'EXPIRADO' ? 'Caducados' : tab }}
             </button>
           }
         </div>
@@ -142,11 +144,26 @@
                     p.titulo
                   }}</a>
                   <span class="product-list-price">{{ p.precio | currencyEs }}</span>
+                  @if (p.fechaCaducidad) {
+                    <span class="product-expiry-hint">
+                      Caduca: {{ p.fechaCaducidad | date : 'mediumDate' }}
+                    </span>
+                  }
                   <span class="product-list-badge" [style.background]="getEstadoColor(p.estado)">
                     {{ p.estado }}
                   </span>
                 </div>
                 <div class="product-list-actions">
+                  @if (p.estado === 'EXPIRADO') {
+                    <button
+                      class="action-btn success"
+                      title="Reactivar anuncio (nuevo periodo de publicación)"
+                      (click)="renovarProducto(p.id)"
+                    >
+                      <i class="fas fa-redo-alt"></i>
+                    </button>
+                  }
+
                   <button
                     class="action-btn"
                     title="Editar"
@@ -321,13 +338,13 @@
         </div>
 
         <div class="sub-tabs">
-          @for (tab of ['DISPONIBLE', 'RESERVADO', 'VENDIDO', 'PAUSADO']; track tab) {
+          @for (tab of ['DISPONIBLE', 'RESERVADO', 'VENDIDO', 'PAUSADO', 'EXPIRADO']; track tab) {
             <button
               class="sub-tab"
               [class.active]="vehiculoTab() === tab"
               (click)="vehiculoTab.set(tab)"
             >
-              {{ tab }}
+              {{ tab === 'EXPIRADO' ? 'Caducados' : tab }}
             </button>
           }
         </div>
@@ -356,11 +373,26 @@
                     <span>{{ v.cambio }}</span>
                   </div>
                   <span class="product-list-price">{{ v.precio | currencyEs }}</span>
+                  @if (v.fechaCaducidad) {
+                    <span class="product-expiry-hint">
+                      Caduca: {{ v.fechaCaducidad | date : 'mediumDate' }}
+                    </span>
+                  }
                   <span class="product-list-badge" [style.background]="getEstadoColor(v.estadoVehiculo)">
                     {{ v.estadoVehiculo }}
                   </span>
                 </div>
                 <div class="product-list-actions">
+                  @if (v.estadoVehiculo === 'EXPIRADO') {
+                    <button
+                      class="action-btn success"
+                      title="Reactivar anuncio"
+                      (click)="renovarVehiculo(v.id)"
+                    >
+                      <i class="fas fa-redo-alt"></i>
+                    </button>
+                  }
+
                   <button class="action-btn primary" title="Editar" (click)="editarVehiculo(v.id)">
                     <i class="fas fa-edit"></i>
                   </button>

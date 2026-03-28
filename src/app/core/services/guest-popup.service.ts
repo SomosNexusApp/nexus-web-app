@@ -36,6 +36,7 @@ export class GuestPopupService {
   // --- POPUP 2FA (AÑADIDO AHORA) ---
   readonly isTwoFactorOpen = signal<boolean>(false);
   readonly isAccountTypeOpen = signal<boolean>(false);
+  readonly isAvatarChoiceOpen = signal<boolean>(false);
 
   showTwoFactorPopup(): void {
     this.isTwoFactorOpen.set(true);
@@ -55,6 +56,14 @@ export class GuestPopupService {
 
   closeAccountTypePopup(): void {
     this.isAccountTypeOpen.set(false);
+  }
+
+  showAvatarChoicePopup(): void {
+    this.isAvatarChoiceOpen.set(true);
+  }
+
+  closeAvatarChoicePopup(): void {
+    this.isAvatarChoiceOpen.set(false);
   }
 
   /**

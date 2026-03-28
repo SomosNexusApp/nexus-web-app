@@ -216,6 +216,7 @@
   display: flex;
   align-items: center;
   margin-right: auto;
+  gap: 12px;
 }
 
 .avatar-small {
@@ -223,7 +224,6 @@
   height: 44px;
   border-radius: 50%;
   object-fit: cover;
-  margin-right: 14px;
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
 

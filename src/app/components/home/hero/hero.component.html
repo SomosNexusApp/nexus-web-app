@@ -57,6 +57,7 @@
               <div class="user-badge">
                 <app-avatar 
                   [avatarUrl]="slide.avatar"
+                  [googleAvatarUrl]="slide.googleAvatarUrl"
                   [username]="slide.user.startsWith('@') ? slide.user.slice(1) : slide.user"
                   [size]="32"
                   customClass="circle-avatar-img"

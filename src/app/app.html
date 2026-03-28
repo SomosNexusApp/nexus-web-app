@@ -1,6 +1,25 @@
 @if (!isAdminRoute()) {
   <app-header></app-header>
 }
+
+@if (saleBanner(); as sale) {
+  <div class="sale-banner-backdrop" (click)="closeSaleBanner()">
+    <div class="sale-banner-modal" (click)="$event.stopPropagation()">
+      <h2>{{ sale.titulo }}</h2>
+      <p>{{ sale.mensaje }}</p>
+      <ol>
+        <li>Abre <strong>Mis ventas</strong> y localiza el pedido.</li>
+        <li>Empaqueta el artículo y genera el envío.</li>
+        <li>Añade el seguimiento y márcalo como enviado antes del plazo.</li>
+      </ol>
+      <div class="sale-banner-actions">
+        <button type="button" class="btn-primary-sale" (click)="goMisVentas()">Ir a mis ventas</button>
+        <button type="button" class="btn-ghost-sale" (click)="closeSaleBanner()">Entendido</button>
+      </div>
+    </div>
+  </div>
+}
+
 <router-outlet></router-outlet>
 <app-toast-container></app-toast-container>
 
@@ -15,6 +34,12 @@
 }
 @if (guestPopup.isAccountTypeOpen()) {
   <app-account-type-popup
-    (completado)="guestPopup.closeAccountTypePopup()"
+    (completado)="onAccountTypeCompletado()"
   ></app-account-type-popup>
+}
+
+@if (guestPopup.isAvatarChoiceOpen()) {
+  <app-avatar-choice-popup
+    (completado)="guestPopup.closeAvatarChoicePopup()"
+  ></app-avatar-choice-popup>
 }

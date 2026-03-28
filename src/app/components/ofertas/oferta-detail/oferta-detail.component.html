@@ -46,6 +46,7 @@
                 <div class="author-badge">
                   <app-avatar 
                     [avatarUrl]="oferta().actor?.avatar"
+                    [googleAvatarUrl]="oferta().actor?.googleAvatarUrl"
                     [nombre]="oferta().actor?.nombre"
                     [username]="oferta().actor?.user"
                     [size]="45"
@@ -162,6 +163,7 @@
                                 <a [routerLink]="['/perfil', c.actor?.user]" class="user-link">
                                   <app-avatar 
                                     [avatarUrl]="c.actor?.avatar"
+                                    [googleAvatarUrl]="c.actor?.googleAvatarUrl"
                                     [nombre]="c.actor?.nombre"
                                     [username]="c.actor?.user"
                                     [size]="35"

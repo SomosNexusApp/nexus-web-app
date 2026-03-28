@@ -406,7 +406,37 @@ export class PublishOfertaComponent implements OnInit {
         document.querySelector('.location-hero-bar')?.scrollIntoView({ behavior: 'smooth' });
         return;
     }
+
+    this.validarModeracionYEnviar();
+  }
+
+  private validarModeracionYEnviar(): void {
+    const val = this.ofertaForm.getRawValue();
+    const texto = `${val.titulo} ${val.descripcion}`;
+
     this.uploading.set(true);
+    this.http.post<any>(`${environment.apiUrl}/api/moderation/check-text`, { texto }).subscribe({
+      next: (res) => {
+        if (res.apropiado) {
+          this.procederConEnvio();
+        } else {
+          this.uploading.set(false);
+          this.toast.error('No podemos incluir este tipo de palabras en el título o descripción al publicar una oferta');
+        }
+      },
+      error: (err) => {
+        this.uploading.set(false);
+        if (err.status === 403 || err.status === 401) {
+          this.toast.error('Error de permisos en la moderación. Contacta con soporte.');
+        } else {
+          // En caso de error de red (no 403/401), intentamos enviar igual (el backend volverá a validar)
+          this.procederConEnvio();
+        }
+      }
+    });
+  }
+
+  private procederConEnvio(): void {
     const formData = new FormData();
     const val = this.ofertaForm.getRawValue();
     const ofertaData = { ...val, categoria: { id: this.selectedCategory()?.id } };

@@ -327,35 +327,74 @@ export class PublishProductoComponent implements OnInit {
 
   nextStep(): void {
     const s = this.currentStep();
-    if (this.canAdvance()) {
-      this.currentStep.update((s) => (s + 1) as PublishStep);
-      window.scrollTo(0, 0);
-    } else {
-      // VALIDACIONES ESPECÍFICAS PASO 1
-      if (s === 1) {
-        this.step1Form.markAllAsTouched();
-        if (!this.selectedCategory()) {
-          this.toast.warning('Selecciona una categoría para tu producto');
-          document.querySelector('.category-grid')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        } else if (this.step1Form.get('condicion')?.invalid) {
-          this.toast.warning('Selecciona el estado de conservación del producto');
-          document.querySelector('.condition-grid')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }
-        return;
-      }
+    if (!this.canAdvance()) {
+      this.handleValidationErrors(s);
+      return;
+    }
 
-      const currentForm = this.getCurrentForm();
-      if (currentForm) {
-        currentForm.markAllAsTouched();
-        this.toast.warning('Revisa los campos obligatorios en rojo');
-        this.scrollToFirstError();
-      } else if (s === 2 && this.images().length === 0) {
-        this.toast.warning('Sube al menos una foto de tu producto');
-        document.querySelector('.upload-zone')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      } else if (s === 3 && !this.locationConfirmed()) {
-        this.toast.warning('Confirma la ubicación seleccionándola de la lista');
-        document.querySelector('.input-group input')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    if (s === 2) {
+      this.validarModeracionYContinuar();
+    } else {
+      this.advance();
+    }
+  }
+
+  private advance(): void {
+    this.currentStep.update((s) => (s + 1) as PublishStep);
+    window.scrollTo(0, 0);
+  }
+
+  private validarModeracionYContinuar(): void {
+    const s2 = this.step2Form.getRawValue();
+    const texto = `${s2.titulo} ${s2.descripcion}`;
+    
+    this.uploading.set(true);
+    this.http.post<any>(`${environment.apiUrl}/api/moderation/check-text`, { texto }).subscribe({
+      next: (res) => {
+        this.uploading.set(false);
+        if (res.apropiado) {
+          this.advance();
+        } else {
+          this.toast.error('No podemos incluir este tipo de palabras en el título o descripción al publicar un producto');
+        }
+      },
+      error: (err) => {
+        this.uploading.set(false);
+        if (err.status === 403 || err.status === 401) {
+          this.toast.error('Error de permisos en la moderación. Contacta con soporte.');
+        } else {
+          // Si es un error de red o 500, permitimos avanzar para no bloquear al usuario por fallo del servicio
+          // pero avisamos que el backend volverá a validar al final
+          this.advance();
+        }
       }
+    });
+  }
+
+  private handleValidationErrors(s: number): void {
+    if (s === 1) {
+      this.step1Form.markAllAsTouched();
+      if (!this.selectedCategory()) {
+        this.toast.warning('Selecciona una categoría para tu producto');
+        document.querySelector('.category-grid')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      } else if (this.step1Form.get('condicion')?.invalid) {
+        this.toast.warning('Selecciona el estado de conservación del producto');
+        document.querySelector('.condition-grid')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+      return;
+    }
+
+    const currentForm = this.getCurrentForm();
+    if (currentForm) {
+      currentForm.markAllAsTouched();
+      this.toast.warning('Revisa los campos obligatorios en rojo');
+      this.scrollToFirstError();
+    } else if (s === 2 && this.images().length === 0) {
+      this.toast.warning('Sube al menos una foto de tu producto');
+      document.querySelector('.upload-zone')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    } else if (s === 3 && !this.locationConfirmed()) {
+      this.toast.warning('Confirma la ubicación seleccionándola de la lista');
+      document.querySelector('.input-group input')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
   }
 

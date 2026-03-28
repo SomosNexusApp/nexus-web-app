@@ -268,6 +268,26 @@ export class MiCuentaComponent implements OnInit {
     return this.misProductos().filter((p) => p.estado === this.productoTab());
   }
 
+  renovarProducto(productoId: number) {
+    const u = this.user();
+    if (!u) return;
+    this.http
+      .post(`${environment.apiUrl}/producto/${productoId}/renovar?vendedorId=${u.id}`, {})
+      .subscribe({
+        next: () => {
+          this.misProductos.update((ps) =>
+            ps.map((p) =>
+              p.id === productoId
+                ? { ...p, estado: 'DISPONIBLE', ultimoAvisoCaducidadDias: null }
+                : p,
+            ),
+          );
+          this.toast.success('Anuncio reactivado. Vuelve a estar visible.');
+        },
+        error: () => this.toast.error('No se pudo reactivar el anuncio'),
+      });
+  }
+
   cambiarEstadoProducto(productoId: number, nuevoEstado: string) {
     this.http
       .patch(`${environment.apiUrl}/producto/${productoId}/estado`, { estado: nuevoEstado })
@@ -439,6 +459,26 @@ export class MiCuentaComponent implements OnInit {
 
   vehiculosFiltrados() {
     return this.misVehiculos().filter((v) => v.estadoVehiculo === this.vehiculoTab());
+  }
+
+  renovarVehiculo(vehiculoId: number) {
+    const u = this.user();
+    if (!u) return;
+    this.http
+      .post(`${environment.apiUrl}/vehiculo/${vehiculoId}/renovar?publicadorId=${u.id}`, {})
+      .subscribe({
+        next: () => {
+          this.misVehiculos.update((vs) =>
+            vs.map((v) =>
+              v.id === vehiculoId
+                ? { ...v, estadoVehiculo: 'DISPONIBLE', ultimoAvisoCaducidadDias: null }
+                : v,
+            ),
+          );
+          this.toast.success('Anuncio de vehículo reactivado.');
+        },
+        error: () => this.toast.error('No se pudo reactivar el vehículo'),
+      });
   }
 
   confirmVehicleStatusChange(id: number, nuevoEstado: string) {
@@ -613,6 +653,8 @@ export class MiCuentaComponent implements OnInit {
         return '#22c55e';
       case 'RESERVADO':
         return '#f59e0b';
+      case 'EXPIRADO':
+        return '#dc2626';
       case 'VENDIDO':
       case 'AGOTADA':
       case 'PAUSADO':

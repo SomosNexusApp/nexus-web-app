@@ -7,6 +7,7 @@ import { debounceTime, distinctUntilChanged, filter, Subject, takeUntil } from '
 import { AuthStore } from '../../core/auth/auth-store';
 import { AuthService } from '../../core/auth/auth.service';
 import { GuestPopupService } from '../../core/services/guest-popup.service';
+import { NotificationService, NotificacionInAppDto } from '../../core/services/notification.service';
 import { CategoriaPanelComponent } from '../../shared/components/categoria-panel/categoria-panel.component';
 import { ConfirmModalComponent } from '../../shared/components/confirm-modal/confirm-modal.component';
 import { AvatarComponent } from '../../shared/components/avatar/avatar.component';
@@ -29,8 +30,9 @@ interface NavLink {
 export class HeaderComponent implements OnInit, OnDestroy {
   private authStore = inject(AuthStore);
   private authService = inject(AuthService);
-  private guestPopup = inject(GuestPopupService);
+  public guestPopup = inject(GuestPopupService);
   private router = inject(Router);
+  public notificationService = inject(NotificationService);
 
   private destroy$ = new Subject<void>();
 
@@ -39,8 +41,9 @@ export class HeaderComponent implements OnInit, OnDestroy {
   readonly usuario = this.authStore.user;
 
   // UI state
-  readonly notifCount = signal(3);
   readonly isUserDropdownOpen = signal(false);
+  readonly isNotifPanelOpen = signal(false);
+  readonly notifItems = signal<NotificacionInAppDto[]>([]);
 
   // Buscador
   searchControl = new FormControl('');
@@ -126,6 +129,42 @@ export class HeaderComponent implements OnInit, OnDestroy {
   @HostListener('document:click')
   closeDropdown() {
     this.isUserDropdownOpen.set(false);
+    this.isNotifPanelOpen.set(false);
+  }
+
+  toggleNotifPanel(event: Event) {
+    event.stopPropagation();
+    if (!this.isLoggedIn()) {
+      this.guestPopup.showPopup('Inicia sesión para ver notificaciones');
+      return;
+    }
+    this.isNotifPanelOpen.update((v) => !v);
+    if (this.isNotifPanelOpen()) {
+      this.notificationService.getAll(0).subscribe((page: any) => {
+        const list = page?.content ?? page?.contenido ?? [];
+        this.notifItems.set(Array.isArray(list) ? list : []);
+      });
+    }
+  }
+
+  openNotification(n: NotificacionInAppDto) {
+    if (!n.leida) {
+      this.notificationService.markAsRead(n.id).subscribe(() => {
+        this.notifItems.update((items) =>
+          items.map((x) => (x.id === n.id ? { ...x, leida: true } : x)),
+        );
+      });
+    }
+    this.isNotifPanelOpen.set(false);
+    if (n.url) {
+      this.router.navigateByUrl(n.url);
+    }
+  }
+
+  marcarTodasLeidas() {
+    this.notificationService.markAllAsRead().subscribe(() => {
+      this.notifItems.update((items) => items.map((x) => ({ ...x, leida: true })));
+    });
   }
 
   // ── Acciones ────────────────────────────────────────────────────────────────

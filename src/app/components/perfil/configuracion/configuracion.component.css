@@ -159,6 +159,38 @@
   opacity: 0.5;
 }
 
+.avatar-source-options {
+  display: flex;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 4px;
+  border-radius: 12px;
+}
+
+.btn-source {
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn-source.active {
+  background: #a8b4ff;
+  color: #0d0d12;
+}
+
+.btn-source i {
+  font-size: 0.9rem;
+}
+
 /* ================= CONTENT & SECTION CARDS ================= */
 .config-content {
   display: flex;
@@ -647,6 +679,199 @@ input:checked + .elite-slider:before {
   background: var(--glass-extreme); border-radius: 32px;
   width: 90%; max-width: 500px; border: 1px solid var(--glass-border-plus);
   box-shadow: 0 40px 100px rgba(0,0,0,0.9); overflow: hidden;
+}
+
+/* ================= ELITE DELETE MODAL ================= */
+.delete-modal-overlay {
+  background: rgba(0, 0, 0, 0.6) !important;
+  backdrop-filter: blur(15px) !important;
+}
+
+.elite-delete-modal {
+  max-width: 500px !important;
+  background: rgba(20, 20, 25, 0.8) !important;
+  backdrop-filter: blur(30px) saturate(200%) !important;
+  border: 1px solid rgba(239, 68, 68, 0.2) !important;
+  border-radius: 32px !important;
+  padding: 40px !important;
+  text-align: center;
+  box-shadow: 0 30px 60px rgba(0,0,0,0.8), 0 0 40px rgba(239, 68, 68, 0.1);
+  animation: eliteModalEnter 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes eliteModalEnter {
+  from { opacity: 0; transform: scale(0.9) translateY(30px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.modal-header-elite {
+  position: relative;
+  margin-bottom: 30px;
+}
+
+.danger-icon-wrapper {
+  width: 80px;
+  height: 80px;
+  background: rgba(239, 68, 68, 0.1);
+  border-radius: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 20px;
+  font-size: 2.5rem;
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+.modal-header-elite h3 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+  color: white;
+  background: none;
+  -webkit-text-fill-color: initial;
+}
+
+.subtitle-danger {
+  color: rgba(239, 68, 68, 0.8);
+  font-weight: 500;
+  font-size: 0.95rem;
+}
+
+.close-modal-btn {
+  position: absolute;
+  top: -20px;
+  right: -20px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.close-modal-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  transform: rotate(90deg);
+}
+
+.danger-notice {
+  background: rgba(239, 68, 68, 0.05);
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 30px;
+  border: 1px solid rgba(239, 68, 68, 0.1);
+}
+
+.danger-notice p {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.95rem;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.confirmation-form {
+  text-align: left;
+}
+
+.form-group-elite label {
+  display: block;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: rgba(255, 255, 255, 0.5);
+  margin-bottom: 12px;
+  font-weight: 600;
+}
+
+.confirm-keyword {
+  color: white;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+.confirm-input-elite, .password-input-elite {
+  width: 100%;
+  background: rgba(0, 0, 0, 0.2) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: 14px !important;
+  padding: 14px 18px !important;
+  color: white !important;
+  font-size: 1rem !important;
+  transition: all 0.3s !important;
+}
+
+.confirm-input-elite:focus, .password-input-elite:focus {
+  border-color: #ef4444 !important;
+  background: rgba(239, 68, 68, 0.05) !important;
+  box-shadow: 0 0 15px rgba(239, 68, 68, 0.2);
+  outline: none;
+}
+
+.input-icon-wrapper {
+  position: relative;
+}
+
+.input-icon-wrapper i {
+  position: absolute;
+  left: 18px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: rgba(255, 255, 255, 0.3);
+}
+
+.input-icon-wrapper .password-input-elite {
+  padding-left: 45px !important;
+}
+
+.modal-actions-elite {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-top: 40px;
+}
+
+.btn-delete-final {
+  width: 100%;
+  padding: 16px;
+  background: #ef4444;
+  border: none;
+  border-radius: 16px;
+  color: white;
+  font-weight: 700;
+  font-size: 1.05rem;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.btn-delete-final:hover:not(:disabled) {
+  background: #dc2626;
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(239, 68, 68, 0.3);
+}
+
+.btn-delete-final:disabled {
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(255, 255, 255, 0.2);
+  cursor: not-allowed;
+}
+
+.btn-cancel-elite {
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.5);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-cancel-elite:hover {
+  color: white;
 }
 
 /* ================= RESPONSIVE ELITE ================= */

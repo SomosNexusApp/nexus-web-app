@@ -22,6 +22,7 @@ export interface Usuario extends Actor {
   terminosAceptados: boolean;
   newsletterSuscrito: boolean;
   googleId?: string;
+  googleAvatarUrl?: string;
   facebookId?: string;
   isSocial?: boolean;
   versionTerminosAceptados?: string;

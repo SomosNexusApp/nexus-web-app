@@ -274,6 +274,11 @@ export const routes: Routes = [
   },
 
   {
+    path: 'ayuda',
+    loadComponent: () =>
+      import('./components/help/help.component').then((m) => m.HelpComponent),
+  },
+  {
     path: 'denegado',
     loadComponent: () =>
       import('./components/errors/forbidden/forbidden.component').then((m) => m.ForbiddenComponent),

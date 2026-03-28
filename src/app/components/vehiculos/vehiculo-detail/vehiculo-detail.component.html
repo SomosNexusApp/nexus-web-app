@@ -151,6 +151,7 @@
       <div class="seller-avatar">
         <app-avatar 
           [avatarUrl]="vehiculo().publicador?.avatar"
+          [googleAvatarUrl]="vehiculo().publicador?.googleAvatarUrl"
           [nombre]="vehiculo().publicador?.nombre"
           [username]="vehiculo().publicador?.user"
           [size]="60"
@@ -218,6 +219,7 @@
             <div class="reviewer-info">
               <app-avatar 
                 [avatarUrl]="v.comprador?.avatar"
+                [googleAvatarUrl]="v.comprador?.googleAvatarUrl"
                 [nombre]="v.comprador?.nombre"
                 [username]="v.comprador?.user"
                 [size]="40"

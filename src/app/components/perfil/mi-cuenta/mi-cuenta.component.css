@@ -488,6 +488,11 @@
   gap: 4px;
 }
 
+.product-expiry-hint {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
 .product-list-title {
   font-weight: 700;
   font-size: 1rem;

@@ -277,25 +277,63 @@ export class PublishVehiculoComponent implements OnInit {
 
   nextStep() {
     const s = this.currentStep();
-    if (this.canAdvance()) {
-      this.currentStep.update(s => (s + 1) as PublishStep);
-      window.scrollTo(0, 0);
+    if (!this.canAdvance()) {
+      this.handleValidationErrors(s);
+      return;
+    }
+
+    if (s === 4) {
+      this.validarModeracionYContinuar();
     } else {
-      // Feedback específico según el paso
-      const currentForm = this.getCurrentForm();
-      if (currentForm) {
-        currentForm.markAllAsTouched();
-        this.toast.warning('Revisa los campos marcados en rojo');
-        this.scrollToFirstError();
-      } else if (s === 1 && this.step1Form.invalid) {
-        this.step1Form.markAllAsTouched();
-        this.toast.warning('Selecciona el tipo de vehículo para continuar');
-        document.querySelector('.step-0-grid')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      } else if (s === 4 && this.images().length === 0) {
-        this.toast.warning('Sube al menos una imagen del vehículo');
-        // Scroll al área de imágenes
-        document.querySelector('.upload-zone')?.scrollIntoView({ behavior: 'smooth' });
+      this.advance();
+    }
+  }
+
+  private advance(): void {
+    this.currentStep.update(s => (s + 1) as PublishStep);
+    window.scrollTo(0, 0);
+  }
+
+  private validarModeracionYContinuar(): void {
+    const s4 = this.step4Form.getRawValue();
+    const texto = `${s4.titulo} ${s4.descripcion}`;
+    
+    this.uploading.set(true);
+    this.http.post<any>(`${environment.apiUrl}/api/moderation/check-text`, { texto }).subscribe({
+      next: (res) => {
+        this.uploading.set(false);
+        if (res.apropiado) {
+          this.advance();
+        } else {
+          this.toast.error('No podemos incluir este tipo de palabras en el título o descripción al publicar un vehículo');
+        }
+      },
+      error: (err) => {
+        this.uploading.set(false);
+        if (err.status === 403 || err.status === 401) {
+          this.toast.error('Error de permisos en la moderación. Contacta con soporte.');
+        } else {
+          this.advance();
+        }
       }
+    });
+  }
+
+  private handleValidationErrors(s: number): void {
+    // Feedback específico según el paso
+    const currentForm = this.getCurrentForm();
+    if (currentForm) {
+      currentForm.markAllAsTouched();
+      this.toast.warning('Revisa los campos marcados en rojo');
+      this.scrollToFirstError();
+    } else if (s === 1 && this.step1Form.invalid) {
+      this.step1Form.markAllAsTouched();
+      this.toast.warning('Selecciona el tipo de vehículo para continuar');
+      document.querySelector('.step-0-grid')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    } else if (s === 4 && this.images().length === 0) {
+      this.toast.warning('Sube al menos una imagen del vehículo');
+      // Scroll al área de imágenes
+      document.querySelector('.upload-zone')?.scrollIntoView({ behavior: 'smooth' });
     }
   }
 

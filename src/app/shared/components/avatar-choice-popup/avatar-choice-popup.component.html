@@ -1,0 +1,74 @@
+<div class="avatar-choice-backdrop" (click)="confirmar()">
+  <div class="avatar-choice-modal" (click)="$event.stopPropagation()">
+    
+    <div class="modal-header">
+      <div class="header-icon">
+        <i class="fas fa-user-circle"></i>
+      </div>
+      <h2>¿Cómo quieres que te vean?</h2>
+      <p>Elige tu imagen de perfil para la comunidad Nexus.</p>
+    </div>
+
+    <div class="choice-grid">
+      <!-- Opción Google -->
+      <div 
+        class="choice-card" 
+        [class.selected]="selectedOption() === 'GOOGLE'"
+        (click)="selectOption('GOOGLE')"
+        *ngIf="user()?.googleAvatarUrl"
+      >
+        <div class="avatar-preview">
+          <app-avatar 
+            [avatarUrl]="user()?.googleAvatarUrl" 
+            [size]="100"
+            customClass="choice-img"
+          ></app-avatar>
+        </div>
+        <div class="choice-info">
+          <h3>Foto de Google</h3>
+          <p>Usa la foto actual de tu cuenta vinculada.</p>
+        </div>
+        <div class="selection-indicator">
+          <i class="fas fa-check-circle"></i>
+        </div>
+      </div>
+
+      <!-- Opción Iniciales -->
+      <div 
+        class="choice-card" 
+        [class.selected]="selectedOption() === 'INITIALS'"
+        (click)="selectOption('INITIALS')"
+      >
+        <div class="avatar-preview">
+          <app-avatar 
+            [avatarUrl]="null" 
+            [nombre]="user()?.nombre"
+            [username]="user()?.user"
+            [size]="100"
+            customClass="choice-img"
+          ></app-avatar>
+        </div>
+        <div class="choice-info">
+          <h3>Mis Iniciales</h3>
+          <p>Un diseño limpio generado por Nexus.</p>
+        </div>
+        <div class="selection-indicator">
+          <i class="fas fa-check-circle"></i>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button 
+        class="btn-confirm" 
+        [disabled]="!selectedOption() || isLoading()"
+        (click)="confirmar()"
+      >
+        <span *ngIf="!isLoading()">Continuar a Nexus</span>
+        <span *ngIf="isLoading()" class="loader"></span>
+      </button>
+      <p class="footer-note">Podrás cambiar esto más tarde en tu configuración.</p>
+    </div>
+
+  </div>
+</div>

@@ -1,0 +1,87 @@
+.sale-banner-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  background: rgba(0, 0, 0, 0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  animation: fadeIn 0.25s ease;
+}
+
+.sale-banner-modal {
+  max-width: 520px;
+  width: 100%;
+  background: linear-gradient(145deg, #1a1025 0%, #0d0d12 100%);
+  border: 1px solid rgba(124, 58, 237, 0.35);
+  border-radius: 20px;
+  padding: 28px 32px;
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(255, 255, 255, 0.04);
+}
+
+.sale-banner-modal h2 {
+  margin: 0 0 12px;
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: -0.02em;
+}
+
+.sale-banner-modal p {
+  margin: 0 0 20px;
+  color: rgba(255, 255, 255, 0.75);
+  line-height: 1.6;
+  font-size: 0.95rem;
+}
+
+.sale-banner-modal ol {
+  margin: 0 0 24px;
+  padding-left: 20px;
+  color: rgba(255, 255, 255, 0.85);
+  line-height: 1.7;
+  font-size: 0.9rem;
+}
+
+.sale-banner-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.sale-banner-actions button {
+  flex: 1;
+  min-width: 140px;
+  border: none;
+  border-radius: 12px;
+  padding: 12px 18px;
+  font-weight: 700;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.sale-banner-actions .btn-primary-sale {
+  background: linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%);
+  color: #fff;
+  box-shadow: 0 8px 24px rgba(124, 58, 237, 0.35);
+}
+
+.sale-banner-actions .btn-primary-sale:hover {
+  transform: translateY(-1px);
+}
+
+.sale-banner-actions .btn-ghost-sale {
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}

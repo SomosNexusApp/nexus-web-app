@@ -8,6 +8,7 @@ import { AvatarComponent } from '../../../shared/components/avatar/avatar.compon
 interface ProductSlide {
   user: string;
   avatar: string;
+  googleAvatarUrl?: string;
   price: string;
   image: string;
   badge: string;

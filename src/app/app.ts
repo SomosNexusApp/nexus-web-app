@@ -1,4 +1,5 @@
 import { Component, inject, OnInit, signal, effect } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { RouterOutlet, Router, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs';
 
@@ -6,13 +7,14 @@ import { filter } from 'rxjs';
 import { GuestPopupService } from './core/services/guest-popup.service';
 import { AuthStore } from './core/auth/auth-store';
 import { WebSocketService } from './core/services/websocket.service';
-import { NotificationService } from './core/services/notification.service';
+import { NotificationService, NotificacionInAppDto } from './core/services/notification.service';
 
 // Popups Globales
 import { RegisterPopupComponent } from './shared/components/register-popup/register-popup.component';
 import { OauthTermsPopupComponent } from './components/auth/oauth-terms-popup/oauth-terms-popup.component';
 import { TwoFactorPopupComponent } from './shared/components/two-factor-popup/two-factor-popup.component';
 import { AccountTypePopupComponent } from './shared/components/account-type-popup/account-type-popup.component';
+import { AvatarChoicePopupComponent } from './shared/components/avatar-choice-popup/avatar-choice-popup.component';
 import { ToastContainerComponent } from './shared/components/toast-container/toast-container.component';
 import { HeaderComponent } from './components/header/header.component';
 
@@ -20,15 +22,19 @@ import { HeaderComponent } from './components/header/header.component';
   selector: 'app-root',
   standalone: true,
   imports: [
+    CommonModule,
     RouterOutlet,
     AccountTypePopupComponent,
     RegisterPopupComponent,
     OauthTermsPopupComponent,
     TwoFactorPopupComponent,
+    AccountTypePopupComponent,
+    AvatarChoicePopupComponent,
     ToastContainerComponent,
     HeaderComponent,
   ],
   templateUrl: './app.html',
+  styleUrls: ['./app.component.scss'],
 })
 export class AppComponent implements OnInit {
   // Inyectamos el servicio de invitados para acceder a sus signals desde el HTML
@@ -46,16 +52,43 @@ export class AppComponent implements OnInit {
   showTwoFactorPopup = signal(false);
   showAccountTypePopup = signal(false);
 
+  /** Modal prioritario: venta pagada — pasos de envío */
+  saleBanner = signal<NotificacionInAppDto | null>(null);
+
   constructor() {
     // Conectar o desconectar WebSocket dinámicamente según estado auth
     effect(() => {
       if (this.authStore.isLoggedIn()) {
         this.wsService.connect();
         this.notifService.init();
+        queueMicrotask(() => {
+          this.notifService.getDestacadasPendientes().subscribe((list) => {
+            const sale = list.find(
+              (n) => n.tipo === 'COMPRA_PAGADA_VENDEDOR' || n.destacada === true,
+            );
+            if (sale) this.saleBanner.set(sale);
+          });
+        });
       } else {
         this.wsService.disconnect();
+        this.notifService.reset();
+        this.saleBanner.set(null);
       }
     });
+  }
+
+  closeSaleBanner(): void {
+    const n = this.saleBanner();
+    if (n?.id != null) {
+      this.notifService.markAsRead(n.id).subscribe(() => this.saleBanner.set(null));
+    } else {
+      this.saleBanner.set(null);
+    }
+  }
+
+  goMisVentas(): void {
+    this.router.navigate(['/perfil'], { queryParams: { tab: 'ventas' } });
+    this.closeSaleBanner();
   }
 
   ngOnInit() {
@@ -81,11 +114,22 @@ export class AppComponent implements OnInit {
   onTwoFactorCompletado() {
     this.guestPopup.closeTwoFactorPopup();
 
-    // El "truco maestro": Si tras cerrar el 2FA, vemos que es un usuario nuevo (no tiene tipoCuenta),
-    // le lanzamos el popup de seleccionar Empresa o Personal.
     const user = this.authStore.user();
     if (user && !user.tipoCuenta) {
       this.guestPopup.showAccountTypePopup();
+    }
+  }
+
+  onAccountTypeCompletado() {
+    this.guestPopup.closeAccountTypePopup();
+
+    const user = this.authStore.user();
+    // Si es un usuario de Google y tiene foto, le dejamos elegir
+    if (user && user.googleAvatarUrl) {
+      this.guestPopup.showAvatarChoicePopup();
+    } else {
+      // Si no es Google, simplemente terminamos el flujo
+      this.router.navigate(['/']);
     }
   }
 }

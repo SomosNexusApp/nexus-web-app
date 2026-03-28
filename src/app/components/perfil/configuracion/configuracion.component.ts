@@ -264,6 +264,16 @@ export class ConfiguracionComponent implements OnInit, AfterViewInit, OnDestroy 
     }
   }
 
+  setAvatarChoice(choice: 'GOOGLE' | 'INITIALS') {
+    this.http.patch(`${this.backendUrl}/usuario/me/avatar-choice`, { choice }).subscribe({
+      next: () => {
+        this.toast.success('Preferencia de imagen actualizada');
+        this.authService.loadCurrentUser().subscribe();
+      },
+      error: () => this.toast.error('Error al actualizar preferencia')
+    });
+  }
+
   guardarPerfil() {
     const u = this.user();
     if (!u) return;
@@ -538,11 +548,15 @@ export class ConfiguracionComponent implements OnInit, AfterViewInit, OnDestroy 
   }
 
   confirmarEliminacion() {
+    const u = this.user();
+    const isSocial = u?.googleId || u?.facebookId;
+
     if (this.deleteAccount().confirmText !== 'ELIMINAR') {
       this.toast.warning("Debes escribir 'ELIMINAR' para confirmar.");
       return;
     }
-    if (!this.deleteAccount().password) {
+
+    if (!isSocial && !this.deleteAccount().password) {
       this.toast.warning('La contraseña es obligatoria.');
       return;
     }

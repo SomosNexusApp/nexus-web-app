@@ -40,7 +40,7 @@
       </div>
     </header>
 
-    <main class="publish-content" [class.grid-layout]="currentStep() > 0">
+    <main class="publish-content" [class.grid-layout]="currentStep() > 0 && currentStep() !== 1 && currentStep() !== 2" [class.no-preview]="currentStep() === 1 || currentStep() === 2">
       <div class="form-area animate-fade-in">
         <!-- PASO 0: SELECTOR PREMIUM -->
         @if (currentStep() === 0) {
@@ -492,8 +492,8 @@
         }
       </div>
 
-      <!-- PREVIEW COL (OCULTA EN STEP 0) -->
-      @if (currentStep() > 0) {
+      <!-- PREVIEW COL (OCULTA EN STEP 0, 1 Y 2) -->
+      @if (currentStep() > 0 && currentStep() !== 1 && currentStep() !== 2) {
         <aside class="preview-column">
           <div class="sticky-preview">
             <span class="preview-label">Vista previa</span>

@@ -44,8 +44,16 @@
                   <i class="fas fa-camera"></i> Cambiar imagen
                   <input type="file" hidden (change)="onAvatarSelected($event)" accept="image/*" />
                 </label>
-                <p class="help-text">JPG, GIF o PNG. Max 5MB.</p>
+                <div class="avatar-source-options" *ngIf="user()?.googleAvatarUrl">
+                   <button type="button" class="btn-source" [class.active]="user()?.avatar === user()?.googleAvatarUrl" (click)="setAvatarChoice('GOOGLE')">
+                     <i class="fab fa-google"></i> Google
+                   </button>
+                   <button type="button" class="btn-source" [class.active]="!user()?.avatar || user()?.avatar.includes('ui-avatars.com')" (click)="setAvatarChoice('INITIALS')">
+                     <i class="fas fa-font"></i> Iniciales
+                   </button>
+                </div>
               </div>
+              <p class="help-text">JPG, GIF o PNG. Max 5MB.</p>
             </div>
           </div>
 
@@ -609,4 +617,65 @@
     icon="fas fa-user-shield"
     (confirmed)="confirmDisable2FA()"
   />
+</div>
+
+<!-- Modal de Eliminación de Cuenta -->
+<div class="modal-overlay delete-modal-overlay" *ngIf="showDeleteModal()">
+  <div class="modal-content elite-delete-modal">
+    <div class="modal-header-elite">
+      <div class="danger-icon-wrapper">
+        <i class="fas fa-exclamation-triangle"></i>
+      </div>
+      <h3>¿Eliminar tu cuenta?</h3>
+      <p class="subtitle-danger">Esta acción no se puede deshacer.</p>
+      <button class="close-modal-btn" (click)="showDeleteModal.set(false)">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    <div class="modal-body">
+      <div class="danger-notice">
+        <p>Al confirmar, perderás permanentemente el acceso a Nexus, incluyendo tus productos, mensajes, favoritos y reputación acumulada.</p>
+      </div>
+      
+      <div class="confirmation-form">
+        <div class="form-group-elite">
+          <label>Escribe <span class="confirm-keyword">ELIMINAR</span> para confirmar</label>
+          <input 
+            type="text" 
+            placeholder="Escribe aquí..."
+            [ngModel]="deleteAccount().confirmText"
+            (ngModelChange)="updateDeleteAccountField('confirmText', $event)"
+            class="confirm-input-elite"
+          />
+        </div>
+
+        <!-- Solo pide contraseña si NO es de Google/Facebook -->
+        <div class="form-group-elite mt-4" *ngIf="!user()?.googleId && !user()?.facebookId">
+          <label>Confirma con tu contraseña</label>
+          <div class="input-icon-wrapper">
+            <i class="fas fa-lock"></i>
+            <input 
+              type="password" 
+              placeholder="••••••••"
+              [ngModel]="deleteAccount().password"
+              (ngModelChange)="updateDeleteAccountField('password', $event)"
+              class="password-input-elite"
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-actions-elite">
+      <button class="btn-cancel-elite" (click)="showDeleteModal.set(false)">No, volver atrás</button>
+      <button 
+        class="btn-delete-final" 
+        [disabled]="deleteAccount().confirmText !== 'ELIMINAR' || (!user()?.googleId && !user()?.facebookId && !deleteAccount().password)"
+        (click)="confirmarEliminacion()"
+      >
+        <span>Eliminar Permanentemente</span>
+      </button>
+    </div>
+  </div>
 </div>
