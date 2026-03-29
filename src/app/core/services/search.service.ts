@@ -1,7 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable, forkJoin, of } from 'rxjs';
-import { map, catchError } from 'rxjs/operators';
+import { Observable, forkJoin, of, shareReplay, switchMap, concat, map, catchError, take, tap } from 'rxjs';
 
 import { Producto } from '../../models/producto.model';
 import { Oferta } from '../../models/oferta.model';
@@ -57,8 +56,22 @@ export class SearchService {
   private http = inject(HttpClient);
   private apiUrl = environment.apiUrl;
 
-  private marcasCache: string[] = [];
-  private modelosCache: { [marca: string]: string[] } = {};
+  private marcasCache: any[] = [];
+  private marcaIdMap: { [display: string]: string } = {};
+  private modelosCache: { [key: string]: string[] } = {};
+  private localDatabase$: Observable<any>;
+
+  constructor() {
+    // Cargar base de datos local de alto rendimiento (Elite Engine)
+    this.localDatabase$ = this.http.get<any>('assets/data/car-database.json').pipe(
+      tap(db => console.log('Nexus Data Engine (v4): Base de datos local cargada con éxito', db.brands?.length, 'marcas')),
+      shareReplay(1),
+      catchError(err => {
+        console.error('Nexus Data Engine (v4): ERROR al cargar la base de datos local assets/data/car-database.json', err);
+        return of({ brands: [] });
+      })
+    );
+  }
 
   // ─── MÉTODO PÚBLICO PRINCIPAL ───────────────────────────────────────────────
 
@@ -75,6 +88,7 @@ export class SearchService {
       .set('size', String(params.size ?? 20));
 
     if (params.q) p = p.set('q', params.q);
+    if (tipo && tipo !== 'TODOS') p = p.set('tipo', tipo);
     if (params.categoria) p = p.set('categoria', String(params.categoria));
     if (this.hasValue(params.precioMin)) p = p.set('precioMin', String(params.precioMin));
     if (this.hasValue(params.precioMax)) p = p.set('precioMax', String(params.precioMax));
@@ -312,33 +326,83 @@ export class SearchService {
     );
   }
 
-  getMarcasVehiculos(): Observable<string[]> {
+  getMarcasVehiculos(): Observable<any[]> {
     if (this.marcasCache.length > 0) return of(this.marcasCache);
-    const url = 'https://vpic.nhtsa.dot.gov/api/vehicles/GetMakesForVehicleType/car?format=json';
-    return this.http.get<any>(url).pipe(
-      map((res) => {
-        const marcas = res.Results.map((item: any) => this.capitalize(item.MakeName)).sort();
-        this.marcasCache = Array.from(new Set(marcas)) as string[];
-        return this.marcasCache;
-      }),
-      catchError(() =>
-        of(['Audi', 'BMW', 'Ford', 'Mercedes-Benz', 'Renault', 'Seat', 'Toyota', 'Volkswagen']),
-      ),
+    
+    return this.localDatabase$.pipe(
+      switchMap(db => {
+        if (db.brands && db.brands.length > 0) {
+          const brands = db.brands.map((b: any) => ({
+            name: b.name,
+            country: b.pais_origen
+          })).sort((a: any, b: any) => a.name.localeCompare(b.name));
+          this.marcasCache = brands;
+          return of(brands);
+        }
+        
+        // Fallback a CarQuery si la local falla
+        const url = 'https://www.carqueryapi.com/api/0.3/?cmd=getMakes&sold_in_us=0';
+        return this.http.jsonp<{ Makes: any[] }>(url, 'callback').pipe(
+          map(res => {
+            const marcas = res.Makes.map(m => ({ name: m.make_display, country: 'Internacional' })).sort((a: any, b: any) => a.name.localeCompare(b.name));
+            this.marcasCache = marcas;
+            return marcas;
+          }),
+          catchError(() => of([{ name: 'Renault', country: 'Francia' }, { name: 'Audi', country: 'Alemania' }]))
+        );
+      })
     );
   }
 
   getModelosPorMarca(marca: string): Observable<string[]> {
     if (!marca) return of([]);
     const key = marca.toLowerCase();
-    if (this.modelosCache[key]) return of(this.modelosCache[key]);
-    const url = `https://vpic.nhtsa.dot.gov/api/vehicles/GetModelsForMake/${encodeURIComponent(key)}?format=json`;
-    return this.http.get<any>(url).pipe(
-      map((res) => {
-        const modelos = res.Results.map((item: any) => this.capitalize(item.Model_Name)).sort();
-        this.modelosCache[key] = Array.from(new Set(modelos)) as string[];
-        return this.modelosCache[key];
-      }),
-      catchError(() => of([])),
+    
+    // Carga desde base de datos local (Instantánea)
+    const localModels$ = this.localDatabase$.pipe(
+      take(1),
+      map(db => {
+        const brand = db.brands.find((b: any) => b.name.toLowerCase() === key);
+        const models = brand ? brand.models.sort() : [];
+        console.log(`Nexus Data Engine (v4): Cargando modelos locales para ${marca}:`, models.length, 'modelos encontrados');
+        return models;
+      })
+    );
+
+    // Carga desde APIs externas (Asíncrona)
+    const brandId = marca.toLowerCase().replace(/\s+/g, '-');
+    const cqUrl = `https://www.carqueryapi.com/api/0.3/?cmd=getModels&make=${encodeURIComponent(brandId)}&sold_in_us=0`;
+    // Carga desde APIs externas (Asíncrona) - Solo si parece una marca seria (>3 chars) para evitar 500s de la API
+    const isSeriousSearch = marca.length >= 4 || this.marcasCache.some(m => m.name.toLowerCase() === marca.toLowerCase());
+    const externalModels$ = (!isSeriousSearch) ? of([]) : this.http.jsonp<{ Models: any[] }>(cqUrl, 'callback').pipe(
+      map(res => (res?.Models || []).map(m => m.model_name).sort()),
+      catchError(() => {
+        const odsUrl = `https://public.opendatasoft.com/api/explore/v2.1/catalog/datasets/all-vehicles-model/records?limit=100&refine=make%3A"${encodeURIComponent(marca.toUpperCase())}"`;
+        return this.http.get<any>(odsUrl).pipe(
+          map(odsRes => (odsRes?.results || []).map((r: any) => r.model).sort()),
+          catchError(() => of([]))
+        );
+      })
+    );
+
+    // Híbrido: Emitir local al momento, luego mergear con externa
+    return localModels$.pipe(
+      switchMap(local => {
+        // Primera emisión: solo local
+        const initial$ = of(local);
+        
+        // Segunda emisión: unida y deduplicada
+        const combined$ = externalModels$.pipe(
+          map(ext => {
+            const joined = [...new Set([...local, ...ext])];
+            const sorted = joined.sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }));
+            this.modelosCache[key] = sorted;
+            return sorted;
+          })
+        );
+
+        return concat(initial$, combined$);
+      })
     );
   }
 

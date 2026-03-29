@@ -21,6 +21,9 @@
       <div class="img-overlay"></div>
 
       <div class="top-badges">
+        @if ($any(producto).patrocinado || $any(producto).sponsored) {
+          <span class="badge patrocinado-badge">Patrocinado</span>
+        }
         @if (producto.condicion) {
           <span class="badge condition-badge" [ngClass]="condicionClass">
             {{ formatCondicion }}

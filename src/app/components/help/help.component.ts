@@ -178,6 +178,101 @@ export class HelpComponent {
       pregunta: '¿Qué es el seguro de protección al comprador?',
       respuesta: 'Es una pequeña tasa que aplicamos para garantizar que recuperas tu dinero si algo sale mal con el producto o el envío.',
       categoria: 'compras'
+    },
+
+    // VIAJES (NEW)
+    {
+      pregunta: '¿Cómo funcionan las ofertas de viajes en Nexus?',
+      respuesta: 'Nexus selecciona las mejores ofertas de agencias colaboradoras. Puedes ver los detalles, disponibilidad y reservar directamente desde la ficha de la oferta usando nuestra pasarela de pago.',
+      categoria: 'viajes'
+    },
+    {
+      pregunta: '¿Qué incluye el precio de un viaje?',
+      respuesta: 'Cada oferta es única. En la sección "Qué incluye" de la oferta verás detallado si incluye vuelos, hotel, traslados o régimen de comidas (TI, PC, MP).',
+      categoria: 'viajes'
+    },
+    {
+      pregunta: '¿Puedo cancelar una reserva de viaje?',
+      respuesta: 'Las políticas de cancelación dependen de la oferta y la antelación. Consulta las condiciones específicas en tu correo de confirmación o contacta con el soporte de Viajes.',
+      categoria: 'viajes'
+    },
+    {
+      pregunta: '¿Necesito seguro de viaje?',
+      respuesta: 'Recomendamos encarecidamente contratar un seguro. Muchas de nuestras ofertas premium ya lo incluyen de serie, revisa los detalles en la ficha del viaje.',
+      categoria: 'viajes'
+    },
+
+    // VEHICULOS (NEW)
+    {
+      pregunta: '¿Cómo contacto con un vendedor de un vehículo?',
+      respuesta: 'Puedes usar el chat directo de Nexus para preguntar detalles. En vehículos de concesionarios, a veces verás un botón de "Llamar" para contacto telefónico directo.',
+      categoria: 'vehiculos'
+    },
+    {
+      pregunta: '¿Nexus revisa el estado de los vehículos?',
+      respuesta: 'Nexus es una plataforma de anuncios. Recomendamos siempre ver el vehículo en persona y, si es posible, realizar una revisión mecánica antes de completar la compra.',
+      categoria: 'vehiculos'
+    },
+    {
+      pregunta: '¿Qué filtros puedo aplicar en Nexus Motor?',
+      respuesta: 'Puedes filtrar por marca, modelo, año, kilometraje, tipo de combustible (Eco, Híbrido, Eléctrico) y ubicación para encontrar lo que buscas cerca de ti.',
+      categoria: 'vehiculos'
+    },
+    {
+      pregunta: '¿Cómo se gestiona el cambio de nombre de un coche?',
+      respuesta: 'La transferencia de titularidad debe gestionarse de forma externa a la app, aunque en Nexus Motor ofrecemos guías y contactos de gestorías colaboradoras para facilitarte el trámite.',
+      categoria: 'vehiculos'
+    },
+
+    // NEXUS ELITE & PRO (NEW)
+    {
+      pregunta: '¿Qué ventajas tiene el diseño Nexus Elite?',
+      respuesta: 'Es nuestra nueva interfaz ultra-fluida con glassmorphing avanzado, diseñada para que navegar sea una experiencia visual espectacular y extremadamente rápida.',
+      categoria: 'elite'
+    },
+    {
+      pregunta: '¿Cómo activar las herramientas profesionales?',
+      respuesta: 'Si eres un profesional o empresa, ve a Configuración > Cuenta y selecciona "Convertir a Profesional". Desbloquearás estadísticas de ventas y gestión de stock avanzada.',
+      categoria: 'elite'
+    },
+    {
+      pregunta: '¿Qué es el Mega Menú inteligente?',
+      respuesta: 'Es el nuevo sistema de navegación que te muestra preventas y ofertas destacadas con solo pasar el ratón por las categorías principales del header.',
+      categoria: 'elite'
+    },
+
+    // SOPORTE TECNICO (NEW)
+    {
+      pregunta: '¿Cómo instalo Nexus como aplicación en mi móvil?',
+      respuesta: 'Al abrir Nexus en Chrome (Android) o Safari (iOS), pulsa en "Añadir a pantalla de inicio". Se instalará como una PWA ligera que funciona igual que una app nativa.',
+      categoria: 'tecnico'
+    },
+    {
+      pregunta: 'No recibo notificaciones de mensajes, ¿qué hago?',
+      respuesta: 'Asegúrate de haber dado permiso de notificaciones en tu navegador. Puedes revisar esto en Configuración > Privacidad y Seguridad dentro de Nexus.',
+      categoria: 'tecnico'
+    },
+    {
+      pregunta: '¿Nexus funciona sin conexión a internet?',
+      respuesta: 'Como PWA, Nexus puede mostrarte contenido cacheado recientemente (tus favoritos o últimos chats), pero necesitarás conexión para enviar mensajes o realizar compras.',
+      categoria: 'tecnico'
+    },
+    {
+      pregunta: 'La imágenes tardan en cargar, ¿es normal?',
+      respuesta: 'Nexus optimiza las imágenes automáticamente para tu dispositivo. Si tardan, revisa tu conexión. En modo "Ahorro de datos", la calidad se reduce para mayor velocidad.',
+      categoria: 'tecnico'
+    },
+
+    // MÁS SOBRE SEGURIDAD
+    {
+      pregunta: '¿Cómo sé si un vendedor es de confianza?',
+      respuesta: 'Fíjate en las estrellas de valoración, el número de ventas completadas y si tiene el sello de "Usuario Verificado" (check azul).',
+      categoria: 'seguridad'
+    },
+    {
+      pregunta: '¿Es seguro dar mi número de teléfono?',
+      respuesta: 'Recomendamos usar siempre el chat de Nexus. No compartas tu teléfono a menos que vayas a cerrar una venta en persona y te sientas seguro.',
+      categoria: 'seguridad'
     }
   ];
 

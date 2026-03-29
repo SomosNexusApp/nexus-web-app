@@ -1,4 +1,4 @@
-/* ================= VARIABLES - NEXUS ELITE PRO ================= */
+/* ================= VARIABLES - NEXUS PREMIUM PRO ================= */
 .configuracion-page {
   --bg-deep: #050505;
   --glass-extreme: rgba(10, 10, 15, 0.85);
@@ -8,7 +8,7 @@
   --accent-blue: #3b82f6;
   --text-primary: #ffffff;
   --text-dim: #88889a;
-  --radius-elite: 24px;
+  --radius-premium: 24px;
   --shadow-premium: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
   --transition-smooth: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
 }
@@ -51,7 +51,7 @@
 }
 
 /* ================= SIDEBAR NEXUS GLASS ================= */
-/* ================= ELITE NAVIGATION SIDEBAR ================= */
+/* ================= PREMIUM NAVIGATION SIDEBAR ================= */
 .config-sidebar {
   position: sticky;
   top: 150px; /* Synchronized 150px sticky top */
@@ -251,7 +251,7 @@
   box-shadow: 0 40px 80px -20px rgba(0,0,0,0.8);
 }
 
-/* ================= ELITE FORM DESIGN ================= */
+/* ================= PREMIUM FORM DESIGN ================= */
 .form-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -334,7 +334,7 @@
   to { transform: rotate(360deg); }
 }
 
-/* ================= ELITE TOGGLES ================= */
+/* ================= PREMIUM TOGGLES ================= */
 .toggle-item {
   display: flex;
   justify-content: space-between;
@@ -364,17 +364,17 @@
   color: var(--text-dim);
 }
 
-/* CUSTOM ELITE SWITCH */
-.elite-toggle {
+/* CUSTOM PREMIUM SWITCH */
+.premium-toggle {
   position: relative;
   display: inline-block;
   width: 60px;
   height: 32px;
 }
 
-.elite-toggle input { opacity: 0; width: 0; height: 0; }
+.premium-toggle input { opacity: 0; width: 0; height: 0; }
 
-.elite-slider {
+.premium-slider {
   position: absolute;
   cursor: pointer;
   top: 0; left: 0; right: 0; bottom: 0;
@@ -384,7 +384,7 @@
   border: 1px solid var(--glass-border-lite);
 }
 
-.elite-slider:before {
+.premium-slider:before {
   position: absolute;
   content: "";
   height: 24px; width: 24px;
@@ -395,13 +395,13 @@
   box-shadow: 0 4px 8px rgba(0,0,0,0.3);
 }
 
-input:checked + .elite-slider {
+input:checked + .premium-slider {
   background: var(--accent-purple);
   border-color: rgba(168, 85, 247, 0.3);
   box-shadow: 0 0 20px rgba(168, 85, 247, 0.4);
 }
 
-input:checked + .elite-slider:before {
+input:checked + .premium-slider:before {
   transform: translateX(28px);
 }
 
@@ -603,7 +603,7 @@ input:checked + .elite-slider:before {
   border-color: #ef4444;
 }
 
-/* ================= ELITE ALERTS ================= */
+/* ================= PREMIUM ALERTS ================= */
 .alert {
   display: flex;
   gap: 20px;
@@ -681,13 +681,13 @@ input:checked + .elite-slider:before {
   box-shadow: 0 40px 100px rgba(0,0,0,0.9); overflow: hidden;
 }
 
-/* ================= ELITE DELETE MODAL ================= */
+/* ================= PREMIUM DELETE MODAL ================= */
 .delete-modal-overlay {
   background: rgba(0, 0, 0, 0.6) !important;
   backdrop-filter: blur(15px) !important;
 }
 
-.elite-delete-modal {
+.premium-delete-modal {
   max-width: 500px !important;
   background: rgba(20, 20, 25, 0.8) !important;
   backdrop-filter: blur(30px) saturate(200%) !important;
@@ -696,15 +696,15 @@ input:checked + .elite-slider:before {
   padding: 40px !important;
   text-align: center;
   box-shadow: 0 30px 60px rgba(0,0,0,0.8), 0 0 40px rgba(239, 68, 68, 0.1);
-  animation: eliteModalEnter 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  animation: premiumModalEnter 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-@keyframes eliteModalEnter {
+@keyframes premiumModalEnter {
   from { opacity: 0; transform: scale(0.9) translateY(30px); }
   to { opacity: 1; transform: scale(1) translateY(0); }
 }
 
-.modal-header-elite {
+.modal-header-premium {
   position: relative;
   margin-bottom: 30px;
 }
@@ -723,7 +723,7 @@ input:checked + .elite-slider:before {
   border: 1px solid rgba(239, 68, 68, 0.2);
 }
 
-.modal-header-elite h3 {
+.modal-header-premium h3 {
   font-size: 1.75rem;
   font-weight: 700;
   margin-bottom: 8px;
@@ -779,7 +779,7 @@ input:checked + .elite-slider:before {
   text-align: left;
 }
 
-.form-group-elite label {
+.form-group-premium label {
   display: block;
   font-size: 0.85rem;
   text-transform: uppercase;
@@ -795,7 +795,7 @@ input:checked + .elite-slider:before {
   text-underline-offset: 4px;
 }
 
-.confirm-input-elite, .password-input-elite {
+.confirm-input-premium, .password-input-premium {
   width: 100%;
   background: rgba(0, 0, 0, 0.2) !important;
   border: 1px solid rgba(255, 255, 255, 0.1) !important;
@@ -806,7 +806,7 @@ input:checked + .elite-slider:before {
   transition: all 0.3s !important;
 }
 
-.confirm-input-elite:focus, .password-input-elite:focus {
+.confirm-input-premium:focus, .password-input-premium:focus {
   border-color: #ef4444 !important;
   background: rgba(239, 68, 68, 0.05) !important;
   box-shadow: 0 0 15px rgba(239, 68, 68, 0.2);
@@ -825,11 +825,11 @@ input:checked + .elite-slider:before {
   color: rgba(255, 255, 255, 0.3);
 }
 
-.input-icon-wrapper .password-input-elite {
+.input-icon-wrapper .password-input-premium {
   padding-left: 45px !important;
 }
 
-.modal-actions-elite {
+.modal-actions-premium {
   display: flex;
   flex-direction: column;
   gap: 15px;
@@ -861,7 +861,7 @@ input:checked + .elite-slider:before {
   cursor: not-allowed;
 }
 
-.btn-cancel-elite {
+.btn-cancel-premium {
   background: transparent;
   border: none;
   color: rgba(255, 255, 255, 0.5);
@@ -870,11 +870,11 @@ input:checked + .elite-slider:before {
   transition: all 0.2s;
 }
 
-.btn-cancel-elite:hover {
+.btn-cancel-premium:hover {
   color: white;
 }
 
-/* ================= RESPONSIVE ELITE ================= */
+/* ================= RESPONSIVE PREMIUM ================= */
 @media (max-width: 1100px) {
   .config-layout-grid { grid-template-columns: 1fr; gap: 40px; }
   .config-sidebar { position: static; }

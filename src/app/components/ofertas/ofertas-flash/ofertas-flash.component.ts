@@ -44,10 +44,9 @@ export class OfertasFlashComponent implements OnInit {
   cargarOfertas() {
     this.loading.set(true);
     const usuarioId = this.authStore.user()?.id;
-    let url = `${environment.apiUrl}/oferta/trending`;
+    let url = `${environment.apiUrl}/oferta/flash`;
     // Para la página completa, pedimos más resultados (p.ej. 40)
-    url += `?size=40`;
-    if (usuarioId) url += `&usuarioId=${usuarioId}`;
+    if (usuarioId) url += `?usuarioId=${usuarioId}`;
 
     this.http.get<any>(url).subscribe({
       next: (res) => {

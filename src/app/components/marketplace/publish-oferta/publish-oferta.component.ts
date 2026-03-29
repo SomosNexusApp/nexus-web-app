@@ -58,17 +58,37 @@ export class PublishOfertaComponent implements OnInit {
 
   // Mapa de iconos SVG basado en el campo 'icono' del backend
   iconPaths: Record<string, string> = {
-    'cpu': 'M4 4h16v16H4V4zm0 5h16M4 15h16M9 4v16M15 4v16',
-    'shirt': 'M6.5 2h11l1 4-5 3v11H9.5V9l-5-3z',
-    'home': 'M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z',
-    'car': 'M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12.4V16c0 .6.4 1 1 1h2',
-    'laptop': 'M2 16h20M2 16v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2M2 16V6a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v10',
-    'gamepad': 'M6 12h4M12 12h.01M15 10v4M18 12h.01M3 7h18a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2z',
-    'bicycle': 'M12 12a5 5 0 1 0 0 10 5 5 0 0 0 0-10zm0 0l-3-9h6l-3 9z',
-    'book': 'M4 19.5A2.5 2.5 0 0 1 6.5 17H20M4 19.5A2.5 2.5 0 0 0 6.5 22H20M4 19.5V4.5A2.5 2.5 0 0 1 6.5 2H20v15H6.5a2.5 2.5 0 0 0-2.5 2.5z',
-    'toy-brick': 'M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83',
-    'building': 'M3 21h18M3 7v14M21 21V7M9 21V3h6v18'
+    cpu: 'M4 4h16v16H4V4zm0 5h16M4 15h16M9 4v16M15 4v16',
+    shirt: 'M6.5 2h11l1 4-5 3v11H9.5V9l-5-3z',
+    home: 'M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z M9 22V12h6v10',
+    car: 'M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12.4V16c0 .6.4 1 1 1h2',
+    laptop:
+      'M2 16h20M2 16v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2M2 16V6a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v10',
+    gamepad:
+      'M6 12h4M12 12h.01M15 10v4M18 12h.01M3 7h18a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2z',
+    bicycle: 'M12 12a5 5 0 1 0 0 10 5 5 0 0 0 0-10zm0 0l-3-9h6l-3 9z',
+    book: 'M4 19.5A2.5 2.5 0 0 1 6.5 17H20M4 19.5A2.5 2.5 0 0 0 6.5 22H20M4 19.5V4.5A2.5 2.5 0 0 1 6.5 2H20v15H6.5a2.5 2.5 0 0 0-2.5 2.5z',
+    archive:
+      'M21 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v3m18 0v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8m18 0-9 6-9-6',
+    building: 'M3 21h18M3 7v14M21 21V7M9 21V3h6v18',
+    plane: 'M17.8 19.2L16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z',
   };
+
+  getCategoryDesc(name: string): string {
+    const descs: Record<string, string> = {
+      'Electrónica': 'Móviles, informática y gadgets',
+      'Moda y Accesorios': 'Ropa, calzado y complementos',
+      'Hogar y Jardín': 'Muebles, decoración y bricolaje',
+      'Coches y Motos': 'Vehículos y repuestos',
+      'Deporte y Ocio': 'Material deportivo y fitness',
+      'Videojuegos': 'Consolas, juegos y accesorios',
+      'Libros y Música': 'Cultura y entretenimiento',
+      'Coleccionismo': 'Antigüedades y objetos únicos',
+      'Inmobiliaria': 'Venta y alquiler de inmuebles',
+      'Viajes': 'Vuelos, hoteles y escapadas increíbles'
+    };
+    return descs[name] || 'Explora esta categoría';
+  }
 
   ofertaForm = this.fb.group({
     urlOferta: ['', [Validators.required, Validators.pattern(/^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([/\w .-]*)*\/?$/)]],
@@ -356,6 +376,15 @@ export class PublishOfertaComponent implements OnInit {
       },
       () => this.buscandoUbi.set(false)
     );
+  }
+
+  updateMousePos(e: MouseEvent) {
+    const card = e.currentTarget as HTMLElement;
+    const rect = card.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    card.style.setProperty('--mouse-x', `${x}px`);
+    card.style.setProperty('--mouse-y', `${y}px`);
   }
 
   getErrorMessage(controlName: string): string {

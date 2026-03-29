@@ -40,7 +40,8 @@ export class ProductoCardComponent implements OnInit {
     if (this.authStore.isLoggedIn()) {
       this.favService.getFavoritosIds().subscribe(ids => {
         if (this.producto?.id) {
-          this.esFavorito.set(ids.includes(this.producto.id));
+          const type = (this.producto.searchType || 'producto').toLowerCase();
+          this.esFavorito.set(ids.includes(`${type}_${this.producto.id}`));
         }
       });
     }
@@ -101,11 +102,12 @@ export class ProductoCardComponent implements OnInit {
 
     this.animandoCorazon.set(true);
     const becomingFav = !this.esFavorito();
+    const type = (this.producto.searchType || 'producto').toLowerCase() as any;
     
     // Update local state early for responsiveness
     this.esFavorito.set(becomingFav);
 
-    const req = becomingFav ? this.favService.addFavorito(id) : this.favService.removeFavorito(id);
+    const req = becomingFav ? this.favService.addFavorito(id, type) : this.favService.removeFavorito(id, type);
 
     req.subscribe({
       error: () => {

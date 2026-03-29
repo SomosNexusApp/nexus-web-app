@@ -131,12 +131,12 @@
                   <div class="waveform-visual">
                     <div class="wave-bar" *ngFor="let i of [1,2,3,4,5,6,7,8,9,10]" [class.active]="audioEl.currentTime > 0"></div>
                   </div>
-                  <div class="elite-progress-container" (click)="seek(audioEl, $event)">
-                    <div class="elite-progress-bg">
-                      <div class="elite-progress-fill" [style.width.%]="(audioEl.currentTime / (audioEl.duration || 1)) * 100"></div>
+                  <div class="premium-progress-container" (click)="seek(audioEl, $event)">
+                    <div class="premium-progress-bg">
+                      <div class="premium-progress-fill" [style.width.%]="(audioEl.currentTime / (audioEl.duration || 1)) * 100"></div>
                     </div>
                   </div>
-                  <div class="elite-time-info">
+                  <div class="premium-time-info">
                     <span>{{ formatTime(audioEl.currentTime) }}</span>
                     <span>{{ formatTime(audioEl.duration) }}</span>
                   </div>

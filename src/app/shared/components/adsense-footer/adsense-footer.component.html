@@ -1,0 +1,20 @@
+@if (enabled) {
+  <aside class="ads-footer" aria-label="Publicidad">
+    @if (isLocal) {
+      <div class="ads-placeholder">
+        <span class="placeholder-text">
+          <i class="fas fa-info-circle"></i> AdSense Placeholder (Solo visible en localhost)
+        </span>
+      </div>
+    }
+    <ins
+      class="adsbygoogle"
+      style="display: block"
+      [attr.data-ad-client]="client"
+      [attr.data-ad-slot]="slot"
+      [style.display]="isLocal ? 'none' : 'block'"
+      data-ad-format="horizontal"
+      data-full-width-responsive="true"
+    ></ins>
+  </aside>
+}

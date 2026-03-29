@@ -6,6 +6,7 @@ import { ChollosDiaComponent } from './chollos-dia/chollos-dia.component';
 import { ProductosRecientesComponent } from './productos-recientes/productos-recientes.component';
 import { CtaRegistroComponent } from './cta-registro/cta-registro.component';
 import { OfertasCategoriaComponent } from './ofertas-categoria/ofertas-categoria.component';
+import { PatrociniosStripComponent } from './patrocinios-strip/patrocinios-strip.component';
 
 @Component({
   selector: 'app-home',
@@ -18,6 +19,7 @@ import { OfertasCategoriaComponent } from './ofertas-categoria/ofertas-categoria
     ProductosRecientesComponent,
     CtaRegistroComponent,
     OfertasCategoriaComponent,
+    PatrociniosStripComponent,
   ],
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.css'],

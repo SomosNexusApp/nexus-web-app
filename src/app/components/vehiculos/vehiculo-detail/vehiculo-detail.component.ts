@@ -119,7 +119,7 @@ export class VehiculoDetailComponent implements OnInit {
     if (!this.authStore.isLoggedIn()) return;
     // Asumiendo que el servicio de favoritos maneja tanto productos como vehículos o solo IDs
     this.favoritoService.getFavoritosIds().subscribe({
-      next: (ids) => this.esFavorito.set(ids.includes(vehiculoId))
+      next: (ids) => this.esFavorito.set(ids.includes(`vehiculo_${vehiculoId}`))
     });
   }
 
@@ -133,11 +133,11 @@ export class VehiculoDetailComponent implements OnInit {
     this.esFavorito.set(!isFav);
 
     if (!isFav) {
-      this.favoritoService.addFavorito(id).subscribe({
+      this.favoritoService.addFavorito(id, 'vehiculo').subscribe({
         error: () => this.esFavorito.set(isFav)
       });
     } else {
-      this.favoritoService.removeFavorito(id).subscribe({
+      this.favoritoService.removeFavorito(id, 'vehiculo').subscribe({
         error: () => this.esFavorito.set(isFav)
       });
     }

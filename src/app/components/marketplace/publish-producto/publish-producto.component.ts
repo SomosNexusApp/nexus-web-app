@@ -8,6 +8,8 @@ import {
   ViewChild,
   ElementRef,
   HostListener,
+  AfterViewInit,
+  effect,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -37,7 +39,7 @@ export type PublishStep = 0 | 1 | 2 | 3 | 4;
   styleUrls: ['./publish-producto.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class PublishProductoComponent implements OnInit {
+export class PublishProductoComponent implements OnInit, AfterViewInit {
   private fb = inject(FormBuilder);
   private http = inject(HttpClient);
   private router = inject(Router);
@@ -104,15 +106,9 @@ export class PublishProductoComponent implements OnInit {
   });
 
   // Signals para reactividad de los formularios
-  step1Value = toSignal(
-    this.step1Form.valueChanges.pipe(startWith(this.step1Form.value)),
-  );
-  step2Value = toSignal(
-    this.step2Form.valueChanges.pipe(startWith(this.step2Form.value)),
-  );
-  step3Value = toSignal(
-    this.step3Form.valueChanges.pipe(startWith(this.step3Form.value)),
-  );
+  step1Value = toSignal(this.step1Form.valueChanges.pipe(startWith(this.step1Form.value)));
+  step2Value = toSignal(this.step2Form.valueChanges.pipe(startWith(this.step2Form.value)));
+  step3Value = toSignal(this.step3Form.valueChanges.pipe(startWith(this.step3Form.value)));
 
   // Autocompletado Ubicación
   sugerenciasUbi = signal<any[]>([]);
@@ -121,20 +117,41 @@ export class PublishProductoComponent implements OnInit {
 
   // Mapa de iconos para las categorías (Sincronizado con el backend)
   private iconPaths: Record<string, string> = {
-    'cpu': 'M4 4h16v16H4V4zm0 5h16M4 15h16M9 4v16M15 4v16',
-    'shirt': 'M6.5 2h11l1 4-5 3v11H9.5V9l-5-3z',
-    'home': 'M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z M9 22V12h6v10',
-    'car': 'M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12.4V16c0 .6.4 1 1 1h2',
-    'laptop': 'M2 16h20M2 16v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2M2 16V6a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v10',
-    'gamepad': 'M6 12h4M12 12h.01M15 10v4M18 12h.01M3 7h18a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2z',
-    'bicycle': 'M12 12a5 5 0 1 0 0 10 5 5 0 0 0 0-10zm0 0l-3-9h6l-3 9z',
-    'book': 'M4 19.5A2.5 2.5 0 0 1 6.5 17H20M4 19.5A2.5 2.5 0 0 0 6.5 22H20M4 19.5V4.5A2.5 2.5 0 0 1 6.5 2H20v15H6.5a2.5 2.5 0 0 0-2.5 2.5z',
-    'archive': 'M21 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v3m18 0v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8m18 0-9 6-9-6',
-    'building': 'M3 21h18M3 7v14M21 21V7M9 21V3h6v18'
+    cpu: 'M4 4h16v16H4V4zm0 5h16M4 15h16M9 4v16M15 4v16',
+    shirt: 'M6.5 2h11l1 4-5 3v11H9.5V9l-5-3z',
+    home: 'M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z M9 22V12h6v10',
+    car: 'M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12.4V16c0 .6.4 1 1 1h2',
+    laptop:
+      'M2 16h20M2 16v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2M2 16V6a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v10',
+    gamepad:
+      'M6 12h4M12 12h.01M15 10v4M18 12h.01M3 7h18a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2z',
+    bicycle: 'M12 12a5 5 0 1 0 0 10 5 5 0 0 0 0-10zm0 0l-3-9h6l-3 9z',
+    book: 'M4 19.5A2.5 2.5 0 0 1 6.5 17H20M4 19.5A2.5 2.5 0 0 0 6.5 22H20M4 19.5V4.5A2.5 2.5 0 0 1 6.5 2H20v15H6.5a2.5 2.5 0 0 0-2.5 2.5z',
+    archive:
+      'M21 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v3m18 0v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8m18 0-9 6-9-6',
+    building: 'M3 21h18M3 7v14M21 21V7M9 21V3h6v18',
   };
 
   getIconPath(cat: Categoria): string {
-    return this.iconPaths[cat.icono || ''] || 'M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82zM7 7h.01';
+    return (
+      this.iconPaths[cat.icono || ''] ||
+      'M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82zM7 7h.01'
+    );
+  }
+
+  getCategoryDesc(name: string): string {
+    const descs: Record<string, string> = {
+      'Electrónica': 'Móviles, informática y gadgets',
+      'Moda y Accesorios': 'Ropa, calzado y complementos',
+      'Hogar y Jardín': 'Muebles, decoración y bricolaje',
+      'Coches y Motos': 'Vehículos y repuestos',
+      'Deporte y Ocio': 'Material deportivo y fitness',
+      'Videojuegos': 'Consolas, juegos y accesorios',
+      'Libros y Música': 'Cultura y entretenimiento',
+      'Coleccionismo': 'Antigüedades y objetos únicos',
+      'Inmobiliaria': 'Venta y alquiler de inmuebles'
+    };
+    return descs[name] || 'Explora esta categoría';
   }
 
   previewProduct = computed(() => {
@@ -147,7 +164,9 @@ export class PublishProductoComponent implements OnInit {
       titulo: s2?.titulo || 'Título del anuncio',
       precio: s3?.precio || 0,
       imagenPrincipal:
-        imgs.length > 0 ? imgs[0].url : 'https://placehold.co/600x400/0f1115/ffffff?text=Nexus+Product',
+        imgs.length > 0
+          ? imgs[0].url
+          : 'https://placehold.co/600x400/0f1115/ffffff?text=Nexus+Product',
       ubicacion: s3?.ubicacion || 'Ubicación',
       condicion: s1?.condicion,
       fechaPublicacion: new Date().toISOString(),
@@ -164,7 +183,48 @@ export class PublishProductoComponent implements OnInit {
     { val: 'ACEPTABLE', label: 'Aceptable', desc: 'Se nota el uso, marcas visibles.' },
   ];
 
-  constructor() {}
+  writingTemplates = [
+    { id: 'tech', name: 'Técnico', icon: 'cpu', content: '### Especificaciones Técnicas\n- Marca: \n- Modelo: \n- Estado: \n\n### Descripción\n' },
+    { id: 'casual', name: 'Casual', icon: 'zap', content: '¡Hola! Vendo este producto porque... Está en muy buen estado y funciona perfecto.' },
+    { id: 'minimal', name: 'Minimal', icon: 'align-left', content: 'Producto original. Poco uso. Entrega en mano o envío.' },
+  ];
+
+  descriptionWordCount = computed(() => {
+    const desc = this.step2Value()?.descripcion || '';
+    return desc.trim() ? desc.trim().split(/\s+/).length : 0;
+  });
+
+  descriptionCharCount = computed(() => {
+    return (this.step2Value()?.descripcion || '').length;
+  });
+
+  applyTemplate(content: string): void {
+    const current = this.step2Form.get('descripcion')?.value || '';
+    this.step2Form.patchValue({ descripcion: current + (current ? '\n\n' : '') + content });
+  }
+
+  constructor() {
+    effect(() => {
+      this.currentStep();
+      this.initIcons(50);
+      this.initIcons(200);
+    });
+  }
+
+  ngAfterViewInit(): void {
+    this.initIcons(100);
+    this.initIcons(1000);
+  }
+
+  private initIcons(delay: number): void {
+    setTimeout(() => {
+      // @ts-ignore
+      const lucide = window.lucide;
+      if (lucide && lucide.createIcons) {
+        lucide.createIcons();
+      }
+    }, delay);
+  }
 
   ngOnInit(): void {
     if (!this.authStore.isLoggedIn()) {
@@ -176,7 +236,7 @@ export class PublishProductoComponent implements OnInit {
     this.setupLocationSearch();
 
     // Check for edit mode
-    this.route.params.subscribe(params => {
+    this.route.params.subscribe((params) => {
       if (params['id']) {
         this.isEditMode.set(true);
         this.productId.set(+params['id']);
@@ -184,7 +244,7 @@ export class PublishProductoComponent implements OnInit {
       }
     });
 
-    this.step3Form.get('esRegalo')?.valueChanges.subscribe(isRegalo => {
+    this.step3Form.get('esRegalo')?.valueChanges.subscribe((isRegalo) => {
       const priceControl = this.step3Form.get('precio');
       if (isRegalo) {
         priceControl?.setValue(0);
@@ -201,7 +261,7 @@ export class PublishProductoComponent implements OnInit {
         // Step 1
         this.step1Form.patchValue({
           categoriaId: p.categoria?.id,
-          condicion: p.condicion
+          condicion: p.condicion,
         });
         if (p.categoria) {
           this.selectedCategory.set(p.categoria);
@@ -212,7 +272,7 @@ export class PublishProductoComponent implements OnInit {
           titulo: p.titulo,
           descripcion: p.descripcion,
           marca: p.marca,
-          modelo: p.modelo
+          modelo: p.modelo,
         });
 
         // Step 3
@@ -224,7 +284,7 @@ export class PublishProductoComponent implements OnInit {
           peso: p.peso,
           ubicacion: p.ubicacion,
           latitude: p.latitude,
-          longitude: p.longitude
+          longitude: p.longitude,
         });
         this.locationConfirmed.set(true);
 
@@ -246,7 +306,7 @@ export class PublishProductoComponent implements OnInit {
       error: (err) => {
         this.toast.error('No se pudo cargar el producto para editar');
         this.router.navigate(['/perfil']);
-      }
+      },
     });
   }
 
@@ -291,7 +351,12 @@ export class PublishProductoComponent implements OnInit {
 
   private cargarCategorias(): void {
     this.http.get<Categoria[]>(`${environment.apiUrl}/categorias/raiz`).subscribe((res) => {
-      this.categorias.set(res);
+      // Filtrar categoría "Viajes" (Exclusiva para ofertas)
+      const filtradas = res.filter(c => 
+        c.slug?.toLowerCase() !== 'viajes' && 
+        c.nombre?.toLowerCase() !== 'viajes'
+      );
+      this.categorias.set(filtradas);
     });
   }
 
@@ -317,12 +382,12 @@ export class PublishProductoComponent implements OnInit {
     else if (type === 'SERVICIO') {
       // Por ahora los servicios siguen el flujo de producto con una categoría preseleccionada
       this.currentStep.set(1);
-      const catServicio = this.categorias().find(c => 
-        c.nombre.toLowerCase().includes('servicio') || c.slug.toLowerCase().includes('servicio')
+      const catServicio = this.categorias().find(
+        (c) =>
+          c.nombre.toLowerCase().includes('servicio') || c.slug.toLowerCase().includes('servicio'),
       );
       if (catServicio) this.selectCategory(catServicio);
-    }
-    else this.currentStep.set(1);
+    } else this.currentStep.set(1);
   }
 
   nextStep(): void {
@@ -347,7 +412,7 @@ export class PublishProductoComponent implements OnInit {
   private validarModeracionYContinuar(): void {
     const s2 = this.step2Form.getRawValue();
     const texto = `${s2.titulo} ${s2.descripcion}`;
-    
+
     this.uploading.set(true);
     this.http.post<any>(`${environment.apiUrl}/api/moderation/check-text`, { texto }).subscribe({
       next: (res) => {
@@ -355,7 +420,9 @@ export class PublishProductoComponent implements OnInit {
         if (res.apropiado) {
           this.advance();
         } else {
-          this.toast.error('No podemos incluir este tipo de palabras en el título o descripción al publicar un producto');
+          this.toast.error(
+            'No podemos incluir este tipo de palabras en el título o descripción al publicar un producto',
+          );
         }
       },
       error: (err) => {
@@ -367,7 +434,7 @@ export class PublishProductoComponent implements OnInit {
           // pero avisamos que el backend volverá a validar al final
           this.advance();
         }
-      }
+      },
     });
   }
 
@@ -376,10 +443,14 @@ export class PublishProductoComponent implements OnInit {
       this.step1Form.markAllAsTouched();
       if (!this.selectedCategory()) {
         this.toast.warning('Selecciona una categoría para tu producto');
-        document.querySelector('.category-grid')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        document
+          .querySelector('.category-grid')
+          ?.scrollIntoView({ behavior: 'smooth', block: 'center' });
       } else if (this.step1Form.get('condicion')?.invalid) {
         this.toast.warning('Selecciona el estado de conservación del producto');
-        document.querySelector('.condition-grid')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        document
+          .querySelector('.condition-grid')
+          ?.scrollIntoView({ behavior: 'smooth', block: 'center' });
       }
       return;
     }
@@ -391,10 +462,14 @@ export class PublishProductoComponent implements OnInit {
       this.scrollToFirstError();
     } else if (s === 2 && this.images().length === 0) {
       this.toast.warning('Sube al menos una foto de tu producto');
-      document.querySelector('.upload-zone')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      document
+        .querySelector('.upload-zone')
+        ?.scrollIntoView({ behavior: 'smooth', block: 'center' });
     } else if (s === 3 && !this.locationConfirmed()) {
       this.toast.warning('Confirma la ubicación seleccionándola de la lista');
-      document.querySelector('.input-group input')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      document
+        .querySelector('.input-group input')
+        ?.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
   }
 
@@ -408,7 +483,9 @@ export class PublishProductoComponent implements OnInit {
 
   private scrollToFirstError() {
     setTimeout(() => {
-      const firstError = document.querySelector('.ng-invalid.ng-touched, .select-card.invalid, .cat-card.invalid');
+      const firstError = document.querySelector(
+        '.ng-invalid.ng-touched, .select-card.invalid, .cat-card.invalid',
+      );
       if (firstError) {
         firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
         if (firstError instanceof HTMLInputElement || firstError instanceof HTMLTextAreaElement) {
@@ -422,7 +499,8 @@ export class PublishProductoComponent implements OnInit {
     const control = form.get(controlName);
     if (!control || !control.invalid || (!control.dirty && !control.touched)) return '';
     if (control.hasError('required')) return 'Obligatorio';
-    if (control.hasError('maxlength')) return `Máximo ${control.errors?.['maxlength'].requiredLength} caracteres`;
+    if (control.hasError('maxlength'))
+      return `Máximo ${control.errors?.['maxlength'].requiredLength} caracteres`;
     if (control.hasError('min')) return `Mínimo ${control.errors?.['min'].min}`;
     return 'Inválido';
   }
@@ -485,42 +563,42 @@ export class PublishProductoComponent implements OnInit {
   formatText(type: string): void {
     const el = this.descInput?.nativeElement;
     if (!el) return;
-    
+
     const start = el.selectionStart;
     const end = el.selectionEnd;
     const text = el.value;
     const before = text.substring(0, start);
     const selected = text.substring(start, end);
     const after = text.substring(end);
-    
+
     let result = '';
     let newCursorPos = end;
 
     switch (type) {
-        case 'bold':
-            result = before + `**${selected || 'texto'}**` + after;
-            newCursorPos = selected ? end + 4 : start + 2;
-            break;
-        case 'italic':
-            result = before + `*${selected || 'texto'}*` + after;
-            newCursorPos = selected ? end + 2 : start + 1;
-            break;
-        case 'list':
-            result = before + `\n- ${selected || 'elemento'}` + after;
-            newCursorPos = selected ? end + 3 : start + 3;
-            break;
-        case 'header':
-            result = before + `\n### ${selected || 'Título'}` + after;
-            newCursorPos = selected ? end + 5 : start + 5;
-            break;
+      case 'bold':
+        result = before + `**${selected || 'texto'}**` + after;
+        newCursorPos = selected ? end + 4 : start + 2;
+        break;
+      case 'italic':
+        result = before + `*${selected || 'texto'}*` + after;
+        newCursorPos = selected ? end + 2 : start + 1;
+        break;
+      case 'list':
+        result = before + `\n- ${selected || 'elemento'}` + after;
+        newCursorPos = selected ? end + 3 : start + 3;
+        break;
+      case 'header':
+        result = before + `\n### ${selected || 'Título'}` + after;
+        newCursorPos = selected ? end + 5 : start + 5;
+        break;
     }
 
     if (result) {
-        this.step2Form.patchValue({ descripcion: result });
-        setTimeout(() => {
-            el.focus();
-            el.setSelectionRange(newCursorPos, newCursorPos);
-        }, 0);
+      this.step2Form.patchValue({ descripcion: result });
+      setTimeout(() => {
+        el.focus();
+        el.setSelectionRange(newCursorPos, newCursorPos);
+      }, 0);
     }
   }
 
@@ -529,30 +607,30 @@ export class PublishProductoComponent implements OnInit {
     if (this.currentStep() !== 2) return;
     const items = event.clipboardData?.items;
     if (!items) return;
-    
+
     const files: File[] = [];
     for (let i = 0; i < items.length; i++) {
-        if (items[i].type.indexOf('image') !== -1) {
-            const file = items[i].getAsFile();
-            if (file) files.push(file);
-        }
+      if (items[i].type.indexOf('image') !== -1) {
+        const file = items[i].getAsFile();
+        if (file) files.push(file);
+      }
     }
-    
+
     if (files.length > 0) {
-        if (this.images().length + files.length > 8) {
-            this.toast.warning('Máximo 8 fotos por producto');
-            return;
-        }
-        files.forEach((file) => {
-            const reader = new FileReader();
-            reader.onload = (e: any) => {
-                this.images.update((imgs) => [
-                    ...imgs,
-                    { url: e.target.result, file, isPrincipal: imgs.length === 0 },
-                ]);
-            };
-            reader.readAsDataURL(file);
-        });
+      if (this.images().length + files.length > 8) {
+        this.toast.warning('Máximo 8 fotos por producto');
+        return;
+      }
+      files.forEach((file) => {
+        const reader = new FileReader();
+        reader.onload = (e: any) => {
+          this.images.update((imgs) => [
+            ...imgs,
+            { url: e.target.result, file, isPrincipal: imgs.length === 0 },
+          ]);
+        };
+        reader.readAsDataURL(file);
+      });
     }
   }
 
@@ -590,11 +668,14 @@ export class PublishProductoComponent implements OnInit {
 
   selectUbi(u: any): void {
     const cityName = u.display || u;
-    this.step3Form.patchValue({ 
-      ubicacion: cityName,
-      latitude: u.lat ?? null,
-      longitude: u.lng ?? null
-    }, { emitEvent: false });
+    this.step3Form.patchValue(
+      {
+        ubicacion: cityName,
+        latitude: u.lat ?? null,
+        longitude: u.lng ?? null,
+      },
+      { emitEvent: false },
+    );
     this.locationConfirmed.set(true);
     this.sugerenciasUbi.set([]);
   }
@@ -610,7 +691,7 @@ export class PublishProductoComponent implements OnInit {
       this.scrollToFirstError();
       return;
     }
-    
+
     const uid = this.authStore.user()?.id;
     if (!uid) {
       this.toast.error('Debes estar identificado para publicar.');
@@ -620,7 +701,7 @@ export class PublishProductoComponent implements OnInit {
     this.uploading.set(true);
 
     const formData = new FormData();
-    
+
     // Extraemos los valores de los formularios de forma limpia
     const s1 = this.step1Form.getRawValue();
     const s2 = this.step2Form.getRawValue();
@@ -641,7 +722,7 @@ export class PublishProductoComponent implements OnInit {
       estado: 'DISPONIBLE',
       categoria: { id: s1.categoriaId },
       latitude: s3.latitude,
-      longitude: s3.longitude
+      longitude: s3.longitude,
     };
 
     formData.append(
@@ -686,49 +767,49 @@ export class PublishProductoComponent implements OnInit {
     if (!cat) return 'fas fa-layer-group';
     const iconMap: { [key: string]: string } = {
       // Vehículos & Motor
-      'vehiculos': 'fas fa-car',
-      'coches': 'fas fa-car',
-      'coche': 'fas fa-car',
-      'motos': 'fas fa-motorcycle',
-      'moto': 'fas fa-motorcycle',
+      vehiculos: 'fas fa-car',
+      coches: 'fas fa-car',
+      coche: 'fas fa-car',
+      motos: 'fas fa-motorcycle',
+      moto: 'fas fa-motorcycle',
       'accesorios-vehiculos': 'fas fa-tools',
-      
+
       // Inmuebles
-      'inmuebles': 'fas fa-building',
-      'alquiler': 'fas fa-key',
-      
+      inmuebles: 'fas fa-building',
+      alquiler: 'fas fa-key',
+
       // Electrónica & Tecnología
-      'electronica': 'fas fa-microchip',
-      'informatica': 'fas fa-laptop',
-      'telefonia': 'fas fa-mobile-screen-button',
-      'moviles': 'fas fa-mobile-screen-button',
+      electronica: 'fas fa-microchip',
+      informatica: 'fas fa-laptop',
+      telefonia: 'fas fa-mobile-screen-button',
+      moviles: 'fas fa-mobile-screen-button',
       'tv-audio-foto': 'fas fa-camera',
-      'camaras': 'fas fa-camera',
-      'audio': 'fas fa-headphones',
-      
+      camaras: 'fas fa-camera',
+      audio: 'fas fa-headphones',
+
       // Entretenimiento
-      'videojuegos': 'fas fa-gamepad',
-      'consolas': 'fas fa-gamepad',
-      'juguetes': 'fas fa-gamepad',
-      'libros': 'fas fa-book',
-      'musica': 'fas fa-music',
-      
+      videojuegos: 'fas fa-gamepad',
+      consolas: 'fas fa-gamepad',
+      juguetes: 'fas fa-gamepad',
+      libros: 'fas fa-book',
+      musica: 'fas fa-music',
+
       // Hogar & Moda
-      'hogar': 'fas fa-house-user',
-      'muebles': 'fas fa-couch',
-      'electrodomesticos': 'fas fa-blender',
-      'moda': 'fas fa-shirt',
-      'ropa': 'fas fa-shirt',
-      'calzado': 'fas fa-shoe-prints',
-      'zapatillas': 'fas fa-shoe-prints',
-      'zapatos': 'fas fa-shoe-prints',
-      
+      hogar: 'fas fa-house-user',
+      muebles: 'fas fa-couch',
+      electrodomesticos: 'fas fa-blender',
+      moda: 'fas fa-shirt',
+      ropa: 'fas fa-shirt',
+      calzado: 'fas fa-shoe-prints',
+      zapatillas: 'fas fa-shoe-prints',
+      zapatos: 'fas fa-shoe-prints',
+
       // Otros
-      'otros': 'fas fa-ellipsis-h',
-      'servicios': 'fas fa-concierge-bell',
-      'deportes': 'fas fa-basketball',
-      'coleccionismo': 'fas fa-gem',
-      'bebes': 'fas fa-baby'
+      otros: 'fas fa-ellipsis-h',
+      servicios: 'fas fa-concierge-bell',
+      deportes: 'fas fa-basketball',
+      coleccionismo: 'fas fa-gem',
+      bebes: 'fas fa-baby',
     };
     const slug = cat.slug?.toLowerCase();
     return iconMap[slug] || cat.icono || 'fas fa-tag';
@@ -736,11 +817,11 @@ export class PublishProductoComponent implements OnInit {
 
   getConditionIcon(val: string): string {
     const iconMap: { [key: string]: string } = {
-      'NUEVO': 'fas fa-star',
-      'COMO_NUEVO': 'fas fa-wand-magic-sparkles',
-      'MUY_BUEN_ESTADO': 'fas fa-check-double',
-      'BUEN_ESTADO': 'fas fa-check',
-      'ACEPTABLE': 'fas fa-thumbs-up'
+      NUEVO: 'fas fa-star',
+      COMO_NUEVO: 'fas fa-wand-magic-sparkles',
+      MUY_BUEN_ESTADO: 'fas fa-check-double',
+      BUEN_ESTADO: 'fas fa-check',
+      ACEPTABLE: 'fas fa-thumbs-up',
     };
     return iconMap[val] || 'fas fa-tag';
   }

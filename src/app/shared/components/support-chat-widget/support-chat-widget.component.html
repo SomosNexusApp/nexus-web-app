@@ -4,11 +4,14 @@
       <div class="scw-panel" role="dialog" aria-label="Ayuda Nexus">
         <div class="scw-head">
           <div>
-            <span class="scw-title">¿Te ayudamos?</span>
-            <span class="scw-sub">Asistente Nexus</span>
+            <span class="scw-title">Equipo Nexus</span>
+            <span class="scw-sub">Asistente Virtual de Soporte</span>
           </div>
-          <button type="button" class="scw-close" (click)="toggle()" aria-label="Cerrar">×</button>
+          <button type="button" class="scw-close" (click)="toggle()" aria-label="Cerrar">
+            <i class="fas fa-times"></i>
+          </button>
         </div>
+
         @if (escalationEmail()) {
           <div class="scw-banner">
             Contacto humano: <a [href]="'mailto:' + escalationEmail()">{{ escalationEmail() }}</a>
@@ -32,27 +35,105 @@
               @if (m.rol === 'ADMIN') {
                 <span class="scw-tag">Equipo Nexus</span>
               }
-              {{ m.contenido }}
+              <p>{{ m.contenido }}</p>
+
+              <!-- Rich Cards -->
+              @if (m.tipoContenido === 'PRODUCTO') {
+                <div class="scw-rich-card">
+                  <div class="scw-rich-icon"><i class="fas fa-box"></i></div>
+                  <div class="scw-rich-info">
+                    <strong>Producto Sugerido</strong>
+                    <a [routerLink]="['/productos', m.referenciaId]" (click)="$event.stopPropagation()">Ver detalles</a>
+                  </div>
+                </div>
+              }
+              @if (m.tipoContenido === 'OFERTA') {
+                <div class="scw-rich-card scw-rich-card--offer">
+                  <div class="scw-rich-icon"><i class="fas fa-tag"></i></div>
+                  <div class="scw-rich-info">
+                    <strong>Oferta Destacada</strong>
+                    <a [routerLink]="['/ofertas', m.referenciaId]" (click)="$event.stopPropagation()">Aprovechar ahora</a>
+                  </div>
+                </div>
+              }
+              @if (m.tipoContenido === 'VEHICULO') {
+                <div class="scw-rich-card scw-rich-card--vehicle">
+                  <div class="scw-rich-icon"><i class="fas fa-car"></i></div>
+                  <div class="scw-rich-info">
+                    <strong>Vehículo Recomendado</strong>
+                    <a [routerLink]="['/vehiculos', m.referenciaId]" (click)="$event.stopPropagation()">Ver vehículo</a>
+                  </div>
+                </div>
+              }
+            </div>
+          }
+          
+          @if (isTyping()) {
+            <div class="scw-bubble scw-bubble--ai scw-typing">
+              <span></span>
+              <span></span>
+              <span></span>
+            </div>
+          }
+
+          <!-- Survey Logic -->
+          @if (status() === 'WAITING_SURVEY') {
+            <div class="scw-survey-panel">
+              @if (!surveySent()) {
+                <h4>¿Cómo fue tu experiencia?</h4>
+                <div class="scw-stars">
+                  @for (s of [1,2,3,4,5]; track s) {
+                    <button (click)="surveyRating.set(s)" [class.active]="surveyRating() >= s">
+                      <i class="fas fa-star"></i>
+                    </button>
+                  }
+                </div>
+                <textarea [(ngModel)]="surveyComment" placeholder="Cuéntanos más (opcional)..."></textarea>
+                <button class="scw-btn-survey" (click)="enviarEncuesta()" [disabled]="surveyRating() === 0">
+                  Enviar valoración
+                </button>
+              } @else {
+                <div class="scw-survey-thanks">
+                  <i class="fas fa-check-circle"></i>
+                  <p>¡Gracias por tu feedback!</p>
+                  <button type="button" class="scw-btn-new-chat" (click)="reiniciarChat()">
+                    <i class="fas fa-plus"></i> Abrir nuevo chat
+                  </button>
+                </div>
+              }
             </div>
           }
         </div>
-        <div class="scw-input-row">
-          <input
-            type="text"
-            class="scw-input"
-            [(ngModel)]="input"
-            (keydown.enter)="enviar()"
-            placeholder="Escribe tu consulta…"
-            maxlength="2000"
-          />
-          <button type="button" class="scw-send" (click)="enviar()">Enviar</button>
-        </div>
+        
+        @if (status() !== 'CLOSED') {
+          <div class="scw-input-row">
+            <input
+              type="text"
+              class="scw-input"
+              [(ngModel)]="input"
+              (keydown.enter)="enviar()"
+              placeholder="Escribe tu consulta…"
+              maxlength="2000"
+            />
+            <button type="button" class="scw-send" (click)="enviar()" [disabled]="!input.trim()">Enviar</button>
+          </div>
+        } @else if (!surveySent()) {
+          <div class="scw-closed-row">
+            <div class="scw-closed-msg">Esta conversación ha finalizado.</div>
+            <button type="button" class="scw-btn-new-chat scw-btn-new-chat--small" (click)="reiniciarChat()">
+              <i class="fas fa-plus"></i> Nuevo chat
+            </button>
+          </div>
+        }
       </div>
     }
 
     <button type="button" class="scw-fab" (click)="toggle()" aria-label="Abrir ayuda">
-      <span class="scw-fab-icon">💬</span>
-      <span class="scw-fab-text">Ayuda</span>
+      <div class="scw-fab-icon-wrapper">
+        <i class="fas fa-headset scw-fab-icon" aria-hidden="true"></i>
+      </div>
+      <span class="scw-fab-text">¿Necesitas ayuda?</span>
     </button>
+
   </div>
 }

@@ -5,7 +5,8 @@ import {
   signal,
   ChangeDetectionStrategy,
   ChangeDetectorRef,
-  ViewChild
+  ViewChild,
+  Input,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
@@ -31,6 +32,9 @@ export class MisComprasComponent implements OnInit {
   private cdr = inject(ChangeDetectorRef);
   private router = inject(Router);
 
+  /** Cuando el componente se muestra bajo «Mis compras» o «Mis ventas» en el perfil, fija la pestaña correcta. */
+  @Input() seccionPerfil: 'compras' | 'ventas' = 'compras';
+
   @ViewChild(ValoracionModalComponent) valoracionModal!: ValoracionModalComponent;
 
   activeTab = signal<'COMPRAS' | 'VENTAS'>('COMPRAS');
@@ -39,6 +43,11 @@ export class MisComprasComponent implements OnInit {
   loading = signal<boolean>(true);
 
   ngOnInit() {
+    if (this.seccionPerfil === 'ventas') {
+      this.activeTab.set('VENTAS');
+    } else {
+      this.activeTab.set('COMPRAS');
+    }
     this.cargarDatos();
   }
 

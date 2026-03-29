@@ -1,0 +1,54 @@
+<div class="ec-page">
+  <header class="ec-head">
+    <h1>Publicidad y contratos</h1>
+    <p class="ec-sub">
+      Aquí recibes las propuestas del equipo Nexus con presupuesto. Si aceptas, pagas con tarjeta (Stripe) y se activa el
+      banner o la publicación patrocinada según lo acordado.
+    </p>
+  </header>
+
+  @if (!authStore.isEmpresa()) {
+    <p class="ec-warn">Esta sección solo está disponible para cuentas empresa.</p>
+  } @else if (loading()) {
+    <p>Cargando…</p>
+  } @else if (contratos().length === 0) {
+    <p class="ec-empty">No tienes contratos todavía.</p>
+  } @else {
+    <ul class="ec-list">
+      @for (c of contratos(); track c.id) {
+        <li class="ec-card">
+          <div class="ec-card-top">
+            <span class="ec-badge">{{ c.tipoContrato }}</span>
+            <span class="ec-state">{{ c.estado }}</span>
+          </div>
+          @if (c.monto != null) {
+            <p class="ec-monto">{{ c.monto | number: '1.2-2' }} €</p>
+          }
+          @if (c.descripcion) {
+            <p class="ec-desc">{{ c.descripcion }}</p>
+          }
+          @if (c.estado === 'PROPUESTA_ADMIN') {
+            <div class="ec-actions">
+              <button
+                type="button"
+                class="btn primary"
+                [disabled]="procesandoId() === c.id"
+                (click)="aceptar(c)"
+              >
+                Aceptar y pagar
+              </button>
+              <button
+                type="button"
+                class="btn ghost"
+                [disabled]="procesandoId() === c.id"
+                (click)="rechazar(c)"
+              >
+                Rechazar
+              </button>
+            </div>
+          }
+        </li>
+      }
+    </ul>
+  }
+</div>

@@ -663,7 +663,7 @@
 }
 
 /* ── Estadísticas Elite Reales ──────────────── */
-.stats-elite-grid {
+.stats-premium-grid {
   display: grid;
   grid-template-columns: 1.5fr 1fr;
   gap: 24px;
@@ -692,7 +692,7 @@
   color: #fff;
 }
 
-.badge-elite {
+.badge-premium {
   background: rgba(168, 180, 255, 0.1);
   color: var(--accent);
   padding: 4px 12px;
@@ -779,7 +779,7 @@
 }
 
 /* Placeholder Elite */
-.stats-placeholder-elite {
+.stats-placeholder-premium {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -844,7 +844,7 @@
 .step i { color: var(--accent); }
 
 @media (max-width: 850px) {
-  .stats-elite-grid { grid-template-columns: 1fr; }
+  .stats-premium-grid { grid-template-columns: 1fr; }
   .unlock-steps { flex-direction: column; }
 }
 
@@ -1219,5 +1219,43 @@
   transform: translateY(-3px);
   border-color: rgba(255, 255, 255, 0.15);
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+/* Publicidad (empresa) */
+.section-lead {
+  color: rgba(255, 255, 255, 0.65);
+  font-size: 0.95rem;
+  line-height: 1.55;
+  max-width: 52ch;
+  margin: 0 0 1.25rem;
+}
+
+.publicidad-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+
+.btn-primary-link {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.65rem 1.25rem;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #6366f1, #4f46e5);
+  color: #fff;
+  font-weight: 600;
+  text-decoration: none;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.btn-primary-link:hover {
+  opacity: 0.92;
+  transform: translateY(-1px);
+}
+
+.publicidad-empresa .hint {
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.45);
 }
 

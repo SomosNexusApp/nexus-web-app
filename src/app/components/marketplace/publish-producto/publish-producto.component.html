@@ -9,8 +9,10 @@
   <div class="publish-content" [class.selection-mode]="currentStep() === 0">
     <header class="publish-header">
       @if (currentStep() > 0) {
-        <div class="progress-bar">
-          <div class="progress-fill" [style.width.%]="(currentStep() / 4) * 100"></div>
+        <div class="progress-container">
+          <div class="progress-bar">
+            <div class="progress-fill" [style.width.%]="(currentStep() / 4) * 100"></div>
+          </div>
         </div>
       }
       <div class="header-content">
@@ -40,29 +42,17 @@
       </div>
     </header>
 
-    <main class="publish-content" [class.grid-layout]="currentStep() > 0 && currentStep() !== 1 && currentStep() !== 2" [class.no-preview]="currentStep() === 1 || currentStep() === 2">
+    <main class="publish-main" [class.full-width]="currentStep() !== 3" [class.no-preview]="currentStep() === 1 || currentStep() === 2">
       <div class="form-area animate-fade-in">
-        <!-- PASO 0: SELECTOR PREMIUM -->
+        <!-- PASO 0: SELECTOR ELITE -->
         @if (currentStep() === 0) {
-          <div class="selection-grid" @fadeInUp>
+          <div class="selection-grid animate-fade-in">
             <!-- PRODUCTO -->
-            <div class="select-card product animate-fade-in" (click)="setStep0('PRODUCTO')">
+            <div class="select-card product" (click)="setStep0('PRODUCTO')">
               <span class="card-number">01</span>
               <div class="card-icon">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="100%"
-                  height="100%"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke-width="1.5"
-                  stroke="currentColor"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    d="m20.25 7.5-.625 10.632a2.25 2.25 0 0 1-2.247 2.118H6.622a2.25 2.25 0 0 1-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125Z"
-                  />
+                <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="m20.25 7.5-.625 10.632a2.25 2.25 0 0 1-2.247 2.118H6.622a2.25 2.25 0 0 1-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125Z" />
                 </svg>
               </div>
               <div class="card-info">
@@ -70,40 +60,18 @@
                 <p>Ropa, gadgets, hogar, coleccionables y mucho más.</p>
               </div>
               <div class="card-arrow">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke-width="2"
-                  stroke="currentColor"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3"
-                  />
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
                 </svg>
               </div>
             </div>
 
             <!-- VEHÍCULO -->
-            <div class="select-card vehicle animate-fade-in" (click)="setStep0('VEHICULO')">
+            <div class="select-card vehicle" (click)="setStep0('VEHICULO')">
               <span class="card-number">02</span>
               <div class="card-icon">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="100%"
-                  height="100%"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="1.5"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                >
-                  <path
-                    d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9C2.1 11.6 2 12.2 2 12.8V16c0 .6.4 1 1 1h2"
-                  />
+                <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9C2.1 11.6 2 12.2 2 12.8V16c0 .6.4 1 1 1h2" />
                   <circle cx="7" cy="17" r="2" />
                   <circle cx="17" cy="17" r="2" />
                 </svg>
@@ -113,45 +81,19 @@
                 <p>Coches, motos, furgonetas y caravanas.</p>
               </div>
               <div class="card-arrow">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke-width="2"
-                  stroke="currentColor"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3"
-                  />
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
                 </svg>
               </div>
             </div>
 
-            <!-- OFERTA O CHOLLO (FUEGUITO) -->
-            <div class="select-card offer animate-fade-in" (click)="setStep0('OFERTA')">
+            <!-- OFERTA -->
+            <div class="select-card offer" (click)="setStep0('OFERTA')">
               <span class="card-number">03</span>
               <div class="card-icon">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="100%"
-                  height="100%"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke-width="1.5"
-                  stroke="currentColor"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    d="M15.362 5.214A8.252 8.252 0 0 1 12 21 8.25 8.25 0 0 1 6.038 7.047 8.287 8.287 0 0 0 9 9.601a8.983 8.983 0 0 1 3.361-6.867 8.21 8.21 0 0 0 3 2.48Z"
-                  />
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    d="M12 18a3.75 3.75 0 0 0 .495-7.467 5.99 5.99 0 0 0-1.925 3.546 5.974 5.974 0 0 1-2.133-1.001A3.75 3.75 0 0 0 12 18Z"
-                  />
+                <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M15.362 5.214A8.252 8.252 0 0 1 12 21 8.25 8.25 0 0 1 6.038 7.047 8.287 8.287 0 0 0 9 9.601a8.983 8.983 0 0 1 3.361-6.867 8.21 8.21 0 0 0 3 2.48Z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 18a3.75 3.75 0 0 0 .495-7.467 5.99 5.99 0 0 0-1.925 3.546 5.974 5.974 0 0 1-2.133-1.001A3.75 3.75 0 0 0 12 18Z" />
                 </svg>
               </div>
               <div class="card-info">
@@ -159,40 +101,18 @@
                 <p>Comparte descuentos y promociones de otras tiendas.</p>
               </div>
               <div class="card-arrow">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke-width="2"
-                  stroke="currentColor"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3"
-                  />
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
                 </svg>
               </div>
             </div>
 
             <!-- SERVICIO -->
-            <div class="select-card service animate-fade-in" (click)="setStep0('SERVICIO')">
+            <div class="select-card service" (click)="setStep0('SERVICIO')">
               <span class="card-number">04</span>
               <div class="card-icon">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="100%"
-                  height="100%"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke-width="1.5"
-                  stroke="currentColor"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    d="M9 12.75 11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 0 1-1.043 3.296 3.745 3.745 0 0 1-3.296 1.043A3.745 3.745 0 0 1 12 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 0 1-3.296-1.043 3.745 3.745 0 0 1-1.043-3.296A3.745 3.745 0 0 1 3 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 0 1 1.043-3.296 3.746 3.746 0 0 1 3.296-1.043A3.746 3.746 0 0 1 12 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 0 1 3.296 1.043 3.746 3.746 0 0 1 1.043 3.296A3.745 3.745 0 0 1 21 12Z"
-                  />
+                <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 0 1-1.043 3.296 3.745 3.745 0 0 1-3.296 1.043A3.745 3.745 0 0 1 12 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 0 1-3.296-1.043 3.745 3.745 0 0 1-1.043-3.296A3.745 3.745 0 0 1 3 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 0 1 1.043-3.296 3.746 3.746 0 0 1 3.296-1.043A3.746 3.746 0 0 1 12 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 0 1 3.296 1.043 3.746 3.746 0 0 1 1.043 3.296A3.745 3.745 0 0 1 21 12Z" />
                 </svg>
               </div>
               <div class="card-info">
@@ -200,28 +120,18 @@
                 <p>Ofrece tus habilidades, formación o trabajos profesionales.</p>
               </div>
               <div class="card-arrow">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke-width="2"
-                  stroke="currentColor"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3"
-                  />
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
                 </svg>
               </div>
             </div>
           </div>
         }
 
-        <!-- PASO 1: CATEGORÍA Y CONDICIÓN -->
+        <!-- PASO 1: CATEGORÍA Y CONDICIÓN (ELITE) -->
         @if (currentStep() === 1) {
-          <form [formGroup]="step1Form" class="step-form">
-            <label class="section-label">Categoría del producto</label>
+          <form [formGroup]="step1Form" class="step-form animate-fade-in">
+            <label class="section-label"><i data-lucide="layers"></i> Categoría del producto</label>
             <div class="category-grid">
               @for (cat of categorias(); track cat.id) {
                 <button
@@ -231,21 +141,36 @@
                   [class.invalid]="step1Form.touched && !selectedCategory()"
                   (click)="selectCategory(cat)"
                 >
-                  <div class="cat-icon-wrapper">
-                    <i [class]="getCategoryIcon(cat)" style="font-size: 1.5rem"></i>
+                  <div class="card-glow"></div>
+                  <div class="icon-sphere">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path [attr.d]="getIconPath(cat)"></path>
+                    </svg>
                   </div>
-                  <span class="cat-name">{{ cat.nombre }}</span>
+                  <div class="category-info">
+                    <h3>{{ cat.nombre }}</h3>
+                    <p>{{ getCategoryDesc(cat.nombre) }}</p>
+                  </div>
+                  @if (selectedCategory()?.id === cat.id) {
+                    <div class="active-indicator">
+                      <i data-lucide="check-circle-2"></i>
+                    </div>
+                  }
                 </button>
               }
             </div>
 
-            <label class="section-label mt-40">Estado del producto</label>
+            <label class="section-label mt-40"
+              ><i data-lucide="sparkles"></i> Estado del producto</label
+            >
             <div class="condition-grid">
               @for (c of CONDICIONES; track c.val) {
                 <div
                   class="condition-card"
                   [class.active]="step1Form.get('condicion')?.value === c.val"
-                  [class.invalid]="step1Form.get('condicion')?.touched && step1Form.get('condicion')?.invalid"
+                  [class.invalid]="
+                    step1Form.get('condicion')?.touched && step1Form.get('condicion')?.invalid
+                  "
                   (click)="step1Form.patchValue({ condicion: c.val })"
                 >
                   <div class="cond-icon">
@@ -261,242 +186,253 @@
           </form>
         }
 
-        <!-- PASO 2: FOTOS Y TÍTULO -->
+         <!-- PASO 2: FOTOS Y DESCRIPCIÓN (NEXUS WORKSPACE) -->
         @if (currentStep() === 2) {
-          <form [formGroup]="step2Form" class="step-form">
-            <label class="section-label">Imágenes (Mín 1)</label>
-            <div class="upload-zone" (click)="fileInput.click()">
-              <i class="fas fa-cloud-arrow-up" style="font-size: 3rem; color: #6366f1"></i>
-              <p>Haz clic para subir fotos o arrastra aquí</p>
-              <input
-                #fileInput
-                type="file"
-                multiple
-                (change)="onFileSelected($event)"
-                accept="image/*"
-                class="hidden"
-              />
-            </div>
-            @if (images().length > 0) {
-              <div class="image-grid">
+          <div class="step-2-workspace animate-fade-in">
+            <!-- LEFT COLUMN: GALLERY & VISUALS -->
+            <div class="premium-gallery-section">
+              <div class="section-badge"><i data-lucide="image"></i> Galería de Fotos</div>
+              
+              <div class="scanner-upload-zone" (click)="fileInput.click()">
+                <div class="scan-line"></div>
+                <div class="upload-content">
+                  <i data-lucide="upload-cloud" style="width: 48px; height: 48px; color: #3b82f6;"></i>
+                  <h3>Escanear Producto</h3>
+                  <p>Arrastra o haz clic para subir</p>
+                </div>
+                <input #fileInput type="file" multiple (change)="onFileSelected($event)" accept="image/*" class="hidden">
+              </div>
+
+              <div class="premium-image-grid-wide">
                 @for (img of images(); track img.url; let i = $index) {
-                  <div class="image-preview" [class.is-principal]="img.isPrincipal">
-                    <img [src]="img.url" />
-                    <button type="button" class="btn-remove-img" (click)="removeImage(i)">
-                      <i class="fas fa-times"></i>
-                    </button>
+                  <div class="premium-image-card" [class.is-principal]="img.isPrincipal">
+                    <img [src]="img.url" class="premium-thumb">
+                    <div class="card-overlay">
+                      <button type="button" class="btn-icon-tiny" (click)="removeImage(i)" title="Eliminar">
+                         <i data-lucide="trash-2" style="width: 16px; height: 16px;"></i>
+                      </button>
+                    </div>
+                    @if (img.isPrincipal) {
+                      <div class="premium-badge-glow">Principal</div>
+                    }
                   </div>
                 }
               </div>
-            }
-
-            <div class="input-group mt-40" [class.error]="getErrorMessage(step2Form, 'titulo')">
-              <label>Título del anuncio *</label>
-              <input
-                type="text"
-                formControlName="titulo"
-                placeholder="Ej: Bicicleta de montaña casi nueva"
-              />
-              @if (getErrorMessage(step2Form, 'titulo')) {
-                <span class="error-msg">{{ getErrorMessage(step2Form, 'titulo') }}</span>
-              }
-            </div>
-            <div class="input-group" [class.error]="getErrorMessage(step2Form, 'descripcion')">
-              <label>Descripción detallada *</label>
-              <div class="composer-container">
-                  <div class="composer-toolbar">
-                      <button type="button" (click)="formatText('bold')" title="Negrita"><i class="fas fa-bold"></i></button>
-                      <button type="button" (click)="formatText('italic')" title="Cursiva"><i class="fas fa-italic"></i></button>
-                      <button type="button" (click)="formatText('list')" title="Lista"><i class="fas fa-list"></i></button>
-                      <button type="button" (click)="formatText('header')" title="Título"><i class="fas fa-heading"></i></button>
-                  </div>
-                  <textarea
-                    #descInput
-                    formControlName="descripcion"
-                    class="composer-textarea"
-                    rows="6"
-                    placeholder="Detalla las características, mantenimiento..."
-                  ></textarea>
-              </div>
-              @if (getErrorMessage(step2Form, 'descripcion')) {
-                <span class="error-msg">{{ getErrorMessage(step2Form, 'descripcion') }}</span>
-              }
-            </div>
-          </form>
-        }
-
-        <!-- PASO 3: NEXUS ELITE CONSOLE (REVOLUCIÓN TOTAL) -->
-        @if (currentStep() === 3) {
-          <div [formGroup]="step3Form" class="step-form-ultra">
-            
-            <!-- PRICE HERO -->
-            <div class="console-card price-hero" [class.error]="getErrorMessage(step3Form, 'precio')">
-              <div class="console-label"><i class="fas fa-coins"></i> Detalles de la venta</div>
-              <div class="price-input-zone">
-                <input type="number" formControlName="precio" placeholder="00">
-                <span class="currency">€</span>
-              </div>
-              @if (getErrorMessage(step3Form, 'precio')) {
-                <span class="error-msg">{{ getErrorMessage(step3Form, 'precio') }}</span>
-              }
-              <div class="console-toggle-row">
-                <label class="elite-toggle">
-                  <input type="checkbox" formControlName="precioNegociable">
-                  <div class="elite-slider"></div>
-                  <span>¿Precio Negociable?</span>
-                </label>
-              </div>
             </div>
 
-            <!-- SHIPPING HERO -->
-            <div class="console-card shipping-hero">
-              <div class="console-label"><i class="fas fa-truck-fast"></i> Opciones de Envío</div>
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
-                <span style="font-size: 1.1rem; font-weight: 700;">Habilitar envíos gestionados</span>
-                <label class="elite-toggle">
-                  <input type="checkbox" 
-                    [checked]="step3Form.get('envio')?.value !== 'NO'" 
-                    (change)="step3Form.patchValue({envio: $any($event.target).checked ? 'SI' : 'NO', peso: null})">
-                  <div class="elite-slider"></div>
-                </label>
-              </div>
+            <!-- RIGHT COLUMN: COMPOSITION & TOOLS -->
+            <div class="premium-composition-section">
+              <div class="section-badge"><i data-lucide="type"></i> Composición del Anuncio</div>
 
-              @if (step3Form.get('envio')?.value !== 'NO') {
-                <div class="shipping-row animate-fade-in">
-                  <div class="shipping-card" [class.active]="step3Form.get('peso')?.value === 0.3" (click)="step3Form.patchValue({peso: 0.3})">
-                    <i class="fas fa-envelope"></i>
-                    <strong>&lt; 0.5kg</strong>
-                    <small>Accesorios, ropa pequeña</small>
+              <form [formGroup]="step2Form" class="composition-form">
+                <div class="input-group-premium" [class.error]="getErrorMessage(step2Form, 'titulo')">
+                  <label>Título del anuncio *</label>
+                  <div class="premium-input-container">
+                    <input type="text" formControlName="titulo" placeholder="Ej: Bicicleta de montaña casi nueva">
+                    <div class="char-countdown">{{ 80 - (step2Form.get('titulo')?.value?.length || 0) }}</div>
                   </div>
-                  <div class="shipping-card" [class.active]="step3Form.get('peso')?.value === 1" (click)="step3Form.patchValue({peso: 1})">
-                    <i class="fas fa-box"></i>
-                    <strong>&lt; 2kg</strong>
-                    <small>Zapatos, libros</small>
-                  </div>
-                  <div class="shipping-card" [class.active]="step3Form.get('peso')?.value === 3" (click)="step3Form.patchValue({peso: 3})">
-                    <i class="fas fa-box-open"></i>
-                    <strong>&lt; 5kg</strong>
-                    <small>Electrónica, maletas</small>
-                  </div>
-                  <div class="shipping-card" [class.active]="step3Form.get('peso')?.value === 7" (click)="step3Form.patchValue({peso: 7})">
-                    <i class="fas fa-truck-ramp-box"></i>
-                    <strong>&lt; 10kg</strong>
-                    <small>Paquetes grandes</small>
-                  </div>
-                </div>
-              }
-            </div>
-
-            <!-- LOCATION HERO -->
-            <div class="console-card location-hero" [class.error]="!locationConfirmed() && step3Form.get('ubicacion')?.touched">
-              <div class="console-label"><i class="fas fa-map-location-dot"></i> Ubicación del producto</div>
-              <div class="location-hero-bar">
-                <i class="fas fa-location-dot"></i>
-                <div style="flex: 1; position: relative;">
-                  <input type="text" formControlName="ubicacion" placeholder="¿Dónde se encuentra el artículo?">
-                  @if (sugerenciasUbi().length > 0) {
-                    <div class="location-dropdown">
-                      @for (u of sugerenciasUbi(); track u) {
-                        <div class="location-item" (click)="selectUbi(u)">{{ u.display }}</div>
-                      }
-                    </div>
+                  @if (getErrorMessage(step2Form, 'titulo')) {
+                    <span class="error-msg">{{ getErrorMessage(step2Form, 'titulo') }}</span>
                   }
                 </div>
-              </div>
-              @if (!locationConfirmed() && step3Form.get('ubicacion')?.touched) {
-                <span class="error-msg">Debes seleccionar una ubicación de la lista</span>
-              }
-            </div>
 
-            <!-- CONSOLE FOOTER -->
-            <footer class="console-footer">
-              <button type="button" class="btn-console-back" (click)="prevStep()">VOLVER ATRÁS</button>
-              <button type="button" class="btn-console-next" (click)="nextStep()">
-                CONFIRMAR Y CONTINUAR <i class="fas fa-chevron-right" style="margin-left: 15px;"></i>
-              </button>
-            </footer>
+                <div class="writing-assistant">
+                  <div class="assistant-header">
+                    <i data-lucide="sparkles" style="width: 16px; height: 16px;"></i>
+                    <span>Asistente de Escritura</span>
+                  </div>
+                  <div class="template-chips">
+                    @for (temp of writingTemplates; track temp.id) {
+                      <button type="button" class="template-chip" (click)="applyTemplate(temp.content)">
+                        <i [attr.data-lucide]="temp.icon" style="width: 14px; height: 14px;"></i>
+                        {{ temp.name }}
+                      </button>
+                    }
+                  </div>
+                </div>
+
+                <div class="input-group-premium" [class.error]="getErrorMessage(step2Form, 'descripcion')">
+                  <label>Descripción detallada *</label>
+                  <div class="editor-container-premium">
+                    <textarea #descInput formControlName="descripcion" 
+                              class="pixel-editor-textarea" 
+                              placeholder="Describe las características y el estado..."
+                              rows="10"></textarea>
+
+                    <div class="editor-footer">
+                      <div class="stats">
+                        <span class="stat-item"><b>{{ descriptionWordCount() }}</b> PALABRAS</span>
+                        <span class="stat-item"><b>{{ descriptionCharCount() }}</b> CARACTERES</span>
+                      </div>
+                      <div class="quality-indicator" [class.good]="descriptionWordCount() > 30">
+                        <div class="dot"></div> Calidad {{ descriptionWordCount() > 30 ? 'Alta' : 'Básica' }}
+                      </div>
+                    </div>
+                  </div>
+                  @if (getErrorMessage(step2Form, 'descripcion')) {
+                    <span class="error-msg">{{ getErrorMessage(step2Form, 'descripcion') }}</span>
+                  }
+                </div>
+              </form>
+            </div>
           </div>
         }
 
-        <!-- PASO 4: NEXUS ABSOLUTE LAUNCHPAD (REVOLUCIÓN TOTAL) -->
+        <!-- PASO 3: NEXUS CONSOLE (PRECIO, ENVÍO Y UBICACIÓN) -->
+        @if (currentStep() === 3) {
+          <div [formGroup]="step3Form" class="console-card animate-fade-in">
+            <div class="console-label"><i data-lucide="banknote"></i> Detalles de la Venta</div>
+            
+            <div class="price-input-zone" [class.error]="getErrorMessage(step3Form, 'precio')">
+              <input type="number" formControlName="precio" placeholder="00">
+              <span class="currency">€</span>
+            </div>
+            @if (getErrorMessage(step3Form, 'precio')) {
+              <span class="error-msg" style="margin-top: -10px; margin-bottom: 20px;">{{ getErrorMessage(step3Form, 'precio') }}</span>
+            }
+
+            <div class="console-toggle-row">
+              <label class="elite-toggle">
+                <input type="checkbox" formControlName="precioNegociable">
+                <div class="elite-slider"></div>
+                <span style="font-weight: 700; color: #94a3b8;">¿Precio Negociable?</span>
+              </label>
+            </div>
+
+            <div class="console-divider" style="height: 1px; background: rgba(255,255,255,0.05); margin: 32px 0;"></div>
+
+            <div class="console-label"><i data-lucide="truck"></i> Opciones de Envío</div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+              <span style="font-size: 1.1rem; font-weight: 700">Habilitar envíos gestionados</span>
+              <label class="elite-toggle">
+                <input type="checkbox" [checked]="step3Form.get('envio')?.value !== 'NO'" 
+                       (change)="step3Form.patchValue({ envio: $any($event.target).checked ? 'SI' : 'NO', peso: null })">
+                <div class="elite-slider"></div>
+              </label>
+            </div>
+
+            @if (step3Form.get('envio')?.value !== 'NO') {
+              <div class="shipping-row animate-fade-in">
+                <div class="shipping-card" [class.active]="step3Form.get('peso')?.value === 0.3" (click)="step3Form.patchValue({ peso: 0.3 })">
+                  <i data-lucide="mail"></i>
+                  <strong>&lt; 0.5kg</strong>
+                  <small>Accesorios, ropa pequeña</small>
+                </div>
+                <div class="shipping-card" [class.active]="step3Form.get('peso')?.value === 1" (click)="step3Form.patchValue({ peso: 1 })">
+                  <i data-lucide="package"></i>
+                  <strong>&lt; 2kg</strong>
+                  <small>Zapatos, libros</small>
+                </div>
+                <div class="shipping-card" [class.active]="step3Form.get('peso')?.value === 3" (click)="step3Form.patchValue({ peso: 3 })">
+                  <i data-lucide="box"></i>
+                  <strong>&lt; 5kg</strong>
+                  <small>Electrónica, maletas</small>
+                </div>
+                <div class="shipping-card" [class.active]="step3Form.get('peso')?.value === 7" (click)="step3Form.patchValue({ peso: 7 })">
+                  <i data-lucide="truck"></i>
+                  <strong>&lt; 10kg</strong>
+                  <small>Paquetes grandes</small>
+                </div>
+              </div>
+            }
+
+            <div class="console-divider" style="height: 1px; background: rgba(255,255,255,0.05); margin: 32px 0;"></div>
+
+            <div class="console-label"><i data-lucide="map-pin"></i> Ubicación del Producto</div>
+            <div class="location-hero-bar" [class.error]="!locationConfirmed() && step3Form.get('ubicacion')?.touched">
+              <i data-lucide="search" style="color: #475569;"></i>
+              <div style="flex: 1; position: relative">
+                <input type="text" formControlName="ubicacion" placeholder="¿Dónde se encuentra el artículo?">
+                @if (sugerenciasUbi().length > 0) {
+                  <div class="location-dropdown animate-fade-in">
+                    @for (u of sugerenciasUbi(); track u) {
+                      <div class="location-item" (click)="selectUbi(u)">{{ u.display }}</div>
+                    }
+                  </div>
+                }
+              </div>
+              <button type="button" class="btn-icon-tiny" (click)="useLocation()" style="background: rgba(59,130,246,0.1); color: #3b82f6;">
+                <i data-lucide="navigation" style="width: 16px; height: 16px;"></i>
+              </button>
+            </div>
+            @if (!locationConfirmed() && step3Form.get('ubicacion')?.touched) {
+              <span class="error-msg">Debes seleccionar una ubicación de la lista</span>
+            }
+          </div>
+        }
+
+        <!-- PASO 4: NEXUS LAUNCHPAD (REVISIÓN FINAL) -->
         @if (currentStep() === 4) {
-          <div class="launchpad-console">
+          <div class="launchpad-console animate-fade-in">
             <div class="launch-hub">
-              
               <div class="launch-header">
                 <h2>Casi Listo</h2>
-                <p>Tu anuncio está preparado</p>
+                <p>Tu anuncio está preparado para el mercado</p>
               </div>
 
               <div class="summary-stack">
                 <div class="summary-item-premium">
-                  <i class="fas fa-file-signature"></i>
+                  <i data-lucide="file-text"></i>
                   <div class="summary-content">
-                    <span class="summary-label">Identidad del Producto</span>
+                    <span class="summary-label">Identidad</span>
                     <span class="summary-value">{{ step2Form.get('titulo')?.value }}</span>
                   </div>
                 </div>
 
                 <div class="summary-item-premium">
-                  <i class="fas fa-tags"></i>
+                  <i data-lucide="tag"></i>
                   <div class="summary-content">
-                    <span class="summary-label">Categoría Seleccionada</span>
+                    <span class="summary-label">Categoría</span>
                     <span class="summary-value">{{ selectedCategory()?.nombre }}</span>
                   </div>
                 </div>
 
                 <div class="summary-item-premium">
-                  <i class="fas fa-coins"></i>
+                  <i data-lucide="euro"></i>
                   <div class="summary-content">
-                    <span class="summary-label">Valor de Mercado</span>
-                    <span class="summary-value value-highlight">{{ step3Form.get('precio')?.value | currency:'EUR' }}</span>
+                    <span class="summary-label">Valor</span>
+                    <span class="summary-value value-highlight">{{ step3Form.get('precio')?.value | currency: 'EUR' }}</span>
                   </div>
                 </div>
 
                 <div class="summary-item-premium">
-                  <i class="fas fa-location-dot"></i>
+                  <i data-lucide="map-pin"></i>
                   <div class="summary-content">
-                    <span class="summary-label">Origen Comercial</span>
+                    <span class="summary-label">Origen</span>
                     <span class="summary-value">{{ step3Form.get('ubicacion')?.value }}</span>
                   </div>
                 </div>
               </div>
 
               <button type="button" class="btn-launch-final" (click)="onSubmit()" [disabled]="uploading()">
-                {{ uploading() ? 'LANZANDO...' : 'EXPLOTAR Y PUBLICAR' }} <i class="fas fa-rocket"></i>
+                @if (uploading()) { LANZANDO... } @else { EXPLOTAR Y PUBLICAR <i data-lucide="rocket"></i> }
               </button>
 
               <div class="launch-back-zone">
                 <a class="back-link-premium" (click)="prevStep()">
-                  <i class="fas fa-arrow-left"></i> Reconfigurar parámetros
+                  <i data-lucide="arrow-left"></i> Reconfigurar parámetros
                 </a>
               </div>
             </div>
           </div>
         }
 
-        <!-- FOOTER NAVEGACIÓN (Oculto en Step 3 y 4 para usar footer integrado) -->
-        @if (currentStep() > 0 && currentStep() !== 3 && currentStep() !== 4) {
+        <!-- FOOTER NAVEGACIÓN (Oculto en Step 4 para usar el Launchpad central) -->
+        @if (currentStep() > 0 && currentStep() !== 4) {
           <footer class="publish-footer">
             <button type="button" class="btn-secondary" (click)="prevStep()">Atrás</button>
-            @if (currentStep() < 4) {
-              <button
-                type="button"
-                class="btn-primary"
-                (click)="nextStep()"
-              >
-                Continuar
-              </button>
-            }
+            <button type="button" class="btn-primary" (click)="nextStep()">
+              @if (currentStep() === 3) { Ir a Revisión } @else { Continuar }
+            </button>
           </footer>
         }
       </div>
 
-      <!-- PREVIEW COL (OCULTA EN STEP 0, 1 Y 2) -->
-      @if (currentStep() > 0 && currentStep() !== 1 && currentStep() !== 2) {
+      <!-- PREVIEW COL (SOLO EN STEP 3 - CONSOLE) -->
+      @if (currentStep() === 3) {
         <aside class="preview-column">
           <div class="sticky-preview">
-            <span class="preview-label">Vista previa</span>
+            <span class="preview-label">Vista previa real</span>
             <div class="preview-card-container">
               <app-producto-card [producto]="$any(previewProduct())"></app-producto-card>
             </div>

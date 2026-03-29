@@ -15,6 +15,7 @@ import { OnboardingStepperComponent } from './shared/components/onboarding-stepp
 import { ToastContainerComponent } from './shared/components/toast-container/toast-container.component';
 import { HeaderComponent } from './components/header/header.component';
 import { SupportChatWidgetComponent } from './shared/components/support-chat-widget/support-chat-widget.component';
+import { AdsenseFooterComponent } from './shared/components/adsense-footer/adsense-footer.component';
 
 @Component({
   selector: 'app-root',
@@ -27,6 +28,7 @@ import { SupportChatWidgetComponent } from './shared/components/support-chat-wid
     ToastContainerComponent,
     HeaderComponent,
     SupportChatWidgetComponent,
+    AdsenseFooterComponent,
   ],
   templateUrl: './app.html',
   styleUrls: ['./app.component.scss'],
@@ -42,6 +44,7 @@ export class AppComponent implements OnInit {
 
   // Signals para controlar la visibilidad según la ruta
   isAdminRoute = signal(window.location.pathname.startsWith('/admin'));
+  isMessagesRoute = signal(window.location.pathname.startsWith('/mensajes'));
 
   // Signals para los popups post-registro
   showTwoFactorPopup = signal(false);
@@ -93,6 +96,7 @@ export class AppComponent implements OnInit {
       const isAdmin = url.startsWith('/admin');
       
       this.isAdminRoute.set(isAdmin);
+      this.isMessagesRoute.set(url.startsWith('/mensajes'));
       
       if (isAdmin) {
         this.guestPopup.hidePopup();

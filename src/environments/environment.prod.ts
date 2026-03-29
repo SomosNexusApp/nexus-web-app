@@ -10,4 +10,6 @@ export const environment = {
   recaptchaSiteKey: '6LdGSXssAAAAAH_-ZPYEsPYY5zIa1n9sLYyD_eaY',
   cloudinaryCloudName: 'dzahpgslo',
   cloudinaryUploadPreset: 'nexus_unsigned',
+  adsenseClient: '',
+  adsenseSlotFooter: '',
 };

@@ -222,6 +222,17 @@ export class OfertaCardComponent implements OnInit, OnDestroy, OnChanges {
     });
   }
 
+  irALaOferta(event: MouseEvent): void {
+    event.stopPropagation();
+    event.preventDefault();
+    const url = (this.oferta as any).urlOferta || (this.oferta as any).urlExterna;
+    if (url) {
+      window.open(url, '_blank', 'noopener,noreferrer');
+    } else {
+      this.navigateToDetail();
+    }
+  }
+
   navigateToDetail(): void {
     if (this.oferta.id === 9999) return;
     this.router.navigate(['/ofertas', this.oferta.id]);

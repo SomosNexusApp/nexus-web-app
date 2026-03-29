@@ -80,7 +80,7 @@ export class CercaDeTiComponent implements OnInit, OnDestroy {
   realizarBusqueda(coords: {lat: number, lng: number}) {
     this.loading.set(true);
     const params: SearchParams = {
-      tipo: 'TODOS',
+      tipo: 'OFERTA',
       lat: coords.lat,
       lng: coords.lng,
       radius: this.radius(),

@@ -1,10 +1,12 @@
-import { Component, Input, ChangeDetectionStrategy, inject } from '@angular/core';
+import { Component, Input, inject, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { CurrencyEsPipe } from '../../pipes/currency-es.pipe';
 import { SkeletonCardComponent } from '../skeleton-card/skeleton-card.component';
 import { CoverImagePipe } from '../../pipes/cover-image.pipe';
-import { MarketplaceItem } from '../../../models/marketplace-item.model';
+import { Vehiculo } from '../../../models/vehiculo.model';
+import { FavoritoService } from '../../../core/services/favorito.service';
+import { AuthStore } from '../../../core/auth/auth-store';
 
 @Component({
   selector: 'app-vehiculo-card',
@@ -12,15 +14,26 @@ import { MarketplaceItem } from '../../../models/marketplace-item.model';
   imports: [CommonModule, RouterModule, CurrencyEsPipe, SkeletonCardComponent, CoverImagePipe],
   templateUrl: './vehiculo-card.component.html',
   styleUrls: ['./vehiculo-card.component.css'],
-  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class VehiculoCardComponent {
-  @Input() vehiculo!: MarketplaceItem;
+export class VehiculoCardComponent implements OnInit {
+  @Input() vehiculo!: Vehiculo;
   @Input() isSkeleton = false;
 
   private router = inject(Router);
+  private favService = inject(FavoritoService);
+  private authStore = inject(AuthStore);
 
-  // Mapeo de iconos SVG para tipos de vehículo
+  esFavorito = signal(false);
+  animandoCorazon = signal(false);
+
+  ngOnInit(): void {
+    if (this.authStore.isLoggedIn() && this.vehiculo?.id) {
+      this.favService.getFavoritosIds().subscribe(ids => {
+        this.esFavorito.set(ids.includes(`vehiculo_${this.vehiculo.id}`));
+      });
+    }
+  }
+
   get tipoIconPath(): string {
     const map: Record<string, string> = {
       COCHE: 'M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12.4V16c0 .6.4 1 1 1h2',

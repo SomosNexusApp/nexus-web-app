@@ -1,0 +1,484 @@
+{
+  "metadata": {
+    "descripcion": "Dataset de marcas y modelos de coches modernos vendidos o presentes en España (2000-2026)",
+    "fuente": "Compilacion basada en matriculaciones y presencia en el mercado español",
+    "actualizado": "2026"
+  },
+  "brands": [
+    {
+      "name": "Renault",
+      "pais_origen": "Francia",
+      "models": ["Clio", "Clio V6", "Megane", "Megane E-Tech", "Laguna", "Vel Satis", "Scenic", "Scenic E-Tech", "Espace", "Kangoo", "Modus", "Wind", "Twingo", "Twizy", "Zoe", "Captur", "Kadjar", "Koleos", "Duster", "Latitude", "Fluence", "Sandero", "Logan", "Master", "Traffic", "Safrane", "Avantime", "Mегane RS", "Arkana", "Austral", "Rafale", "Symbioz", "5 E-Tech"]
+    },
+    {
+      "name": "Peugeot",
+      "pais_origen": "Francia",
+      "models": ["206", "207", "208", "206+", "207 CC", "207 SW", "208 GTi", "306", "307", "308", "307 CC", "307 SW", "308 CC", "308 SW", "308 GTi", "406", "407", "408", "407 Coupe", "407 SW", "508", "508 RXH", "508 SW", "607", "806", "807", "1007", "2008", "3008", "4007", "4008", "5008", "Partner", "Rifter", "Expert", "Traveller", "RCZ", "Bipper", "iOn", "e-208", "e-2008", "e-308", "e-3008", "e-5008", "408"]
+    },
+    {
+      "name": "Citroen",
+      "pais_origen": "Francia",
+      "models": ["C1", "C2", "C3", "C3 Aircross", "C3 Picasso", "C4", "C4 Aircross", "C4 Cactus", "C4 Picasso", "C4 Spacetourer", "C4 X", "C5", "C5 Aircross", "C5 X", "C6", "C8", "C-Crosser", "C-Elysee", "C-Zero", "C15", "Berlingo", "Xsara", "Xsara Picasso", "Jumpy", "Jumper", "Nemo", "Saxo", "Xantia", "ZX", "e-C3", "e-Berlingo", "e-Jumpy"]
+    },
+    {
+      "name": "DS",
+      "pais_origen": "Francia",
+      "models": ["DS 3", "DS 3 Crossback", "DS 3 E-Tense", "DS 4", "DS 4 E-Tense", "DS 7 Crossback", "DS 7 E-Tense", "DS 9", "DS 9 E-Tense"]
+    },
+    {
+      "name": "Alpine",
+      "pais_origen": "Francia",
+      "models": ["A110", "A110 S", "A110 GT", "A290"]
+    },
+    {
+      "name": "Volkswagen",
+      "pais_origen": "Alemania",
+      "models": ["Golf", "Golf Cabriolet", "Golf GTI", "Golf GTE", "Golf R", "Golf Plus", "Golf Alltrack", "Golf Sportsvan", "Polo", "Polo GTI", "Up!", "e-Up!", "Passat", "Passat CC", "Passat Alltrack", "Passat GTE", "Phaeton", "Touareg", "Tiguan", "Tiguan Allspace", "T-Cross", "T-Roc", "T-Roc Cabriolet", "Taigo", "Touran", "Sharan", "Arteon", "Arteon Shooting Brake", "Beetle", "New Beetle Cabriolet", "Bora", "Jetta", "Scirocco", "Eos", "Corrado", "Caddy", "Transporter", "Crafter", "Amarok", "Fox", "Lupo", "ID.3", "ID.4", "ID.5", "ID.7", "ID. Buzz"]
+    },
+    {
+      "name": "Audi",
+      "pais_origen": "Alemania",
+      "models": ["A1", "A1 Sportback", "A2", "A3", "A3 Sportback", "A3 Cabriolet", "A3 e-tron", "A4", "A4 Avant", "A4 Allroad", "A4 Cabriolet", "A5", "A5 Sportback", "A5 Cabriolet", "A6", "A6 Avant", "A6 Allroad", "A6 e-tron", "A7", "A7 Sportback", "A8", "A8 L", "Q2", "Q3", "Q3 Sportback", "Q4 e-tron", "Q4 Sportback e-tron", "Q5", "Q5 Sportback", "Q6 e-tron", "Q7", "Q8", "Q8 e-tron", "Q8 Sportback e-tron", "TT", "TT Roadster", "TTS", "TTRS", "R8", "R8 Spyder", "S1", "S3", "S4", "S4 Avant", "S5", "S5 Sportback", "S5 Cabriolet", "S6", "S6 Avant", "S7", "S8", "RS3", "RS3 Sportback", "RS4", "RS4 Avant", "RS5", "RS5 Sportback", "RS6", "RS6 Avant", "RS7", "RS Q3", "RS Q3 Sportback", "RS Q8", "SQ2", "SQ5", "SQ5 Sportback", "SQ7", "SQ8", "e-tron", "e-tron Sportback", "e-tron GT", "RS e-tron GT"]
+    },
+    {
+      "name": "BMW",
+      "pais_origen": "Alemania",
+      "models": ["Serie 1", "Serie 2", "Serie 2 Active Tourer", "Serie 2 Gran Tourer", "Serie 2 Gran Coupe", "Serie 3", "Serie 3 Touring", "Serie 3 Gran Turismo", "Serie 4", "Serie 4 Gran Coupe", "Serie 4 Cabriolet", "Serie 5", "Serie 5 Touring", "Serie 5 Gran Turismo", "Serie 6", "Serie 6 Gran Coupe", "Serie 6 Gran Turismo", "Serie 7", "Serie 7 L", "Serie 8", "Serie 8 Gran Coupe", "Serie 8 Cabriolet", "X1", "X2", "X3", "X4", "X5", "X5 M", "X6", "X6 M", "X7", "XM", "M2", "M3", "M3 Touring", "M4", "M4 Cabriolet", "M5", "M5 Touring", "M6", "M6 Gran Coupe", "M8", "M8 Gran Coupe", "i3", "i4", "i5", "i7", "i8", "iX", "iX1", "iX2", "iX3", "Z3", "Z4", "Z8"]
+    },
+    {
+      "name": "Mercedes-Benz",
+      "pais_origen": "Alemania",
+      "models": ["Clase A", "Clase A Sedan", "Clase A 45 AMG", "Clase B", "Clase C", "Clase C Coupe", "Clase C Estate", "Clase C 63 AMG", "Clase E", "Clase E Coupe", "Clase E Estate", "Clase E Cabriolet", "Clase E 63 AMG", "Clase S", "Clase S Coupe", "Clase S Cabriolet", "Clase G", "Clase G 63 AMG", "Clase V", "Clase X", "CLA", "CLA Shooting Brake", "CLS", "GLA", "GLB", "GLC", "GLC Coupe", "GLE", "GLE Coupe", "GLS", "SL", "SLC", "SLK", "SLS AMG", "AMG GT", "AMG GT Roadster", "AMG GT 4 puertas", "AMG GT 63", "EQA", "EQB", "EQC", "EQE", "EQE SUV", "EQS", "EQS SUV", "EQV", "Citan", "Vito", "Viano", "Sprinter", "190", "Vaneo", "EQT"]
+    },
+    {
+      "name": "Opel",
+      "pais_origen": "Alemania",
+      "models": ["Corsa", "Corsa-e", "Corsa OPC", "Astra", "Astra Sports Tourer", "Astra GTC", "Astra OPC", "Astra-e", "Vectra", "Vectra Caravan", "Insignia", "Insignia Grand Sport", "Insignia Sports Tourer", "Zafira", "Zafira Life", "Zafira Tourer", "Meriva", "Mokka", "Mokka-e", "Mokka X", "Grandland", "Grandland X", "Grandland Hybrid", "Crossland", "Crossland X", "Antara", "Frontera", "Cascada", "Adam", "Agila", "Ampera", "Ampera-e", "Combo", "Combo Life", "Combo-e Life", "Vivaro", "Movano", "Tigra", "Speedster", "Kadett", "Rekord", "Omega", "Omega Caravan", "Signum", "Senator", "Sintra", "Monterey"]
+    },
+    {
+      "name": "SEAT",
+      "pais_origen": "España",
+      "models": ["Ibiza", "Leon", "Leon ST", "Leon SC", "Leon Cupra", "Toledo", "Cordoba", "Exeo", "Exeo ST", "Alhambra", "Altea", "Altea XL", "Arosa", "Arona", "Ateca", "Tarraco", "Mii", "Mii electric", "Inca"]
+    },
+    {
+      "name": "Cupra",
+      "pais_origen": "España",
+      "models": ["Leon", "Leon Sportstourer", "Leon VZ e-Hybrid", "Ateca", "Formentor", "Formentor VZ", "Born", "Born VZ", "Tavascan", "Terramar"]
+    },
+    {
+      "name": "Fiat",
+      "pais_origen": "Italia",
+      "models": ["500", "500C", "500 Abarth", "500C Abarth", "500X", "500L", "500L Trekking", "500L Living", "500e", "Punto", "Grande Punto", "Punto Evo", "Bravo", "Brava", "Stilo", "Stilo Multiwagon", "Tipo", "Tipo Station Wagon", "Idea", "Multipla", "Marea", "Marea Weekend", "Croma", "Doblo", "Qubo", "Sedici", "Freemont", "Ducato", "Talento", "Scudo", "Fiorino", "124 Spider", "Panda", "Panda 4x4", "Panda Cross", "600", "Fastback", "Fullback"]
+    },
+    {
+      "name": "Alfa Romeo",
+      "pais_origen": "Italia",
+      "models": ["147", "156", "156 Sportwagon", "159", "159 Sportwagon", "166", "Brera", "Spider", "MiTo", "Giulietta", "Giulia", "Stelvio", "4C", "4C Spider", "GT", "GTV", "Tonale", "Junior", "SZ"]
+    },
+    {
+      "name": "Lancia",
+      "pais_origen": "Italia",
+      "models": ["Ypsilon", "Musa", "Phedra", "Thesis", "Delta", "Thema", "Kappa", "Dedra", "Lybra"]
+    },
+    {
+      "name": "Maserati",
+      "pais_origen": "Italia",
+      "models": ["Ghibli", "Ghibli Trofeo", "Quattroporte", "Levante", "Levante Trofeo", "GranTurismo", "GranTurismo Folgore", "GranCabrio", "Grecale", "Grecale Folgore", "MC20", "MC20 Cielo"]
+    },
+    {
+      "name": "Ferrari",
+      "pais_origen": "Italia",
+      "models": ["360 Modena", "360 Spider", "430 Scuderia", "456 M", "458 Italia", "458 Spider", "458 Speciale", "488 GTB", "488 Spider", "488 Pista", "599 GTB", "599 GTO", "612 Scaglietti", "California", "California T", "FF", "F12 Berlinetta", "F12 TDF", "F430", "F430 Spider", "GTC4Lusso", "La Ferrari", "Portofino", "Portofino M", "Roma", "SF90 Stradale", "SF90 Spider", "812 Superfast", "812 GTS", "296 GTB", "296 GTS", "Purosangue", "F80"]
+    },
+    {
+      "name": "Lamborghini",
+      "pais_origen": "Italia",
+      "models": ["Gallardo", "Gallardo LP 560-4", "Gallardo LP 570-4 Superleggera", "Murcielago", "Murcielago LP 670-4 SuperVeloce", "Aventador", "Aventador S", "Aventador SVJ", "Huracan", "Huracan Evo", "Huracan STO", "Huracan Sterrato", "Urus", "Urus S", "Urus Performante", "Revuelto", "Temerario"]
+    },
+    {
+      "name": "Toyota",
+      "pais_origen": "Japón",
+      "models": ["Yaris", "Yaris Cross", "Yaris GR", "Corolla", "Corolla Touring Sports", "Corolla Cross", "Avensis", "Avensis Touring Sports", "Auris", "Auris Touring Sports", "Aygo", "Aygo X", "Camry", "Carina", "Celica", "C-HR", "RAV4", "RAV4 Plug-in", "Land Cruiser", "Land Cruiser 300", "Land Cruiser Prado", "Hilux", "Hiace", "Proace", "Proace City", "Proace Verso", "Proace City Verso", "Prius", "Prius Plug-in", "MR2", "GT86", "GR86", "GR Supra", "GR Yaris", "bZ4X", "IQ", "Urban Cruiser", "Verso", "Previa", "Starlet"]
+    },
+    {
+      "name": "Lexus",
+      "pais_origen": "Japón",
+      "models": ["CT", "CT 200h", "IS", "IS 300h", "IS 500", "ES", "ES 300h", "GS", "GS 300", "GS 450h", "LS", "LS 430", "LS 460", "LS 500h", "RC", "RC F", "LC", "LC 500", "LC 500h", "NX", "NX 300h", "NX 350h", "NX 450h+", "RX", "RX 300", "RX 400h", "RX 450h", "RX 500h", "RZ", "UX", "UX 250h", "SC"]
+    },
+    {
+      "name": "Honda",
+      "pais_origen": "Japón",
+      "models": ["Jazz", "Jazz e:HEV", "Civic", "Civic Type R", "Civic Tourer", "Accord", "Accord Tourer", "CR-V", "CR-V e:HEV", "HR-V", "HR-V e:HEV", "CR-Z", "CRX", "FR-V", "Insight", "Legend", "Logo", "Prelude", "S2000", "Shuttle", "Stream", "e", "e:Ny1", "ZR-V", "NSX", "Integra"]
+    },
+    {
+      "name": "Nissan",
+      "pais_origen": "Japón",
+      "models": ["Micra", "Micra C+C", "Note", "Leaf", "Leaf e+", "Juke", "Juke Nismo", "Qashqai", "Qashqai e-Power", "X-Trail", "X-Trail e-Power", "Ariya", "Murano", "Pathfinder", "Patrol", "Navara", "Almera", "Almera Tino", "Primera", "Primera Wagon", "100NX", "200SX", "350Z", "370Z", "GT-R", "NV200", "NV300", "NV400", "Interstar", "Primastar", "Kubistar", "Pulsar", "Evalia", "Tiida", "Terrano"]
+    },
+    {
+      "name": "Mazda",
+      "pais_origen": "Japón",
+      "models": ["2", "3", "3 Fastback", "5", "6", "6 Wagon", "323", "626", "CX-3", "CX-30", "CX-5", "CX-60", "CX-80", "MX-3", "MX-5", "MX-5 RF", "MX-30", "RX-8", "BT-50", "MPV", "Premacy", "Tribute", "Xedos", "CX-50"]
+    },
+    {
+      "name": "Mitsubishi",
+      "pais_origen": "Japón",
+      "models": ["Colt", "Lancer", "Lancer Evolution", "Galant", "Carisma", "Outlander", "Outlander PHEV", "ASX", "Eclipse Cross", "Eclipse Cross PHEV", "Grandis", "Pajero", "Montero", "Montero Sport", "L200", "L300", "Space Star", "Space Wagon", "3000GT", "i-MiEV"]
+    },
+    {
+      "name": "Subaru",
+      "pais_origen": "Japón",
+      "models": ["Impreza", "Impreza WRX", "Legacy", "Legacy Outback", "Forester", "XV", "Outback", "BRZ", "Levorg", "WRX STI", "Solterra", "SVX"]
+    },
+    {
+      "name": "Suzuki",
+      "pais_origen": "Japón",
+      "models": ["Swift", "Swift Sport", "Alto", "Ignis", "Baleno", "Celerio", "Vitara", "Grand Vitara", "S-Cross", "Across", "Jimny", "SX4", "SX4 S-Cross", "Splash", "Liana", "Wagon R+", "Kizashi", "Swace"]
+    },
+    {
+      "name": "Infiniti",
+      "pais_origen": "Japón",
+      "models": ["Q30", "Q50", "Q60", "Q70", "QX30", "QX50", "QX70", "EX", "FX", "G", "M"]
+    },
+    {
+      "name": "Hyundai",
+      "pais_origen": "Corea del Sur",
+      "models": ["i10", "i20", "i20 N", "i20 Active", "i30", "i30 N", "i30 Fastback", "i30 Wagon", "i40", "i40 CW", "ix20", "ix35", "ix55", "Accent", "Elantra", "Tucson", "Tucson Plug-in", "Santa Fe", "Santa Fe Plug-in", "Ioniq", "Ioniq 5", "Ioniq 5 N", "Ioniq 6", "Ioniq 9", "Kona", "Kona Electric", "Bayon", "Nexo", "Genesis", "Veloster", "Getz", "Trajet", "Terracan", "Atos", "Galloper", "Coupe", "Staria", "Santamo", "Matrix", "Lantra"]
+    },
+    {
+      "name": "Kia",
+      "pais_origen": "Corea del Sur",
+      "models": ["Picanto", "Rio", "Ceed", "Ceed SW", "ProCeed", "Xceed", "Stonic", "Niro", "Niro EV", "Niro PHEV", "Sportage", "Sportage PHEV", "Sorento", "Sorento PHEV", "Soul", "Soul EV", "EV6", "EV6 GT", "EV9", "Stinger", "Optima", "Optima SW", "Magentis", "Venga", "Carens", "Carnival", "Cerato", "Sephia", "Shuma", "Pregio", "Besta", "Opirus", "EV3", "EV4", "PV5"]
+    },
+    {
+      "name": "Genesis",
+      "pais_origen": "Corea del Sur",
+      "models": ["G70", "G80", "G90", "GV70", "GV80", "GV60", "Electrified G80", "Electrified GV70", "X"]
+    },
+    {
+      "name": "SsangYong",
+      "pais_origen": "Corea del Sur",
+      "models": ["Tivoli", "Tivoli XLV", "Korando", "Korando e-Motion", "Rexton", "Musso", "Actyon", "Rodius"]
+    },
+    {
+      "name": "KGM",
+      "pais_origen": "Corea del Sur",
+      "models": ["Torres", "Torres EVX", "Korando", "Rexton", "Musso"]
+    },
+    {
+      "name": "Skoda",
+      "pais_origen": "República Checa",
+      "models": ["Fabia", "Fabia Combi", "Octavia", "Octavia Combi", "Octavia RS", "Superb", "Superb Combi", "Rapid", "Rapid Spaceback", "Roomster", "Yeti", "Scala", "Kamiq", "Karoq", "Kodiaq", "Kodiaq RS", "Enyaq", "Enyaq Coupe", "Citigo", "Citigo-e", "Favorit", "Felicia", "Praktik", "Elroq"]
+    },
+    {
+      "name": "Dacia",
+      "pais_origen": "Rumanía",
+      "models": ["Logan", "Logan MCV", "Sandero", "Sandero Stepway", "Duster", "Duster 4x4", "Lodgy", "Jogger", "Spring", "Bigster"]
+    },
+    {
+      "name": "Volvo",
+      "pais_origen": "Suecia",
+      "models": ["S40", "S60", "S60 Cross Country", "S70", "S80", "S90", "V40", "V40 Cross Country", "V50", "V60", "V60 Cross Country", "V70", "V90", "V90 Cross Country", "XC40", "XC40 Recharge", "XC60", "XC70", "XC90", "C30", "C40", "C40 Recharge", "C70", "EX30", "EX40", "EC40", "EX90", "EX60"]
+    },
+    {
+      "name": "SAAB",
+      "pais_origen": "Suecia",
+      "models": ["9-3", "9-3 Sport Combi", "9-3 Cabriolet", "9-5", "9-5 Sport Combi", "9-7X", "9000"]
+    },
+    {
+      "name": "Porsche",
+      "pais_origen": "Alemania",
+      "models": ["911 Carrera", "911 Carrera S", "911 Carrera 4S", "911 Targa", "911 Turbo", "911 Turbo S", "911 GT2 RS", "911 GT3", "911 GT3 RS", "911 GT3 Touring", "911 Dakar", "911 S/T", "924", "928", "944", "968", "Boxster", "Boxster S", "Boxster GTS", "718 Boxster", "718 Boxster GTS", "718 Boxster RS", "Cayman", "Cayman S", "Cayman GTS", "718 Cayman", "718 Cayman GT4", "718 Cayman GT4 RS", "Cayenne", "Cayenne S", "Cayenne GTS", "Cayenne Turbo", "Cayenne E-Hybrid", "Macan", "Macan S", "Macan Turbo", "Macan EV", "Panamera", "Panamera 4S", "Panamera Turbo", "Panamera Sport Turismo", "Panamera E-Hybrid", "Taycan", "Taycan Cross Turismo", "Taycan Sport Turismo", "918 Spyder"]
+    },
+    {
+      "name": "Land Rover",
+      "pais_origen": "Reino Unido",
+      "models": ["Defender 90", "Defender 110", "Defender 130", "Discovery", "Discovery 3", "Discovery 4", "Discovery 5", "Discovery Sport", "Freelander", "Freelander 2", "Range Rover", "Range Rover Evoque", "Range Rover Evoque Cabriolet", "Range Rover Sport", "Range Rover Velar", "Range Rover PHEV"]
+    },
+    {
+      "name": "Jaguar",
+      "pais_origen": "Reino Unido",
+      "models": ["X-Type", "X-Type Estate", "S-Type", "XJ", "XJ Supersport", "XK", "XK Cabriolet", "XE", "XF", "XF Sportbrake", "F-Type", "F-Type Cabriolet", "F-Type SVR", "F-Pace", "F-Pace SVR", "E-Pace", "I-Pace"]
+    },
+    {
+      "name": "Aston Martin",
+      "pais_origen": "Reino Unido",
+      "models": ["Vanquish", "Vanquish S", "Vantage", "Vantage Roadster", "Vantage AMR", "DB9", "DB9 Volante", "DB11", "DB11 Volante", "DB12", "DBS", "DBS Superleggera", "DBX", "DBX707", "Rapide", "Vulcan", "Valkyrie", "Valour"]
+    },
+    {
+      "name": "Bentley",
+      "pais_origen": "Reino Unido",
+      "models": ["Continental GT", "Continental GT Speed", "Continental GT Mulliner", "Continental GTC", "Flying Spur", "Flying Spur Speed", "Mulsanne", "Mulsanne Speed", "Bentayga", "Bentayga Speed", "Bentayga Azure", "Bentayga EWB"]
+    },
+    {
+      "name": "Rolls-Royce",
+      "pais_origen": "Reino Unido",
+      "models": ["Phantom", "Phantom Extended", "Ghost", "Ghost Extended", "Wraith", "Dawn", "Cullinan", "Spectre"]
+    },
+    {
+      "name": "McLaren",
+      "pais_origen": "Reino Unido",
+      "models": ["12C", "12C Spider", "570S", "570GT", "600LT", "650S", "720S", "765LT", "Artura", "GT", "P1", "Senna", "Elva"]
+    },
+    {
+      "name": "Mini",
+      "pais_origen": "Reino Unido",
+      "models": ["Hatch", "Hatch 3p", "Hatch 5p", "Cabriolet", "Coupe", "Roadster", "Clubman", "Countryman", "Countryman JCW", "Paceman", "Traveller", "Aceman", "Cooper E", "Cooper SE Countryman", "John Cooper Works"]
+    },
+    {
+      "name": "Ford",
+      "pais_origen": "Estados Unidos",
+      "models": ["Fiesta", "Fiesta ST", "Focus", "Focus ST", "Focus RS", "Focus Active", "Mondeo", "Mondeo ST", "Mondeo Vignale", "KA", "KA+", "Puma", "Puma ST", "Kuga", "Kuga PHEV", "EcoSport", "Galaxy", "S-Max", "Edge", "Explorer", "Explorer PHEV", "Mustang", "Mustang GT", "Mustang Mach-E", "Ranger", "Transit", "Transit Connect", "Transit Courier", "Transit Custom", "Tourneo Connect", "Tourneo Custom", "Tourneo Courier", "Escort", "Fusion", "B-Max", "C-Max", "C-Max Energi", "Granada", "Scorpio", "Sierra", "Probe", "Cougar", "Capri", "Taunus", "Maverick", "StreetKA"]
+    },
+    {
+      "name": "Jeep",
+      "pais_origen": "Estados Unidos",
+      "models": ["Renegade", "Renegade PHEV", "Compass", "Compass PHEV", "Cherokee", "Grand Cherokee", "Grand Cherokee 4xe", "Grand Cherokee L", "Wrangler", "Wrangler 4xe", "Gladiator", "Avenger", "Avenger 4xe"]
+    },
+    {
+      "name": "Dodge",
+      "pais_origen": "Estados Unidos",
+      "models": ["Challenger", "Charger", "Journey", "Caliber", "Avenger", "Nitro", "Viper", "Dart", "Ram"]
+    },
+    {
+      "name": "Chrysler",
+      "pais_origen": "Estados Unidos",
+      "models": ["300C", "Grand Voyager", "Voyager", "PT Cruiser", "Sebring", "Sebring Cabriolet", "Crossfire", "Pacifica"]
+    },
+    {
+      "name": "Chevrolet",
+      "pais_origen": "Estados Unidos",
+      "models": ["Captiva", "Aveo", "Cruze", "Cruze SW", "Orlando", "Spark", "Matiz", "Kalos", "Lacetti", "Nubira", "Volt", "Camaro", "Corvette", "Malibu", "Trax", "Tahoe", "Tacuma"]
+    },
+    {
+      "name": "Tesla",
+      "pais_origen": "Estados Unidos",
+      "models": ["Model S", "Model S Plaid", "Model 3", "Model 3 Performance", "Model 3 Highland", "Model X", "Model X Plaid", "Model Y", "Model Y Performance", "Roadster", "Cybertruck", "Cybercab"]
+    },
+    {
+      "name": "Cadillac",
+      "pais_origen": "Estados Unidos",
+      "models": ["Escalade", "SRX", "CTS", "ATS", "XT4", "XT5", "XT6", "Lyriq"]
+    },
+    {
+      "name": "Dodge",
+      "pais_origen": "Estados Unidos",
+      "models": ["Challenger", "Charger", "Journey", "Caliber", "Avenger", "Nitro", "Viper", "Dart", "Ram", "Hornet"]
+    },
+    {
+      "name": "Polestar",
+      "pais_origen": "Suecia / China",
+      "models": ["Polestar 1", "Polestar 2", "Polestar 3", "Polestar 4", "Polestar 5"]
+    },
+    {
+      "name": "Smart",
+      "pais_origen": "Alemania / China",
+      "models": ["Fortwo", "Fortwo Cabriolet", "Forfour", "Roadster", "#1", "#3", "#5"]
+    },
+    {
+      "name": "MG",
+      "pais_origen": "China",
+      "models": ["MG3", "MG3 Hybrid+", "MG4", "MG4 Trophy", "MG5", "MG5 Electric", "ZS", "ZS EV", "HS", "HS PHEV", "Marvel R", "Cyberster", "TF", "ZR", "ZT", "EHS"]
+    },
+    {
+      "name": "BYD",
+      "pais_origen": "China",
+      "models": ["Atto 3", "Dolphin", "Seal", "Seal U", "Seal U DM-i", "Han", "Tang", "Sea Lion 6", "Sea Lion 07", "Sealion 6", "Shark"]
+    },
+    {
+      "name": "Maxus",
+      "pais_origen": "China",
+      "models": ["eDeliver 3", "eDeliver 9", "MIFA 9", "T90 EV", "Deliver 9"]
+    },
+    {
+      "name": "Xpeng",
+      "pais_origen": "China",
+      "models": ["P7", "G9", "X9"]
+    },
+    {
+      "name": "Nio",
+      "pais_origen": "China",
+      "models": ["ET7", "ET5", "EL6", "ES6", "ES8", "EC6", "EL8"]
+    },
+    {
+      "name": "Aiways",
+      "pais_origen": "China",
+      "models": ["U5", "U6"]
+    },
+    {
+      "name": "Jaecoo",
+      "pais_origen": "China",
+      "models": ["J7", "J8"]
+    },
+    {
+      "name": "Omoda",
+      "pais_origen": "China",
+      "models": ["C5", "E5", "C9"]
+    },
+    {
+      "name": "Leapmotor",
+      "pais_origen": "China",
+      "models": ["T03", "C10"]
+    },
+    {
+      "name": "Zeekr",
+      "pais_origen": "China",
+      "models": ["001", "007", "X"]
+    },
+    {
+      "name": "GWM",
+      "pais_origen": "China",
+      "models": ["Ora 03", "Ora 07", "Tank 300"]
+    },
+    {
+      "name": "Volvo (Lynk & Co)",
+      "pais_origen": "China / Suecia",
+      "models": ["01", "02", "05"]
+    },
+    {
+      "name": "Volkswagen Commercial",
+      "pais_origen": "Alemania",
+      "models": ["Crafter", "LT", "Caddy", "California", "Multivan", "Transporter T4", "Transporter T5", "Transporter T6", "Transporter T7", "Caravelle"]
+    },
+    {
+      "name": "Isuzu",
+      "pais_origen": "Japón",
+      "models": ["D-Max", "Trooper", "Rodeo"]
+    },
+    {
+      "name": "Tata",
+      "pais_origen": "India",
+      "models": ["Indica", "Indigo", "Safari", "Xenon", "Telcoline"]
+    },
+    {
+      "name": "Mahindra",
+      "pais_origen": "India",
+      "models": ["Goa", "XUV500", "Quanto", "Thar", "KUV100", "Scorpio", "XEV 9e", "BE 6e"]
+    },
+    {
+      "name": "Rover",
+      "pais_origen": "Reino Unido",
+      "models": ["25", "45", "75", "200", "400", "600", "800", "75 Tourer"]
+    },
+    {
+      "name": "MG Rover",
+      "pais_origen": "Reino Unido",
+      "models": ["TF", "ZR", "ZS", "ZT"]
+    },
+    {
+      "name": "Iveco",
+      "pais_origen": "Italia",
+      "models": ["Daily", "Massif", "e-Daily"]
+    },
+    {
+      "name": "Lamborghini",
+      "pais_origen": "Italia",
+      "models": ["Gallardo", "Gallardo LP 560-4", "Murcielago", "Aventador", "Aventador S", "Aventador SVJ", "Huracan", "Huracan Evo", "Huracan STO", "Urus", "Urus S", "Urus Performante", "Revuelto", "Temerario"]
+    },
+    {
+      "name": "Pagani",
+      "pais_origen": "Italia",
+      "models": ["Zonda", "Zonda F", "Zonda R", "Huayra", "Huayra BC", "Huayra Roadster", "Utopia"]
+    },
+    {
+      "name": "Koenigsegg",
+      "pais_origen": "Suecia",
+      "models": ["CC8S", "CCR", "CCX", "Agera", "Agera RS", "Regera", "Gemera", "Jesko"]
+    },
+    {
+      "name": "Bugatti",
+      "pais_origen": "Francia",
+      "models": ["Veyron", "Veyron Grand Sport", "Chiron", "Chiron Sport", "Chiron Super Sport", "Divo", "Centodieci", "Bolide", "Tourbillon"]
+    },
+    {
+      "name": "Lotus",
+      "pais_origen": "Reino Unido",
+      "models": ["Elise", "Exige", "Evora", "Emira", "Eletre", "Emeya"]
+    },
+    {
+      "name": "Abarth",
+      "pais_origen": "Italia",
+      "models": ["500", "595", "695", "500e", "695 Tributo Ferrari", "124 Spider"]
+    },
+    {
+      "name": "Caterham",
+      "pais_origen": "Reino Unido",
+      "models": ["Seven 160", "Seven 270", "Seven 310", "Seven 420", "Seven 620"]
+    },
+    {
+      "name": "Morgan",
+      "pais_origen": "Reino Unido",
+      "models": ["4/4", "Plus 4", "Plus 6", "Roadster", "Aero 8", "3 Wheeler"]
+    },
+    {
+      "name": "Donkervoort",
+      "pais_origen": "Países Bajos",
+      "models": ["D8 GTO", "D8 GTO-S", "F22"]
+    },
+    {
+      "name": "Fisker",
+      "pais_origen": "Estados Unidos",
+      "models": ["Karma", "Ocean"]
+    },
+    {
+      "name": "Lucid",
+      "pais_origen": "Estados Unidos",
+      "models": ["Air", "Air Grand Touring", "Air Sapphire"]
+    },
+    {
+      "name": "Rivian",
+      "pais_origen": "Estados Unidos",
+      "models": ["R1T", "R1S"]
+    },
+    {
+      "name": "Hummer",
+      "pais_origen": "Estados Unidos",
+      "models": ["H2", "H3", "EV"]
+    },
+    {
+      "name": "Wiesmann",
+      "pais_origen": "Alemania",
+      "models": ["MF3", "MF4", "MF5", "Project Thunderball"]
+    },
+    {
+      "name": "RUF",
+      "pais_origen": "Alemania",
+      "models": ["CTR3", "RGT", "RT12", "Rodeo"]
+    },
+    {
+      "name": "Lynk & Co",
+      "pais_origen": "China / Suecia",
+      "models": ["01", "02", "05"]
+    },
+    {
+      "name": "DR Automobiles",
+      "pais_origen": "Italia",
+      "models": ["DR 5.0", "DR 6.0", "EVO 6", "EVO 7", "F35"]
+    },
+    {
+      "name": "Ineos",
+      "pais_origen": "Reino Unido",
+      "models": ["Grenadier", "Grenadier Quartermaster"]
+    },
+    {
+      "name": "GreenGo",
+      "pais_origen": "China",
+      "models": ["Kangaroo", "Picky"]
+    },
+    {
+      "name": "Citroën Ë",
+      "pais_origen": "Francia",
+      "models": ["ë-C3", "ë-Berlingo", "ë-SpaceTourer"]
+    },
+    {
+      "name": "Volkswagen (Comerciales)",
+      "pais_origen": "Alemania",
+      "models": ["Crafter", "LT", "Caddy 5", "California T5", "California T6", "California T7", "Multivan T5", "Multivan T6", "Multivan T7"]
+    },
+    {
+      "name": "Piaggio",
+      "pais_origen": "Italia",
+      "models": ["Porter", "Porter NP6", "Ape"]
+    }
+  ]
+}

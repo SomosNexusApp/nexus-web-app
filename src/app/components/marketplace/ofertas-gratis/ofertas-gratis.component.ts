@@ -39,7 +39,7 @@ export class OfertasGratisComponent implements OnInit {
   cargarGratis() {
     this.loading.set(true);
     const params: SearchParams = {
-      tipo: 'TODOS',
+      tipo: 'OFERTA',
       precioMax: 0,
       page: 0,
       size: 40,

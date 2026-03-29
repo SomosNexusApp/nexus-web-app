@@ -145,13 +145,13 @@
                 <h4>Mostrar ubicación</h4>
                 <p>Los visitantes de tu perfil podrán ver tu ciudad.</p>
               </div>
-              <label class="elite-toggle">
+              <label class="premium-toggle">
                 <input
                   type="checkbox"
                   [ngModel]="privacidad().mostrarUbicacion"
                   (ngModelChange)="updatePrivacidadField('mostrarUbicacion', $event)"
                 />
-                <span class="elite-slider"></span>
+                <span class="premium-slider"></span>
               </label>
             </div>
 
@@ -160,13 +160,13 @@
                 <h4>Mostrar teléfono en el perfil</h4>
                 <p>Útil si prefieres que te contacten por WhatsApp o llamadas.</p>
               </div>
-              <label class="elite-toggle">
+              <label class="premium-toggle">
                 <input
                   type="checkbox"
                   [ngModel]="privacidad().mostrarTelefono"
                   (ngModelChange)="updatePrivacidadField('mostrarTelefono', $event)"
                 />
-                <span class="elite-slider"></span>
+                <span class="premium-slider"></span>
               </label>
             </div>
 
@@ -177,13 +177,13 @@
                   Si está desactivado, solo tú puedes iniciar chats. Útil si recibes mucho spam.
                 </p>
               </div>
-              <label class="elite-toggle">
+              <label class="premium-toggle">
                 <input
                   type="checkbox"
                   [ngModel]="privacidad().permitirMensajesDesconocidos"
                   (ngModelChange)="updatePrivacidadField('permitirMensajesDesconocidos', $event)"
                 />
-                <span class="elite-slider"></span>
+                <span class="premium-slider"></span>
               </label>
             </div>
           </div>
@@ -363,14 +363,14 @@
                   <p class="help-text">Recibe un código en tu correo al iniciar sesión.</p>
                 </div>
               </div>
-              <label class="elite-toggle">
+              <label class="premium-toggle">
                 <input
                   type="checkbox"
                   [disabled]="loading2FA()"
                   [checked]="user()?.twoFactorEnabled && user()?.twoFactorMethod === 'EMAIL'"
                   (change)="toggle2FA('EMAIL')"
                 />
-                <span class="elite-slider"></span>
+                <span class="premium-slider"></span>
               </label>
             </div>
 
@@ -385,14 +385,14 @@
                   <p class="help-text">Usa tu móvil para generar códigos seguros.</p>
                 </div>
               </div>
-              <label class="elite-toggle">
+              <label class="premium-toggle">
                 <input
                   type="checkbox"
                   [disabled]="loading2FA()"
                   [checked]="user()?.twoFactorEnabled && user()?.twoFactorMethod === 'APP'"
                   (change)="toggle2FA('APP')"
                 />
-                <span class="elite-slider"></span>
+                <span class="premium-slider"></span>
               </label>
             </div>
 
@@ -486,12 +486,12 @@
                    <h4>Mensajes de chat</h4>
                    <p>Avisar cuando recibas un DM.</p>
               </div>
-              <label class="elite-toggle">
+              <label class="premium-toggle">
                 <input
                   type="checkbox"
                   [ngModel]="notificaciones().notifNuevosMensajes"
                   (ngModelChange)="updateNotificacionesField('notifNuevosMensajes', $event)" />
-                <span class="elite-slider"></span>
+                <span class="premium-slider"></span>
               </label>
             </div>
 
@@ -500,12 +500,12 @@
                      <h4>Compras y Ventas</h4>
                      <p>Alertas de transacciones realizadas.</p>
                 </div>
-                <label class="elite-toggle">
+                <label class="premium-toggle">
                   <input
                     type="checkbox"
                     [ngModel]="notificaciones().notifNuevaCompra"
                     (ngModelChange)="updateNotificacionesField('notifNuevaCompra', $event)" />
-                  <span class="elite-slider"></span>
+                  <span class="premium-slider"></span>
                 </label>
             </div>
 
@@ -514,12 +514,12 @@
                      <h4>Valoraciones</h4>
                      <p>Cuando alguien te deje una review.</p>
                 </div>
-                <label class="elite-toggle">
+                <label class="premium-toggle">
                   <input
                     type="checkbox"
                     [ngModel]="notificaciones().notifValoracion"
                     (ngModelChange)="updateNotificacionesField('notifValoracion', $event)" />
-                  <span class="elite-slider"></span>
+                  <span class="premium-slider"></span>
                 </label>
             </div>
 
@@ -530,12 +530,12 @@
                 <h4>Newsletter de Nexus</h4>
                 <p>Novedades, ofertas y resúmenes de mercado.</p>
               </div>
-              <label class="elite-toggle">
+              <label class="premium-toggle">
                 <input
                   type="checkbox"
                   [ngModel]="notificaciones().newsletterSuscrito"
                   (ngModelChange)="updateNotificacionesField('newsletterSuscrito', $event)" />
-                <span class="elite-slider"></span>
+                <span class="premium-slider"></span>
               </label>
             </div>
           </div>
@@ -621,8 +621,8 @@
 
 <!-- Modal de Eliminación de Cuenta -->
 <div class="modal-overlay delete-modal-overlay" *ngIf="showDeleteModal()">
-  <div class="modal-content elite-delete-modal">
-    <div class="modal-header-elite">
+  <div class="modal-content premium-delete-modal">
+    <div class="modal-header-premium">
       <div class="danger-icon-wrapper">
         <i class="fas fa-exclamation-triangle"></i>
       </div>
@@ -639,19 +639,19 @@
       </div>
       
       <div class="confirmation-form">
-        <div class="form-group-elite">
+        <div class="form-group-premium">
           <label>Escribe <span class="confirm-keyword">ELIMINAR</span> para confirmar</label>
           <input 
             type="text" 
             placeholder="Escribe aquí..."
             [ngModel]="deleteAccount().confirmText"
             (ngModelChange)="updateDeleteAccountField('confirmText', $event)"
-            class="confirm-input-elite"
+            class="confirm-input-premium"
           />
         </div>
 
         <!-- Solo pide contraseña si NO es de Google/Facebook -->
-        <div class="form-group-elite mt-4" *ngIf="!user()?.googleId && !user()?.facebookId">
+        <div class="form-group-premium mt-4" *ngIf="!user()?.googleId && !user()?.facebookId">
           <label>Confirma con tu contraseña</label>
           <div class="input-icon-wrapper">
             <i class="fas fa-lock"></i>
@@ -660,15 +660,15 @@
               placeholder="••••••••"
               [ngModel]="deleteAccount().password"
               (ngModelChange)="updateDeleteAccountField('password', $event)"
-              class="password-input-elite"
+              class="password-input-premium"
             />
           </div>
         </div>
       </div>
     </div>
 
-    <div class="modal-actions-elite">
-      <button class="btn-cancel-elite" (click)="showDeleteModal.set(false)">No, volver atrás</button>
+    <div class="modal-actions-premium">
+      <button class="btn-cancel-premium" (click)="showDeleteModal.set(false)">No, volver atrás</button>
       <button 
         class="btn-delete-final" 
         [disabled]="deleteAccount().confirmText !== 'ELIMINAR' || (!user()?.googleId && !user()?.facebookId && !deleteAccount().password)"

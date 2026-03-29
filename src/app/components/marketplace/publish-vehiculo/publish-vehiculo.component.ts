@@ -1,5 +1,6 @@
-import { Component, OnInit, inject, signal, ChangeDetectionStrategy, ViewChild, ElementRef, HostListener } from '@angular/core';
+import { Component, OnInit, inject, signal, computed, ChangeDetectionStrategy, ViewChild, ElementRef, HostListener, effect, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterModule, ActivatedRoute } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
@@ -22,7 +23,7 @@ export type PublishStep = 1 | 2 | 3 | 4 | 5;
   styleUrls: ['./publish-vehiculo.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class PublishVehiculoComponent implements OnInit {
+export class PublishVehiculoComponent implements OnInit, AfterViewInit {
   private fb = inject(FormBuilder);
   private http = inject(HttpClient);
   private router = inject(Router);
@@ -30,6 +31,7 @@ export class PublishVehiculoComponent implements OnInit {
   private searchService = inject(SearchService);
   private toast = inject(ToastService);
   private route = inject(ActivatedRoute);
+  private sanitizer = inject(DomSanitizer);
 
   currentStep = signal<PublishStep>(1);
   uploading = signal(false);
@@ -38,7 +40,32 @@ export class PublishVehiculoComponent implements OnInit {
   isEditMode = signal(false);
   vehiculoId = signal<number | null>(null);
 
+  // Custom Dropdown State
+  activeDropdown = signal<string | null>(null);
+
+  // Combustible options
+  combustibleOptions = [
+    { value: 'GASOLINA', label: 'Gasolina', icon: 'zap' },
+    { value: 'DIESEL', label: 'Diésel', icon: 'droplet' },
+    { value: 'ELECTRICO', label: 'Eléctrico', icon: 'battery-charging' },
+    { value: 'HIBRIDO', label: 'Híbrido', icon: 'leaf' },
+    { value: 'GAS', label: 'Gas (GLP/GNC)', icon: 'wind' }
+  ];
+
+  // Cambio options
+  cambioOptions = [
+    { value: 'MANUAL', label: 'Manual', icon: 'settings' },
+    { value: 'AUTOMATICO', label: 'Automático', icon: 'cpu' }
+  ];
+
+  // Tipo oferta options
+  tipoOfertaOptions = [
+    { value: 'VENTA', label: 'Venta Directa', icon: 'tag' },
+    { value: 'INTERCAMBIO', label: 'Intercambio / Acepta cambios', icon: 'refresh-cw' }
+  ];
+
   @ViewChild('descInput') descInput!: ElementRef<HTMLTextAreaElement>;
+  @ViewChild('visualEditor') visualEditor!: ElementRef<HTMLDivElement>;
 
   // --- FORMULARIOS ---
   step1Form = this.fb.group({
@@ -78,76 +105,220 @@ export class PublishVehiculoComponent implements OnInit {
     cp: this.fb.control<string>('')
   });
 
+  // Reactive Values for Icons (defined after forms)
+  combustibleValue = toSignal(this.step2Form.get('combustible')!.valueChanges.pipe(startWith('GASOLINA')), { initialValue: 'GASOLINA' });
+  cambioValue = toSignal(this.step2Form.get('cambio')!.valueChanges.pipe(startWith('MANUAL')), { initialValue: 'MANUAL' });
+  tipoOfertaValue = toSignal(this.step3Form.get('tipoOferta')!.valueChanges.pipe(startWith('VENTA')), { initialValue: 'VENTA' });
+  
+  marcaInput = toSignal(this.step2Form.get('marca')!.valueChanges.pipe(startWith('')), { initialValue: '' });
+  modeloInput = toSignal(this.step2Form.get('modelo')!.valueChanges.pipe(startWith('')), { initialValue: '' });
+
   step4Form = this.fb.group({
     titulo: this.fb.control<string>('', [Validators.required, Validators.minLength(10), Validators.maxLength(80)]),
     descripcion: this.fb.control<string>('', [Validators.required, Validators.minLength(20), Validators.maxLength(2000)]),
   });
 
   // --- AUTOCOMPLETE SIGNALS ---
-  marcasRaw = toSignal(this.searchService.getMarcasVehiculos(), { initialValue: [] });
-  filteredMarcas = signal<string[]>([]);
+  marcasRaw = toSignal(this.searchService.getMarcasVehiculos(), { initialValue: [] as any[] });
   showMarcas = signal(false);
+  filteredMarcas = computed(() => {
+    const q = (this.marcaInput() || '').toLowerCase();
+    const all = this.marcasRaw();
+    return all
+      .filter(m => m.name.toLowerCase().includes(q))
+      .map(m => ({ ...m, flag: this.getFlagEmoji(m.country) }))
+      .slice(0, 50);
+  });
 
   modelosRaw = signal<string[]>([]);
-  filteredModelos = signal<string[]>([]);
   showModelos = signal(false);
+  filteredModelos = computed(() => {
+    const q = (this.modeloInput() || '').toLowerCase();
+    const all = this.modelosRaw();
+    return all
+      .filter(m => m.toLowerCase().includes(q))
+      .slice(0, 50);
+  });
 
   sugerenciasUbi = signal<any[]>([]);
-  showUbi = signal(false);
+  showUbi = signal<boolean>(false);
+
+  // Writing Assistant
+  descriptionWordCount = signal(0);
+  descriptionCharCount = signal(0);
+  
+  isSearchingModelos = signal(false);
+  isSearchingUbi = signal(false);
+  
+  writingTemplates = [
+    {
+      id: 'professional',
+      name: 'Profesional',
+      icon: 'briefcase',
+      content: `### Estado General\nExcelente estado de conservación, siempre en garaje.\n\n### Mantenimiento\nLibro de revisiones al día en servicio oficial. ITV recién pasada.\n\n### Equipamiento Destacado\n- Pack AMG / M / S-Line\n- Techo panorámico\n- Asistentes de conducción avanzada\n\n### Otros Detalles\nNeumáticos nuevos y pintura original.`
+    },
+    {
+      id: 'enthusiast',
+      name: 'Entusiasta',
+      icon: 'flame',
+      content: `### Sensaciones\nUn vehículo diseñado para disfrutar de la conducción. Respuesta inmediata y manejo deportivo.\n\n### Modificaciones y Extras\nEquipamiento premium seleccionado para mejorar la experiencia dinámica.\n\n### Cuidado Personal\nLavado siempre a mano, detallado periódico y mecánicamente impecable.`
+    },
+    {
+      id: 'technical',
+      name: 'Técnico',
+      icon: 'cpu',
+      content: `### Ficha Técnica Detallada\nMotorización optimizada, consumos reales de X l/100km.\n\n### Historial Mecánico\nÚltimo cambio de aceite y filtros hace X km. Discos y pastillas en buen estado.\n\n### Conectividad\nSistema de infoentretenimiento compatible con Apple CarPlay y Android Auto.`
+    }
+  ];
 
   constructor() {
-    // Filtrado de Marcas (Solo lógica de filtrado, NO abre el panel)
-    this.step2Form.get('marca')?.valueChanges.pipe(
-      debounceTime(150),
-      distinctUntilChanged()
-    ).subscribe(val => {
-      if (!val || val.length < 1) {
-        this.filteredMarcas.set([]);
-        this.showMarcas.set(false);
-        return;
-      }
-      const all = this.marcasRaw();
-      this.filteredMarcas.set(all.filter(m => m.toLowerCase().includes(val.toLowerCase())).slice(0, 10));
-    });
-
     // Carga de Modelos al cambiar Marca
     this.step2Form.get('marca')?.valueChanges.pipe(
       distinctUntilChanged(),
+      tap(() => this.isSearchingModelos.set(true)),
       switchMap(marca => {
-        if (marca && this.marcasRaw().includes(marca)) {
-          return this.searchService.getModelosPorMarca(marca);
+        if (!marca) return of([]);
+        const q = typeof marca === 'string' ? marca.toLowerCase() : '';
+        const brandObj = typeof marca === 'object' ? marca : 
+                        this.marcasRaw().find((m: any) => m.name.toLowerCase() === q);
+        
+        const name = brandObj?.name || (typeof marca === 'string' ? marca : '');
+        
+        if (name) {
+          return this.searchService.getModelosPorMarca(name);
         }
         return of([]);
       })
     ).subscribe(mods => {
-      // Limpiar modelos de cosas raras (códigos, paréntesis)
+      this.isSearchingModelos.set(false);
       const cleanMods = mods.map(m => m.split('(')[0].trim()).filter(m => m.length > 0);
-      this.modelosRaw.set([...new Set(cleanMods)]);
-    });
-
-    // Filtrado de Modelos (Solo lógica, NO abre el panel)
-    this.step2Form.get('modelo')?.valueChanges.pipe(
-      debounceTime(150),
-      distinctUntilChanged()
-    ).subscribe(val => {
-      if (!val || val.length < 1) {
-        this.filteredModelos.set([]);
-        this.showModelos.set(false);
-        return;
-      }
-      const all = this.modelosRaw();
-      this.filteredModelos.set(all.filter(m => m.toLowerCase().includes(val.toLowerCase())).slice(0, 15));
+      const uniqueMods = [...new Set(cleanMods)];
+      this.modelosRaw.set(uniqueMods.sort((a, b) => a.localeCompare(b)));
     });
 
     // Ubicación OSM
     this.step3Form.get('ubicacion')?.valueChanges.pipe(
       debounceTime(400),
       distinctUntilChanged(),
+      tap(q => { if(q && q.length > 1) this.isSearchingUbi.set(true); }),
       switchMap(q => q && q.length > 1 ? this.searchService.buscarUbicacionEstructurada(q) : of([]))
     ).subscribe(res => {
+      this.isSearchingUbi.set(false);
       this.sugerenciasUbi.set(res);
-      this.showUbi.set(res.length > 0);
+      this.showUbi.set(res.length > 0 || (this.step3Form.get('ubicacion')?.value?.length || 0) > 1);
     });
+
+    // Re-inicializar iconos de Lucide al cambiar de paso o abrir dropdown o cambiar valores clave
+    effect(() => {
+      this.currentStep();
+      this.activeDropdown();
+      this.combustibleValue();
+      this.cambioValue();
+      this.tipoOfertaValue();
+      this.initIcons(50);
+      this.initIcons(200);
+    });
+  }
+
+  onFocusMarca() {
+    this.showMarcas.set(true);
+    this.showModelos.set(false);
+    this.showUbi.set(false);
+  }
+
+  onFocusModelo() {
+    this.showModelos.set(true);
+    this.showMarcas.set(false);
+    this.showUbi.set(false);
+  }
+
+  onInputMarca() { this.showMarcas.set(this.step2Form.get('marca')?.value ? true : false); }
+  onInputModelo() { this.showModelos.set(this.step2Form.get('modelo')?.value ? true : false); }
+  onInputUbi() { this.showUbi.set(this.step3Form.get('ubicacion')?.value ? true : false); }
+
+  toggleDropdown(name: string) {
+    if (this.activeDropdown() === name) {
+      this.activeDropdown.set(null);
+    } else {
+      this.activeDropdown.set(name);
+      this.initIcons(50);
+    }
+  }
+
+  selectOption(formName: 'step2Form' | 'step3Form', controlName: string, value: any) {
+    const form = (this as any)[formName];
+    form.get(controlName)?.setValue(value);
+    this.activeDropdown.set(null);
+  }
+
+  getSelectedLabel(formName: 'step2Form' | 'step3Form', controlName: string, options: any[]): string {
+    const form = (this as any)[formName];
+    const value = form.get(controlName)?.value;
+    return options.find(o => o.value === value)?.label || 'Seleccionar...';
+  }
+
+  getSelectedIcon(formName: 'step2Form' | 'step3Form', controlName: string, options: any[]): string {
+    const form = (this as any)[formName];
+    const value = form.get(controlName)?.value;
+    return options.find(o => o.value === value)?.icon || 'chevron-down';
+  }
+
+  getIconSvg(name: string): SafeHtml {
+    const icons: { [key: string]: string } = {
+      'zap': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-zap"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>',
+      'droplet': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-droplet"><path d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5s-3 3.5-3 5.5a7 7 0 0 0 7 7z"></path></svg>',
+      'battery-charging': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-battery-charging"><path d="M15 7h1a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2h-1M5 7H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h1M11 7l-3 5h4l-3 5"></path></svg>',
+      'leaf': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-leaf"><path d="M11 20a7 7 0 0 1-7-7c0-5.5 4.5-10 10-10 0 0 4 0 6 2s2 6 2 6c0 5.5-4.5 10-10 10z"></path><path d="M11 20l1-5"></path><path d="M21 4l-5 5"></path></svg>',
+      'wind': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-wind"><path d="M17.7 7.7A2.5 2.5 0 1 1 20 12H3"></path><path d="M9.6 17a2.5 2.5 0 1 1-2.2-4.4H21"></path><path d="M7 5a2.5 2.5 0 1 1 2.2 4.4H3"></path></svg>',
+      'settings': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-settings"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.1a2 2 0 0 1-1-1.72v-.51a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path><circle cx="12" cy="12" r="3"></circle></svg>',
+      'cpu': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-cpu"><rect x="4" y="4" width="16" height="16" rx="2"></rect><rect x="9" y="9" width="6" height="6"></rect><path d="M15 2v2"></path><path d="M15 20v2"></path><path d="M2 15h2"></path><path d="M2 9h2"></path><path d="M20 15h2"></path><path d="M20 9h2"></path><path d="M9 2v2"></path><path d="M9 20v2"></path></svg>',
+      'tag': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-tag"><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2z"></path><path d="M7 7h.01"></path></svg>',
+      'refresh-cw': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-refresh-cw"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"></path><path d="M21 3v5h-5"></path><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"></path><path d="M3 21v-5h5"></path></svg>',
+      'shopping-cart': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-shopping-cart"><circle cx="8" cy="21" r="1"></circle><circle cx="19" cy="21" r="1"></circle><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"></path></svg>',
+      'fuel': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-fuel"><path d="M3 22L15 22"></path><path d="M4 9L14 9"></path><path d="M14 22V4a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v18"></path><path d="M14 13h2a2 2 0 0 1 2 2v2a2 2 0 0 0 2 2h.5a1.5 1.5 0 0 0 1.5-1.5V11"></path><path d="M15 22h-2"></path><path d="M9 9v3"></path></svg>',
+      'activity': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-activity"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>',
+      'bold': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-bold"><path d="M14 12a4 4 0 0 0 0-8H6v8"></path><path d="M15 20a4 4 0 0 0 0-8H6v8Z"></path></svg>',
+      'italic': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-italic"><line x1="19" x2="10" y1="4" y2="4"></line><line x1="14" x2="5" y1="20" y2="20"></line><line x1="15" x2="9" y1="4" y2="20"></line></svg>',
+      'list': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-list"><line x1="8" x2="21" y1="6" y2="6"></line><line x1="8" x2="21" y1="12" y2="12"></line><line x1="8" x2="21" y1="18" y2="18"></line><line x1="3" x2="3.01" y1="6" y2="6"></line><line x1="3" x2="3.01" y1="12" y2="12"></line><line x1="3" x2="3.01" y1="18" y2="18"></line></svg>',
+      'heading': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-heading"><path d="M6 12h12"></path><path d="M6 20V4"></path><path d="M18 20V4"></path></svg>',
+      'trash-2': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trash-2"><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path><line x1="10" x2="10" y1="11" y2="17"></line><line x1="14" x2="14" y1="11" y2="17"></line></svg>',
+      'image': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-image"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"></rect><circle cx="9" cy="9" r="2"></circle><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"></path></svg>',
+      'upload-cloud': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-upload-cloud"><path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"></path><path d="M12 12v9"></path><path d="m8 16 4-4 4 4"></path></svg>',
+      'plus': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-plus"><path d="M5 12h14"></path><path d="M12 5v14"></path></svg>',
+      'type': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-type"><polyline points="4 7 4 4 20 4 20 7"></polyline><line x1="9" x2="15" y1="20" y2="20"></line><line x1="12" x2="12" y1="4" y2="20"></line></svg>',
+      'align-left': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-align-left"><line x1="21" x2="3" y1="6" y2="6"></line><line x1="15" x2="3" y1="12" y2="12"></line><line x1="17" x2="3" y1="18" y2="18"></line></svg>',
+      'briefcase': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-briefcase"><rect width="20" height="14" x="2" y="7" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>',
+      'flame': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-flame"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"></path></svg>',
+      'sparkles': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-sparkles"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275l-5.813 1.912 5.813 1.912a2 2 0 0 1 1.275 1.275l1.912 5.813 1.912-5.813a2 2 0 0 1 1.275-1.275l5.813-1.912-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"></path><path d="M5 3v4"></path><path d="M19 17v4"></path><path d="M3 5h4"></path><path d="M17 19h4"></path></svg>',
+      'gauge': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-gauge"><path d="m12 14 4-4"/><path d="M3.34 19a10 10 0 1 1 17.32 0"/></svg>',
+      'calendar': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-calendar"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>',
+      'palette': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-palette"><circle cx="13.5" cy="6.5" r=".5"/><circle cx="17.5" cy="10.5" r=".5"/><circle cx="8.5" cy="7.5" r=".5"/><circle cx="6.5" cy="12.5" r=".5"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.9 0 1.6-.7 1.6-1.6 0-.4-.1-.8-.4-1.1-.3-.3-.4-.7-.4-1.1 0-.9.7-1.6 1.6-1.6H17c2.8 0 5-2.2 5-5 0-4.4-4.5-8-10-8Z"/></svg>'
+    };
+    const svg = icons[name] || '';
+    return this.sanitizer.bypassSecurityTrustHtml(svg);
+  }
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent) {
+    const target = event.target as HTMLElement;
+    if (!target.closest('.custom-select-container')) {
+      this.activeDropdown.set(null);
+    }
+  }
+
+  ngAfterViewInit(): void {
+    this.initIcons(100);
+    this.initIcons(1000);
+  }
+
+  private initIcons(delay: number): void {
+    setTimeout(() => {
+      // @ts-ignore
+      const lucide = window.lucide;
+      if (lucide && lucide.createIcons) {
+        lucide.createIcons();
+      }
+    }, delay);
   }
 
   ngOnInit(): void {
@@ -211,21 +382,18 @@ export class PublishVehiculoComponent implements OnInit {
     });
   }
 
-  // Métodos para abrir paneles SOLO al escribir
-  onInputMarca() { this.showMarcas.set(this.step2Form.get('marca')?.value ? true : false); }
-  onInputModelo() { this.showModelos.set(this.step2Form.get('modelo')?.value ? true : false); }
-  onInputUbi() { this.showUbi.set(this.step3Form.get('ubicacion')?.value ? true : false); }
+
 
   selectTipo(tipo: TipoVehiculo) {
     this.step1Form.patchValue({ tipoVehiculo: tipo });
     this.nextStep();
   }
 
-  selectMarca(m: string) {
-    // Usamos emitEvent: false para que no se disparen suscripciones innecesarias al seleccionar
-    this.step2Form.get('marca')?.setValue(m, { emitEvent: true });
+  selectMarca(m: any) {
+    const brandName = (m && typeof m === 'object') ? m.name : m;
+    this.step2Form.get('marca')?.setValue(brandName, { emitEvent: true });
     this.showMarcas.set(false);
-    this.step2Form.get('modelo')?.setValue(''); // Reset modelo al cambiar marca
+    this.step2Form.get('modelo')?.setValue(''); 
   }
 
   selectModelo(m: string) {
@@ -241,6 +409,15 @@ export class PublishVehiculoComponent implements OnInit {
       cp: ubi.cp
     });
     this.showUbi.set(false);
+  }
+
+  updateMousePos(e: MouseEvent) {
+    const card = e.currentTarget as HTMLElement;
+    const rect = card.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    card.style.setProperty('--mouse-x', `${x}px`);
+    card.style.setProperty('--mouse-y', `${y}px`);
   }
 
   cerrarPaneles() {
@@ -382,48 +559,58 @@ export class PublishVehiculoComponent implements OnInit {
     });
   }
 
-  // ── DESCRIPCIÓN Y PEGADO DE IMÁGENES ───────────────────────────────
-  formatText(type: string): void {
-    const el = this.descInput?.nativeElement;
-    if (!el) return;
-    
-    const start = el.selectionStart;
-    const end = el.selectionEnd;
-    const text = el.value;
-    const before = text.substring(0, start);
-    const selected = text.substring(start, end);
-    const after = text.substring(end);
-    
-    let result = '';
-    let newCursorPos = end;
+  // ── VISUAL COMPOSER ───────────────────────────────
+  onEditorInput(event: any): void {
+    const content = event.target.innerHTML;
+    this.step4Form.get('descripcion')?.setValue(content, { emitEvent: false });
+    this.updateCounters(event.target.innerText);
+  }
 
-    switch (type) {
-        case 'bold':
-            result = before + `**${selected || 'texto'}**` + after;
-            newCursorPos = selected ? end + 4 : start + 2;
-            break;
-        case 'italic':
-            result = before + `*${selected || 'texto'}*` + after;
-            newCursorPos = selected ? end + 2 : start + 1;
-            break;
-        case 'list':
-            result = before + `\n- ${selected || 'elemento'}` + after;
-            newCursorPos = selected ? end + 3 : start + 3;
-            break;
-        case 'header':
-            result = before + `\n### ${selected || 'Título'}` + after;
-            newCursorPos = selected ? end + 5 : start + 5;
-            break;
-    }
+  private updateCounters(text: string): void {
+    this.descriptionCharCount.set(text.length);
+    const words = text.trim().split(/\s+/).filter(w => w.length > 0);
+    this.descriptionWordCount.set(words.length);
+  }
 
-    if (result) {
-        this.step4Form.patchValue({ descripcion: result });
-        setTimeout(() => {
-            el.focus();
-            el.setSelectionRange(newCursorPos, newCursorPos);
-        }, 0);
+  applyTemplate(templateContent: string): void {
+    // Convertir markdown-ish a HTML simple para el editor
+    const htmlContent = templateContent
+      .replace(/### (.*)\n/g, '<h3>$1</h3>')
+      .replace(/- (.*)\n/g, '<li>$1</li>')
+      .replace(/\n\n/g, '<br>')
+      .replace(/\n/g, '<br>');
+
+    if (this.visualEditor) {
+      this.visualEditor.nativeElement.innerHTML = htmlContent;
+      this.step4Form.get('descripcion')?.setValue(htmlContent);
+      this.updateCounters(this.visualEditor.nativeElement.innerText);
     }
   }
+
+  formatText(command: string): void {
+    document.execCommand(command, false);
+    // Force focus back if lost
+    this.visualEditor?.nativeElement.focus();
+    
+    // Sync back to form
+    const content = this.visualEditor?.nativeElement.innerHTML;
+    this.step4Form.get('descripcion')?.setValue(content);
+  }
+
+  insertList(): void {
+    document.execCommand('insertUnorderedList', false);
+    this.visualEditor?.nativeElement.focus();
+  }
+
+  insertHeader(): void {
+    // Alternar entre H3 y normal
+    const selection = window.getSelection();
+    if (selection && selection.rangeCount > 0) {
+      document.execCommand('formatBlock', false, '<h3>');
+    }
+  }
+
+  // ── DESCRIPCIÓN Y PEGADO DE IMÁGENES ───────────────────────────────
 
   @HostListener('window:paste', ['$event'])
   onPaste(event: ClipboardEvent): void {
@@ -521,5 +708,27 @@ export class PublishVehiculoComponent implements OnInit {
         this.toast.error('Error al publicar. Revisa los datos.');
       }
     });
+  }
+
+  getFlagEmoji(country: string): string {
+    if (!country) return '🌐';
+    const map: { [key: string]: string } = {
+      'Francia': '🇫🇷',
+      'Alemania': '🇩🇪',
+      'España': '🇪🇸',
+      'Italia': '🇮🇹',
+      'Japón': '🇯🇵',
+      'Corea del Sur': '🇰🇷',
+      'Reino Unido': '🇬🇧',
+      'Estados Unidos': '🇺🇸',
+      'China': '🇨🇳',
+      'Suecia': '🇸🇪',
+      'República Checa': '🇨🇿',
+      'Rumanía': '🇷🇴',
+      'Países Bajos': '🇳🇱',
+      'India': '🇮🇳'
+    };
+    const c = country.split('/')[0].trim();
+    return map[c] || '🌐';
   }
 }

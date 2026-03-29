@@ -1,11 +1,14 @@
 import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
+import { SearchService } from '../../../core/services/search.service';
 import { AuthStore } from '../../../core/auth/auth-store';
 import { GuestPopupService } from '../../../core/services/guest-popup.service';
 import { AvatarComponent } from '../../../shared/components/avatar/avatar.component';
+import { of } from 'rxjs';
 
 interface ProductSlide {
+  id?: number;
   user: string;
   avatar: string;
   googleAvatarUrl?: string;
@@ -26,97 +29,104 @@ interface ProductSlide {
 })
 export class HeroComponent implements OnInit, OnDestroy {
   private router = inject(Router);
+  private searchService = inject(SearchService);
   private authStore = inject(AuthStore);
   private guestPopupService = inject(GuestPopupService);
 
-  slides: ProductSlide[] = [
-    {
-      user: '@Malegro32',
-      // Foto de perfil real
-      avatar:
-        'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80',
-      price: '299€',
-      image:
-        'https://images.unsplash.com/photo-1546435770-a3e426bf472b?q=80&w=1000&auto=format&fit=crop',
-      badge: 'Venta Rápida',
-      badgeIconColor: '#FFD700',
-      title: 'Sony WH-1000XM5 Black',
-      rating: '★★★★★',
-    },
-    {
-      user: '@CarlosTech',
-      // Foto de perfil real
-      avatar:
-        'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=100&q=80',
-      price: '1.250€',
-      image:
-        'https://images.unsplash.com/photo-1516035069371-29a1b244cc32?q=80&w=1000&auto=format&fit=crop',
-      badge: 'Premium',
-      badgeIconColor: '#A8B4FF',
-      title: 'Leica M11 Vintage Edition',
-      rating: '★★★★★',
-    },
-    {
-      user: '@LauraStyle',
-      // Foto de perfil real
-      avatar:
-        'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=100&q=80',
-      price: '185€',
-      image:
-        'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?q=80&w=1000&auto=format&fit=crop',
-      badge: 'Exclusivo',
-      badgeIconColor: '#FF69B4',
-      title: 'Air Jordan 1 Retro High',
-      rating: '★★★★☆',
-    },
-  ];
-
+  slides: ProductSlide[] = [];
   currentIndex = 0;
   private autoPlayInterval: any;
 
   ngOnInit(): void {
-    this.startAutoPlay();
+    this.loadDailyProducts();
   }
 
   ngOnDestroy(): void {
     this.stopAutoPlay();
   }
 
+  private loadDailyProducts() {
+    this.searchService.buscar({ size: 100, tipo: 'PRODUCTO' }).subscribe((res) => {
+      const all = res.items || [];
+      // Filtrar solo productos disponibles que tengan imagen
+      const disponibles = all.filter(p => (p as any).estado === 'DISPONIBLE' && (p as any).imagenPrincipal);
+      
+      if (disponibles.length === 0) {
+        this.slides = [];
+        return;
+      }
+
+      // Mezcla pseudo-aleatoria basada en la fecha para que cambien cada día pero sean consistentes para todos
+      const today = new Date().toDateString();
+      const seed = today.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+      
+      // Shuffle determinista con la semilla del día
+      const shuffled = [...disponibles].sort((a, b) => {
+        const hashA = (a.id || 0) * seed % 100;
+        const hashB = (b.id || 0) * seed % 100;
+        return hashA - hashB;
+      });
+
+      // Tomar los primeros 3
+      this.slides = shuffled.slice(0, 3).map((item) => this.mapToSlide(item));
+      this.startAutoPlay();
+    });
+  }
+
+  private mapToSlide(item: any): ProductSlide {
+    // El modelo Producto ya incluye el vendedor si se carga por REST
+    const seller = (item as any).vendedor;
+    let sellerName = seller?.user || seller?.nombre || 'Nexus User';
+    if (!sellerName.startsWith('@')) sellerName = `@${sellerName}`;
+    
+    return {
+      id: item.id,
+      user: sellerName,
+      avatar: seller?.avatar || '',
+      googleAvatarUrl: seller?.googleAvatarUrl,
+      price: `${item.precio}€`,
+      image: item.imagenPrincipal || 'assets/placeholder.png',
+      badge: 'Destacado',
+      badgeIconColor: '#6366F1',
+      title: item.titulo,
+      rating: '★★★★★'
+    };
+  }
+
   startAutoPlay(): void {
-    this.autoPlayInterval = setInterval(() => {
-      this.nextSlide();
-    }, 5000);
+    this.stopAutoPlay();
+    this.autoPlayInterval = setInterval(() => { this.nextSlide(); }, 6000);
   }
 
   stopAutoPlay(): void {
-    if (this.autoPlayInterval) {
-      clearInterval(this.autoPlayInterval);
-    }
+    if (this.autoPlayInterval) clearInterval(this.autoPlayInterval);
   }
 
-  nextSlide(): void {
-    this.currentIndex = (this.currentIndex + 1) % this.slides.length;
+  nextSlide(): void { 
+    if (this.slides.length === 0) return;
+    this.currentIndex = (this.currentIndex + 1) % this.slides.length; 
+  }
+  
+  prevSlide(): void { 
+    if (this.slides.length === 0) return;
+    this.currentIndex = (this.currentIndex - 1 + this.slides.length) % this.slides.length; 
+  }
+  
+  goToSlide(index: number): void { 
+    this.currentIndex = index; 
+    this.startAutoPlay(); 
   }
 
-  prevSlide(): void {
-    this.currentIndex = (this.currentIndex - 1 + this.slides.length) % this.slides.length;
+  goToProduct(index: number) {
+    const slide = this.slides[index];
+    if (slide?.id) this.router.navigate(['/productos', slide.id]);
   }
 
-  goToSlide(index: number): void {
-    this.currentIndex = index;
-    this.stopAutoPlay();
-    this.startAutoPlay();
-  }
 
   onSellNowClick(): void {
-    if (this.authStore.isLoggedIn()) {
-      this.router.navigate(['/publicar']);
-    } else {
-      this.guestPopupService.showPopup('Regístrate para empezar a vender en Nexus');
-    }
+    if (this.authStore.isLoggedIn()) this.router.navigate(['/publicar']);
+    else this.guestPopupService.showPopup('Empieza a vender en Nexus');
   }
 
-  onExploreClick(): void {
-    this.router.navigate(['/search']);
-  }
+  onExploreClick(): void { this.router.navigate(['/search']); }
 }

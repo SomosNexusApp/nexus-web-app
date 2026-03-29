@@ -1,4 +1,10 @@
 <div class="publish-container">
+  <!-- MESH GRADIENT BACKGROUND -->
+  <div class="mesh-gradient">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+  </div>
   <header class="publish-header">
     <div class="progress-bar">
       <div class="progress-fill" [style.width.%]="(currentStep() / 5) * 100"></div>
@@ -18,232 +24,597 @@
   <main class="publish-content">
     <div class="form-area animate-fade-in">
 
-      <!-- PASO 1: TIPO -->
+      <!-- STEP 1: VEHICLE TYPE SELECTION -->
       @if (currentStep() === 1) {
-        <div class="step-0-grid">
-          <div class="type-card" (click)="selectTipo('COCHE')" 
-            [class.active]="step1Form.value.tipoVehiculo === 'COCHE'"
-            [class.invalid]="step1Form.touched && step1Form.get('tipoVehiculo')?.invalid">
-            <div class="icon-circle car">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12.4V16c0 .6.4 1 1 1h2"/><circle cx="7" cy="17" r="2"/><path d="M9 17h6"/><circle cx="17" cy="17" r="2"/></svg>
+        <div class="step-selection-container animate-fade-in">
+          <div class="selection-grid">
+            <!-- COCHE -->
+            <div class="selection-card car-card" (click)="selectTipo('COCHE')" 
+                 (mousemove)="updateMousePos($event)"
+                 [class.selected]="step1Form.value.tipoVehiculo === 'COCHE'"
+                 style="--card-index: 1">
+              <div class="card-glow"></div>
+              <div class="card-inner">
+                <div class="card-content">
+                  <div class="card-icon-wrapper">
+                    <div class="card-icon">
+                      <i data-lucide="car"></i>
+                    </div>
+                    <div class="selection-indicator">
+                      <i data-lucide="check-circle-2"></i>
+                    </div>
+                  </div>
+                  <div class="card-text">
+                    <h3>Coche</h3>
+                    <p>SUVs, Turismos y Deportivos</p>
+                  </div>
+                </div>
+              </div>
+              <div class="card-badge">Más buscados</div>
             </div>
-            <h3>Coche</h3>
-            <p>Turismos, SUVs, deportivos...</p>
-          </div>
-          <div class="type-card" (click)="selectTipo('MOTO')" 
-            [class.active]="step1Form.value.tipoVehiculo === 'MOTO'"
-            [class.invalid]="step1Form.touched && step1Form.get('tipoVehiculo')?.invalid">
-            <div class="icon-circle tool">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="7" cy="15" r="5"/><circle cx="18" cy="15" r="5"/><path d="M12 15h.01"/><path d="M10 8.5a15 15 0 0 1 5 0"/><path d="M17 10l1.5-2"/><path d="M11 5l1.5-2"/><path d="M4.5 10L3 8"/></svg>
+
+            <!-- MOTO -->
+            <div class="selection-card moto-card" (click)="selectTipo('MOTO')" 
+                 (mousemove)="updateMousePos($event)"
+                 [class.selected]="step1Form.value.tipoVehiculo === 'MOTO'"
+                 style="--card-index: 2">
+              <div class="card-glow"></div>
+              <div class="card-inner">
+                <div class="card-content">
+                  <div class="card-icon-wrapper">
+                    <div class="card-icon">
+                      <i data-lucide="bike"></i>
+                    </div>
+                    <div class="selection-indicator">
+                      <i data-lucide="check-circle-2"></i>
+                    </div>
+                  </div>
+                  <div class="card-text">
+                    <h3>Moto</h3>
+                    <p>Racing, Naked y Custom</p>
+                  </div>
+                </div>
+              </div>
             </div>
-            <h3>Moto</h3>
-            <p>Naked, racing, custom...</p>
-          </div>
-          <div class="type-card" (click)="selectTipo('FURGONETA')" 
-            [class.active]="step1Form.value.tipoVehiculo === 'FURGONETA'"
-            [class.invalid]="step1Form.touched && step1Form.get('tipoVehiculo')?.invalid">
-            <div class="icon-circle box">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><circle cx="7" cy="18" r="2"/><path d="M9 18h5"/><path d="M16 18h3a1 1 0 0 0 1-1v-3.34a4 4 0 0 0-1.17-2.83L15 7.17V18Z"/><circle cx="18" cy="18" r="2"/></svg>
+
+            <!-- FURGONETA -->
+            <div class="selection-card van-card" (click)="selectTipo('FURGONETA')" 
+                 (mousemove)="updateMousePos($event)"
+                 [class.selected]="step1Form.value.tipoVehiculo === 'FURGONETA'"
+                 style="--card-index: 3">
+              <div class="card-glow"></div>
+              <div class="card-inner">
+                <div class="card-content">
+                  <div class="card-icon-wrapper">
+                    <div class="card-icon">
+                      <i data-lucide="truck"></i>
+                    </div>
+                    <div class="selection-indicator">
+                      <i data-lucide="check-circle-2"></i>
+                    </div>
+                  </div>
+                  <div class="card-text">
+                    <h3>Furgoneta</h3>
+                    <p>Comerciales y Campers</p>
+                  </div>
+                </div>
+              </div>
             </div>
-            <h3>Furgoneta</h3>
-            <p>Comerciales, campers...</p>
-          </div>
-          <div class="type-card" (click)="selectTipo('SCOOTER')" 
-            [class.active]="step1Form.value.tipoVehiculo === 'SCOOTER'"
-            [class.invalid]="step1Form.touched && step1Form.get('tipoVehiculo')?.invalid">
-            <div class="icon-circle tag">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 15h.01"/><path d="M15 15h.01"/><path d="M11 11V7a1 1 0 0 1 1-1h3a2 2 0 0 1 2 2v3"/><path d="M17 11h2l.5 2"/><path d="M3 13v2a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-2"/><path d="M5 11h2l.5 2"/><circle cx="7" cy="17" r="1"/><circle cx="17" cy="17" r="1"/></svg>
+
+            <!-- SCOOTER -->
+            <div class="selection-card scooter-card" (click)="selectTipo('SCOOTER')" 
+                 (mousemove)="updateMousePos($event)"
+                 [class.selected]="step1Form.value.tipoVehiculo === 'SCOOTER'"
+                 style="--card-index: 4">
+              <div class="card-glow"></div>
+              <div class="card-inner">
+                <div class="card-content">
+                  <div class="card-icon-wrapper">
+                    <div class="card-icon">
+                      <i data-lucide="zap"></i>
+                    </div>
+                    <div class="selection-indicator">
+                      <i data-lucide="check-circle-2"></i>
+                    </div>
+                  </div>
+                  <div class="card-text">
+                    <h3>Otros</h3>
+                    <p>Scooters y Otros Vehículos</p>
+                  </div>
+                </div>
+              </div>
             </div>
-            <h3>Scooter</h3>
-            <p>Ciclomotores, maxiscooters...</p>
           </div>
         </div>
       }
 
-      <!-- PASO 2: TÉCNICO -->
+      <!-- PASO 2: TÉCNICO (NEXUS CONSOLE) -->
       @if (currentStep() === 2) {
-        <form [formGroup]="step2Form" class="form-grid">
-          <div class="input-group relative" [class.error]="getErrorMessage(step2Form, 'marca')">
-            <label>Marca *</label>
-            <input type="text" formControlName="marca" placeholder="Escribe para buscar..." (input)="onInputMarca()" (blur)="cerrarPaneles()">
-            @if (showMarcas() && filteredMarcas().length > 0) {
-              <div class="autocomplete-dropdown">
-                @for (m of filteredMarcas(); track m) {
-                  <div class="dropdown-item" (mousedown)="selectMarca(m)">{{ m }}</div>
-                }
+        <div class="console-card animate-fade-in">
+          <div class="console-header">
+            <i data-lucide="settings-2"></i>
+            <span>Especificaciones del Vehículo</span>
+          </div>
+
+          <form [formGroup]="step2Form" class="console-grid">
+            <!-- MARCA -->
+            <div class="input-group relative" [class.error]="getErrorMessage(step2Form, 'marca')">
+              <label><i data-lucide="tag"></i> Marca *</label>
+              <div class="input-wrapper">
+                <input type="text" formControlName="marca" placeholder="Ej: Renault, Audi..." (input)="onInputMarca()" (focus)="onFocusMarca()" (blur)="cerrarPaneles()">
+                <i data-lucide="chevron-down" class="input-chevron"></i>
               </div>
-            }
-            <span class="error-msg">{{ getErrorMessage(step2Form, 'marca') }}</span>
-          </div>
+              @if (showMarcas()) {
+                <div class="nexus-dropdown">
+                  <div class="dropdown-header-premium">Principales Marcas</div>
+                  @for (m of filteredMarcas(); track m.name) {
+                    <div class="premium-dropdown-item brand-item" (mousedown)="selectMarca(m)">
+                      <div class="brand-info">
+                        <span class="brand-flag">{{ m.flag }}</span>
+                        <div class="item-main-text">
+                          <span class="item-title">{{ m.name }}</span>
+                          <span class="item-subtitle">{{ m.country }}</span>
+                        </div>
+                      </div>
+                    </div>
+                  } @empty {
+                    <div class="no-results-premium">
+                      <i data-lucide="search-x"></i>
+                      <span>No se han encontrado marcas</span>
+                    </div>
+                  }
+                </div>
+              }
+              <span class="error-msg">{{ getErrorMessage(step2Form, 'marca') }}</span>
+            </div>
 
-          <div class="input-group relative" [class.error]="getErrorMessage(step2Form, 'modelo')">
-            <label>Modelo *</label>
-            <input type="text" formControlName="modelo" placeholder="Escribe para buscar..." (input)="onInputModelo()" (blur)="cerrarPaneles()">
-            @if (showModelos() && filteredModelos().length > 0) {
-              <div class="autocomplete-dropdown">
-                @for (m of filteredModelos(); track m) {
-                  <div class="dropdown-item" (mousedown)="selectModelo(m)">{{ m }}</div>
-                }
+            <!-- MODELO -->
+            <div class="input-group relative" [class.error]="getErrorMessage(step2Form, 'modelo')">
+              <label><i data-lucide="component"></i> Modelo *</label>
+              <div class="input-wrapper">
+                <input type="text" formControlName="modelo" placeholder="Buscar modelo..." (input)="onInputModelo()" (focus)="onFocusModelo()" (blur)="cerrarPaneles()">
+                <i data-lucide="chevron-down" class="input-chevron"></i>
               </div>
-            }
-            <span class="error-msg">{{ getErrorMessage(step2Form, 'modelo') }}</span>
-          </div>
+              @if (showModelos()) {
+                <div class="nexus-dropdown">
+                  <div class="dropdown-header-premium">Modelos Encontrados</div>
+                  @if (isSearchingModelos()) {
+                    <div class="no-results-premium">
+                      <div class="premium-spinner"></div>
+                      <span>Buscando modelos...</span>
+                    </div>
+                  } @else {
+                    @for (m of filteredModelos(); track m) {
+                      <div class="premium-dropdown-item" (mousedown)="selectModelo(m)">
+                        <i data-lucide="component"></i>
+                        <div class="item-main-text">
+                          <span class="item-title">{{ m }}</span>
+                        </div>
+                      </div>
+                    } @empty {
+                      <div class="no-results-premium">
+                        <i data-lucide="search-x"></i>
+                        <span>Escribe la marca primero o busca otro</span>
+                      </div>
+                    }
+                  }
+                </div>
+              }
+              <span class="error-msg">{{ getErrorMessage(step2Form, 'modelo') }}</span>
+            </div>
 
-          <div class="input-group" [class.error]="getErrorMessage(step2Form, 'anio')">
-            <label>Año *</label>
-            <input type="number" formControlName="anio" placeholder="Ej: 2020">
-            <span class="error-msg">{{ getErrorMessage(step2Form, 'anio') }}</span>
-          </div>
+            <!-- AÑO -->
+            <div class="input-group" [class.error]="getErrorMessage(step2Form, 'anio')">
+              <label><i data-lucide="calendar"></i> Año *</label>
+              <input type="number" formControlName="anio" placeholder="Ej: 2022" class="premium-number-input">
+              <span class="error-msg">{{ getErrorMessage(step2Form, 'anio') }}</span>
+            </div>
 
-          <div class="input-group" [class.error]="getErrorMessage(step2Form, 'kilometros')">
-            <label>Kilómetros *</label>
-            <input type="number" formControlName="kilometros" placeholder="Ej: 50000">
-            <span class="error-msg">{{ getErrorMessage(step2Form, 'kilometros') }}</span>
-          </div>
+            <!-- KILOMETROS -->
+            <div class="input-group" [class.error]="getErrorMessage(step2Form, 'kilometros')">
+              <label><i data-lucide="gauge"></i> Kilómetros *</label>
+              <input type="number" formControlName="kilometros" placeholder="Ej: 45000" class="premium-number-input">
+              <span class="error-msg">{{ getErrorMessage(step2Form, 'kilometros') }}</span>
+            </div>
 
-          <div class="input-group">
-            <label>Combustible *</label>
-            <select formControlName="combustible" class="dark-select">
-              <option value="GASOLINA">Gasolina</option>
-              <option value="DIESEL">Diésel</option>
-              <option value="ELECTRICO">Eléctrico</option>
-              <option value="HIBRIDO">Híbrido</option>
-              <option value="GAS">Gas</option>
-            </select>
-          </div>
+            <!-- COMBUSTIBLE CUSTOM SELECT -->
+            <div class="input-group">
+              <label><i data-lucide="fuel"></i> Combustible *</label>
+              <div class="custom-select-container" [class.open]="activeDropdown() === 'combustible'">
+                <div class="custom-select-trigger" (click)="toggleDropdown('combustible')">
+                  <div class="trigger-content">
+                    <div class="icon-container" [innerHTML]="getIconSvg(getSelectedIcon('step2Form', 'combustible', combustibleOptions))"></div>
+                    <span>{{ getSelectedLabel('step2Form', 'combustible', combustibleOptions) }}</span>
+                  </div>
+                  <i data-lucide="chevron-down" class="chevron-icon"></i>
+                </div>
+                <div class="custom-select-options">
+                  @for (opt of combustibleOptions; track opt.value) {
+                    <div class="custom-option" (click)="selectOption('step2Form', 'combustible', opt.value)" [class.selected]="step2Form.get('combustible')?.value === opt.value">
+                      <div class="icon-container" [innerHTML]="getIconSvg(opt.icon)"></div>
+                      <span>{{ opt.label }}</span>
+                    </div>
+                  }
+                </div>
+              </div>
+            </div>
 
-          <div class="input-group">
-            <label>Cambio *</label>
-            <select formControlName="cambio" class="dark-select">
-              <option value="MANUAL">Manual</option>
-              <option value="AUTOMATICO">Automático</option>
-            </select>
-          </div>
+            <!-- CAMBIO CUSTOM SELECT -->
+            <div class="input-group">
+              <label><i data-lucide="activity"></i> Cambio *</label>
+              <div class="custom-select-container" [class.open]="activeDropdown() === 'cambio'">
+                <div class="custom-select-trigger" (click)="toggleDropdown('cambio')">
+                  <div class="trigger-content">
+                    <div class="icon-container" [innerHTML]="getIconSvg(getSelectedIcon('step2Form', 'cambio', cambioOptions))"></div>
+                    <span>{{ getSelectedLabel('step2Form', 'cambio', cambioOptions) }}</span>
+                  </div>
+                  <i data-lucide="chevron-down" class="chevron-icon"></i>
+                </div>
+                <div class="custom-select-options">
+                  @for (opt of cambioOptions; track opt.value) {
+                    <div class="custom-option" (click)="selectOption('step2Form', 'cambio', opt.value)" [class.selected]="step2Form.get('cambio')?.value === opt.value">
+                      <div class="icon-container" [innerHTML]="getIconSvg(opt.icon)"></div>
+                      <span>{{ opt.label }}</span>
+                    </div>
+                  }
+                </div>
+              </div>
+            </div>
 
-          <div class="input-group" [class.error]="getErrorMessage(step2Form, 'potencia')">
-            <label>Potencia (CV)</label>
-            <input type="number" formControlName="potencia" placeholder="Opcional">
-            <span class="error-msg">{{ getErrorMessage(step2Form, 'potencia') }}</span>
-          </div>
+            <!-- POTENCIA -->
+            <div class="input-group" [class.error]="getErrorMessage(step2Form, 'potencia')">
+              <label><i data-lucide="zap"></i> Potencia (CV)</label>
+              <input type="number" formControlName="potencia" placeholder="Opcional" class="premium-number-input">
+              <span class="error-msg">{{ getErrorMessage(step2Form, 'potencia') }}</span>
+            </div>
 
-          <div class="input-group" [class.error]="getErrorMessage(step2Form, 'color')">
-            <label>Color *</label>
-            <input type="text" formControlName="color" placeholder="Ej: Blanco">
-            <span class="error-msg">{{ getErrorMessage(step2Form, 'color') }}</span>
-          </div>
+            <!-- COLOR -->
+            <div class="input-group" [class.error]="getErrorMessage(step2Form, 'color')">
+              <label><i data-lucide="palette"></i> Color *</label>
+              <input type="text" formControlName="color" placeholder="Ej: Azul Noche">
+              <span class="error-msg">{{ getErrorMessage(step2Form, 'color') }}</span>
+            </div>
 
-          <div class="input-group" [class.error]="getErrorMessage(step2Form, 'plazas')">
-            <label>Plazas *</label>
-            <input type="number" formControlName="plazas" placeholder="Ej: 5">
-            <span class="error-msg">{{ getErrorMessage(step2Form, 'plazas') }}</span>
-          </div>
+            <!-- PLAZAS -->
+            <div class="input-group" [class.error]="getErrorMessage(step2Form, 'plazas')">
+              <label><i data-lucide="users"></i> Plazas *</label>
+              <input type="number" formControlName="plazas" placeholder="Ej: 5" class="premium-number-input">
+              <span class="error-msg">{{ getErrorMessage(step2Form, 'plazas') }}</span>
+            </div>
 
-          <div class="toggles-grid">
-            <div class="toggle-item"><label>ITV en vigor</label><input type="checkbox" formControlName="itv"></div>
-            <div class="toggle-item"><label>Garantía</label><input type="checkbox" formControlName="garantia"></div>
-          </div>
-        </form>
+            <!-- PREMIUM TOGGLES -->
+            <div class="console-toggles">
+              <div class="premium-toggle" [class.active]="step2Form.get('itv')?.value" (click)="step2Form.patchValue({itv: !step2Form.get('itv')?.value})">
+                <div class="toggle-icon"><i data-lucide="check-circle"></i></div>
+                <div class="toggle-text">
+                  <strong>ITV al día</strong>
+                  <span>Inspección vigente</span>
+                </div>
+                <div class="toggle-switch"></div>
+              </div>
+
+              <div class="premium-toggle" [class.active]="step2Form.get('garantia')?.value" (click)="step2Form.patchValue({garantia: !step2Form.get('garantia')?.value})">
+                <div class="toggle-icon"><i data-lucide="shield-check"></i></div>
+                <div class="toggle-text">
+                  <strong>Garantía</strong>
+                  <span>Protección incluida</span>
+                </div>
+                <div class="toggle-switch"></div>
+              </div>
+            </div>
+          </form>
+        </div>
       }
 
       <!-- PASO 3: ESTADO/PRECIO -->
       @if (currentStep() === 3) {
-        <form [formGroup]="step3Form">
-          <div class="form-section">
-            <label class="section-label">Condición</label>
-            <div class="condition-grid">
-              <div class="condition-card" (click)="step3Form.patchValue({condicion: 'MUY_BUEN_ESTADO'})" [class.active]="step3Form.value.condicion === 'MUY_BUEN_ESTADO'">
-                <span class="cond-label">Muy buen estado</span>
-              </div>
-              <div class="condition-card" (click)="step3Form.patchValue({condicion: 'BUEN_ESTADO'})" [class.active]="step3Form.value.condicion === 'BUEN_ESTADO'">
-                <span class="cond-label">Buen estado</span>
-              </div>
-              <div class="condition-card" (click)="step3Form.patchValue({condicion: 'ACEPTABLE'})" [class.active]="step3Form.value.condicion === 'ACEPTABLE'">
-                <span class="cond-label">Aceptable</span>
-              </div>
-              <div class="condition-card" (click)="step3Form.patchValue({condicion: 'PARA_PIEZAS'})" [class.active]="step3Form.value.condicion === 'PARA_PIEZAS'">
-                <span class="cond-label">Para piezas</span>
-              </div>
-            </div>
+        <div class="console-card animate-fade-in">
+          <div class="console-header">
+            <i data-lucide="banknote"></i>
+            <span>Estado y Valoración</span>
           </div>
-          <div class="form-grid-2">
-            <div class="input-group" [class.error]="getErrorMessage(step3Form, 'precio')">
-              <label>Precio (€) *</label>
-              <input type="number" formControlName="precio">
-              <span class="error-msg">{{ getErrorMessage(step3Form, 'precio') }}</span>
-            </div>
-            <div class="input-group">
-              <label>Tipo *</label>
-              <select formControlName="tipoOferta" class="dark-select">
-                <option value="VENTA">Venta</option>
-                <option value="INTERCAMBIO">Intercambio</option>
-              </select>
-            </div>
-          </div>
-          <div class="input-group" [class.error]="getErrorMessage(step3Form, 'matricula')">
-            <label>Matrícula (Opcional)</label>
-            <input type="text" formControlName="matricula" placeholder="1234ABC">
-            <span class="error-msg">{{ getErrorMessage(step3Form, 'matricula') }}</span>
-          </div>
-          <div class="input-group relative" [class.error]="getErrorMessage(step3Form, 'ubicacion')">
-            <label>Ubicación *</label>
-            <input type="text" formControlName="ubicacion" placeholder="Busca tu ciudad..." (input)="onInputUbi()" (blur)="cerrarPaneles()">
-            @if (showUbi() && sugerenciasUbi().length > 0) {
-              <div class="autocomplete-dropdown">
-                @for (u of sugerenciasUbi(); track u.display) {
-                  <div class="dropdown-item" (mousedown)="selectUbi(u)">{{ u.display }}</div>
-                }
-              </div>
-            }
-            <span class="error-msg">{{ getErrorMessage(step3Form, 'ubicacion') }}</span>
-          </div>
-        </form>
-      }
 
-      <!-- PASO 4: FOTOS -->
-      @if (currentStep() === 4) {
-        <form [formGroup]="step4Form">
-          <div class="upload-zone" (click)="fileInput.click()">
-            <svg class="upload-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-            <p>Sube las fotos (Mín 1)</p>
-            <input #fileInput type="file" multiple (change)="onFileSelected($event)" accept="image/*" class="hidden">
-          </div>
-          <div class="image-grid">
-            @for (img of images(); track img.url; let i = $index) {
-              <div class="image-preview">
-                <img [src]="img.url" class="thumb">
-                <button class="btn-remove" (click)="removeImage(i)">✕</button>
-              </div>
-            }
-          </div>
-          <div class="input-group" [class.error]="getErrorMessage(step4Form, 'titulo')">
-            <label>Título *</label>
-            <input type="text" formControlName="titulo">
-            <span class="error-msg">{{ getErrorMessage(step4Form, 'titulo') }}</span>
-          </div>
-          <div class="input-group" [class.error]="getErrorMessage(step4Form, 'descripcion')">
-            <label>Descripción *</label>
-            <div class="composer-container">
-                <div class="composer-toolbar">
-                    <button type="button" (click)="formatText('bold')" title="Negrita"><i class="fas fa-bold"></i></button>
-                    <button type="button" (click)="formatText('italic')" title="Cursiva"><i class="fas fa-italic"></i></button>
-                    <button type="button" (click)="formatText('list')" title="Lista"><i class="fas fa-list"></i></button>
-                    <button type="button" (click)="formatText('header')" title="Título"><i class="fas fa-heading"></i></button>
+          <form [formGroup]="step3Form">
+            <div class="form-section">
+              <label class="section-label"><i data-lucide="sparkles"></i> Condición</label>
+              <div class="condition-grid">
+                <div class="condition-card" (click)="step3Form.patchValue({condicion: 'MUY_BUEN_ESTADO'})" [class.active]="step3Form.value.condicion === 'MUY_BUEN_ESTADO'">
+                  <div class="cond-icon"><i data-lucide="star"></i></div>
+                  <span class="cond-label">Muy buen estado</span>
                 </div>
-                <textarea #descInput formControlName="descripcion" class="composer-textarea" rows="4"></textarea>
+                <div class="condition-card" (click)="step3Form.patchValue({condicion: 'BUEN_ESTADO'})" [class.active]="step3Form.value.condicion === 'BUEN_ESTADO'">
+                  <div class="cond-icon"><i data-lucide="check-circle"></i></div>
+                  <span class="cond-label">Buen estado</span>
+                </div>
+                <div class="condition-card" (click)="step3Form.patchValue({condicion: 'ACEPTABLE'})" [class.active]="step3Form.value.condicion === 'ACEPTABLE'">
+                  <div class="cond-icon"><i data-lucide="help-circle"></i></div>
+                  <span class="cond-label">Aceptable</span>
+                </div>
+                <div class="condition-card" (click)="step3Form.patchValue({condicion: 'PARA_PIEZAS'})" [class.active]="step3Form.value.condicion === 'PARA_PIEZAS'">
+                  <div class="cond-icon"><i data-lucide="wrench"></i></div>
+                  <span class="cond-label">Para piezas</span>
+                </div>
+              </div>
             </div>
-            <span class="error-msg">{{ getErrorMessage(step4Form, 'descripcion') }}</span>
-          </div>
-        </form>
+
+            <div class="console-grid mt-30">
+              <div class="input-group" [class.error]="getErrorMessage(step3Form, 'precio')">
+                <label><i data-lucide="euro"></i> Precio *</label>
+                <div class="input-wrapper">
+                  <input type="number" formControlName="precio" class="premium-number-input" placeholder="Ej: 15500">
+                  <span class="input-suffix">€</span>
+                </div>
+                <span class="error-msg">{{ getErrorMessage(step3Form, 'precio') }}</span>
+              </div>
+
+              <div class="input-group">
+                <label><i data-lucide="shopping-cart"></i> Tipo de Oferta *</label>
+                <div class="custom-select-container" [class.open]="activeDropdown() === 'tipoOferta'">
+                  <div class="custom-select-trigger" (click)="toggleDropdown('tipoOferta')">
+                    <div class="trigger-content">
+                      <div class="icon-container" [innerHTML]="getIconSvg(getSelectedIcon('step3Form', 'tipoOferta', tipoOfertaOptions))"></div>
+                      <span>{{ getSelectedLabel('step3Form', 'tipoOferta', tipoOfertaOptions) }}</span>
+                    </div>
+                    <i data-lucide="chevron-down" class="chevron-icon"></i>
+                  </div>
+                  <div class="custom-select-options">
+                    @for (opt of tipoOfertaOptions; track opt.value) {
+                      <div class="custom-option" (click)="selectOption('step3Form', 'tipoOferta', opt.value)" [class.selected]="step3Form.get('tipoOferta')?.value === opt.value">
+                        <div class="icon-container" [innerHTML]="getIconSvg(opt.icon)"></div>
+                        <span>{{ opt.label }}</span>
+                      </div>
+                    }
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="console-grid mt-20">
+              <div class="input-group" [class.error]="getErrorMessage(step3Form, 'matricula')">
+                <label><i data-lucide="hash"></i> Matrícula (Opcional)</label>
+                <input type="text" formControlName="matricula" placeholder="1234ABC">
+                <span class="error-msg">{{ getErrorMessage(step3Form, 'matricula') }}</span>
+              </div>
+
+              <div class="input-group relative" [class.error]="getErrorMessage(step3Form, 'ubicacion')">
+                <label><i data-lucide="map-pin"></i> Ubicación *</label>
+                <div class="input-wrapper">
+                  <input type="text" formControlName="ubicacion" placeholder="Ciudad o Código Postal..." (input)="onInputUbi()" (blur)="cerrarPaneles()">
+                  <i data-lucide="search" class="input-chevron"></i>
+                </div>
+                @if (showUbi()) {
+                  <div class="nexus-dropdown">
+                    <div class="dropdown-header-premium">Ubicaciones</div>
+                    @if (isSearchingUbi()) {
+                      <div class="no-results-premium">
+                        <div class="premium-spinner"></div>
+                        <span>Buscando ubicaciones...</span>
+                      </div>
+                    } @else {
+                      @for (u of sugerenciasUbi(); track u.display) {
+                        <div class="premium-dropdown-item" (mousedown)="selectUbi(u)">
+                          <i data-lucide="map-pin"></i>
+                          <div class="item-main-text">
+                            <span class="item-title">{{ u.ciudad }}</span>
+                            <span class="item-subtitle">{{ u.provincia }} {{ u.cp ? '- ' + u.cp : '' }}</span>
+                          </div>
+                        </div>
+                      } @empty {
+                        <div class="no-results-premium">
+                          <i data-lucide="map"></i>
+                          <span>No se han encontrado resultados</span>
+                        </div>
+                      }
+                    }
+                  </div>
+                }
+                <span class="error-msg">{{ getErrorMessage(step3Form, 'ubicacion') }}</span>
+              </div>
+            </div>
+          </form>
+        </div>
       }
 
-      <!-- PASO 5: REVISIÓN -->
+      <!-- PASO 4: FOTOS Y DESCRIPCIÓN (NEXUS WORKSPACE) -->
+      @if (currentStep() === 4) {
+        <div class="step-4-workspace animate-fade-in">
+          
+          <!-- LEFT COLUMN: GALLERY & VISUALS -->
+          <div class="premium-gallery-section">
+            <div class="section-badge"><i data-lucide="image"></i> Galería de Fotos</div>
+            
+            <div class="scanner-upload-zone" (click)="fileInput.click()">
+              <div class="scan-line"></div>
+              <div class="upload-content">
+                <div class="icon-pulse" [innerHTML]="getIconSvg('upload-cloud')"></div>
+                <h3>Escanear Multimedia</h3>
+                <p>Arrastra o haz clic para subir</p>
+              </div>
+              <input #fileInput type="file" multiple (change)="onFileSelected($event)" accept="image/*" class="hidden">
+            </div>
+
+            <div class="premium-image-grid-wide">
+              @for (img of images(); track img.url; let i = $index) {
+                <div class="premium-image-card" [class.is-principal]="img.isPrincipal">
+                  <img [src]="img.url" class="premium-thumb">
+                  <div class="card-overlay">
+                    <button class="btn-icon-tiny" (click)="removeImage(i)" title="Eliminar">
+                       <div class="icon-container-small" [innerHTML]="getIconSvg('trash-2')"></div>
+                    </button>
+                  </div>
+                  @if (img.isPrincipal) {
+                    <div class="premium-badge-glow">Principal</div>
+                  }
+                </div>
+              }
+              @if (images().length < 10) {
+                <div class="add-more-card" (click)="fileInput.click()">
+                  <div class="icon-container" [innerHTML]="getIconSvg('plus')"></div>
+                </div>
+              }
+            </div>
+            
+            <div class="gallery-info">
+              <i data-lucide="info"></i>
+              <span>Resolución recomendada 1920x1080 para calidad máxima.</span>
+            </div>
+          </div>
+
+          <!-- RIGHT COLUMN: COMPOSITION & TOOLS -->
+          <div class="premium-composition-section">
+            <div class="section-badge"><i data-lucide="type"></i> Título y Descripción</div>
+
+            <form [formGroup]="step4Form" class="composition-form">
+              <div class="input-group-premium" [class.error]="getErrorMessage(step4Form, 'titulo')">
+                <label>Título del anuncio</label>
+                <div class="premium-input-container">
+                  <input type="text" formControlName="titulo" placeholder="Ej: BMW M3 Competition xDrive 2024">
+                  <div class="char-countdown">{{ 80 - (step4Form.get('titulo')?.value?.length || 0) }}</div>
+                </div>
+                <span class="error-msg">{{ getErrorMessage(step4Form, 'titulo') }}</span>
+              </div>
+
+              <div class="writing-assistant">
+                <div class="assistant-header">
+                  <div class="icon-sparkle" [innerHTML]="getIconSvg('sparkles')"></div>
+                  <span>Asistente de Escritura</span>
+                </div>
+                <div class="template-chips">
+                  @for (temp of writingTemplates; track temp.id) {
+                    <button type="button" class="template-chip" (click)="applyTemplate(temp.content)">
+                      <div class="chip-icon" [innerHTML]="getIconSvg(temp.icon)"></div>
+                      {{ temp.name }}
+                    </button>
+                  }
+                </div>
+              </div>
+
+              <div class="editor-container-premium" [class.error]="getErrorMessage(step4Form, 'descripcion')">
+                <!-- Simplified Editor (no toolbar) -->
+
+                <textarea formControlName="descripcion" 
+                          class="pixel-editor-textarea" 
+                          placeholder="Describe las sensaciones, el mantenimiento y por qué es una oportunidad única..."
+                          rows="12"></textarea>
+
+                <div class="editor-footer">
+                  <div class="stats">
+                    <span class="stat-item"><b>{{ descriptionWordCount() }}</b> PALABRAS</span>
+                    <span class="stat-item"><b>{{ descriptionCharCount() }}</b> CARACTERES</span>
+                  </div>
+                  <div class="quality-indicator" [class.good]="descriptionWordCount() > 50">
+                    <div class="dot"></div> Calidad {{ descriptionWordCount() > 50 ? 'Alta' : 'Básica' }}
+                  </div>
+                </div>
+              </div>
+              <span class="error-msg">{{ getErrorMessage(step4Form, 'descripcion') }}</span>
+            </form>
+          </div>
+        </div>
+      }
+
+      <!-- PASO 5: REVISIÓN (NEXUS SPECTACULAR REVIEW) -->
       @if (currentStep() === 5) {
-        <div class="review-area animate-fade-in">
-          <h2>{{ step4Form.value.titulo }}</h2>
-          <p class="review-price">{{ step3Form.value.precio | currency:'EUR' }}</p>
-          <div class="review-grid-details">
-            <div class="detail-box"><strong>Vehículo</strong><span>{{ step2Form.value.marca }} {{ step2Form.value.modelo }}</span></div>
-            <div class="detail-box"><strong>Ubicación</strong><span>{{ step3Form.value.ubicacion }}</span></div>
+        <div class="step-5-review-workspace animate-fade-in">
+          
+          <!-- TOP: CINEMATIC GALLERY PREVIEW -->
+          <div class="review-gallery-header">
+            <div class="main-preview">
+              <img [src]="images()[0]?.url" alt="Principal">
+              <div class="price-overlay">
+                <span class="currency">€</span>
+                <span class="amount">{{ step3Form.value.precio | number }}</span>
+              </div>
+            </div>
+            <div class="secondary-previews">
+              @for (img of images().slice(1, 4); track img.url) {
+                <div class="mini-thumb">
+                  <img [src]="img.url">
+                </div>
+              }
+              @if (images().length > 4) {
+                <div class="more-photos-badge">+{{ images().length - 4 }} fotos</div>
+              }
+            </div>
+          </div>
+
+          <div class="review-main-content">
+            <!-- LEFT: TECHNICAL SPECS & DETAILS -->
+            <div class="review-details-pane">
+              <div class="review-title-section">
+                <h1>{{ step4Form.value.titulo }}</h1>
+                <div class="location-badge">
+                  <i data-lucide="map-pin"></i> {{ step3Form.value.ubicacion }}
+                </div>
+              </div>
+
+              <div class="specs-grid-premium">
+                <div class="spec-card-v3">
+                  <div class="spec-icon" [innerHTML]="getIconSvg('gauge')"></div>
+                  <div class="spec-info">
+                    <span class="label">Kilómetros</span>
+                    <span class="value">{{ step2Form.value.kilometros | number }} km</span>
+                  </div>
+                </div>
+                <div class="spec-card-v3">
+                  <div class="spec-icon" [innerHTML]="getIconSvg('fuel')"></div>
+                  <div class="spec-info">
+                    <span class="label">Combustible</span>
+                    <span class="value">{{ getSelectedLabel('step2Form', 'combustible', combustibleOptions) }}</span>
+                  </div>
+                </div>
+                <div class="spec-card-v3">
+                  <div class="spec-icon" [innerHTML]="getIconSvg('activity')"></div>
+                  <div class="spec-info">
+                    <span class="label">Cambio</span>
+                    <span class="value">{{ getSelectedLabel('step2Form', 'cambio', cambioOptions) }}</span>
+                  </div>
+                </div>
+                <div class="spec-card-v3">
+                  <div class="spec-icon" [innerHTML]="getIconSvg('calendar')"></div>
+                  <div class="spec-info">
+                    <span class="label">Año</span>
+                    <span class="value">{{ step2Form.value.anio }}</span>
+                  </div>
+                </div>
+                <div class="spec-card-v3">
+                   <div class="spec-icon" [innerHTML]="getIconSvg('zap')"></div>
+                   <div class="spec-info">
+                     <span class="label">Potencia</span>
+                     <span class="value">{{ step2Form.value.potencia }} CV</span>
+                   </div>
+                </div>
+                <div class="spec-card-v3">
+                   <div class="spec-icon" [innerHTML]="getIconSvg('palette')"></div>
+                   <div class="spec-info">
+                     <span class="label">Color</span>
+                     <span class="value">{{ step2Form.value.color }}</span>
+                   </div>
+                </div>
+              </div>
+
+              <div class="review-description-box">
+                <h3 class="box-title">Descripción del Vehículo</h3>
+                <div class="description-content-final" [innerHTML]="step4Form.get('descripcion')?.value"></div>
+              </div>
+            </div>
+
+            <!-- RIGHT: FINAL ACTIONS & SUMMARY -->
+            <div class="review-actions-pane">
+               <div class="summary-card-glass">
+                 <div class="card-header-v2">Resumen de Publicación</div>
+                 <ul class="summary-list">
+                    <li><i data-lucide="check-circle-2"></i> {{ images().length }} fotos seleccionadas</li>
+                    <li><i data-lucide="check-circle-2"></i> Verificación de moderación OK</li>
+                    <li><i data-lucide="check-circle-2"></i> Ubicación vinculada</li>
+                    <li><i data-lucide="check-circle-2"></i> Precio competitivo</li>
+                 </ul>
+                 <div class="review-disclaimer-v2">
+                    <i data-lucide="shield-check"></i>
+                    <p>Al hacer clic en publicar, tu anuncio será visible para todos los usuarios de Nexus.</p>
+                 </div>
+               </div>
+            </div>
           </div>
         </div>
       }

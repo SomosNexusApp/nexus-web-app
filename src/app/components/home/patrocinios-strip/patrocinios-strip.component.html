@@ -1,0 +1,18 @@
+@if (banners().length > 0) {
+  <section class="pat-strip" aria-label="Contenido patrocinado">
+    @for (b of banners(); track b.contratoId) {
+      <a
+        class="pat-card"
+        [href]="b.urlClick || '#'"
+        [attr.target]="b.urlClick ? '_blank' : null"
+        [attr.rel]="b.urlClick ? 'noopener noreferrer' : null"
+      >
+        <span class="pat-label">Patrocinado</span>
+        <span class="pat-text">{{ b.textoBanner }}</span>
+        @if (b.empresaNombre) {
+          <span class="pat-emp">{{ b.empresaNombre }}</span>
+        }
+      </a>
+    }
+  </section>
+}

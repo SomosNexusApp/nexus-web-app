@@ -10,9 +10,9 @@ import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { JwtService } from '../auth/jwt-service';
 import { AuthStore } from '../auth/auth-store';
-// Servicios ficticios a implementar según tus convenciones compartidas
 import { GuestPopupService } from '../services/guest-popup.service';
 import { ToastService } from '../services/toast.service';
+import { environment } from '../../../environments/enviroment';
 
 @Injectable()
 export class ErrorInterceptor implements HttpInterceptor {
@@ -28,10 +28,12 @@ export class ErrorInterceptor implements HttpInterceptor {
       catchError((error: HttpErrorResponse) => {
         switch (error.status) {
           case 401:
-            // No autorizado o token expirado
-            this.authStore.clear();
-            this.jwtService.removeToken();
-            this.guestPopupService.showPopup(); // Mostrar modal de login sin redirigir
+            // No autorizado o token expirado. IMPORTANTE: Solo para nuestra API
+            if (req.url.startsWith(environment.apiUrl)) {
+              this.authStore.clear();
+              this.jwtService.removeToken();
+              this.guestPopupService.showPopup(); // Mostrar modal de login sin redirigir
+            }
             break;
 
           case 403:

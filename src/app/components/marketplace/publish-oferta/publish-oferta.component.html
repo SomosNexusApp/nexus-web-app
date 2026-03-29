@@ -1,4 +1,11 @@
 <div class="publish-container">
+  <!-- MESH GRADIENT BACKGROUND -->
+  <div class="mesh-gradient">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+  </div>
+
   <header class="publish-header">
     <div class="header-content">
       <span class="step-count">Marketplace Nexus</span>
@@ -8,17 +15,19 @@
 
   <main class="publish-content">
     <div class="form-area animate-fade-in">
-      <form [formGroup]="ofertaForm" (ngSubmit)="onSubmit()" class="nexus-form">
+      <form [formGroup]="ofertaForm" (ngSubmit)="onSubmit()" class="console-card">
         
-        <!-- ENLACE -->
-        <section class="form-section highlight-section">
-          <label class="section-label">Enlace de la oferta</label>
-          <div class="url-verify-group">
-            <div class="input-with-icon" [class.error]="getErrorMessage('urlOferta')">
-              <svg class="input-leading-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+        <div class="console-header">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+          <span>Enlace de la Oferta</span>
+        </div>
+
+        <div class="url-verify-group">
+          <div class="input-group relative" [class.error]="getErrorMessage('urlOferta')" style="flex: 1; margin-bottom: 0;">
+            <div class="input-wrapper">
               <input type="url" formControlName="urlOferta" placeholder="Pega el link aquí..." (blur)="verifyLink()">
               @if (verificandoLink()) {
-                <div class="spinner-small verified-badge"></div>
+                <div class="elite-spinner-mini verified-badge"></div>
               } @else if (linkVerificado()) {
                 <div class="verified-badge">
                   @if (favicon()) { <img [src]="favicon()" class="favicon-mini"> }
@@ -26,142 +35,197 @@
                 </div>
               }
             </div>
-            <button type="button" class="btn-verify" (click)="verifyLink()" [disabled]="verificandoLink() || ofertaForm.get('urlOferta')?.invalid">
-              Escanear
-            </button>
+            <span class="error-msg">{{ getErrorMessage('urlOferta') }}</span>
           </div>
-          <span class="error-msg">{{ getErrorMessage('urlOferta') }}</span>
-        </section>
+          <button type="button" class="elite-btn btn-scan" (click)="verifyLink()" [disabled]="verificandoLink() || ofertaForm.get('urlOferta')?.invalid">
+            Verificar Enlace
+          </button>
+        </div>
 
-        <!-- DETALLES -->
-        <section class="form-section">
-          <div class="input-group" [class.error]="getErrorMessage('titulo')">
-            <label>Título impactante *</label>
-            <input type="text" formControlName="titulo" placeholder="Ej: Monitor Gaming 4K 144Hz">
+        <div class="console-divider"></div>
+
+        <div class="console-header">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><polyline points="13 2 13 9 20 9"/></svg>
+          <span>Detalles del Producto</span>
+        </div>
+
+        <div class="console-grid">
+          <div class="input-group full-width" [class.error]="getErrorMessage('titulo')">
+            <label>Título Impactante *</label>
+            <div class="input-wrapper">
+              <input type="text" formControlName="titulo" placeholder="Ej: Monitor Gaming 4K 144Hz">
+            </div>
             <span class="error-msg">{{ getErrorMessage('titulo') }}</span>
           </div>
-          <div class="input-group" [class.error]="getErrorMessage('descripcion')">
-            <label>Descripción detallada *</label>
-            <textarea formControlName="descripcion" rows="4" placeholder="¿Por qué es un buen chollo?"></textarea>
+
+          <div class="input-group full-width" [class.error]="getErrorMessage('descripcion')">
+            <label>Descripción del Producto *</label>
+            <div class="composer-container">
+                <textarea #descInput formControlName="descripcion" class="composer-textarea" rows="6" placeholder="Cuéntanos por qué es una buena oferta, detalles técnicos, estado, etc."></textarea>
+            </div>
             <span class="error-msg">{{ getErrorMessage('descripcion') }}</span>
           </div>
-        </section>
 
-        <!-- PRECIOS -->
-        <section class="form-section highlight-section">
-          <div class="price-grid">
-            <div class="input-group no-margin" [class.error]="getErrorMessage('precioOferta')">
-              <label>Precio Rebajado *</label>
-              <div class="input-currency price-accent"><input type="number" formControlName="precioOferta"><span>€</span></div>
-              <span class="error-msg">{{ getErrorMessage('precioOferta') }}</span>
+          <div class="input-group" [class.error]="getErrorMessage('precioOferta')">
+            <label>Precio Rebajado *</label>
+            <div class="input-wrapper">
+              <input type="number" formControlName="precioOferta" class="price-premium">
+              <span class="input-suffix">€</span>
             </div>
-            <div class="input-group no-margin">
-              <label>Precio Original</label>
-              <div class="input-currency"><input type="number" formControlName="precioOriginal"><span>€</span></div>
+            <span class="error-msg">{{ getErrorMessage('precioOferta') }}</span>
+          </div>
+
+          <div class="input-group">
+            <label>Precio Original</label>
+            <div class="input-wrapper">
+              <input type="number" formControlName="precioOriginal">
+              <span class="input-suffix">€</span>
             </div>
-            @if (formValue()?.esGratis) {
-              <div class="discount-calc animate-pop"><span class="pct-val">GRATIS</span><span class="pct-label">Regalo</span></div>
-            } @else if (discountPercent() > 0) {
-              <div class="discount-calc animate-pop"><span class="pct-val">-{{ discountPercent() }}%</span><span class="pct-label">Ahorro</span></div>
-            }
           </div>
           
-          <div class="gratis-toggle-wrapper">
-             <label class="toggle-control">
-               <input type="checkbox" formControlName="esGratis">
-               <span class="control-indicator"></span>
-               <div class="control-label">
-                 Es un regalo (0€)
-                 <span>Aparecerá destacado en la sección de regalos</span>
-               </div>
-             </label>
-          </div>
-        </section>
-
-        <!-- CATEGORÍAS CON ICONOS SVG DEL BACKEND -->
-        <section class="form-section">
-          <label class="section-label">Selecciona Categoría *</label>
-          <div class="category-grid">
-            @for (cat of categorias(); track cat.id) {
-              <button type="button" class="cat-card" 
-                [class.active]="selectedCategory()?.id === cat.id" 
-                [class.invalid]="ofertaForm.touched && !selectedCategory()"
-                (click)="selectCategory(cat)">
-                <div class="cat-icon-wrapper">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path [attr.d]="getIconPath(cat)"></path>
-                  </svg>
-                </div>
-                <span class="cat-name">{{ cat.nombre }}</span>
-              </button>
+          <div class="console-toggles">
+            <div class="premium-toggle" [class.active]="ofertaForm.get('esGratis')?.value" (click)="ofertaForm.get('esGratis')?.setValue(!ofertaForm.get('esGratis')?.value)">
+              <div class="toggle-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 12V8H6a2 2 0 0 1-2-2c0-1.1.9-2 2-2h12v4"/><path d="M4 6v12c0 1.1.9 2 2 2h14v-4"/><path d="M18 12a2 2 0 0 0-2 2c0 1.1.9 2 2 2h4v-4h-4z"/></svg>
+              </div>
+              <div class="toggle-text">
+                <strong>Es un Regalo</strong>
+                <span>Precio a 0€</span>
+              </div>
+              <div class="toggle-switch"></div>
+            </div>
+            
+            @if (discountPercent() > 0 && !ofertaForm.get('esGratis')?.value) {
+              <div class="discount-badge-elite animate-pop">
+                <span class="pct-val">-{{ discountPercent() }}%</span>
+                <span class="pct-label">Ahorro</span>
+              </div>
             }
           </div>
-        </section>
+        </div>
 
-        <!-- TIENDA Y CIUDAD -->
-        <section class="form-section">
-          <div class="grid-2">
-            <div class="input-group no-margin" [class.error]="getErrorMessage('tienda')">
-              <label>Tienda *</label>
+        <div class="console-divider"></div>
+
+        <div class="console-header">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10 10-4.47 10-10S17.53 2 12 2z"/><path d="M12 2v20"/><path d="M2 12h20"/><path d="m19 12-7 7-7-7"/><path d="m19 12-7-7-7 7"/></svg>
+          <span>Ubicación y Tienda</span>
+        </div>
+
+        <div class="console-grid">
+          <div class="input-group" [class.error]="getErrorMessage('tienda')">
+            <label>Tienda / Plataforma *</label>
+            <div class="input-wrapper">
               <input type="text" formControlName="tienda">
-              <span class="error-msg">{{ getErrorMessage('tienda') }}</span>
             </div>
-            <div class="input-group no-margin">
-              <label>Cupón</label>
-              <input type="text" formControlName="codigoDescuento">
+            <span class="error-msg">{{ getErrorMessage('tienda') }}</span>
+          </div>
+
+          <div class="input-group">
+            <label>Código Promocional</label>
+            <div class="input-wrapper">
+              <input type="text" formControlName="codigoDescuento" placeholder="OPCIONAL">
             </div>
           </div>
 
-          <div class="input-group mt-20" [class.error]="getErrorMessage('ciudadOferta')">
-            <label>Ciudad / Ubicación (Opcional)</label>
-            <div class="location-input-group">
-              <div class="input-with-icon" style="flex: 1">
-                <svg class="input-leading-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          <div class="input-group full-width" [class.error]="getErrorMessage('ciudadOferta')">
+            <label>Ubicación Local (Opcional)</label>
+            <div class="location-group-elite">
+              <div class="input-wrapper" style="flex: 1">
                 <input type="text" formControlName="ciudadOferta" placeholder="¿Dónde está la oferta?">
                 @if (buscandoUbi()) {
-                  <div class="spinner-small verified-badge"></div>
+                  <div class="elite-spinner-mini verified-badge"></div>
                 } @else if (locationConfirmed()) {
                   <div class="verified-badge">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
                   </div>
                 }
               </div>
-              <button type="button" class="btn-location" (click)="useLocation()" title="Usar mi ubicación">
+              <button type="button" class="btn-location-elite" (click)="useLocation()" title="Usar mi ubicación">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 2v3m0 14v3m10-10h-3M5 12H2"/></svg>
               </button>
             </div>
 
             @if (sugerenciasUbi().length > 0) {
-              <div class="location-dropdown glass animate-fade-in">
+              <div class="nexus-dropdown animate-fade-in">
                 @for (u of sugerenciasUbi(); track u) {
-                  <div class="location-item" (click)="selectUbi(u)">{{ u.display }}</div>
+                  <div class="elite-dropdown-item" (click)="selectUbi(u)">{{ u.display }}</div>
                 }
               </div>
             }
           </div>
-        </section>
+        </div>
 
-        <!-- FOTOS -->
-        <section class="form-section">
-          <label class="section-label">Fotos de la oferta</label>
-          <div class="upload-zone" (click)="fileInput.click()">
-            <svg class="upload-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-            <p>Haz clic para subir fotos</p>
-            <input #fileInput type="file" multiple (change)="onFileSelected($event)" accept="image/*" class="hidden">
+        <div class="console-divider"></div>
+
+        <div class="console-header">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+          <span>Galería de Imágenes</span>
+        </div>
+
+        <div class="upload-zone-elite" (click)="fileInput.click()">
+          <div class="upload-icon-wrapper">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
           </div>
-          @if (images().length > 0) {
-            <div class="image-grid">
-              @for (img of images(); track img.url; let i = $index) {
-                <div class="image-preview"><img [src]="img.url"><button type="button" class="btn-remove-img" (click)="removeImage(i)">✕</button></div>
+          <div class="upload-text">
+            <h3>Subir Fotos del Chollo</h3>
+            <p>Soporta JPG, PNG y WebP • Máx 5 fotos</p>
+          </div>
+          <input #fileInput type="file" multiple (change)="onFileSelected($event)" accept="image/*" class="hidden">
+        </div>
+
+        @if (images().length > 0) {
+          <div class="image-grid-elite">
+            @for (img of images(); track img.url; let i = $index) {
+              <div class="image-preview" [class.is-principal]="img.isPrincipal">
+                <img [src]="img.url">
+                @if (img.isPrincipal) { <span class="principal-label">Principal</span> }
+                <button type="button" class="btn-remove-v2" (click)="removeImage(i)">✕</button>
+              </div>
+            }
+          </div>
+        }
+
+        <div class="console-divider"></div>
+
+        <div class="console-header">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11a9 9 0 0 1 8 8"/><path d="M4 4a16 16 0 0 1 16 16"/><circle cx="5" cy="19" r="1"/></svg>
+          <span>Seleccionar Categoría *</span>
+        </div>
+
+        <div class="category-grid-premium">
+          @for (cat of categorias(); track cat.id) {
+            <div class="category-card-premium" 
+                 [class.active]="selectedCategory()?.id === cat.id" 
+                 (click)="selectCategory(cat)"
+                 (mousemove)="updateMousePos($event)">
+              <div class="card-glow"></div>
+              <div class="icon-sphere">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path [attr.d]="getIconPath(cat)"></path>
+                </svg>
+              </div>
+              <div class="category-info">
+                <h3>{{ cat.nombre }}</h3>
+                <p>{{ getCategoryDesc(cat.nombre) }}</p>
+              </div>
+              @if (selectedCategory()?.id === cat.id) {
+                <div class="active-indicator">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+                </div>
               }
             </div>
           }
-        </section>
+        </div>
 
-        <footer class="publish-footer">
-          <button type="button" class="btn-secondary" routerLink="/publicar">Cancelar</button>
-          <button type="submit" class="btn-success" [disabled]="uploading()">
-            {{ uploading() ? 'Subiendo...' : 'Publicar Oferta' }}
+        <footer class="publish-footer-elite">
+          <button type="button" class="btn-cancel-elite" routerLink="/publicar">Cancelar</button>
+          <button type="submit" class="btn-publish-elite" [disabled]="uploading()">
+            @if (uploading()) {
+              <div class="elite-spinner-mini" style="margin-right: 10px;"></div>
+              <span>PROCESANDO...</span>
+            } @else {
+              <span>DESPLEGAR OFERTA</span>
+            }
           </button>
         </footer>
       </form>

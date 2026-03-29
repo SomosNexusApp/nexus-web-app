@@ -833,7 +833,7 @@
 }
 
 /* --- ELITE AUDIO PLAYER --- */
-.audio-elite-player {
+.audio-premium-player {
   display: flex;
   align-items: center;
   gap: 16px;
@@ -856,7 +856,7 @@
   gap: 8px;
 }
 
-.elite-play-btn {
+.premium-play-btn {
   width: 44px;
   height: 44px;
   border-radius: 50%;
@@ -872,7 +872,7 @@
   z-index: 1;
 }
 
-.elite-play-btn i {
+.premium-play-btn i {
   font-size: 1.1rem;
   margin-left: 3px;
 }
@@ -890,11 +890,11 @@
   transition: opacity 0.3s;
 }
 
-.elite-play-btn:hover {
+.premium-play-btn:hover {
   transform: scale(1.1);
 }
 
-.elite-play-btn:hover .btn-glow {
+.premium-play-btn:hover .btn-glow {
   opacity: 0.8;
 }
 
@@ -960,7 +960,7 @@
   50% { transform: scaleY(1.5); }
 }
 
-.elite-progress-container {
+.premium-progress-container {
   height: 6px;
   background: rgba(255, 255, 255, 0.1);
   border-radius: 3px;
@@ -969,7 +969,7 @@
   overflow: hidden;
 }
 
-.elite-progress-fill {
+.premium-progress-fill {
   height: 100%;
   background: linear-gradient(90deg, #3b82f6, #8b5cf6);
   border-radius: 3px;
@@ -977,7 +977,7 @@
   transition: width 0.1s linear;
 }
 
-.elite-time-info {
+.premium-time-info {
   display: flex;
   justify-content: space-between;
   font-size: 0.75rem;
@@ -986,11 +986,11 @@
   font-weight: 600;
 }
 
-.mine .audio-elite-player {
+.mine .audio-premium-player {
   background: rgba(255, 255, 255, 0.08);
 }
 
-.theirs .audio-elite-player {
+.theirs .audio-premium-player {
   background: rgba(15, 23, 42, 0.6);
 }
 

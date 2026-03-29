@@ -2,7 +2,7 @@
   --nexus-surface: rgba(10, 10, 15, 0.9);
   --nexus-border: rgba(255, 255, 255, 0.1);
   --transition-smooth: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-  --shadow-elite: 0 40px 100px rgba(0, 0, 0, 0.8), 0 0 30px rgba(205, 176, 232, 0.1);
+  --shadow-premium: 0 40px 100px rgba(0, 0, 0, 0.8), 0 0 30px rgba(205, 176, 232, 0.1);
 }
 
 .popup-overlay {
@@ -25,7 +25,7 @@
   width: 100%;
   max-width: 540px;
   padding: 3.5rem;
-  box-shadow: var(--shadow-elite);
+  box-shadow: var(--shadow-premium);
   color: #fff;
   font-family: var(--font-primary, 'Outfit', sans-serif);
   position: relative;
@@ -191,7 +191,7 @@ input.error {
   border-color: var(--nexus-hot-pink);
 }
 
-/* Botón Principal Elite */
+/* Botón Principal Premium */
 .btn-primary {
   width: 100%;
   padding: 20px;

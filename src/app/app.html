@@ -22,7 +22,7 @@
 
 <router-outlet></router-outlet>
 <app-toast-container></app-toast-container>
-@if (!isAdminRoute()) {
+@if (!isAdminRoute() && !isMessagesRoute()) {
   <app-support-chat-widget />
 }
 

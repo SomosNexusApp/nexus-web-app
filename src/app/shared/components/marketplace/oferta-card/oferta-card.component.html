@@ -73,10 +73,16 @@
         <h3 class="oferta-title" [title]="oferta.titulo">{{ oferta.titulo }}</h3>
 
         <div class="price-row">
-          <span class="price-new">{{ (oferta.precioOferta || oferta.precio) | currencyEs }}</span>
-          @if (oferta.precioOriginal) {
-            <span class="price-old">{{ oferta.precioOriginal | currencyEs }}</span>
-          }
+          <div class="prices">
+            <span class="price-new">{{ (oferta.precioOferta || oferta.precio) | currencyEs }}</span>
+            @if (oferta.precioOriginal) {
+              <span class="price-old">{{ oferta.precioOriginal | currencyEs }}</span>
+            }
+          </div>
+          
+          <button class="btn-go" (click)="irALaOferta($event)">
+            Ir <i class="fa-solid fa-arrow-up-right-from-square"></i>
+          </button>
         </div>
 
         @if ($any(oferta).codigoDescuento) {

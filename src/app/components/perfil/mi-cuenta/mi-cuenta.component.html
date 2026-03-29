@@ -19,7 +19,7 @@
 
     <!-- Items -->
     <nav class="sidebar-nav">
-      @for (item of sidebarItems; track item.id) {
+      @for (item of sidebarItemsVisible(); track item.id) {
         <button
           class="sidebar-item"
           [class.active]="activeSection() === item.id"
@@ -472,7 +472,7 @@
     @if (activeSection() === 'compras') {
       <section class="section">
         <h2 class="section-title"><i class="fas fa-shopping-cart"></i> Mis Compras</h2>
-        <app-mis-compras></app-mis-compras>
+        <app-mis-compras seccionPerfil="compras"></app-mis-compras>
       </section>
     }
 
@@ -480,7 +480,22 @@
     @if (activeSection() === 'ventas') {
       <section class="section">
         <h2 class="section-title"><i class="fas fa-coins"></i> Mis Ventas</h2>
-        <app-mis-compras></app-mis-compras>
+        <app-mis-compras seccionPerfil="ventas"></app-mis-compras>
+      </section>
+    }
+
+    <!-- ═══ PUBLICIDAD (solo empresa) ═══ -->
+    @if (activeSection() === 'publicidad' && authStore.isEmpresa()) {
+      <section class="section publicidad-empresa">
+        <h2 class="section-title"><i class="fas fa-bullhorn"></i> Publicidad y contratos</h2>
+        <p class="section-lead">
+          Aquí gestionas las propuestas que el equipo Nexus te envía (presupuesto, banner o publicación patrocinada).
+          Si aceptas, el pago es con tarjeta mediante Stripe.
+        </p>
+        <div class="publicidad-actions">
+          <a routerLink="/publicidad/contratos" class="btn-primary-link">Abrir gestión de contratos</a>
+          <span class="hint">También puedes llegar desde el aviso en notificaciones.</span>
+        </div>
       </section>
     }
 
@@ -513,6 +528,13 @@
             (click)="favTab.set('ofertas')"
           >
             Chollos guardados
+          </button>
+          <button
+            class="sub-tab"
+            [class.active]="favTab() === 'vehiculos'"
+            (click)="favTab.set('vehiculos')"
+          >
+            Vehículos guardados
           </button>
         </div>
 
@@ -563,6 +585,28 @@
               </div>
             }
           }
+
+          @if (favTab() === 'vehiculos') {
+            @if (favVehiculos().length === 0) {
+              <div class="empty-state">
+                <i class="fas fa-car"></i>
+                <p>No tienes vehículos guardados.</p>
+              </div>
+            } @else {
+              <div class="products-grid">
+                @for (f of favVehiculos(); track f.id) {
+                  <div class="fav-card">
+                    <app-vehiculo-card
+                      [vehiculo]="f.vehiculo || f"
+                    ></app-vehiculo-card>
+                    <button class="fav-remove" (click)="quitarFavorito(f.id)">
+                      <i class="fas fa-times"></i>
+                    </button>
+                  </div>
+                }
+              </div>
+            }
+          }
         }
       </section>
     }
@@ -573,12 +617,12 @@
         <h2 class="section-title"><i class="fas fa-chart-bar"></i> Estadísticas</h2>
         
         @if (hasEnoughData()) {
-          <div class="stats-elite-grid">
+          <div class="stats-premium-grid">
             <!-- Card 1: Actividad -->
             <div class="stats-main-card">
               <div class="stats-card-header">
                 <h3>Resumen de Actividad</h3>
-                <span class="badge-elite">Nivel {{ (kpis().ventas + kpis().compras) > 10 ? 'Elite Pro' : 'Explorer' }}</span>
+                <span class="badge-premium">Nivel {{ (kpis().ventas + kpis().compras) > 10 ? 'Pro Expert' : 'Explorer' }}</span>
               </div>
               <div class="activity-bars">
                 <div class="activity-item">
@@ -619,7 +663,7 @@
             <span>Tus estadísticas se actualizan automáticamente después de cada transacción completada.</span>
           </div>
         } @else {
-          <div class="stats-placeholder-elite">
+          <div class="stats-placeholder-premium">
             <div class="placeholder-icon-wrapper">
               <i class="fas fa-chart-line"></i>
               <div class="glow-pulse"></div>

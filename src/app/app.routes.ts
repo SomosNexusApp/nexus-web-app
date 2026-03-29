@@ -196,6 +196,14 @@ export const routes: Routes = [
     canActivate: [authGuard],
   },
   {
+    path: 'publicidad/contratos',
+    loadComponent: () =>
+      import('./components/publicidad/empresa-contratos-page.component').then(
+        (m) => m.EmpresaContratosPageComponent,
+      ),
+    canActivate: [authGuard],
+  },
+  {
     path: 'perfil/:username',
     loadComponent: () =>
       import('./components/perfil/perfil-publico/perfil-publico.component').then(
@@ -270,6 +278,13 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./components/marketplace/ofertas-gratis/ofertas-gratis.component').then(
         (m) => m.OfertasGratisComponent,
+      ),
+  },
+  {
+    path: 'viajes',
+    loadComponent: () =>
+      import('./components/marketplace/viajes/viajes-portal.component').then(
+        (m) => m.ViajesPortalComponent,
       ),
   },
 

@@ -12,29 +12,33 @@ export class FavoritoService {
   private http = inject(HttpClient);
   private authStore = inject(AuthStore);
 
-  // Cache para IDs de favoritos
-  private favoritosIdsSignal = signal<number[]>([]);
+  // Cache para IDs de favoritos (ahora guardamos strings: "producto_123", "vehiculo_456")
+  private favoritosIdsSignal = signal<string[]>([]);
   private cargandoFavoritos = false;
-  private favoritosObservable$: Observable<number[]> | null = null;
+  private favoritosObservable$: Observable<string[]> | null = null;
 
-  getFavoritosIds(): Observable<number[]> {
+  getFavoritosIds(): Observable<string[]> {
     const user = this.authStore.user();
     if (!user) return of([]);
 
-    // Si ya tenemos un observable en vuelo, lo devolvemos
     if (this.favoritosObservable$) return this.favoritosObservable$;
-
-    // Si ya tenemos los IDs en el signal, los devolvemos como observable
     if (this.favoritosIdsSignal().length > 0) return of(this.favoritosIdsSignal());
 
-    // Si no, hacemos la petición y la compartimos
     this.favoritosObservable$ = this.http
       .get<any[]>(`${environment.apiUrl}/api/favoritos/usuario/${user.id}`, { withCredentials: true })
       .pipe(
-        map((favoritos) => favoritos.filter((f) => f.producto).map((f) => f.producto.id)),
+        map((favoritos) => {
+          const ids: string[] = [];
+          favoritos.forEach(f => {
+            if (f.producto) ids.push(`producto_${f.producto.id}`);
+            else if (f.vehiculo) ids.push(`vehiculo_${f.vehiculo.id}`);
+            else if (f.oferta) ids.push(`oferta_${f.oferta.id}`);
+          });
+          return ids;
+        }),
         tap((ids) => {
           this.favoritosIdsSignal.set(ids);
-          this.favoritosObservable$ = null; // Limpiamos el observable al terminar
+          this.favoritosObservable$ = null;
         }),
         shareReplay(1),
       );
@@ -42,38 +46,38 @@ export class FavoritoService {
     return this.favoritosObservable$;
   }
 
-  // Método para invalidar el cache (útil después de añadir/quitar)
-  private clearCache(): void {
-    this.favoritosIdsSignal.set([]);
-    this.favoritosObservable$ = null;
+  isFavorito(id: number | undefined, type: string = 'producto'): boolean {
+    if (!id) return false;
+    return this.favoritosIdsSignal().includes(`${type.toLowerCase()}_${id}`);
   }
 
-  // Sustituimos el toggle complejo por métodos directos
-  addFavorito(productoId: number): Observable<any> {
+  addFavorito(id: number, type: 'producto' | 'oferta' | 'vehiculo' = 'producto'): Observable<any> {
     const user = this.authStore.user();
     if (!user) return of(null);
+    const typeLower = type.toLowerCase();
+    
     return this.http.post(
-      `${environment.apiUrl}/api/favoritos/producto/${user.id}/${productoId}`,
+      `${environment.apiUrl}/api/favoritos/${typeLower}/${user.id}/${id}`,
       {},
       { withCredentials: true },
     ).pipe(
       tap(() => {
-        // Actualizamos localmente el signal para feedback instantáneo global
-        this.favoritosIdsSignal.update(ids => [...ids, productoId]);
+        this.favoritosIdsSignal.update(ids => [...ids, `${typeLower}_${id}`]);
       })
     );
   }
 
-  removeFavorito(productoId: number): Observable<any> {
+  removeFavorito(id: number, type: 'producto' | 'oferta' | 'vehiculo' = 'producto'): Observable<any> {
     const user = this.authStore.user();
     if (!user) return of(null);
+    const typeLower = type.toLowerCase();
+
     return this.http.delete(
-      `${environment.apiUrl}/api/favoritos/producto/${user.id}/${productoId}`,
+      `${environment.apiUrl}/api/favoritos/${typeLower}/${user.id}/${id}`,
       { withCredentials: true },
     ).pipe(
       tap(() => {
-        // Actualizamos localmente el signal
-        this.favoritosIdsSignal.update(ids => ids.filter(id => id !== productoId));
+        this.favoritosIdsSignal.update(ids => ids.filter(compositeId => compositeId !== `${typeLower}_${id}`));
       })
     );
   }

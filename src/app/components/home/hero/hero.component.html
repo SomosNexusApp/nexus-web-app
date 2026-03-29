@@ -1,9 +1,13 @@
 <section class="nexus-hero-masterpiece">
+  <!-- SPECTACULAR BACKGROUND -->
   <div class="aurora-background">
     <div class="deep-fade-top"></div>
     <div class="aurora-beam beam-1"></div>
     <div class="aurora-beam beam-2"></div>
     <div class="grid-overlay"></div>
+    <div class="floating-particle p1"></div>
+    <div class="floating-particle p2"></div>
+    <div class="floating-particle p3"></div>
   </div>
 
   <div class="container hero-layout">
@@ -45,6 +49,7 @@
       </div>
     </div>
 
+    <!-- SPECTACULAR 3D STACKED DECK -->
     <div class="visual-slider-stage" (mouseenter)="stopAutoPlay()" (mouseleave)="startAutoPlay()">
       <div class="floating-deck">
         <div class="slider-track">
@@ -52,6 +57,7 @@
             class="solid-card main-card slide"
             *ngFor="let slide of slides; let i = index"
             [class.active]="i === currentIndex"
+            (click)="goToProduct(i)"
           >
             <div class="card-header">
               <div class="user-badge">
@@ -87,7 +93,7 @@
 
             <div class="card-footer">
               <div class="meta-row">
-                <span class="meta-label">{{ slide.title }}</span>
+                <span class="product-title-meta">{{ slide.title }}</span>
                 <div class="rating">{{ slide.rating }}</div>
               </div>
             </div>
@@ -97,17 +103,7 @@
 
       <div class="slider-controls">
         <button class="control-arrow" (click)="prevSlide()" aria-label="Anterior">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="20"
-            height="20"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          >
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <polyline points="15 18 9 12 15 6"></polyline>
           </svg>
         </button>
@@ -123,17 +119,7 @@
         </div>
 
         <button class="control-arrow" (click)="nextSlide()" aria-label="Siguiente">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="20"
-            height="20"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          >
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <polyline points="9 18 15 12 9 6"></polyline>
           </svg>
         </button>

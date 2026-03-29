@@ -18,6 +18,7 @@ import { MisComprasComponent } from '../../compras/mis-compras/mis-compras.compo
 import { ConversacionesListComponent } from '../../mensajes/conversaciones-list/conversaciones-list';
 import { PagosComponent } from '../pagos/pagos.component';
 import { ConfiguracionComponent } from '../configuracion/configuracion.component';
+import { VehiculoCardComponent } from '../../../shared/components/vehiculo-card/vehiculo-card.component';
 
 type SidebarSection =
   | 'resumen'
@@ -25,6 +26,7 @@ type SidebarSection =
   | 'ofertas'
   | 'compras'
   | 'ventas'
+  | 'publicidad'
   | 'vehiculos'
   | 'buzon'
   | 'favoritos'
@@ -49,6 +51,7 @@ type SidebarSection =
     ConfirmModalComponent,
     ConfiguracionComponent,
     AvatarComponent,
+    VehiculoCardComponent,
   ],
   templateUrl: './mi-cuenta.component.html',
   styleUrls: ['./mi-cuenta.component.css'],
@@ -113,7 +116,8 @@ export class MiCuentaComponent implements OnInit {
   // Favoritos
   favProductos = signal<any[]>([]);
   favOfertas = signal<any[]>([]);
-  favTab = signal<'productos' | 'ofertas'>('productos');
+  favVehiculos = signal<any[]>([]);
+  favTab = signal<'productos' | 'ofertas' | 'vehiculos'>('productos');
   cargandoFavs = signal(false);
 
   // Ayuda FAQs
@@ -182,7 +186,7 @@ export class MiCuentaComponent implements OnInit {
     return Object.entries(map).map(([name, value]) => ({ name, value: (value as number) }));
   });
 
-  sidebarItems: { id: SidebarSection; icon: string; label: string }[] = [
+  private readonly sidebarBase: { id: SidebarSection; icon: string; label: string }[] = [
     { id: 'resumen', icon: 'fa-user', label: 'Resumen' },
     { id: 'productos', icon: 'fa-box-open', label: 'Mis Productos' },
     { id: 'ofertas', icon: 'fa-tags', label: 'Mis Ofertas' },
@@ -197,11 +201,34 @@ export class MiCuentaComponent implements OnInit {
     { id: 'ayuda', icon: 'fa-question-circle', label: 'Ayuda' },
   ];
 
+  /** Incluye Publicidad solo para cuentas empresa (después de Mis ventas). */
+  sidebarItemsVisible = computed(() => {
+    const items = [...this.sidebarBase];
+    if (this.authStore.isEmpresa()) {
+      const idx = items.findIndex((i) => i.id === 'ventas');
+      const row = { id: 'publicidad' as SidebarSection, icon: 'fa-bullhorn', label: 'Publicidad' };
+      if (idx >= 0) {
+        items.splice(idx + 1, 0, row);
+      } else {
+        items.push(row);
+      }
+    }
+    return items;
+  });
+
   ngOnInit() {
     this.cargarKPIs();
     this.route.queryParams.subscribe((params) => {
       const tab = params['tab'];
       if (tab) {
+        if (tab === 'publicidad' && !this.authStore.isEmpresa()) {
+          this.router.navigate([], {
+            relativeTo: this.route,
+            queryParams: { tab: 'resumen' },
+            replaceUrl: true,
+          });
+          return;
+        }
         this.setSection(tab as SidebarSection);
       }
     });
@@ -607,22 +634,35 @@ export class MiCuentaComponent implements OnInit {
         next: (data) => {
           this.favProductos.set((data || []).filter((f: any) => f.producto));
           this.favOfertas.set((data || []).filter((f: any) => f.oferta));
+          this.favVehiculos.set((data || []).filter((f: any) => f.vehiculo));
           this.cargandoFavs.set(false);
         },
         error: () => {
           this.favProductos.set([]);
           this.favOfertas.set([]);
+          this.favVehiculos.set([]);
           this.cargandoFavs.set(false);
         },
       });
   }
 
   quitarFavorito(favId: number) {
-    // Fíjate que aquí dice /api/favoritos/ en lugar de /favorito/
-    this.http.delete(`${environment.apiUrl}/api/favoritos/${favId}`).subscribe({
+    // Determinamos el tipo para la API
+    let type: 'producto' | 'oferta' | 'vehiculo' = 'producto';
+    if (this.favTab() === 'ofertas') type = 'oferta';
+    if (this.favTab() === 'vehiculos') type = 'vehiculo';
+
+    // Obtenemos el ID real del item (producto.id, vehiculo.id o oferta.id)
+    const fav = [...this.favProductos(), ...this.favOfertas(), ...this.favVehiculos()].find(f => f.id === favId);
+    const itemId = fav?.producto?.id || fav?.vehiculo?.id || fav?.oferta?.id;
+
+    if (!itemId) return;
+
+    this.favoritoService.removeFavorito(itemId, type).subscribe({
       next: () => {
         this.favProductos.update((fs) => fs.filter((f) => f.id !== favId));
         this.favOfertas.update((fs) => fs.filter((f) => f.id !== favId));
+        this.favVehiculos.update((fs) => fs.filter((f) => f.id !== favId));
       },
     });
   }

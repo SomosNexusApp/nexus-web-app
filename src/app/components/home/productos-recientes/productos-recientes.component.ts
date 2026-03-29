@@ -17,6 +17,7 @@ export interface ProductoSimple {
   favoritos?: number;
   vendedor?: { nombre: string; verificado?: boolean };
   fechaPublicacion?: string;
+  patrocinado?: boolean;
 }
 
 @Component({
@@ -38,7 +39,7 @@ export class ProductosRecientesComponent implements OnInit {
   readonly skeletons = Array(12).fill(0);
 
   ngOnInit() {
-    this.http.get<any>(`${environment.apiUrl}/producto`).subscribe({
+    this.http.get<any>(`${environment.apiUrl}/producto/disponibles`).subscribe({
       next: (res) => {
         const list = Array.isArray(res) ? res : (res?.content ?? res?.productos ?? res?.data ?? []);
         this.productos.set(list.slice(0, 12));

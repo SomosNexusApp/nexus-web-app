@@ -16,4 +16,6 @@ export interface MarketplaceItem {
   categoria?: { nombre: string; slug: string };
   estado?: string;
   condicion?: string;
+  /** Destacado por contrato publicitario pagado */
+  patrocinado?: boolean;
 }
