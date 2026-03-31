@@ -1,62 +1,118 @@
+:host {
+  display: block;
+  height: 100%;
+  overflow: hidden;
+}
+
 .list-container {
   display: flex;
   flex-direction: column;
   height: 100%;
-  background-color: #020204;
+  background: transparent;
 }
 
 .list-header {
-  padding: 20px 16px;
-  background-color: #050508;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 24px 20px;
+  background: rgba(8, 8, 12, 0.4);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .list-header h2 {
-  font-size: 1.35rem;
-  font-weight: 700;
+  font-size: 1.5rem;
+  font-weight: 800;
   color: #fff;
   margin: 0;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.03em;
+  font-family: 'Space Grotesk', sans-serif;
+  background: linear-gradient(135deg, #fff 0%, rgba(255, 255, 255, 0.5) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .conversaciones {
   flex: 1;
   overflow-y: auto;
   overflow-x: hidden;
-  background-color: #020204;
+  background: transparent;
+  padding: 8px;
+}
+
+/* Custom Spectacular Scrollbar */
+.conversaciones::-webkit-scrollbar {
+  width: 5px;
+}
+
+.conversaciones::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.conversaciones::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, rgba(59, 130, 246, 0.4), rgba(139, 92, 246, 0.4));
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.conversaciones::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, rgba(59, 130, 246, 0.8), rgba(139, 92, 246, 0.8));
 }
 
 .conversacion-item {
   display: flex;
-  padding: 16px 16px 16px 24px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  padding: 16px 20px;
+  margin-bottom: 4px;
+  border-radius: 16px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   align-items: center;
   background: transparent;
+  border: 1px solid transparent;
+  position: relative;
 }
 
 .conversacion-item:hover {
-  background-color: rgba(255, 255, 255, 0.03);
+  background: rgba(255, 255, 255, 0.03);
   transform: translateX(4px);
+  border-color: rgba(255, 255, 255, 0.05);
 }
 
 .conversacion-item.active {
-  background-color: rgba(59, 130, 246, 0.08);
-  border-left: 3px solid var(--nexus-blue, #3b82f6);
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(139, 92, 246, 0.1));
+  border-color: rgba(59, 130, 246, 0.2);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+}
+
+.conversacion-item.active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 20%;
+  height: 60%;
+  width: 4px;
+  background: #3b82f6;
+  border-radius: 0 4px 4px 0;
+  box-shadow: 0 0 15px rgba(59, 130, 246, 0.8);
 }
 
 .avatar-container {
-  margin-right: 14px;
+  margin-right: 16px;
+  position: relative;
 }
 
 .avatar-img {
-  width: 52px;
-  height: 52px;
+  width: 56px;
+  height: 56px;
   border-radius: 50%;
   object-fit: cover;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
+}
+
+.conversacion-item:hover .avatar-img {
+  border-color: rgba(59, 130, 246, 0.5);
 }
 
 .info-container {

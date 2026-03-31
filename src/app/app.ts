@@ -89,19 +89,21 @@ export class AppComponent implements OnInit {
 
   ngOnInit() {
     // Escuchar cambios de ruta para el tracking de visitas y ocultar header en admin
-    this.router.events.pipe(filter((event) => event instanceof NavigationEnd)).subscribe((event: any) => {
-      const url = event.urlAfterRedirects;
-      const isAdmin = url.startsWith('/admin');
-      
-      this.isAdminRoute.set(isAdmin);
-      this.isMessagesRoute.set(url.startsWith('/mensajes'));
-      
-      if (isAdmin) {
-        this.guestPopup.hidePopup();
-      } else {
-        this.guestPopup.trackPageVisit();
-      }
-    });
+    this.router.events
+      .pipe(filter((event) => event instanceof NavigationEnd))
+      .subscribe((event: any) => {
+        const url = event.urlAfterRedirects;
+        const isAdmin = url.startsWith('/admin');
+
+        this.isAdminRoute.set(isAdmin);
+        this.isMessagesRoute.set(url.startsWith('/mensajes'));
+
+        if (isAdmin) {
+          this.guestPopup.hidePopup();
+        } else {
+          this.guestPopup.trackPageVisit();
+        }
+      });
   }
 
   // --- Manejadores de eventos de los Popups ---

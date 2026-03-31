@@ -1,4 +1,4 @@
-@if (!hideOnAdmin()) {
+@if (!hideOnAdmin() && !isRegisterPage()) {
   <div class="scw-root">
     @if (open()) {
       <div class="scw-panel" role="dialog" aria-label="Ayuda Nexus">

@@ -4,6 +4,7 @@
   right: 20px;
   bottom: 20px;
   font-family: var(--font-primary, system-ui, sans-serif);
+  transition: bottom 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .scw-fab {
@@ -78,7 +79,6 @@
   transform: rotate(15deg) scale(1.1);
 }
 
-
 .scw-fab-icon {
   font-size: 1.25rem;
 }
@@ -101,7 +101,6 @@
   z-index: 9999;
 }
 
-
 @keyframes scwIn {
   from {
     opacity: 0;
@@ -121,7 +120,6 @@
   background: linear-gradient(to right, rgba(168, 180, 255, 0.1), rgba(205, 176, 232, 0.1));
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
-
 
 .scw-title {
   display: block;
@@ -155,7 +153,6 @@
   color: #fca5a5;
   transform: rotate(90deg);
 }
-
 
 .scw-banner {
   padding: 10px 14px;
@@ -215,7 +212,6 @@
   border-radius: 18px 18px 18px 2px;
 }
 
-
 .scw-bubble--admin {
   align-self: flex-start;
   background: rgba(34, 197, 94, 0.15);
@@ -247,7 +243,6 @@
   background: #000;
 }
 
-
 .scw-input {
   flex: 1;
   border-radius: 14px;
@@ -265,7 +260,6 @@
   background: rgba(255, 255, 255, 0.06);
   box-shadow: 0 0 0 4px rgba(205, 176, 232, 0.1);
 }
-
 
 .scw-input::placeholder {
   color: rgba(255, 255, 255, 0.35);
@@ -317,10 +311,24 @@
   color: white;
   flex-shrink: 0;
 }
-.scw-rich-info { display: flex; flex-direction: column; gap: 2px; }
-.scw-rich-info strong { font-size: 0.82rem; color: #fff; }
-.scw-rich-info a { font-size: 0.78rem; color: #818cf8; text-decoration: none; font-weight: 600; }
-.scw-rich-info a:hover { text-decoration: underline; }
+.scw-rich-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.scw-rich-info strong {
+  font-size: 0.82rem;
+  color: #fff;
+}
+.scw-rich-info a {
+  font-size: 0.78rem;
+  color: #818cf8;
+  text-decoration: none;
+  font-weight: 600;
+}
+.scw-rich-info a:hover {
+  text-decoration: underline;
+}
 
 .scw-survey-panel {
   margin: 8px 0;
@@ -331,17 +339,28 @@
   text-align: center;
   animation: scwFadeIn 0.4s ease;
 }
-.scw-stars { display: flex; justify-content: center; gap: 8px; margin: 12px 0; }
+.scw-stars {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin: 12px 0;
+}
 .scw-stars button {
   background: transparent;
   border: none;
   font-size: 1.3rem;
   color: rgba(255, 255, 255, 0.15);
   cursor: pointer;
-  transition: transform 0.2s, color 0.2s;
+  transition:
+    transform 0.2s,
+    color 0.2s;
 }
-.scw-stars button.active { color: #f59e0b; }
-.scw-stars button:hover { transform: scale(1.15); }
+.scw-stars button.active {
+  color: #f59e0b;
+}
+.scw-stars button:hover {
+  transform: scale(1.15);
+}
 
 .scw-survey-panel textarea {
   width: 100%;
@@ -366,7 +385,10 @@
   cursor: pointer;
   box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
 }
-.scw-btn-survey:disabled { opacity: 0.4; cursor: not-allowed; }
+.scw-btn-survey:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
 
 .scw-survey-thanks {
   color: #4ade80;
@@ -375,7 +397,9 @@
   align-items: center;
   gap: 8px;
 }
-.scw-survey-thanks i { font-size: 2rem; }
+.scw-survey-thanks i {
+  font-size: 2rem;
+}
 
 .scw-closed-row {
   display: flex;
@@ -434,17 +458,36 @@
 }
 
 @keyframes scwPulse {
-  0% { box-shadow: 0 8px 32px -4px rgba(168, 180, 255, 0.45); }
-  50% { box-shadow: 0 8px 48px 4px rgba(205, 176, 232, 0.6); }
-  100% { box-shadow: 0 8px 32px -4px rgba(168, 180, 255, 0.45); }
+  0% {
+    box-shadow: 0 8px 32px -4px rgba(168, 180, 255, 0.45);
+  }
+  50% {
+    box-shadow: 0 8px 48px 4px rgba(205, 176, 232, 0.6);
+  }
+  100% {
+    box-shadow: 0 8px 32px -4px rgba(168, 180, 255, 0.45);
+  }
 }
 
 @keyframes scwShimmer {
-  from { left: -150%; }
-  to { left: 150%; }
+  from {
+    left: -150%;
+  }
+  to {
+    left: 150%;
+  }
 }
 
-@keyframes scwFadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes scwFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
 
 .scw-typing {
   display: flex;
@@ -461,11 +504,22 @@
   animation: scwTyping 1.4s infinite ease-in-out;
 }
 
-.scw-typing span:nth-child(2) { animation-delay: 0.2s; }
-.scw-typing span:nth-child(3) { animation-delay: 0.4s; }
-
-@keyframes scwTyping {
-  0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
-  40% { transform: scale(1.2); opacity: 1; }
+.scw-typing span:nth-child(2) {
+  animation-delay: 0.2s;
+}
+.scw-typing span:nth-child(3) {
+  animation-delay: 0.4s;
 }
 
+@keyframes scwTyping {
+  0%,
+  80%,
+  100% {
+    transform: scale(0.6);
+    opacity: 0.4;
+  }
+  40% {
+    transform: scale(1.2);
+    opacity: 1;
+  }
+}

@@ -12,6 +12,7 @@ import { Router, NavigationEnd, RouterLink } from '@angular/router';
 import { filter, interval, Subscription } from 'rxjs';
 import { SupportChatService, SoporteMsg } from '../../../core/services/support-chat.service';
 import { AuthStore } from '../../../core/auth/auth-store';
+import { GuestPopupService } from '../../../core/services/guest-popup.service';
 
 @Component({
   selector: 'app-support-chat-widget',
@@ -26,6 +27,7 @@ export class SupportChatWidgetComponent implements OnDestroy {
   private router = inject(Router);
   private auth = inject(AuthStore);
   private cdr = inject(ChangeDetectorRef);
+  private guestPopup = inject(GuestPopupService);
 
   open = signal(false);
   loading = signal(false);
@@ -41,6 +43,7 @@ export class SupportChatWidgetComponent implements OnDestroy {
   surveyComment = '';
   surveySent = signal(false);
   isTyping = signal(false);
+  isRegisterPage = signal(false);
 
   hideOnAdmin = signal(false);
 
@@ -51,11 +54,14 @@ export class SupportChatWidgetComponent implements OnDestroy {
     this.navSub = this.router.events
       .pipe(filter((e) => e instanceof NavigationEnd))
       .subscribe(() => {
-        const hide = this.router.url.includes('/admin');
-        this.hideOnAdmin.set(hide);
+        const url = this.router.url;
+        this.hideOnAdmin.set(url.includes('/admin'));
+        this.isRegisterPage.set(url.includes('/register'));
         this.cdr.markForCheck();
       });
-    this.hideOnAdmin.set(this.router.url.includes('/admin'));
+    const url = this.router.url;
+    this.hideOnAdmin.set(url.includes('/admin'));
+    this.isRegisterPage.set(url.includes('/register'));
   }
 
   ngOnDestroy(): void {
@@ -64,6 +70,11 @@ export class SupportChatWidgetComponent implements OnDestroy {
   }
 
   toggle(): void {
+    if (!this.auth.isLoggedIn()) {
+      this.guestPopup.showPopup();
+      return;
+    }
+
     this.open.update((v) => !v);
     if (this.open() && !this.sessionToken()) {
       this.iniciarSesion();

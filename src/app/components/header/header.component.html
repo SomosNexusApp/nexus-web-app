@@ -3,11 +3,18 @@
     <!-- TOP BAR -->
     <div class="top-bar">
       <div class="container top-content">
+        <!-- MOBILE HUMBURGER -->
+        <button class="mobile-menu-btn" (click)="toggleMobileMenu()" [class.open]="isMobileMenuOpen()" aria-label="Menu">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+
         <a routerLink="/" class="brand-link">
           <img src="logo.webp" alt="Nexus" class="brand-logo" />
         </a>
 
-        <div class="search-wrapper">
+        <div class="search-wrapper" [class.mobile-visible]="isMobileMenuOpen()">
           <div class="search-box">
             <svg
               class="search-icon"
@@ -75,6 +82,11 @@
         </div>
 
         <div class="actions-wrapper">
+          <!-- SEARCH TRIGGER (MOBILE) -->
+          <button class="icon-btn mobile-only" (click)="toggleMobileMenu()" aria-label="Buscar">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          </button>
+
           <button class="icon-btn" aria-label="Favoritos" (click)="onFavoritosClick()">
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -195,7 +207,7 @@
           </div>
 
           <button
-            class="icon-btn relative"
+            class="icon-btn relative mobile-hidden"
             aria-label="Mensajes"
             routerLink="/mensajes"
             [style.display]="isLoggedIn() ? 'flex' : 'none'"
@@ -222,9 +234,9 @@
             </span>
           </button>
 
-          <div class="divider-v"></div>
+          <div class="divider-v mobile-hidden"></div>
 
-          <button class="btn-publish-premium" (click)="onPublicarClick()">
+          <button class="btn-publish-premium mobile-hidden" (click)="onPublicarClick()">
             <div class="btn-content">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -357,7 +369,7 @@
             </div>
 
             <!-- INVITADO -->
-            <div class="guest-buttons" [style.display]="isLoggedIn() ? 'none' : 'flex'">
+            <div class="guest-buttons mobile-hidden" [style.display]="isLoggedIn() ? 'none' : 'flex'">
               <a routerLink="/login" class="btn-text">Iniciar Sesión</a>
               <a routerLink="/register" class="btn-register-soft">Registrarse</a>
             </div>
@@ -367,7 +379,7 @@
     </div>
 
     <!-- BOTTOM BAR -->
-    <div class="bottom-bar">
+    <div class="bottom-bar mobile-hidden">
       <div class="container bottom-content">
         <nav class="main-nav">
           <!-- Categorías -->
@@ -452,11 +464,38 @@
             <span>{{ navLinks[2].label }}</span>
           </a>
 
-          <!-- Viajes (Mega Menu Trigger) -->
+          <!-- Moda (Mega Menu Trigger) -->
           <a
             [routerLink]="navLinks[3].route"
-            class="nav-item viajes-trigger"
+            class="nav-item moda-trigger"
             [class.active]="isNavActive(navLinks[3])"
+            (mouseenter)="onHover('moda')"
+            (mouseleave)="onLeave()"
+          >
+            <svg
+              class="nav-icon"
+              xmlns="http://www.w3.org/2000/svg"
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M6 3h12l4 6-10 12L2 9z"></path>
+              <path d="M11 3L8 9l3 12"></path>
+              <path d="M13 3l3 6-3 12"></path>
+            </svg>
+            <span>{{ navLinks[3].label }}</span>
+          </a>
+
+          <!-- Viajes (Mega Menu Trigger) -->
+          <a
+            [routerLink]="navLinks[4].route"
+            class="nav-item viajes-trigger"
+            [class.active]="isNavActive(navLinks[4])"
             (mouseenter)="onHover('viajes')"
             (mouseleave)="onLeave()"
           >
@@ -474,14 +513,14 @@
             >
               <path d="M17.8 19.2L16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z"></path>
             </svg>
-            <span>{{ navLinks[3].label }}</span>
+            <span>{{ navLinks[4].label }}</span>
           </a>
 
           <!-- Cerca de ti -->
           <a
-            [routerLink]="navLinks[4].route"
+            [routerLink]="navLinks[5].route"
             class="nav-item"
-            [class.active]="isNavActive(navLinks[4])"
+            [class.active]="isNavActive(navLinks[5])"
             (mouseenter)="onHover('cerca')"
             (mouseleave)="onLeave()"
           >
@@ -500,14 +539,14 @@
               <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"></path>
               <circle cx="12" cy="10" r="3"></circle>
             </svg>
-            <span>{{ navLinks[4].label }}</span>
+            <span>{{ navLinks[5].label }}</span>
           </a>
 
           <!-- Gratis -->
           <a
-            [routerLink]="navLinks[5].route"
+            [routerLink]="navLinks[6].route"
             class="nav-item"
-            [class.active]="isNavActive(navLinks[5])"
+            [class.active]="isNavActive(navLinks[6])"
             (mouseenter)="onHover('gratis')"
             (mouseleave)="onLeave()"
           >
@@ -529,13 +568,105 @@
               <path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"></path>
               <path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"></path>
             </svg>
-            <span>{{ navLinks[5].label }}</span>
+            <span>{{ navLinks[6].label }}</span>
           </a>
         </nav>
       </div>
     </div>
 
-    <!-- Viajes Mega Menu Container -->
+    <!-- MOBILE OVERLAY MENU -->
+    <div class="mobile-nav-overlay" [class.open]="isMobileMenuOpen()">
+      <div class="mobile-nav-content">
+        <div class="mobile-nav-header">
+          <div class="search-mobile-wrapper">
+             <div class="search-box">
+                <i class="fas fa-search search-icon"></i>
+                <input
+                  type="text"
+                  [formControl]="searchControl"
+                  placeholder="Buscar en Nexus..."
+                  class="search-input"
+                  (keydown.enter)="ejecutarBusqueda(searchControl.value || ''); toggleMobileMenu()"
+                />
+             </div>
+          </div>
+          <button class="close-mobile-menu" (click)="toggleMobileMenu()">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+
+        <div class="mobile-nav-body custom-scrollbar">
+          <div class="mobile-section-title">Navegación</div>
+          <nav class="mobile-links-grid">
+            <a *ngFor="let link of navLinks" 
+               [routerLink]="link.route" 
+               [queryParams]="link.queryParams"
+               class="mobile-nav-link"
+               (click)="toggleMobileMenu()"
+               [class.active]="isNavActive(link)">
+                <div class="link-icon">
+                  <i [class]="'fas fa-' + link.icon" *ngIf="link.icon !== 'grid' && link.icon !== 'flash' && link.icon !== 'car' && link.icon !== 'gem' && link.icon !== 'plane' && link.icon !== 'pin' && link.icon !== 'gift'"></i>
+                  <i class="fas fa-th-large" *ngIf="link.icon === 'grid'"></i>
+                  <i class="fas fa-bolt" *ngIf="link.icon === 'flash'"></i>
+                  <i class="fas fa-car" *ngIf="link.icon === 'car'"></i>
+                  <i class="fas fa-tshirt" *ngIf="link.icon === 'gem'"></i>
+                  <i class="fas fa-plane" *ngIf="link.icon === 'plane'"></i>
+                  <i class="fas fa-map-marker-alt" *ngIf="link.icon === 'pin'"></i>
+                  <i class="fas fa-gift" *ngIf="link.icon === 'gift'"></i>
+                </div>
+                <span>{{ link.label }}</span>
+            </a>
+          </nav>
+
+          <div class="mobile-section-title">Acciones</div>
+          <div class="mobile-actions-list">
+             <button class="mobile-action-item" (click)="onPublicarClick(); toggleMobileMenu()">
+                <div class="action-icon publish"><i class="fas fa-plus"></i></div>
+                <div class="action-text">
+                  <span class="label">Publicar Anuncio</span>
+                  <span class="sub-label">Vende lo que no necesites</span>
+                </div>
+             </button>
+             
+             <a routerLink="/mensajes" class="mobile-action-item" (click)="toggleMobileMenu()" *ngIf="isLoggedIn()">
+                <div class="action-icon messages"><i class="fas fa-comment"></i></div>
+                <div class="action-text">
+                  <span class="label">Mensajes</span>
+                  <span class="sub-label">Tus conversaciones recientes</span>
+                </div>
+                <span class="badge" *ngIf="wsService.unreadConvCount() > 0">{{ wsService.unreadConvCount() }}</span>
+             </a>
+
+             <button class="mobile-action-item" (click)="onFavoritosClick(); toggleMobileMenu()">
+                <div class="action-icon favorites"><i class="fas fa-heart"></i></div>
+                <div class="action-text">
+                  <span class="label">Favoritos</span>
+                  <span class="sub-label">Lo que has guardado</span>
+                </div>
+             </button>
+          </div>
+
+          <div class="mobile-footer" *ngIf="!isLoggedIn()">
+             <a routerLink="/login" class="btn-mobile-auth login" (click)="toggleMobileMenu()">Iniciar Sesión</a>
+             <a routerLink="/register" class="btn-mobile-auth register" (click)="toggleMobileMenu()">Registrarse</a>
+          </div>
+
+          <div class="mobile-user-footer" *ngIf="isLoggedIn()">
+             <div class="user-brief">
+               <app-avatar [size]="44" [avatarUrl]="usuario()?.avatar" [nombre]="usuario()?.nombre"></app-avatar>
+               <div class="user-meta">
+                 <span class="name">{{ usuario()?.nombre }}</span>
+                 <span class="email">{{ usuario()?.email }}</span>
+               </div>
+             </div>
+             <button (click)="logout(); toggleMobileMenu()" class="btn-mobile-logout">
+                <i class="fas fa-sign-out-alt"></i>
+                Cerrar sesión
+             </button>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <!-- UNIVERSAL Mega Menu -->
     <div 
