@@ -19,6 +19,7 @@ import { ConversacionesListComponent } from '../../mensajes/conversaciones-list/
 import { PagosComponent } from '../pagos/pagos.component';
 import { ConfiguracionComponent } from '../configuracion/configuracion.component';
 import { VehiculoCardComponent } from '../../../shared/components/vehiculo-card/vehiculo-card.component';
+import { FavoritoService } from '../../../core/services/favorito.service';
 
 type SidebarSection =
   | 'resumen'
@@ -63,6 +64,7 @@ export class MiCuentaComponent implements OnInit {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private toast = inject(ToastService);
+  private favoritoService = inject(FavoritoService);
 
   @ViewChild('confirmDeleteModal') confirmDeleteModal!: any;
   @ViewChild('logoutModal') logoutModal!: ConfirmModalComponent;
@@ -92,11 +94,11 @@ export class MiCuentaComponent implements OnInit {
 
   // Resumen KPIs
   kpis = signal<any>({
-    ventas: 0,
-    compras: 0,
-    valoracionMedia: 0,
     tasaRespuesta: 0,
   });
+
+  // Deep linking helper
+  targetId = signal<number | null>(null);
 
   // Mis Productos
   misProductos = signal<any[]>([]);
@@ -231,7 +233,26 @@ export class MiCuentaComponent implements OnInit {
         }
         this.setSection(tab as SidebarSection);
       }
+
+      const compraId = params['compraId'];
+      if (compraId) {
+        this.targetId.set(Number(compraId));
+      }
+
+      const ofertaId = params['ofertaId'];
+      if (ofertaId) {
+        this.targetId.set(Number(ofertaId));
+        setTimeout(() => this.scrollToHighlight('oferta', Number(ofertaId)), 800);
+      }
     });
+  }
+
+  scrollToHighlight(prefix: string, id: number) {
+    const el = document.getElementById(`${prefix}-${id}`);
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      // The pulse is handled by CSS [class.highlight-pulse]
+    }
   }
 
   setSection(section: SidebarSection) {

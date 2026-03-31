@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal, OnDestroy, ViewChild } from '@angular/core';
+import { Component, OnInit, inject, signal, OnDestroy, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { HttpClient, HttpParams } from '@angular/common/http';
@@ -40,6 +40,7 @@ export class OfertaDetailComponent implements OnInit, OnDestroy {
 
   @ViewChild(ReporteModalComponent) reporteModal!: ReporteModalComponent;
   @ViewChild(ConfirmacionModalComponent) confirmModal!: ConfirmacionModalComponent;
+  @ViewChild('composer') composer!: ElementRef;
 
   oferta = signal<any>(null);
   comentarios = signal<any[]>([]);
@@ -50,6 +51,14 @@ export class OfertaDetailComponent implements OnInit, OnDestroy {
   countdown = signal<string>('');
   copiado = signal(false);
   votando = signal(false);
+  selectedImage = signal<string | null>(null);
+  selectedImageIdx = signal<number>(0);
+  galeria = signal<string[]>([]);
+  
+  // High-End Tilt Control
+  tiltX = signal(0);
+  tiltY = signal(0);
+  isHoveringImg = signal(false);
   
   // Gestión de Comentarios y Formato
   editandoId = signal<number | null>(null);
@@ -57,6 +66,14 @@ export class OfertaDetailComponent implements OnInit, OnDestroy {
   mostrandoCreadorEncuesta = signal(false);
   preguntaEncuesta = '';
   opcionesEncuesta: string[] = ['', ''];
+
+  // Lightbox Exhibition
+  isLightboxOpen = signal(false);
+  activeLightboxImg = signal<string | null>(null);
+
+  // Real Actor Stats
+  actorReputation = signal<number>(0);
+  actorSales = signal<number>(0);
 
   private timer?: any;
 
@@ -79,10 +96,30 @@ export class OfertaDetailComponent implements OnInit, OnDestroy {
     this.http.get<any>(url).subscribe({
       next: (res) => {
         this.oferta.set(res);
+        this.selectedImage.set(res.imagenPrincipal);
+        
+        // Construir la galería combinando imagenPrincipal y galeriaImagenes sin duplicados
+        const imgs = new Set<string>();
+        if (res.imagenPrincipal) imgs.add(res.imagenPrincipal);
+        if (res.galeriaImagenes) res.galeriaImagenes.forEach((img: string) => imgs.add(img));
+        
+        const finalGallery = Array.from(imgs);
+        this.galeria.set(finalGallery);
+        this.selectedImageIdx.set(0);
+
         this.cargando.set(false);
         this.extraerFavicon(res.urlOferta);
         this.cargarComentarios(id);
         if (res.fechaExpiracion) this.startTimer();
+
+        // Real Reputation Mapping
+        const actor = res.actor;
+        if (actor) {
+          // Si es un número como 95, lo mapeamos a 4.75; si es 0-5 lo dejamos.
+          const rep = actor.reputacion || 0;
+          this.actorReputation.set(rep > 5 ? rep / 20 : rep);
+          this.actorSales.set(actor.totalVentas || 0);
+        }
       },
       error: () => this.cargando.set(false)
     });
@@ -136,17 +173,6 @@ export class OfertaDetailComponent implements OnInit, OnDestroy {
       return;
     }
 
-    // Si ya ha votado otra cosa, pedir confirmación para cambiar
-    if (this.oferta().miVoto && this.oferta().miVoto !== 'NONE') {
-      this.confirmModal.abrir(
-        'Cambiar voto',
-        `Ya has calificado como ${this.oferta().miVoto}. ¿Deseas cambiarlo a ${voteType}?`,
-        'WARNING',
-        () => this.procesarVoto(esSpark)
-      );
-      return;
-    }
-
     this.procesarVoto(esSpark);
   }
 
@@ -196,6 +222,55 @@ export class OfertaDetailComponent implements OnInit, OnDestroy {
     });
   }
 
+  selectImage(img: string, idx: number) {
+    this.selectedImage.set(img);
+    this.selectedImageIdx.set(idx);
+  }
+
+  nextImage() {
+    const nextIdx = (this.selectedImageIdx() + 1) % this.galeria().length;
+    this.selectImage(this.galeria()[nextIdx], nextIdx);
+  }
+
+  prevImage() {
+    const prevIdx = (this.selectedImageIdx() - 1 + this.galeria().length) % this.galeria().length;
+    this.selectImage(this.galeria()[prevIdx], prevIdx);
+  }
+
+  openLightbox(img?: string) {
+    this.activeLightboxImg.set(img || this.selectedImage());
+    this.isLightboxOpen.set(true);
+    document.body.style.overflow = 'hidden';
+  }
+
+  closeLightbox() {
+    this.isLightboxOpen.set(false);
+    document.body.style.overflow = 'auto';
+  }
+
+  handleImageMouseMove(event: MouseEvent) {
+    const card = event.currentTarget as HTMLElement;
+    const rect = card.getBoundingClientRect();
+    const x = event.clientX - rect.left;
+    const y = event.clientY - rect.top;
+    
+    const centerX = rect.width / 2;
+    const centerY = rect.height / 2;
+    
+    // Calcular rotación (máximo 15 grados)
+    const rotateX = ((y - centerY) / centerY) * -15;
+    const rotateY = ((x - centerX) / centerX) * 15;
+    
+    this.tiltX.set(rotateX);
+    this.tiltY.set(rotateY);
+  }
+
+  resetImageTilt() {
+    this.tiltX.set(0);
+    this.tiltY.set(0);
+    this.isHoveringImg.set(false);
+  }
+
   abrirReporte() {
     if (!this.authStore.isLoggedIn()) {
       this.toast.warning('Inicia sesión para reportar.');
@@ -206,30 +281,69 @@ export class OfertaDetailComponent implements OnInit, OnDestroy {
 
   // --- COMENTARIOS: FORMATO Y ACCIONES ---
 
-  formatText(tag: string) {
-    const area = document.querySelector('.comment-textarea') as HTMLTextAreaElement;
-    if (!area) return;
-    const start = area.selectionStart;
-    const end = area.selectionEnd;
-    const text = area.value;
-    const selected = text.substring(start, end);
-    let formatted = '';
+  formatText(cmd: string) {
+    if (cmd === 'bold') {
+      document.execCommand('bold', false, undefined);
+    } else if (cmd === 'italic') {
+      document.execCommand('italic', false, undefined);
+    } else if (cmd === 'list') {
+      document.execCommand('insertUnorderedList', false, undefined);
+    } else if (cmd === 'header') {
+      const selection = window.getSelection();
+      if (selection && selection.rangeCount > 0) {
+        let parent: HTMLElement | null = selection.anchorNode as HTMLElement;
+        while (parent && parent.tagName !== 'H3' && parent !== this.composer.nativeElement) {
+          parent = parent.parentElement;
+        }
+        
+        if (parent && parent.tagName === 'H3') {
+          document.execCommand('formatBlock', false, 'div');
+        } else {
+          document.execCommand('formatBlock', false, 'h3');
+        }
+      }
+    }
+    
+    if (this.composer?.nativeElement) this.composer.nativeElement.focus();
+  }
 
-    if (tag === 'bold') formatted = `**${selected}**`;
-    else if (tag === 'italic') formatted = `*${selected}*`;
-    else if (tag === 'list') formatted = `\n- ${selected}`;
-    else if (tag === 'header') formatted = `\n### ${selected}`;
-
-    this.nuevoComentario = text.substring(0, start) + formatted + text.substring(end);
-    area.focus();
+  handleComposerKeydown(event: KeyboardEvent) {
+    if (event.key === 'Enter') {
+      const selection = window.getSelection();
+      if (selection && selection.rangeCount > 0) {
+        const anchorNode = selection.anchorNode;
+        const li = anchorNode?.parentElement?.closest('li');
+        
+        // Si estamos en un LI vacío, al dar Enter salimos de la lista (comportamiento Word)
+        if (li && li.textContent?.trim() === '') {
+          event.preventDefault();
+          document.execCommand('insertUnorderedList', false, undefined);
+        }
+      }
+    }
   }
 
   addPollOption() {
-    if (this.opcionesEncuesta.length < 5) this.opcionesEncuesta.push('');
+    if (this.opcionesEncuesta.length < 5) {
+      this.opcionesEncuesta.push('');
+    }
+  }
+
+  togglePollBuilder() {
+    this.mostrandoCreadorEncuesta.set(!this.mostrandoCreadorEncuesta());
+    if (!this.mostrandoCreadorEncuesta()) {
+      this.resetPollData();
+    }
+  }
+
+  private resetPollData() {
+    this.preguntaEncuesta = '';
+    this.opcionesEncuesta = ['', ''];
   }
 
   publicarComentario() {
-    if (!this.nuevoComentario.trim() || this.enviandoComentario()) return;
+    const html = this.composer?.nativeElement?.innerHTML || '';
+    if (!html.trim() || this.enviandoComentario()) return;
     this.enviandoComentario.set(true);
 
     let pollJson = null;
@@ -243,16 +357,17 @@ export class OfertaDetailComponent implements OnInit, OnDestroy {
       pollJson = JSON.stringify(poll);
     }
 
-    const body = { texto: this.nuevoComentario, pollJson };
+    const body = { texto: html, pollJson };
     const params = { ofertaId: this.oferta().id, actorId: this.authStore.user()!.id };
 
     this.http.post(`${environment.apiUrl}/comentario`, body, { params }).subscribe({
       next: (res: any) => {
         const fullComment = { ...res, poll: res.pollJson ? JSON.parse(res.pollJson) : null };
         this.comentarios.update(list => [fullComment, ...list]);
-        this.nuevoComentario = '';
-        this.preguntaEncuesta = '';
-        this.opcionesEncuesta = ['', ''];
+        
+        // Reset composer and poll
+        if (this.composer?.nativeElement) this.composer.nativeElement.innerHTML = '';
+        this.resetPollData();
         this.mostrandoCreadorEncuesta.set(false);
         this.enviandoComentario.set(false);
       },
@@ -345,10 +460,8 @@ export class OfertaDetailComponent implements OnInit, OnDestroy {
 
   parseMarkdown(text: string): string {
     if (!text) return '';
+    // Since we are moving to HTML, we only handle legacy markdown or basic formatting
     return text
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
       .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
       .replace(/\*(.*?)\*/g, '<em>$1</em>')
       .replace(/\n- (.*?)/g, '<li>$1</li>')

@@ -29,23 +29,28 @@
             <li>Empaqueta el artículo con burbuja y caja resistente; incluye un papel con el código <strong>{{ envio()!.codigoEnvio }}</strong>.</li>
             <li>Elige una oficina del transportista (Correos, SEUR o MRW) — abajo tienes sugerencias según la zona del anuncio.</li>
             <li>En ventanilla muestra el <strong>QR</strong> o dicta el código; conserva el resguardo.</li>
-            <li>Pulsa <strong>«Ya lo entregué»</strong> aquí: generaremos el <strong>número de seguimiento Nexus</strong> y avisaremos al comprador.</li>
-            <li>Si pasas el plazo sin enviar, el pedido puede cancelarse y reembolsarse al comprador.</li>
+            <li>Introduce en esta pantalla el <strong>tracking real</strong> que te dé la oficina para activar el seguimiento automático.</li>
+            <li>Nexus notificará automáticamente a comprador y vendedor en cada cambio (admitido, tránsito, reparto, entrega).</li>
           </ol>
         }
       </div>
 
       @if (puntosRecogida().length > 0) {
         <div class="ep-puntos">
-          <p class="ep-puntos-title">Puntos de entrega orientativos</p>
-          <ul>
+          <p class="ep-puntos-title">Puntos de entrega</p>
+          <div class="ep-puntos-grid">
             @for (p of puntosRecogida(); track p.nombre) {
-              <li>
-                <strong>{{ p.nombre }}</strong> — {{ p.direccion }}, {{ p.ciudad }}.
+              <article class="ep-punto-card">
+                <strong>{{ p.nombre }}</strong>
+                <p>{{ p.direccion }}, {{ p.ciudad }}</p>
                 <span class="ep-puntos-meta">{{ p.horario }} · {{ p.transportista }}</span>
-              </li>
+                <div class="ep-punto-actions">
+                  <a class="ep-mini-btn" [href]="getPuntoMapsUrl(p)" target="_blank" rel="noopener noreferrer">Ver mapa</a>
+                  <a class="ep-mini-btn ep-mini-btn--ghost" [href]="getTransportistaWebUrl(p.transportista)" target="_blank" rel="noopener noreferrer">Web transportista</a>
+                </div>
+              </article>
             }
-          </ul>
+          </div>
         </div>
       }
 
@@ -72,9 +77,9 @@
 
       <!-- Estado: ya enviado -->
       @if (
-        enviado() ||
         envio()!.estado === 'ENVIADO' ||
         envio()!.estado === 'EN_TRANSITO' ||
+        envio()!.estado === 'EN_REPARTO' ||
         envio()!.estado === 'ENTREGADO'
       ) {
         <div class="ep-badge ep-badge--sent">
@@ -148,6 +153,14 @@
 
       <!-- Detalles del envío -->
       <div class="ep-details">
+        <div class="ep-progress">
+          <span [class.active]="getPasoActual(envio()!.estado) >= 1">Pago confirmado</span>
+          <span [class.active]="getPasoActual(envio()!.estado) >= 2">Pendiente de envío</span>
+          <span [class.active]="getPasoActual(envio()!.estado) >= 3">Admitido</span>
+          <span [class.active]="getPasoActual(envio()!.estado) >= 4">En tránsito</span>
+          <span [class.active]="getPasoActual(envio()!.estado) >= 5">En reparto</span>
+          <span [class.active]="getPasoActual(envio()!.estado) >= 6">Entregado</span>
+        </div>
         <div class="ep-detail-row">
           <span class="ep-detail-label">
             <svg
@@ -210,6 +223,12 @@
           </span>
           <span class="ep-detail-value">{{ envio()!.estado.replace('_', ' ') }}</span>
         </div>
+        @if (envio()!.numeroSeguimiento) {
+          <div class="ep-detail-row">
+            <span class="ep-detail-label">Tracking</span>
+            <span class="ep-detail-value">{{ envio()!.numeroSeguimiento }}</span>
+          </div>
+        }
       </div>
 
       <!-- Instrucciones -->
@@ -235,34 +254,36 @@
       </div>
 
       <!-- Acciones -->
-      @if (envio()!.estado === 'PENDIENTE_ENVIO' && !enviado()) {
-        <button
-          class="ep-btn ep-btn--primary ep-btn--full"
-          (click)="marcarComoEnviado()"
-          [disabled]="marcandoEnviado()"
-        >
-          @if (marcandoEnviado()) {
-            <span class="ep-spinner ep-spinner--sm"></span>
-            Procesando…
-          } @else {
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="18"
-              height="18"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-            >
-              <rect x="1" y="3" width="15" height="13" />
-              <polygon points="16 8 20 8 23 11 23 16 16 16 16 8" />
-              <circle cx="5.5" cy="18.5" r="2.5" />
-              <circle cx="18.5" cy="18.5" r="2.5" />
-            </svg>
-            Ya lo entregué — Marcar como enviado
-          }
-        </button>
+      @if (envio()!.estado === 'PENDIENTE_ENVIO') {
+        <div class="ep-track-form">
+          <label for="tracking">Tracking real del transportista</label>
+          <input
+            id="tracking"
+            type="text"
+            class="ep-track-input"
+            placeholder="Ej: PQ123456789ES"
+            [value]="trackingInput()"
+            (input)="trackingInput.set($any($event.target).value)"
+          />
+          <button class="ep-btn ep-btn--primary ep-btn--full" (click)="registrarEntregaEnCorreos()" [disabled]="registrandoEntrega()">
+            @if (registrandoEntrega()) {
+              <span class="ep-spinner ep-spinner--sm"></span>
+              Registrando envío...
+            } @else {
+              Confirmar entrega en oficina
+            }
+          </button>
+        </div>
       }
+
+      <button class="ep-btn ep-btn--primary ep-btn--full" (click)="refrescarTrackingManual()" [disabled]="refrescandoTracking()">
+        @if (refrescandoTracking()) {
+          <span class="ep-spinner ep-spinner--sm"></span>
+          Consultando estado real...
+        } @else {
+          Actualizar seguimiento real
+        }
+      </button>
 
       <button class="ep-btn ep-btn--secondary ep-btn--full" (click)="volver()">
         Volver al inicio

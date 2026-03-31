@@ -83,13 +83,14 @@
         <div
           class="message-row"
           [ngClass]="{
-            mine: msg.remitente.id === authStore.user()?.id,
-            theirs: msg.remitente.id !== authStore.user()?.id,
+            mine: msg.tipo !== 'SISTEMA' && msg.remitente.id === authStore.user()?.id,
+            theirs: msg.tipo !== 'SISTEMA' && msg.remitente.id !== authStore.user()?.id,
+            system: msg.tipo === 'SISTEMA',
           }"
         >
           <div class="bubble" [ngClass]="msg.tipo.toLowerCase()">
             <!-- TEXTO -->
-            @if (msg.tipo === 'TEXTO') {
+            @if (msg.tipo === 'TEXTO' || msg.tipo === 'SISTEMA') {
               <p class="text-content">{{ msg.texto }}</p>
             }
 
@@ -193,7 +194,7 @@
 
             <span class="msg-meta">
               {{ msg.fechaEnvio | timeAgo }}
-              @if (msg.remitente.id === authStore.user()?.id) {
+              @if (msg.tipo !== 'SISTEMA' && msg.remitente.id === authStore.user()?.id) {
                 <span class="ticks-status">
                   @if (msg.id < 0) {
                     <i class="far fa-clock"></i>

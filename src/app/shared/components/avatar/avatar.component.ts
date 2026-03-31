@@ -1,4 +1,4 @@
-import { Component, Input, computed, signal } from '@angular/core';
+import { Component, input, computed, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ImgFallbackDirective } from '../../directives/img-fallback.directive';
 
@@ -9,16 +9,16 @@ import { ImgFallbackDirective } from '../../directives/img-fallback.directive';
   template: `
     <div 
       class="avatar-container" 
-      [class.has-border]="border"
-      [class.has-shadow]="shadow"
-      [ngClass]="customClass"
-      [style.width]="size + 'px'" 
-      [style.height]="size + 'px'"
+      [class.has-border]="border()"
+      [class.has-shadow]="shadow()"
+      [ngClass]="customClass()"
+      [style.width]="size() + 'px'" 
+      [style.height]="size() + 'px'"
     >
       @if (effectiveAvatarUrl() && !isBroken()) {
         <img
           [src]="effectiveAvatarUrl()"
-          [alt]="altText"
+          [alt]="altText()"
           class="avatar-img"
           appImgFallback
           [skipDefaultFallback]="true"
@@ -75,29 +75,47 @@ import { ImgFallbackDirective } from '../../directives/img-fallback.directive';
   `]
 })
 export class AvatarComponent {
-  @Input() avatarUrl: string | null | undefined = null;
-  @Input() googleAvatarUrl: string | null | undefined = null;
-  @Input() nombre: string | null | undefined = null;
-  @Input() username: string | null | undefined = null;
-  @Input() size = 40;
-  @Input() altText = 'Avatar';
-  @Input() border = false;
-  @Input() shadow = false;
-  @Input() customClass = '';
+  avatarUrl = input<string | null | undefined>(null);
+  googleAvatarUrl = input<string | null | undefined>(null);
+  avatarSource = input<'GOOGLE' | 'INITIALS' | 'CUSTOM' | string | null | undefined>('CUSTOM');
+  nombre = input<string | null | undefined>(null);
+  username = input<string | null | undefined>(null);
+  size = input<number>(40);
+  altText = input<string>('Avatar');
+  border = input<boolean>(false);
+  shadow = input<boolean>(false);
+  customClass = input<string>('');
 
   isBroken = signal<boolean>(false);
 
   effectiveAvatarUrl = computed(() => {
-    if (this.avatarUrl && this.avatarUrl.trim() !== '' && !this.avatarUrl.includes('ui-avatars.com')) {
-      return this.avatarUrl;
+    // Si la fuente es iniciales, no hay imagen
+    if (this.avatarSource() === 'INITIALS') return null;
+
+    // Si la fuente es Google, priorizar googleAvatarUrl
+    const gUrl = this.googleAvatarUrl();
+    if (this.avatarSource() === 'GOOGLE' && gUrl) {
+      return gUrl;
     }
-    return this.googleAvatarUrl;
+
+    // Por defecto (CUSTOM o AUTO), priorizar avatarUrl si existe y no es de ui-avatars
+    const aUrl = this.avatarUrl();
+    if (aUrl && aUrl.trim() !== '' && !aUrl.includes('ui-avatars.com')) {
+      return aUrl;
+    }
+
+    // Fallback a google si CUSTOM no tiene imagen pero Google sí
+    if (this.avatarSource() !== 'INITIALS' && gUrl) {
+      return gUrl;
+    }
+
+    return null;
   });
 
-  fontSize = computed(() => this.size * 0.45);
+  fontSize = computed(() => this.size() * 0.45);
 
   iniciales = computed(() => {
-    const name = this.nombre?.trim();
+    const name = this.nombre()?.trim();
     if (name) {
       const parts = name.split(/\s+/);
       if (parts.length >= 2) {
@@ -106,7 +124,7 @@ export class AvatarComponent {
       return name.slice(0, 2).toUpperCase();
     }
     
-    const user = this.username?.trim();
+    const user = this.username()?.trim();
     if (user) {
       return user.slice(0, 2).toUpperCase();
     }

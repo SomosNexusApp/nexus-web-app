@@ -14,7 +14,7 @@ import { StarRatingComponent } from '../star-rating/star-rating.component';
   template: `
     @if (isOpen()) {
       <div class="modal-overlay" (click)="cerrar()">
-        <div class="modal-content animate-slide-up" (click)="$event.stopPropagation()">
+        <div class="modal-content animate-slide-up" [class.modal-content-lg]="modoGrande" (click)="$event.stopPropagation()">
           <button class="close-btn" (click)="cerrar()">×</button>
           
           <div class="modal-header">
@@ -86,6 +86,7 @@ import { StarRatingComponent } from '../star-rating/star-rating.component';
       color: var(--text-primary, #ffffff);
       text-align: center;
     }
+    .modal-content.modal-content-lg { max-width: 680px; padding: 40px; }
     .close-btn {
       position: absolute; top: 20px; right: 20px;
       background: rgba(255,255,255,0.05); border: none; 
@@ -156,6 +157,7 @@ import { StarRatingComponent } from '../star-rating/star-rating.component';
   `]
 })
 export class ValoracionModalComponent {
+  @Input() modoGrande = true;
   private http = inject(HttpClient);
   private authStore = inject(AuthStore);
   private toast = inject(ToastService);

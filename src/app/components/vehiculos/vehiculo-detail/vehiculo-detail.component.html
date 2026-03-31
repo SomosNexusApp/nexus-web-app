@@ -1,260 +1,260 @@
 <div class="vehiculo-detail-container" *ngIf="!cargando() && vehiculo()">
-  <!-- Background Glow -->
-  <div class="hero-glow"></div>
+  <!-- CINEMATIC OVERLAYS -->
+  <div class="cinematic-bg">
+    <img [src]="imgPrincipal() || 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?q=80&w=1000&auto=format&fit=crop'" class="bg-blur-hero">
+    <div class="cinematic-overlay"></div>
+    <div class="scanlines"></div>
+  </div>
 
-  <div class="main-layout">
-    <!-- GALERÍA (Stick) -->
-    <aside class="gallery-panel sticky-panel">
-      <div class="glass-card main-img-box">
-        <img [src]="imgPrincipal() || 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?q=80&w=1000&auto=format&fit=crop'" class="hero-img">
-        <div class="status-badge" [ngClass]="vehiculo().estadoVehiculo?.toLowerCase()">{{ vehiculo().estadoVehiculo }}</div>
+  <div class="hero-section">
+    <div class="hero-content">
+      <div class="badge-row animate-fade-in">
+        <span class="status-pill" [ngClass]="vehiculo().estadoVehiculo?.toLowerCase()">{{ vehiculo().estadoVehiculo }}</span>
+        <span class="id-pill">NEXUS ID: #{{ vehiculo().id }}</span>
       </div>
+
+      <h1 class="hero-title animate-title">{{ vehiculo().titulo }}</h1>
       
-      <div class="thumbnails-row" *ngIf="vehiculo().galeriaImagenes?.length > 0">
-        <div class="thumb-card" (click)="imgPrincipal.set(vehiculo().imagenPrincipal)" [class.active]="imgPrincipal() === vehiculo().imagenPrincipal">
-          <img [src]="vehiculo().imagenPrincipal">
+      <div class="hero-stats animate-fade-up">
+        <div class="hero-stat">
+          <span class="h-label">PRECIO</span>
+          <span class="h-value accent-text">{{ vehiculo().precio | currencyEs }}</span>
         </div>
-        @for (img of vehiculo().galeriaImagenes; track img) {
-          <div class="thumb-card" (click)="imgPrincipal.set(img)" [class.active]="imgPrincipal() === img">
-            <img [src]="img">
-          </div>
-        }
-      </div>
-
-      <div class="glass-card trust-banner">
-        <div class="trust-icon"><i class="fas fa-shield-alt"></i></div>
-        <div class="trust-text">
-          <h5>Transacción Segura</h5>
-          <p>La entrega se realiza en persona con contrato oficial de Nexus.</p>
+        <div class="hero-stat">
+          <span class="h-label">UBICACIÓN</span>
+          <span class="h-value"><i class="fas fa-location-dot"></i> {{ vehiculo().ubicacion }}</span>
+        </div>
+        <div class="hero-stat">
+          <span class="h-label">PUBLICADO</span>
+          <span class="h-value">{{ vehiculo().fechaCreacion | timeAgo }}</span>
         </div>
       </div>
-    </aside>
 
-    <!-- INFO (Scroll) -->
-    <main class="info-panel">
-      <div class="glass-card header-card">
-        <div class="breadcrumb-row">
-          <a routerLink="/vehiculos">Vehículos</a> <i class="fas fa-chevron-right"></i> {{ vehiculo().marca }}
-        </div>
-        <h1 class="vehicle-title">{{ vehiculo().titulo }}</h1>
-        
-        <div class="price-location-box">
-          <div class="v-price">{{ vehiculo().precio | currencyEs }}</div>
-          <div class="v-location"><i class="fas fa-location-dot"></i> {{ vehiculo().ubicacion }}</div>
-        </div>
-
-        <div class="action-grid">
-          <button class="btn-nexus-primary" (click)="contactar()">
-            <i class="fas fa-paper-plane"></i> CONTACTAR ESCUDERÍA
-          </button>
-          <button class="btn-nexus-outline v-fav" [class.active]="esFavorito()" (click)="toggleFavorito()">
+      <div class="action-dock hero-actions animate-fade-up">
+        <button class="btn-elite contact" (click)="contactar()">
+          <span class="btn-glitch"></span>
+          <i class="fas fa-comments"></i> CHAT
+        </button>
+        <div class="secondary-actions">
+          <button class="btn-circle-elite" [class.active]="esFavorito()" (click)="toggleFavorito()" title="Favorito">
             <i class="fas fa-heart"></i>
           </button>
-          <button class="btn-nexus-outline v-report" (click)="abrirReporte()">
+          <button class="btn-circle-elite" (click)="abrirReporte()" title="Reportar">
             <i class="fas fa-flag"></i>
           </button>
         </div>
       </div>
+    </div>
 
-      <!-- SPECS (The core requested change) -->
-      <section class="glass-card specs-section">
-        <div class="section-title">
-          <i class="fas fa-tachometer-alt"></i>
-          <h3>Ficha de Rendimiento</h3>
+    <!-- MAIN IMAGE EXHIBITION -->
+    <div class="exhibition-panel animate-slide-right">
+      <div class="glass-frame main-image">
+        <img [src]="imgPrincipal() || 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?q=80&w=1000&auto=format&fit=crop'" alt="Vehicle View">
+        <div class="shimmer-effect"></div>
+      </div>
+      
+    </div>
+  </div>
+
+  <!-- CINEMATIC GALLERY GRID (The "Bien Implementado" part) -->
+  <section class="cinematic-gallery-section animate-fade-up" *ngIf="vehiculo().galeriaImagenes?.length > 0">
+    <div class="gallery-header">
+      <span class="g-subtitle">GALERÍA DE EXHIBICIÓN</span>
+      <h3 class="g-title">DETALLES MECÁNICOS Y ESTÉTICOS</h3>
+    </div>
+    <div class="gallery-grid">
+      <div class="gallery-item main-featured" (click)="imgPrincipal.set(vehiculo().imagenPrincipal)" [class.active]="imgPrincipal() === vehiculo().imagenPrincipal">
+        <img [src]="vehiculo().imagenPrincipal">
+        <div class="item-overlay"><i class="fas fa-expand"></i></div>
+      </div>
+      @for (img of vehiculo().galeriaImagenes; track img; let i = $index) {
+        <div class="gallery-item" [style.--delay]="i * 0.1 + 's'" (click)="imgPrincipal.set(img)" [class.active]="imgPrincipal() === img">
+          <img [src]="img">
+          <div class="item-overlay"><i class="fas fa-expand"></i></div>
+        </div>
+      }
+    </div>
+  </section>
+
+  <div class="content-grid">
+    <!-- LEFT: TECHNICAL CONSOLE -->
+    <aside class="technical-sidebar animate-fade-up">
+      <div class="glass-panel specs-panel">
+        <div class="panel-header">
+          <i class="fas fa-microchip"></i>
+          <h3>FICHA TÉCNICA HOLOGRÁFICA</h3>
         </div>
         
-        <div class="specs-grid">
-          <div class="spec-card">
-            <i class="fas fa-car-side"></i>
-            <div class="s-info">
-              <span class="s-label">Marca</span>
-              <span class="s-value">{{ vehiculo().marca }}</span>
+        <div class="holographic-specs">
+          <div class="h-spec-item">
+            <div class="h-icon"><i class="fas fa-car-side"></i></div>
+            <div class="h-data">
+              <span class="h-tag">MARCA</span>
+              <span class="h-val">{{ vehiculo().marca }}</span>
+            </div>
+            <div class="h-line"></div>
+          </div>
+          <div class="h-spec-item">
+            <div class="h-icon"><i class="fas fa-fingerprint"></i></div>
+            <div class="h-data">
+              <span class="h-tag">MODELO</span>
+              <span class="h-val">{{ vehiculo().modelo }}</span>
             </div>
           </div>
-          <div class="spec-card">
-            <i class="fas fa-fingerprint"></i>
-            <div class="s-info">
-              <span class="s-label">Modelo</span>
-              <span class="s-value">{{ vehiculo().modelo }}</span>
+          <div class="h-spec-item">
+            <div class="h-icon"><i class="fas fa-calendar-check"></i></div>
+            <div class="h-data">
+              <span class="h-tag">AÑO</span>
+              <span class="h-val">{{ vehiculo().anio }}</span>
             </div>
           </div>
-          <div class="spec-card">
-            <i class="fas fa-calendar-check"></i>
-            <div class="s-info">
-              <span class="s-label">Año</span>
-              <span class="s-value">{{ vehiculo().anio }}</span>
+          <div class="h-spec-item">
+            <div class="h-icon"><i class="fas fa-road"></i></div>
+            <div class="h-data">
+              <span class="h-tag">KILOMETRAJE</span>
+              <span class="h-val">{{ vehiculo().kilometros | number:'1.0-0':'es-ES' }} KM</span>
             </div>
           </div>
-          <div class="spec-card">
-            <i class="fas fa-road"></i>
-            <div class="s-info">
-              <span class="s-label">Kilómetros</span>
-              <span class="s-value">{{ vehiculo().kilometros | number:'1.0-0':'es-ES' }} km</span>
+          <div class="h-spec-item">
+            <div class="h-icon"><i class="fas fa-gas-pump"></i></div>
+            <div class="h-data">
+              <span class="h-tag">PROPULSIÓN</span>
+              <span class="h-val">{{ vehiculo().combustible }}</span>
             </div>
           </div>
-          <div class="spec-card">
-            <i class="fas fa-gas-pump"></i>
-            <div class="s-info">
-              <span class="s-label">Combustible</span>
-              <span class="s-value">{{ vehiculo().combustible }}</span>
+          <div class="h-spec-item">
+            <div class="h-icon"><i class="fas fa-cogs"></i></div>
+            <div class="h-data">
+              <span class="h-tag">TRANSMISIÓN</span>
+              <span class="h-val">{{ vehiculo().cambio }}</span>
             </div>
           </div>
-          <div class="spec-card">
-            <i class="fas fa-cogs"></i>
-            <div class="s-info">
-              <span class="s-label">Transmisión</span>
-              <span class="s-value">{{ vehiculo().cambio }}</span>
+          <div class="h-spec-item">
+            <div class="h-icon"><i class="fas fa-bolt"></i></div>
+            <div class="h-data">
+              <span class="h-tag">POTENCIA</span>
+              <span class="h-val">{{ vehiculo().potencia }} CV</span>
             </div>
           </div>
-          <div class="spec-card">
-            <i class="fas fa-bolt"></i>
-            <div class="s-info">
-              <span class="s-label">Potencia</span>
-              <span class="s-value">{{ vehiculo().potencia }} CV</span>
+          <div class="h-spec-item" [class.warning]="!vehiculo().itv">
+            <div class="h-icon"><i class="fas fa-file-shield"></i></div>
+            <div class="h-data">
+              <span class="h-tag">ITV VIGENTE</span>
+              <span class="h-val">{{ vehiculo().itv ? 'SISTEMA OK' : 'REQUIERE REVISIÓN' }}</span>
             </div>
           </div>
-          <div class="spec-card">
-            <i class="fas fa-palette"></i>
-            <div class="s-info">
-              <span class="s-label">Color</span>
-              <span class="s-value">{{ vehiculo().color }}</span>
+        </div>
+      </div>
+
+      <div class="glass-panel trust-panel">
+        <div class="trust-content">
+          <i class="fas fa-shield-halved"></i>
+          <p>PROTECCIÓN NEXUS ELITE ACTIVADA</p>
+        </div>
+      </div>
+    </aside>
+
+    <!-- RIGHT: NARRATIVE & SELLER -->
+    <main class="narrative-section">
+      <section class="glass-panel description-panel animate-fade-up">
+        <div class="panel-header">
+          <i class="fas fa-quote-left"></i>
+          <h3>HERENCIA DEL VEHÍCULO</h3>
+        </div>
+        <p class="story-text">{{ vehiculo().descripcion }}</p>
+      </section>
+
+      <section class="glass-panel seller-panel animate-fade-up">
+        <div class="seller-header">
+          <div class="seller-profile">
+            <div class="avatar-ring">
+              <app-avatar 
+                [avatarUrl]="vehiculo().publicador?.avatar"
+                [googleAvatarUrl]="vehiculo().publicador?.googleAvatarUrl"
+                [nombre]="vehiculo().publicador?.nombre"
+                [username]="vehiculo().publicador?.user"
+                [size]="80"
+              ></app-avatar>
+              @if (vehiculo().publicador?.esVerificado) {
+                <div class="verified-icon"><i class="fa-solid fa-check"></i></div>
+              }
+            </div>
+            <div class="seller-titles">
+              <h4>{{ vehiculo().publicador?.nombreComercial || vehiculo().publicador?.user }}</h4>
+              <span class="seller-rank">MIEMBRO ESCUDERÍA NEXUS</span>
             </div>
           </div>
-          <div class="spec-card">
-            <i class="fas fa-users"></i>
-            <div class="s-info">
-              <span class="s-label">Plazas</span>
-              <span class="s-value">{{ vehiculo().plazas }}</span>
-            </div>
+          <button class="btn-view-profile">EXPEDIENTE COMPLETO</button>
+        </div>
+
+        <div class="seller-stats-line">
+          <div class="stat-box">
+            <span class="s-label">REPUTACIÓN</span>
+            <span class="s-value"><i class="fa-solid fa-star"></i> {{ vehiculo().publicador?.reputacion || 'N/A' }}</span>
           </div>
-          <div class="spec-card" [class.danger]="!vehiculo().itv">
-            <i class="fas fa-file-contract"></i>
-            <div class="s-info">
-              <span class="s-label">ITV</span>
-              <span class="s-value">{{ vehiculo().itv ? 'VIGENTE' : 'CADUCADA' }}</span>
-            </div>
+          <div class="stat-box">
+            <span class="s-label">OPERACIONES</span>
+            <span class="s-value">{{ vehiculo().publicador?.totalVentas || 0 }}</span>
           </div>
         </div>
       </section>
 
-      <section class="glass-card description-section">
-        <h3>Historia del Vehículo</h3>
-        <p class="description-text">{{ vehiculo().descripcion }}</p>
+      <!-- REVIEWS -->
+      <section class="reviews-panel animate-fade-up">
+        <div class="panel-header">
+          <h3>FEEDBACK DE LA COMUNIDAD</h3>
+          @if (resumenValoraciones()) {
+            <div class="rating-summary">
+              <i class="fa-solid fa-star"></i>
+              <span>{{ resumenValoraciones().media }}</span>
+            </div>
+          }
+        </div>
+
+        <div class="reviews-flow">
+          @for (v of valoraciones(); track v.id) {
+            <div class="elite-review">
+              <div class="r-top">
+                <app-avatar [avatarUrl]="v.comprador?.avatar" [googleAvatarUrl]="v.comprador?.googleAvatarUrl" [nombre]="v.comprador?.nombre" [username]="v.comprador?.user" [size]="35"></app-avatar>
+                <div class="r-info">
+                  <span class="r-name">{{ v.comprador?.nombre || v.comprador?.user }}</span>
+                  <span class="r-date">{{ v.fechaCreacion | timeAgo }}</span>
+                </div>
+                <div class="r-stars">
+                  @for (star of [1,2,3,4,5]; track star) {
+                    <i class="fa-solid fa-star" [class.filled]="star <= v.puntuacion"></i>
+                  }
+                </div>
+              </div>
+              <p class="r-text">{{ v.comentario }}</p>
+            </div>
+          } @empty {
+            <p class="no-data">Sin registros de feedback públicos.</p>
+          }
+        </div>
       </section>
     </main>
   </div>
 
-  <!-- VENDEDOR -->
-  <section class="seller-section">
-    <div class="section-divider"></div>
-    <div class="seller-card">
-      <div class="seller-avatar">
-        <app-avatar 
-          [avatarUrl]="vehiculo().publicador?.avatar"
-          [googleAvatarUrl]="vehiculo().publicador?.googleAvatarUrl"
-          [nombre]="vehiculo().publicador?.nombre"
-          [username]="vehiculo().publicador?.user"
-          [size]="60"
-        ></app-avatar>
-        @if (vehiculo().publicador?.esVerificado) {
-          <div class="verified-badge" title="Vendedor verificado">
-            <i class="fa-solid fa-check"></i>
-          </div>
-        }
-      </div>
-      <div class="seller-info">
-        <h4>{{ vehiculo().publicador?.nombreComercial || vehiculo().publicador?.user }}</h4>
-        <div class="seller-meta">
-          <span class="stat-item"><i class="fa-solid fa-star"></i> {{ vehiculo().publicador?.reputacion || 'Nuevo' }}</span>
-          <span class="stat-item"><i class="fa-solid fa-box-open"></i> {{ vehiculo().publicador?.totalVentas || 0 }} ventas</span>
-        </div>
-      </div>
-      <button class="btn-profile">Ver perfil</button>
-    </div>
-  </section>
-
-  <!-- SIMILARES -->
+  <!-- SIMILARES SECTION -->
   @if (similares().length > 0) {
-    <section class="similar-section animate-fade-up">
-      <div class="section-title-wrap">
-        <h3>Otros vehículos de este vendedor</h3>
-        <div class="title-line"></div>
-      </div>
-      <div class="similar-grid">
+    <section class="exhibition-footer animate-fade-up">
+      <h3 class="footer-title">EXPLORAR MÁS DE ESTE GARAJE</h3>
+      <div class="similar-scroller">
         @for (s of similares(); track s.id) {
-          <div class="mini-card" [routerLink]="['/vehiculo', s.id]">
-            <div class="mini-img">
-              <img [src]="s.imagenPrincipal">
-            </div>
-            <div class="mini-info">
+          <div class="elite-mini-card" [routerLink]="['/vehiculo', s.id]">
+            <img [src]="s.imagenPrincipal">
+            <div class="card-overlay">
               <h5>{{ s.marca }} {{ s.modelo }}</h5>
-              <span class="mini-price">{{ s.precio | currencyEs }}</span>
+              <p>{{ s.precio | currencyEs }}</p>
             </div>
           </div>
         }
       </div>
     </section>
   }
-
-  <!-- RESEÑAS -->
-  <section class="reviews-section animate-fade-up">
-    <div class="section-title-wrap">
-      <div class="title-with-rating">
-        <h3>Reseñas del Vendedor</h3>
-        @if (resumenValoraciones()) {
-          <div class="rating-badge">
-            <i class="fa-solid fa-star"></i>
-            <span>{{ resumenValoraciones().media }}</span>
-            <small>({{ resumenValoraciones().total }})</small>
-          </div>
-        }
-      </div>
-      <div class="title-line"></div>
-    </div>
-
-    <div class="reviews-container">
-      @for (v of valoraciones(); track v.id) {
-        <div class="review-item">
-          <div class="review-header">
-            <div class="reviewer-info">
-              <app-avatar 
-                [avatarUrl]="v.comprador?.avatar"
-                [googleAvatarUrl]="v.comprador?.googleAvatarUrl"
-                [nombre]="v.comprador?.nombre"
-                [username]="v.comprador?.user"
-                [size]="40"
-                customClass="reviewer-avatar"
-              ></app-avatar>
-              <div class="reviewer-meta">
-                <span class="reviewer-name">{{ v.comprador?.nombre || v.comprador?.user }}</span>
-                <span class="review-date">{{ v.fechaCreacion | timeAgo }}</span>
-              </div>
-            </div>
-            <div class="review-rating">
-              @for (star of [1,2,3,4,5]; track star) {
-                <i class="fa-solid fa-star" [class.filled]="star <= v.puntuacion"></i>
-              }
-            </div>
-          </div>
-          <p class="review-text">{{ v.comentario }}</p>
-          @if (v.respuestaVendedor) {
-            <div class="seller-reply">
-              <div class="reply-header">
-                <i class="fa-solid fa-reply-all"></i>
-                <span>Respuesta del vendedor</span>
-              </div>
-              <p>{{ v.respuestaVendedor }}</p>
-            </div>
-          }
-        </div>
-      } @empty {
-        <div class="no-reviews">
-          <i class="fa-solid fa-star-half-stroke"></i>
-          <p>Este vendedor aún no tiene reseñas públicas.</p>
-        </div>
-      }
-    </div>
-  </section>
 </div>
+
+<app-reporte-modal></app-reporte-modal>
 
 <app-reporte-modal></app-reporte-modal>

@@ -1,12 +1,13 @@
 import { Injectable } from '@angular/core';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class ScrollService {
   private originalOverflow: string = '';
   private lockCount: number = 0;
 
+  // bloquear scroll
   lock(): void {
     if (this.lockCount === 0) {
       this.originalOverflow = document.body.style.overflow;
@@ -15,6 +16,7 @@ export class ScrollService {
     this.lockCount++;
   }
 
+  // desbloquear scroll
   unlock(): void {
     if (this.lockCount > 0) {
       this.lockCount--;

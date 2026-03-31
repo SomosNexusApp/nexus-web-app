@@ -1,4 +1,5 @@
 import { Component, OnInit, AfterViewInit, OnDestroy, signal, ElementRef, Input } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
@@ -104,6 +105,7 @@ export class ConfiguracionComponent implements OnInit, AfterViewInit, OnDestroy 
     private authService: AuthService,
     private http: HttpClient,
     private router: Router,
+    private route: ActivatedRoute,
     private toast: ToastService,
     private el: ElementRef
   ) {
@@ -135,11 +137,27 @@ export class ConfiguracionComponent implements OnInit, AfterViewInit, OnDestroy 
         next: (res) => this.sugerenciasUbicacion.set(res || []),
         error: () => this.sugerenciasUbicacion.set([]),
       });
+
+    this.route.fragment.subscribe(frag => {
+      if (frag) {
+        this.scrollToSection(frag);
+      }
+    });
   }
 
   ngAfterViewInit(): void {
     if (typeof window !== 'undefined') {
-      setTimeout(() => this.initScrollSpy(), 100);
+      setTimeout(() => {
+        this.initScrollSpy();
+        this.checkFragmentAndScroll();
+      }, 100);
+    }
+  }
+
+  private checkFragmentAndScroll() {
+    const fragment = this.route.snapshot.fragment;
+    if (fragment) {
+      setTimeout(() => this.scrollToSection(fragment), 300);
     }
   }
 
@@ -154,8 +172,8 @@ export class ConfiguracionComponent implements OnInit, AfterViewInit, OnDestroy 
 
     const options = {
       root: null,
-      rootMargin: '-20% 0px -40% 0px', /* Adjusted for 150px sticky top */
-      threshold: [0, 0.1, 0.2]
+      rootMargin: '-25% 0px -45% 0px', /* Wider and slightly lower band for better scroll tracking */
+      threshold: 0
     };
 
     this.observer = new IntersectionObserver((entries) => {
@@ -264,7 +282,7 @@ export class ConfiguracionComponent implements OnInit, AfterViewInit, OnDestroy 
     }
   }
 
-  setAvatarChoice(choice: 'GOOGLE' | 'INITIALS') {
+  setAvatarChoice(choice: 'GOOGLE' | 'INITIALS' | 'CUSTOM') {
     this.http.patch(`${this.backendUrl}/usuario/me/avatar-choice`, { choice }).subscribe({
       next: () => {
         this.toast.success('Preferencia de imagen actualizada');

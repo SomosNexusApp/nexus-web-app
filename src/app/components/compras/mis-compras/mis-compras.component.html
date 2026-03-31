@@ -28,7 +28,7 @@
     } @else {
       <div class="mc-list">
         @for (item of lista; track item.id) {
-          <article class="mc-item">
+          <article class="mc-item" [id]="'compra-' + item.id" [class.highlight-pulse]="highlightId === item.id">
             <div class="mc-item-header">
               <span class="mc-item-date">{{ item.fechaCompra | timeAgo }}</span>
               <span class="mc-item-total">Total: {{ item.precioFinal | currencyEs }}</span>
@@ -54,9 +54,6 @@
               <!-- Acciones Comprador -->
               @if (activeTab() === 'COMPRAS') {
                 @if (item.estado === 'ENTREGADO') {
-                  <button class="mc-btn mc-btn-primary" (click)="confirmarRecepcion(item)">
-                    Confirmar recepción
-                  </button>
                   <button class="mc-btn mc-btn-outline" [routerLink]="['/devoluciones/nueva', item.id]">
                     Abrir disputa / Devolución
                   </button>
@@ -83,7 +80,7 @@
                   item.estado === 'EN_TRANSITO' ||
                   item.estado === 'ENTREGADO'
                 ) {
-                  <button class="mc-btn mc-btn-outline">Ver seguimiento</button>
+                  <button class="mc-btn mc-btn-outline" [routerLink]="['/compras', item.id, 'enviar']">Ver seguimiento</button>
                 }
                 @if (item.estado === 'EN_DISPUTA') {
                   <a [routerLink]="['/devoluciones', item.id]" class="mc-btn mc-btn-primary">Responder disputa</a>

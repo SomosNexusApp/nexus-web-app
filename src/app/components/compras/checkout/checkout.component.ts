@@ -90,6 +90,8 @@ export class CheckoutComponent implements OnInit, OnDestroy {
   cupon = signal('');
   mensajeCupon = signal<string | null>(null);
   procesandoCupon = signal(false);
+  descuentoCupon = signal(0);
+  cuponAplicado = signal<string | null>(null);
 
   // ── Formularios ───────────────────────────────────────────────────────
   personalForm!: FormGroup; // nombre, apellidos, email, telefono
@@ -114,7 +116,8 @@ export class CheckoutComponent implements OnInit, OnDestroy {
 
   total = computed(() => {
     const base = this.precioVenta() > 0 ? this.precioVenta() : (this.producto()?.precio ?? 0);
-    return base + this.costoEnvio() + this.comisionNexus();
+    const sinDto = base + this.costoEnvio() + this.comisionNexus();
+    return Math.max(0, sinDto - this.descuentoCupon());
   });
 
   puedeComprar = computed(() => {
@@ -581,7 +584,7 @@ export class CheckoutComponent implements OnInit, OnDestroy {
       }
 
       // PASO 4 — navegar a confirmación
-      this.router.navigate(['/compras', compraId], {
+      this.router.navigate(['/compras', compraId, 'confirmacion'], {
         queryParams: { pago: 'ok' },
         replaceUrl: true,
       });
@@ -652,17 +655,52 @@ export class CheckoutComponent implements OnInit, OnDestroy {
   }
 
   validarCupon() {
-    const code = this.cupon().trim();
-    if (!code) return;
+    const code = this.cupon().trim().toUpperCase();
+    const user = this.currentUser();
+    const prod = this.producto();
+    if (!code || !user || !prod) return;
 
     this.procesandoCupon.set(true);
     this.mensajeCupon.set(null);
+    const importeTotal = this.precioVenta() > 0 ? this.precioVenta() : (prod.precio ?? 0);
+    const payload = {
+      codigo: code,
+      usuarioId: user.id,
+      importeTotal,
+      costeEnvio: this.costoEnvio(),
+      categoriaId: (prod as any)?.categoria?.id ?? null,
+    };
 
-    // Simulación de validación (el backend se implementará más adelante)
-    setTimeout(() => {
-      this.procesandoCupon.set(false);
-      this.mensajeCupon.set('El cupón introducido no es válido o ha expirado.');
-      this.cdr.markForCheck();
-    }, 1000);
+    this.http.post<any>(`${environment.apiUrl}/api/cupones/aplicar`, payload).subscribe({
+      next: (res) => {
+        this.procesandoCupon.set(false);
+        if (!res?.valido) {
+          this.descuentoCupon.set(0);
+          this.cuponAplicado.set(null);
+          this.mensajeCupon.set(res?.mensaje || 'Cupón no válido.');
+          this.cdr.markForCheck();
+          return;
+        }
+        this.descuentoCupon.set(Number(res?.descuento || 0));
+        this.cuponAplicado.set(code);
+        this.mensajeCupon.set(`Cupón aplicado correctamente. Ahorras ${this.formatPrice(Number(res?.descuento || 0))}.`);
+        this.cdr.markForCheck();
+      },
+      error: (err) => {
+        this.procesandoCupon.set(false);
+        this.descuentoCupon.set(0);
+        this.cuponAplicado.set(null);
+        this.mensajeCupon.set(err?.error?.mensaje || err?.error?.error || 'No se pudo validar el cupón.');
+        this.cdr.markForCheck();
+      }
+    });
+  }
+
+  limpiarCupon() {
+    this.cupon.set('');
+    this.cuponAplicado.set(null);
+    this.descuentoCupon.set(0);
+    this.mensajeCupon.set(null);
+    this.cdr.markForCheck();
   }
 }

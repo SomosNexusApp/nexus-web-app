@@ -18,7 +18,7 @@
       />
       <div class="img-overlay"></div>
 
-      @if (authStore.isLoggedIn()) {
+      @if (showFavorito && authStore.isLoggedIn()) {
         <button 
           class="fav-btn" 
           [class.active]="esFavorito()"

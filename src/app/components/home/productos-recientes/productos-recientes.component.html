@@ -46,7 +46,7 @@
             <line x1="12" y1="8" x2="12" y2="12" />
             <line x1="12" y1="16" x2="12.01" y2="16" />
           </svg>
-          <p>Error al cargar productos</p>
+          <p>Error al cargar lo último</p>
           <span>Inténtalo de nuevo más tarde</span>
         </div>
       }
@@ -64,15 +64,25 @@
             <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
             <circle cx="12" cy="10" r="3" />
           </svg>
-          <p>Aún no hay productos disponibles</p>
+          <p>Aún no hay publicaciones disponibles</p>
           <span>Sé el primero en publicar</span>
         </div>
       }
 
-      <!-- Products -->
+      <!-- Items Grid -->
       @if (!loading() && !error()) {
-        @for (prod of productos(); track prod.id) {
-          <app-producto-card [producto]="$any(prod)"></app-producto-card>
+        @for (item of productos(); track item.id) {
+          @switch (item.searchType) {
+            @case ('VEHICULO') {
+              <app-vehiculo-card [vehiculo]="$any(item)"></app-vehiculo-card>
+            }
+            @case ('OFERTA') {
+              <app-oferta-card [oferta]="$any(item)"></app-oferta-card>
+            }
+            @default {
+              <app-producto-card [producto]="$any(item)"></app-producto-card>
+            }
+          }
         }
       }
     </div>
@@ -81,7 +91,7 @@
     @if (!loading() && !error() && productos().length > 0) {
       <div class="bottom-row">
         <button class="btn-outline-full" (click)="goToAll()">
-          Ver más productos
+          Ver todas las publicaciones
           <svg
             viewBox="0 0 24 24"
             fill="none"

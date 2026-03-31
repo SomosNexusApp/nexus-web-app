@@ -264,7 +264,7 @@ export class ProductoDetailComponent implements OnInit, OnDestroy {
   verificarFavorito(productoId: number): void {
     if (!this.isLoggedIn()) return;
     this.favoritoService.getFavoritosIds().subscribe({
-      next: (ids: number[]) => this.esFavorito.set(ids.includes(productoId)),
+      next: (ids: string[]) => this.esFavorito.set(ids.includes(`producto_${productoId}`)),
     });
   }
 
@@ -282,12 +282,12 @@ export class ProductoDetailComponent implements OnInit, OnDestroy {
 
     if (!esFavActual) {
       // Si NO era favorito, lo agregamos
-      this.favoritoService.addFavorito(productoId).subscribe({
+      this.favoritoService.addFavorito(productoId, 'producto').subscribe({
         error: () => this.esFavorito.set(esFavActual), // Revertimos si falla el servidor
       });
     } else {
       // Si YA era favorito, lo eliminamos
-      this.favoritoService.removeFavorito(productoId).subscribe({
+      this.favoritoService.removeFavorito(productoId, 'producto').subscribe({
         error: () => this.esFavorito.set(esFavActual), // Revertimos si falla el servidor
       });
     }

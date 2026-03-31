@@ -15,7 +15,6 @@ import { OnboardingStepperComponent } from './shared/components/onboarding-stepp
 import { ToastContainerComponent } from './shared/components/toast-container/toast-container.component';
 import { HeaderComponent } from './components/header/header.component';
 import { SupportChatWidgetComponent } from './shared/components/support-chat-widget/support-chat-widget.component';
-import { AdsenseFooterComponent } from './shared/components/adsense-footer/adsense-footer.component';
 
 @Component({
   selector: 'app-root',
@@ -28,7 +27,6 @@ import { AdsenseFooterComponent } from './shared/components/adsense-footer/adsen
     ToastContainerComponent,
     HeaderComponent,
     SupportChatWidgetComponent,
-    AdsenseFooterComponent,
   ],
   templateUrl: './app.html',
   styleUrls: ['./app.component.scss'],

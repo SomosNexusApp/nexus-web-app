@@ -430,9 +430,9 @@ export class PublishOfertaComponent implements OnInit {
       return;
     }
 
-    if (!this.locationConfirmed()) {
+    if (this.ofertaForm.get('ciudadOferta')?.value && !this.locationConfirmed()) {
         this.toast.warning('Confirma la ubicación seleccionándola de la lista');
-        document.querySelector('.location-hero-bar')?.scrollIntoView({ behavior: 'smooth' });
+        document.querySelector('.location-group-elite')?.scrollIntoView({ behavior: 'smooth' });
         return;
     }
 

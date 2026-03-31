@@ -5,6 +5,7 @@ import { CurrencyEsPipe } from '../../pipes/currency-es.pipe';
 import { SkeletonCardComponent } from '../skeleton-card/skeleton-card.component';
 import { CoverImagePipe } from '../../pipes/cover-image.pipe';
 import { Vehiculo } from '../../../models/vehiculo.model';
+import { MarketplaceItem } from '../../../models/marketplace-item.model';
 import { FavoritoService } from '../../../core/services/favorito.service';
 import { AuthStore } from '../../../core/auth/auth-store';
 
@@ -16,12 +17,13 @@ import { AuthStore } from '../../../core/auth/auth-store';
   styleUrls: ['./vehiculo-card.component.css'],
 })
 export class VehiculoCardComponent implements OnInit {
-  @Input() vehiculo!: Vehiculo;
+  @Input() vehiculo!: Vehiculo | MarketplaceItem;
   @Input() isSkeleton = false;
+  @Input() showFavorito = true;
 
   private router = inject(Router);
   private favService = inject(FavoritoService);
-  private authStore = inject(AuthStore);
+  public authStore = inject(AuthStore);
 
   esFavorito = signal(false);
   animandoCorazon = signal(false);
@@ -66,5 +68,28 @@ export class VehiculoCardComponent implements OnInit {
   navigateToDetail(): void {
     if (!this.vehiculo?.id) return;
     this.router.navigate(['/vehiculos', this.vehiculo.id]);
+  }
+
+  toggleFavorito(event: MouseEvent): void {
+    event.stopPropagation();
+    event.preventDefault();
+
+    if (!this.authStore.isLoggedIn()) return;
+
+    const id = this.vehiculo.id;
+    if (!id) return;
+
+    this.animandoCorazon.set(true);
+    const becomingFav = !this.esFavorito();
+    this.esFavorito.set(becomingFav);
+
+    const req = becomingFav 
+      ? this.favService.addFavorito(id, 'vehiculo') 
+      : this.favService.removeFavorito(id, 'vehiculo');
+
+    req.subscribe({
+      error: () => this.esFavorito.set(!becomingFav),
+      complete: () => setTimeout(() => this.animandoCorazon.set(false), 400)
+    });
   }
 }

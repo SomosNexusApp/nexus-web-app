@@ -3,23 +3,32 @@
 }
 
 <div class="configuracion-page" [class.is-embedded]="isEmbedded">
+  <!-- Subtle Background Glow -->
+  <div class="hero-bg-glow"></div>
+
   <div class="config-layout-grid">
-    <!-- Sidebar / ScrollSpy -->
+    <!-- Sidebar / ScrollSpy (Fixed Container) -->
     @if (!isEmbedded) {
-      <aside class="config-sidebar">
-        <h3>Preferencias</h3>
-        <nav class="config-nav">
-          <a
-            *ngFor="let sec of sections"
-            (click)="scrollToSection(sec.id)"
-            [class.active]="activeSection() === sec.id"
-            class="nav-item"
-          >
-            <i [class]="sec.icon"></i>
-            <span>{{ sec.title }}</span>
-          </a>
-        </nav>
-      </aside>
+      <div class="sidebar-fixed-wrapper">
+        <div class="sidebar-alignment-container">
+          <aside class="config-sidebar">
+            <h3>Preferencias</h3>
+            <nav class="config-nav">
+              <a
+                *ngFor="let sec of sections"
+                (click)="scrollToSection(sec.id)"
+                [class.active]="activeSection() === sec.id"
+                class="nav-item"
+              >
+                <i [class]="sec.icon"></i>
+                <span>{{ sec.title }}</span>
+              </a>
+            </nav>
+          </aside>
+        </div>
+      </div>
+      <!-- Placeholder to keep the grid column occupied -->
+      <div class="config-sidebar-placeholder"></div>
     }
 
     <!-- Main Content -->
@@ -32,6 +41,8 @@
             <div class="avatar-preview">
               <app-avatar 
                 [avatarUrl]="user()?.avatar"
+                [googleAvatarUrl]="user()?.googleAvatarUrl"
+                [avatarSource]="user()?.avatarSource"
                 [nombre]="user()?.nombre"
                 [username]="user()?.user"
                 [size]="140"
@@ -44,12 +55,15 @@
                   <i class="fas fa-camera"></i> Cambiar imagen
                   <input type="file" hidden (change)="onAvatarSelected($event)" accept="image/*" />
                 </label>
-                <div class="avatar-source-options" *ngIf="user()?.googleId">
-                   <button type="button" class="btn-source" [class.active]="user()?.avatarSource === 'GOOGLE'" (click)="setAvatarChoice('GOOGLE')">
+                <div class="avatar-source-options">
+                   <button *ngIf="user()?.googleId" type="button" class="btn-source" [class.active]="user()?.avatarSource === 'GOOGLE'" (click)="setAvatarChoice('GOOGLE')">
                      <i class="fab fa-google"></i> Google
                    </button>
                    <button type="button" class="btn-source" [class.active]="user()?.avatarSource === 'INITIALS'" (click)="setAvatarChoice('INITIALS')">
                      <i class="fas fa-font"></i> Iniciales
+                   </button>
+                   <button *ngIf="user()?.customAvatarUrl" type="button" class="btn-source" [class.active]="user()?.avatarSource === 'CUSTOM'" (click)="setAvatarChoice('CUSTOM')">
+                    <i class="fas fa-image"></i> Personalizada
                    </button>
                 </div>
               </div>
@@ -421,7 +435,10 @@
                   placeholder="000000"
                   maxlength="6"
                 />
-                <button class="btn-primary" (click)="confirmar2FAApp()">Verificar</button>
+                                <button class="btn-primary" (click)="confirmar2FAApp()">
+                  <i class="fas fa-check-circle"></i> Verificar
+                </button>
+
               </div>
             </div>
           </div>

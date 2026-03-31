@@ -6,6 +6,7 @@
       <app-avatar 
         [avatarUrl]="user()?.avatar"
         [googleAvatarUrl]="user()?.googleAvatarUrl"
+        [avatarSource]="user()?.avatarSource"
         [nombre]="user()?.nombre"
         [username]="user()?.user"
         [size]="40"
@@ -54,6 +55,7 @@
           <app-avatar 
             [avatarUrl]="user()?.avatar"
             [googleAvatarUrl]="user()?.googleAvatarUrl"
+            [avatarSource]="user()?.avatarSource"
             [nombre]="user()?.nombre"
             [username]="user()?.user"
             [size]="100"
@@ -273,7 +275,13 @@
         } @else {
           <div class="product-list">
             @for (o of ofertasFiltradas(); track o.id) {
-              <div class="product-list-item" [class.paused]="o.estado === 'PAUSADA'" [class.sold]="o.estado === 'AGOTADA'">
+              <div 
+                [id]="'oferta-' + o.id"
+                class="product-list-item" 
+                [class.highlight-pulse]="targetId() === o.id"
+                [class.paused]="o.estado === 'PAUSADA'" 
+                [class.sold]="o.estado === 'AGOTADA'"
+              >
                 <img [src]="o | coverImage" class="product-list-thumb" alt="Oferta" />
                 <div class="product-list-info">
                   <a [routerLink]="['/ofertas', o.id]" class="product-list-title">{{ o.titulo }}</a>
@@ -472,7 +480,7 @@
     @if (activeSection() === 'compras') {
       <section class="section">
         <h2 class="section-title"><i class="fas fa-shopping-cart"></i> Mis Compras</h2>
-        <app-mis-compras seccionPerfil="compras"></app-mis-compras>
+        <app-mis-compras seccionPerfil="compras" [highlightId]="targetId()"></app-mis-compras>
       </section>
     }
 
@@ -480,7 +488,7 @@
     @if (activeSection() === 'ventas') {
       <section class="section">
         <h2 class="section-title"><i class="fas fa-coins"></i> Mis Ventas</h2>
-        <app-mis-compras seccionPerfil="ventas"></app-mis-compras>
+        <app-mis-compras seccionPerfil="ventas" [highlightId]="targetId()"></app-mis-compras>
       </section>
     }
 
@@ -598,6 +606,7 @@
                   <div class="fav-card">
                     <app-vehiculo-card
                       [vehiculo]="f.vehiculo || f"
+                      [showFavorito]="false"
                     ></app-vehiculo-card>
                     <button class="fav-remove" (click)="quitarFavorito(f.id)">
                       <i class="fas fa-times"></i>

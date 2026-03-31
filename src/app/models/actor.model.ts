@@ -1,6 +1,7 @@
 export interface Actor {
   id: number;
   user: string; // En el backend es username/user
+  username?: string; // Fallback / Alias usado en algunos endpoints
   email: string;
   password?: string; // Opcional porque no suele viajar al front por seguridad
   nombre?: string;
@@ -17,4 +18,5 @@ export interface Actor {
   avatar?: string;
   avatarSource?: 'GOOGLE' | 'INITIALS' | 'CUSTOM';
   googleAvatarUrl?: string;
+  customAvatarUrl?: string;
 }

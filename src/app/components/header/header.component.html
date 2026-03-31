@@ -127,32 +127,68 @@
             </button>
 
             @if (isNotifPanelOpen()) {
-              <div class="notif-panel" role="dialog" aria-label="Notificaciones">
+              <div class="notif-panel-elite fade-in-up" role="dialog" aria-label="Notificaciones">
                 <div class="notif-panel-head">
-                  <span class="notif-panel-title">Notificaciones</span>
+                  <div class="head-left">
+                    <span class="notif-panel-title">Notificaciones</span>
+                    <span class="notif-count" *ngIf="notificationService.unreadCount() > 0">
+                      {{ notificationService.unreadCount() }} nueva{{ notificationService.unreadCount() > 1 ? 's' : '' }}
+                    </span>
+                  </div>
                   @if (notificationService.unreadCount() > 0) {
-                    <button type="button" class="notif-mark-all" (click)="marcarTodasLeidas()">
-                      Marcar todas leídas
+                    <button type="button" class="notif-mark-all-elite" (click)="marcarTodasLeidas()">
+                      <i class="fas fa-check-double"></i>
+                      <span>Marcar todo como leído</span>
                     </button>
                   }
                 </div>
-                <div class="notif-panel-body">
+
+                <div class="notif-panel-body custom-scrollbar">
                   @if (notifItems().length === 0) {
-                    <div class="notif-empty">No hay notificaciones</div>
+                    <div class="notif-empty-elite">
+                      <div class="empty-icon-wrapper">
+                        <i class="fas fa-bell-slash"></i>
+                        <div class="icon-pulse"></div>
+                      </div>
+                      <span class="empty-title">Todo al día</span>
+                      <p class="empty-msg">No tienes notificaciones pendientes por ahora.</p>
+                    </div>
                   } @else {
-                    @for (n of notifItems(); track n.id) {
-                      <button
-                        type="button"
-                        class="notif-item"
-                        [class.unread]="!n.leida"
-                        (click)="openNotification(n)"
-                      >
-                        <span class="notif-item-title">{{ n.titulo }}</span>
-                        <span class="notif-item-msg">{{ n.mensaje }}</span>
-                        <span class="notif-item-meta">{{ n.fecha | date: 'short' }}</span>
-                      </button>
-                    }
+                    <div class="notif-list">
+                      @for (n of notifItems(); track n.id; let i = $index) {
+                        <button
+                          type="button"
+                          class="notif-item-elite"
+                          [class.unread]="!n.leida"
+                          [class.featured]="n.destacada"
+                          [style.animation-delay]="i * 50 + 'ms'"
+                          (click)="openNotification(n)"
+                        >
+                          <div class="notif-icon-box" [style.background-color]="notificationService.getNotifColor(n.tipo) + '15'">
+                             <i [class]="notificationService.getNotifIcon(n.tipo)" [style.color]="notificationService.getNotifColor(n.tipo)"></i>
+                             <div class="icon-glow" [style.background-color]="notificationService.getNotifColor(n.tipo)"></div>
+                          </div>
+                          
+                          <div class="notif-content">
+                            <div class="notif-top">
+                              <span class="notif-type">{{ notificationService.getNotifTypeLabel(n.tipo) }}</span>
+                              <span class="notif-time">{{ n.fecha | date: 'short' }}</span>
+                            </div>
+                            <span class="notif-title">{{ n.titulo }}</span>
+                            <p class="notif-msg">{{ n.mensaje }}</p>
+                          </div>
+
+                          <div class="unread-dot" *ngIf="!n.leida"></div>
+                        </button>
+                      }
+                    </div>
                   }
+                </div>
+                
+                <div class="notif-panel-foot" *ngIf="notifItems().length > 0">
+                  <a routerLink="/notificaciones" class="btn-see-all" (click)="isNotifPanelOpen.set(false)">
+                    Ver historial completo
+                  </a>
                 </div>
               </div>
             }
@@ -217,6 +253,7 @@
                 <app-avatar
                   [avatarUrl]="usuario()?.avatar"
                   [googleAvatarUrl]="usuario()?.googleAvatarUrl"
+                  [avatarSource]="usuario()?.avatarSource"
                   [nombre]="usuario()?.nombre"
                   [username]="usuario()?.user"
                   [size]="40"
@@ -228,10 +265,11 @@
                 [style.display]="isUserDropdownOpen() ? 'block' : 'none'"
               >
                 <div class="dropdown-header-elite">
-                  <div class="user-profile-preview">
+                  <a routerLink="/configuracion" fragment="cuenta" class="user-profile-preview clickable-profile">
                     <app-avatar
                       [avatarUrl]="usuario()?.avatar"
                       [googleAvatarUrl]="usuario()?.googleAvatarUrl"
+                      [avatarSource]="usuario()?.avatarSource"
                       [nombre]="usuario()?.nombre"
                       [username]="usuario()?.user"
                       [size]="56"
@@ -242,7 +280,7 @@
                       <span class="user-greeting-elite">Hola, {{ usuario()?.nombre || usuario()?.user }}</span>
                       <span class="user-name-elite">{{ usuario()?.nombre }} {{ usuario()?.apellidos }}</span>
                     </div>
-                  </div>
+                  </a>
                   <div class="user-email-elite">{{ usuario()?.email }}</div>
                 </div>
 

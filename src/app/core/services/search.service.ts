@@ -293,6 +293,18 @@ export class SearchService {
     );
   }
 
+  getProvinciaDesdeCoordenadas(lat: number, lng: number): Observable<string | null> {
+    const url = `https://nominatim.openstreetmap.org/reverse?format=json&addressdetails=1&lat=${lat}&lon=${lng}`;
+    return this.http.get<any>(url).pipe(
+      map((res) => {
+        const addr = res?.address || {};
+        const provincia = addr.state || addr.county || addr.province || null;
+        return provincia ? String(provincia).trim() : null;
+      }),
+      catchError(() => of(null)),
+    );
+  }
+
   /** Obtiene ciudad, provincia y CP de forma estructurada y limpia */
   buscarUbicacionEstructurada(query: string): Observable<any[]> {
     if (!query || query.length < 2) return of([]);

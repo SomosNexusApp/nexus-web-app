@@ -2,6 +2,7 @@ import {
   Component,
   inject,
   OnInit,
+  AfterViewInit,
   signal,
   ChangeDetectionStrategy,
   ChangeDetectorRef,
@@ -26,7 +27,7 @@ import { ValoracionModalComponent } from '../../../shared/components/valoracion-
   styleUrl: './mis-compras.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class MisComprasComponent implements OnInit {
+export class MisComprasComponent implements OnInit, AfterViewInit {
   private compraSrv = inject(CompraService);
   private authSrv = inject(AuthService);
   private cdr = inject(ChangeDetectorRef);
@@ -34,8 +35,10 @@ export class MisComprasComponent implements OnInit {
 
   /** Cuando el componente se muestra bajo «Mis compras» o «Mis ventas» en el perfil, fija la pestaña correcta. */
   @Input() seccionPerfil: 'compras' | 'ventas' = 'compras';
+  @Input() highlightId: number | null = null;
 
   @ViewChild(ValoracionModalComponent) valoracionModal!: ValoracionModalComponent;
+  private modalReady = false;
 
   activeTab = signal<'COMPRAS' | 'VENTAS'>('COMPRAS');
   compras = signal<Compra[]>([]);
@@ -51,6 +54,11 @@ export class MisComprasComponent implements OnInit {
     this.cargarDatos();
   }
 
+  ngAfterViewInit(): void {
+    this.modalReady = true;
+    this.intentarAbrirResenaPendiente();
+  }
+
   setTab(tab: 'COMPRAS' | 'VENTAS') {
     this.activeTab.set(tab);
   }
@@ -60,7 +68,13 @@ export class MisComprasComponent implements OnInit {
     this.compraSrv.getMisCompras().subscribe({
       next: (data) => {
         this.compras.set(data);
-        if (this.activeTab() === 'COMPRAS') this.loading.set(false);
+        this.intentarAbrirResenaPendiente();
+        if (this.activeTab() === 'COMPRAS') {
+          this.loading.set(false);
+          if (this.highlightId) {
+            setTimeout(() => this.scrollToHighlight(), 500);
+          }
+        }
         this.cdr.markForCheck();
       },
       error: () => {
@@ -72,7 +86,12 @@ export class MisComprasComponent implements OnInit {
     this.compraSrv.getMisVentas().subscribe({
       next: (data) => {
         this.ventas.set(data);
-        if (this.activeTab() === 'VENTAS') this.loading.set(false);
+        if (this.activeTab() === 'VENTAS') {
+          this.loading.set(false);
+          if (this.highlightId) {
+            setTimeout(() => this.scrollToHighlight(), 500);
+          }
+        }
         this.cdr.markForCheck();
       },
       error: () => {
@@ -82,42 +101,36 @@ export class MisComprasComponent implements OnInit {
     });
   }
 
-  confirmarRecepcion(item: Compra) {
-    this.compraSrv.getEnvioPorCompra(item.id).subscribe({
-      next: (envio) => {
-        if (envio && envio.id) {
-          // Abrimos el modal para que el usuario valore mientras confirma
-          this.valoracionModal.abrir(item.producto?.vendedor?.user || 'Vendedor', item.id);
-          
-          // Sobrescribimos el comportamiento de enviar del modal para que primero llame a confirmar
-          const originalEnviar = this.valoracionModal.enviarValoracion.bind(this.valoracionModal);
-          this.valoracionModal.enviarValoracion = () => {
-            if (this.valoracionModal.estrellas() === 0) return;
-            
-            this.valoracionModal.enviando.set(true);
-            this.compraSrv.confirmarEntrega(
-              envio.id, 
-              this.valoracionModal.estrellas(), 
-              this.valoracionModal.comentario()
-            ).subscribe({
-              next: () => {
-                this.valoracionModal.enviando.set(false);
-                this.valoracionModal.completado.set(true);
-                this.cargarDatos();
-              },
-              error: (err) => {
-                this.valoracionModal.enviando.set(false);
-                this.valoracionModal.error.set(err.error?.error || 'Error al confirmar la recepción.');
-              }
-            });
-          };
-        }
-      }
-    });
+  scrollToHighlight() {
+    if (!this.highlightId) return;
+    const el = document.getElementById(`compra-${this.highlightId}`);
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      el.classList.add('highlight-pulse');
+      setTimeout(() => el.classList.remove('highlight-pulse'), 3000);
+    }
   }
 
   abrirValoracion(item: Compra) {
     this.valoracionModal.abrir(item.producto?.vendedor?.user || 'Vendedor', item.id);
+  }
+
+  private intentarAbrirResenaPendiente() {
+    if (!this.modalReady || this.activeTab() !== 'COMPRAS') return;
+    const candidato = this.compras().find((c) => c.estado === 'COMPLETADA' || c.estado === 'ENTREGADO');
+    if (!candidato) return;
+
+    const key = `nexus_review_prompted_${candidato.id}`;
+    if (localStorage.getItem(key)) return;
+
+    this.compraSrv.getEnvioPorCompra(candidato.id).subscribe({
+      next: (envio) => {
+        if (!envio?.valoracionVendedor) {
+          localStorage.setItem(key, '1');
+          this.valoracionModal.abrir(candidato.producto?.vendedor?.user || 'Vendedor', candidato.id);
+        }
+      },
+    });
   }
 
   getBadgeColor(estado: string): string {

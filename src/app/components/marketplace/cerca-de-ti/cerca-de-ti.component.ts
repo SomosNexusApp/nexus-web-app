@@ -1,6 +1,8 @@
 import { Component, OnInit, signal, inject, ChangeDetectorRef, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
+import { forkJoin, of } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { SearchService, SearchParams } from '../../../core/services/search.service';
 import { AuthStore } from '../../../core/auth/auth-store';
 import { ProductoCardComponent } from '../../../shared/components/marketplace/product-card/producto-card.component';
@@ -33,8 +35,10 @@ export class CercaDeTiComponent implements OnInit, OnDestroy {
   
   radius = signal(50); // km por defecto
   userLocation = signal<{lat: number, lng: number} | null>(null);
+  userProvince = signal<string | null>(null);
 
   skeletons = Array(12).fill(0);
+  private provinciaCache = new Map<string, string | null>();
 
   ngOnInit() {
     this.obtenerUbicacion();
@@ -61,7 +65,16 @@ export class CercaDeTiComponent implements OnInit, OnDestroy {
           lng: pos.coords.longitude
         };
         this.userLocation.set(coords);
-        this.realizarBusqueda(coords);
+        this.searchService.getProvinciaDesdeCoordenadas(coords.lat, coords.lng).subscribe({
+          next: (prov) => {
+            this.userProvince.set(prov);
+            this.realizarBusqueda(coords);
+          },
+          error: () => {
+            this.userProvince.set(null);
+            this.realizarBusqueda(coords);
+          }
+        });
       },
       (err) => {
         console.error('Error obteniendo ubicación:', err);
@@ -80,21 +93,23 @@ export class CercaDeTiComponent implements OnInit, OnDestroy {
   realizarBusqueda(coords: {lat: number, lng: number}) {
     this.loading.set(true);
     const params: SearchParams = {
-      tipo: 'OFERTA',
+      tipo: 'TODOS',
       lat: coords.lat,
       lng: coords.lng,
-      radius: this.radius(),
+      radius: 200,
       page: 0,
-      size: 40
+      size: 120
     };
 
     const usuarioId = this.authStore.user()?.id;
 
     this.searchService.buscar(params, usuarioId).subscribe({
       next: (res) => {
-        this.resultados.set(res.items);
-        this.loading.set(false);
-        this.cdr.detectChanges();
+        this.resolverYFiltrarProvincia(res.items || []).subscribe((filtrados) => {
+          this.resultados.set(filtrados);
+          this.loading.set(false);
+          this.cdr.detectChanges();
+        });
       },
       error: () => {
         this.error.set(true);
@@ -109,5 +124,47 @@ export class CercaDeTiComponent implements OnInit, OnDestroy {
     if (this.userLocation()) {
       this.realizarBusqueda(this.userLocation()!);
     }
+  }
+
+  private filtrarPorProvinciaYUbicacion(items: MarketplaceItem[]): MarketplaceItem[] {
+    const provincia = (this.userProvince() || '').toLowerCase();
+    if (!provincia) {
+      return items.filter((it: any) => !!it.latitude && !!it.longitude);
+    }
+    return items.filter((it: any) => {
+      if (!it.latitude || !it.longitude) return false;
+      if (it.searchType === 'OFERTA' && it.esOnline === true) return false;
+      const ubic = String(it.ubicacion || '').toLowerCase();
+      if (!ubic) return false;
+      return ubic.includes(provincia);
+    });
+  }
+
+  private resolverYFiltrarProvincia(items: MarketplaceItem[]) {
+    const provincia = (this.userProvince() || '').toLowerCase();
+    if (!provincia) {
+      return of(items.filter((it: any) => !!it.latitude && !!it.longitude));
+    }
+    const candidates = items.filter((it: any) => !!it.latitude && !!it.longitude && !(it.searchType === 'OFERTA' && it.esOnline === true));
+    if (candidates.length === 0) return of([]);
+
+    const resolvers = candidates.map((it: any) => {
+      const ubic = String(it.ubicacion || '').toLowerCase();
+      if (ubic.includes(provincia)) return of({ it, provincia: provincia });
+      const key = `${it.latitude},${it.longitude}`;
+      if (this.provinciaCache.has(key)) {
+        return of({ it, provincia: (this.provinciaCache.get(key) || '').toLowerCase() });
+      }
+      return this.searchService.getProvinciaDesdeCoordenadas(it.latitude, it.longitude).pipe(
+        map((prov) => {
+          this.provinciaCache.set(key, prov || null);
+          return { it, provincia: (prov || '').toLowerCase() };
+        }),
+      );
+    });
+
+    return forkJoin(resolvers).pipe(
+      map((rows) => rows.filter((r) => r.provincia.includes(provincia)).map((r) => r.it)),
+    );
   }
 }

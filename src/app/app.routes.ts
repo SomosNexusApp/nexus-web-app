@@ -179,6 +179,14 @@ export const routes: Routes = [
       ),
     canActivate: [authGuard],
   },
+  {
+    path: 'notificaciones',
+    loadComponent: () =>
+      import('./components/notificaciones/notificaciones').then(
+        (m) => m.NotificacionesComponent,
+      ),
+    canActivate: [authGuard],
+  },
   // {
   //   path: 'mensajes',
   //   loadComponent: () =>
@@ -232,6 +240,13 @@ export const routes: Routes = [
         (m) => m.PrivacidadComponent,
       ),
   },
+  {
+    path: 'darse-baja',
+    loadComponent: () =>
+      import('./components/newsletter/darse-baja/darse-baja.component').then(
+        (m) => m.DarseBajaComponent,
+      ),
+  },
 
   // Compras / Checkout
   {
@@ -241,7 +256,7 @@ export const routes: Routes = [
     canActivate: [authGuard],
   },
   {
-    path: 'compras/:id',
+    path: 'compras/:id/confirmacion',
     loadComponent: () =>
       import('./components/compras/confirmacion/confirmacion.component').then(
         (m) => m.ConfirmacionComponent,

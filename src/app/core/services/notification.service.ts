@@ -87,6 +87,10 @@ export class NotificationService {
     );
   }
 
+  toggleDestacada(id: number): Observable<void> {
+    return this.http.put<void>(`${this.apiUrl}/${id}/toggle-destacada`, {});
+  }
+
   getAll(page = 0): Observable<{ content: NotificacionInAppDto[]; totalElements?: number }> {
     const user = this.auth.user();
     return this.http.get<{ content: NotificacionInAppDto[]; totalElements?: number }>(
@@ -123,5 +127,77 @@ export class NotificationService {
       titulo: notif.titulo,
       url: notif.url,
     });
+  }
+
+  getNotifIcon(tipo: string): string {
+    switch (tipo) {
+      case 'NUEVA_COMPRA':
+      case 'COMPRA_PAGADA_VENDEDOR':
+      case 'COMPRA_PAGADA_COMPRADOR':
+      case 'COMPRA_CONFIRMADA':
+        return 'fas fa-shopping-bag';
+      case 'ALERTA':
+      case 'ERROR':
+      case 'DEVOLUCION':
+        return 'fas fa-exclamation-triangle';
+      case 'ADVERTENCIA':
+      case 'CADUCIDAD_ANUNCIO':
+      case 'ENVIO_PLAZO':
+      case 'GUIA_ENVIO_VENDEDOR':
+        return 'fas fa-clock';
+      case 'FAVORITO_PRODUCTO':
+      case 'FAVORITO_OFERTA':
+        return 'fas fa-heart';
+      case 'MENSAJE':
+        return 'fas fa-comment-alt';
+      default:
+        return 'fas fa-bell';
+    }
+  }
+
+  getNotifColor(tipo: string): string {
+    switch (tipo) {
+      case 'NUEVA_COMPRA':
+      case 'COMPRA_PAGADA_VENDEDOR':
+      case 'COMPRA_PAGADA_COMPRADOR':
+      case 'COMPRA_CONFIRMADA':
+        return '#10b981'; // Success Green
+      case 'ALERTA':
+      case 'ERROR':
+      case 'DEVOLUCION':
+        return '#ef4444'; // Error Red
+      case 'ADVERTENCIA':
+      case 'CADUCIDAD_ANUNCIO':
+      case 'ENVIO_PLAZO':
+      case 'GUIA_ENVIO_VENDEDOR':
+        return '#f59e0b'; // Warning Amber
+      case 'FAVORITO_PRODUCTO':
+      case 'FAVORITO_OFERTA':
+        return '#ff4d94'; // Pink
+      case 'MENSAJE':
+        return '#6366f1'; // Nexus Blue
+      default:
+        return '#94a3b8'; // Muted
+    }
+  }
+
+  getNotifTypeLabel(tipo: string): string {
+    switch (tipo) {
+      case 'NUEVA_COMPRA': return 'Venta';
+      case 'COMPRA_PAGADA_VENDEDOR': return 'Pago Recibido';
+      case 'COMPRA_PAGADA_COMPRADOR': return 'Pago Confirmado';
+      case 'COMPRA_CONFIRMADA': return 'Transacción';
+      case 'ALERTA': return 'Alerta';
+      case 'ERROR': return 'Error';
+      case 'DEVOLUCION': return 'Devolución';
+      case 'ADVERTENCIA': return 'Aviso';
+      case 'CADUCIDAD_ANUNCIO': return 'Caducidad';
+      case 'ENVIO_PLAZO': return 'Envío';
+      case 'GUIA_ENVIO_VENDEDOR': return 'Guía de Envío';
+      case 'FAVORITO_PRODUCTO':
+      case 'FAVORITO_OFERTA': return 'Favorito';
+      case 'MENSAJE': return 'Mensaje';
+      default: return 'Notificación';
+    }
   }
 }

@@ -430,14 +430,24 @@
                     Aplicar
                   }
                 </button>
+                @if (cuponAplicado()) {
+                  <button class="ck-coupon-btn" type="button" (click)="limpiarCupon()">Quitar</button>
+                }
               </div>
               @if (mensajeCupon()) {
-                <p class="ck-coupon-msg error animate-fade-in">
+                <p class="ck-coupon-msg animate-fade-in" [class.error]="!cuponAplicado()" [class.success]="!!cuponAplicado()">
                   <i class="fa-solid fa-circle-exclamation"></i> {{ mensajeCupon() }}
                 </p>
               }
             }
           </div>
+
+          @if (descuentoCupon() > 0) {
+            <div class="ck-breakdown-row" style="color:#10b981;">
+              <span>Descuento cupón</span>
+              <span>-{{ formatPrice(descuentoCupon()) }}</span>
+            </div>
+          }
 
           <div class="ck-breakdown-divider"></div>
           <div class="ck-breakdown-row ck-breakdown-total">

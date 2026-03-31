@@ -1,223 +1,459 @@
-<div class="oferta-canvas" *ngIf="!cargando() && oferta()">
-    <!-- Hero Background Blur -->
-    <div class="hero-glow"></div>
+<div class="oferta-canvas elite-theme" *ngIf="!cargando() && oferta()">
+  <!-- 1. CINEMATIC OVERLAYS (Elite Engine) -->
+  <div class="cinematic-bg">
+    <div
+      class="bg-blur-hero"
+      [style.backgroundImage]="'url(' + (selectedImage() || oferta().imagenPrincipal) + ')'"
+    ></div>
+    <div class="cinematic-overlay"></div>
+    <div class="scanlines"></div>
+    <div class="hero-glow-alt"></div>
+  </div>
 
-    <div class="main-content-layout">
-        <!-- SECCIÓN IZQUIERDA: Multimedia y Acciones -->
-        <aside class="side-panel sticky-side">
-            <div class="glass-card main-image-container">
-                <img [src]="oferta().imagenPrincipal || 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=1000&auto=format&fit=crop'" 
-                     class="hero-img" alt="Producto">
-                <div class="badge-overlay" *ngIf="oferta().badge">
-                    <span class="hot-badge" [ngClass]="oferta().badge?.toLowerCase()">
-                        <i class="fas fa-fire-alt"></i> {{ oferta().badge }}
-                    </span>
-                </div>
-            </div>
+  <!-- 2. HERO HIGHLIGHT SECTION -->
+  <div class="hero-exhibition">
+    <div class="hero-content-wrap">
+      <div class="badge-row animate-fade-in">
+        <!-- VOTOS TOP INTEGRATION -->
+        <div
+          class="elite-impact-top"
+          [style.color]="oferta().sparkScore > 50 ? 'var(--nexus-spark)' : 'var(--nexus-drip)'"
+        >
+          <div class="v-controls">
+            <button
+              class="v-elite-mini v-spark"
+              [class.active]="oferta().miVoto === 'SPARK'"
+              (click)="votar(true)"
+            >
+              <i class="fas fa-fire"></i>
+            </button>
+            <span class="v-count">{{ oferta().sparkScore }}º</span>
+            <button
+              class="v-elite-mini v-drip"
+              [class.active]="oferta().miVoto === 'DRIP'"
+              (click)="votar(false)"
+            >
+              <i class="fas fa-snowflake"></i>
+            </button>
+          </div>
+        </div>
 
-            <div class="glass-card action-bar">
-                <span class="label-muted">Compartir chollo</span>
-                <div class="share-group">
-                    <button class="share-btn wa" (click)="compartir('wa')"><i class="fab fa-whatsapp"></i></button>
-                    <button class="share-btn tg" (click)="compartir('tg')"><i class="fab fa-telegram-plane"></i></button>
-                    <button class="share-btn cp" (click)="compartir('copy')" [class.active]="copiado()">
-                        <i class="fas" [ngClass]="copiado() ? 'fa-check' : 'fa-link'"></i>
-                    </button>
-                    <div class="divider-v"></div>
-                    <button class="share-btn rp" (click)="abrirReporte()" title="Reportar"><i class="fas fa-flag"></i></button>
-                </div>
-            </div>
-        </aside>
+        <div class="store-pill">
+          <img
+            [src]="favicon()"
+            (error)="$any($event.target).src = 'assets/icons/store-fallback.svg'"
+          />
+          <span>{{ oferta().tienda }}</span>
+        </div>
 
-        <!-- SECCIÓN DERECHA: Datos y Comentarios -->
-        <main class="data-panel">
-            <div class="glass-card header-info">
-                <div class="meta-row">
-                    <div class="store-badge">
-                        <img [src]="favicon()" class="store-icon" (error)="$any($event.target).src='assets/icons/store-fallback.svg'">
-                        <span>{{ oferta().tienda }}</span>
-                    </div>
-                    <span class="timestamp"><i class="far fa-clock"></i> {{ oferta().fechaPublicacion | timeAgo }}</span>
-                </div>
+        <div class="badge-overlay-wrap" *ngIf="oferta().badge">
+          <span class="hot-badge animate-pulse" [ngClass]="oferta().badge?.toLowerCase()">
+            <i class="fas fa-fire-alt"></i> {{ oferta().badge }}
+          </span>
+        </div>
+      </div>
 
-                <h1 class="main-title">{{ oferta().titulo }}</h1>
+      <h1 class="main-title animate-title">{{ oferta().titulo }}</h1>
 
-                <!-- AUTHOR BADGE -->
-                <div class="author-badge">
-                  <app-avatar 
-                    [avatarUrl]="oferta().actor?.avatar"
-                    [googleAvatarUrl]="oferta().actor?.googleAvatarUrl"
-                    [nombre]="oferta().actor?.nombre"
-                    [username]="oferta().actor?.user"
-                    [size]="45"
-                    customClass="author-avatar"
-                  ></app-avatar>
-                    <div class="author-info">
-                        <span class="author-label">Chollo compartido por</span>
-                        <a [routerLink]="['/perfil', oferta().actor?.user]" class="author-link">{{ oferta().actor?.user }}</a>
-                    </div>
-                </div>
+      <div class="hero-stats animate-fade-up">
+        <div class="stat-elite">
+          <span class="s-label">OFERTA ACTUAL</span>
+          <span class="s-value accent-green">{{ oferta().precioOferta | currencyEs }}</span>
+        </div>
+        <div class="stat-elite" *ngIf="oferta().precioOriginal">
+          <span class="s-label">PRECIO ORIGINAL</span>
+          <span class="s-value old-price-text">{{ oferta().precioOriginal | currencyEs }}</span>
+        </div>
+        <div class="stat-elite" *ngIf="discountPercent > 0">
+          <span class="s-label">AHORRO</span>
+          <span class="s-value discount-accent">-{{ discountPercent }}%</span>
+        </div>
 
-                <!-- DESCRIPTION -->
-                <div class="description-box" *ngIf="oferta().descripcion">
-                    <div [innerHTML]="parseMarkdown(oferta().descripcion)"></div>
-                </div>
+        <!-- LOGICAL LOCATION HANDLING -->
+        <div class="stat-elite">
+          <span class="s-label">{{ oferta().esOnline ? 'MODALIDAD' : 'UBICACIÓN' }}</span>
+          <span class="s-value truncate-elite">
+            <i [class]="oferta().esOnline ? 'fas fa-globe' : 'fas fa-location-dot'"></i>
+            {{
+              oferta().esOnline
+                ? 'Tienda Online'
+                : oferta().ubicacion || oferta().ciudadOferta || 'Localización física'
+            }}
+          </span>
+        </div>
+      </div>
 
-                <div class="pricing-card">
-                    <div class="price-stack">
-                        <div class="price-row">
-                            <span class="current-price">{{ oferta().precioOferta | currencyEs }}</span>
-                            <span class="old-price" *ngIf="oferta().precioOriginal">{{ oferta().precioOriginal | currencyEs }}</span>
-                        </div>
-                        <div class="save-badge" *ngIf="discountPercent > 0">AHORRAS {{ discountPercent }}%</div>
-                    </div>
-                    <a [href]="oferta().urlOferta" target="_blank" class="cta-gradient">
-                        IR A LA OFERTA <i class="fas fa-external-link-alt"></i>
-                    </a>
-                </div>
+      <!-- ENHANCED ACTION DOCK (Sharing Suite) -->
+      <div class="action-dock animate-fade-up">
+        <a [href]="oferta().urlOferta" target="_blank" class="btn-elite primary">
+          <span class="btn-glitch"></span>
+          <i class="fas fa-external-link-alt"></i> IR A LA OFERTA
+        </a>
 
-                <!-- CUPÓN -->
-                <div class="coupon-wrapper" *ngIf="oferta().codigoDescuento">
-                    <div class="coupon-box">
-                        <span class="c-label">CÓDIGO:</span>
-                        <code class="c-code">{{ oferta().codigoDescuento }}</code>
-                    </div>
-                    <button class="c-copy-btn" (click)="compartir('copy')">COPIAR</button>
-                </div>
-
-                <!-- TEMPERATURA / VOTOS -->
-                <div class="temperature-widget">
-                    <div class="temp-header">
-                        <span class="temp-label">Temperatura actual</span>
-                        <span class="temp-count" [style.color]="oferta().sparkScore > 50 ? 'var(--nexus-spark)' : 'var(--nexus-drip)'">
-                            {{ oferta().sparkScore }}º
-                        </span>
-                    </div>
-                    <div class="temp-progress-bg">
-                        <div class="temp-fill" [style.width.%]="sparkTempWidth"></div>
-                    </div>
-                    <div class="vote-actions">
-                        <button class="v-btn v-spark" [class.active]="oferta().miVoto === 'SPARK'" 
-                                [class.loading-vote]="votando()" (click)="votar(true)" [disabled]="votando()">
-                            <i class="fas" [ngClass]="votando() ? 'fa-spinner fa-spin' : 'fa-arrow-up'"></i> SPARK
-                        </button>
-                        <button class="v-btn v-drip" [class.active]="oferta().miVoto === 'DRIP'" 
-                                [class.loading-vote]="votando()" (click)="votar(false)" [disabled]="votando()">
-                            <i class="fas" [ngClass]="votando() ? 'fa-spinner fa-spin' : 'fa-arrow-down'"></i> DRIP
-                        </button>
-                    </div>
-                </div>
-
-                <div class="details-grid">
-                    <div class="d-item"><i class="fas fa-truck"></i> <span>Envío: <b>{{ oferta().gastosEnvio || 'Gratis' }}</b></span></div>
-                    <div class="d-item"><i class="fas fa-store"></i> <span>Canal: <b>{{ oferta().esOnline ? 'Online' : 'Tienda física' }}</b></span></div>
-                    <div class="d-item countdown" *ngIf="countdown()"><i class="fas fa-hourglass-half"></i> <span>Expira: <b>{{ countdown() }}</b></span></div>
-                </div>
-            </div>
-
-            <!-- COMENTARIOS -->
-            <section class="comments-section">
-                <div class="section-header">
-                    <h2>Comunidad ({{ comentarios().length }})</h2>
-                    <button class="btn-ghost" *ngIf="authStore.isLoggedIn()" (click)="mostrandoCreadorEncuesta.set(!mostrandoCreadorEncuesta())">
-                        <i class="fas fa-poll"></i> {{ mostrandoCreadorEncuesta() ? 'Ocultar Encuesta' : 'Enviar Encuesta' }}
-                    </button>
-                </div>
-
-                <!-- INPUT COMENTARIO -->
-                <div class="glass-card comment-composer" *ngIf="authStore.isLoggedIn()">
-                    <div class="composer-toolbar">
-                        <button (click)="formatText('bold')" title="Negrita"><i class="fas fa-bold"></i></button>
-                        <button (click)="formatText('italic')" title="Cursiva"><i class="fas fa-italic"></i></button>
-                        <button (click)="formatText('list')" title="Lista"><i class="fas fa-list"></i></button>
-                        <button (click)="formatText('header')" title="Título"><i class="fas fa-heading"></i></button>
-                    </div>
-                    <textarea [(ngModel)]="nuevoComentario" class="comment-textarea" placeholder="¿Qué opinas de este chollo?"></textarea>
-                    
-                    <div class="poll-builder animate-fade-in" *ngIf="mostrandoCreadorEncuesta()">
-                        <input type="text" [(ngModel)]="preguntaEncuesta" class="poll-q-input" placeholder="Tu pregunta...">
-                        <div class="poll-opts">
-                            @for (opt of opcionesEncuesta; track $index; let i = $index) {
-                                <div class="opt-row">
-                                    <input type="text" [(ngModel)]="opcionesEncuesta[i]" [placeholder]="'Opción ' + (i+1)">
-                                </div>
-                            }
-                            <button *ngIf="opcionesEncuesta.length < 5" (click)="addPollOption()" class="btn-add-opt">
-                                <i class="fas fa-plus"></i> Añadir opción
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="composer-footer">
-                        <button class="btn-primary-xs" (click)="publicarComentario()" [disabled]="enviandoComentario() || !nuevoComentario.trim()">
-                            <i class="fas fa-paper-plane"></i> PUBLICAR
-                        </button>
-                    </div>
-                </div>
-
-                <!-- LISTA DE COMENTARIOS -->
-                <div class="comments-feed">
-                    @for (c of comentarios(); track c.id) {
-                        <div class="comment-card glass-card animate-fade-up">
-                            <div class="c-header">
-                                <a [routerLink]="['/perfil', c.actor?.user]" class="user-link">
-                                  <app-avatar 
-                                    [avatarUrl]="c.actor?.avatar"
-                                    [googleAvatarUrl]="c.actor?.googleAvatarUrl"
-                                    [nombre]="c.actor?.nombre"
-                                    [username]="c.actor?.user"
-                                    [size]="35"
-                                    customClass="user-ava"
-                                  ></app-avatar>
-                                </a>
-                                <div class="user-meta">
-                                    <a [routerLink]="['/perfil', c.actor?.user]" class="u-name user-link">{{ c.actor?.user }}</a>
-                                    <span class="u-date">{{ c.fecha | timeAgo }}</span>
-                                </div>
-                                <div class="c-actions" *ngIf="authStore.user()?.id === c.actor?.id">
-                                    <button class="act-btn" (click)="iniciarEdicion(c)"><i class="fas fa-edit"></i></button>
-                                    <button class="act-btn danger" (click)="borrarComentario(c.id)"><i class="fas fa-trash-alt"></i></button>
-                                </div>
-                            </div>
-
-                            <div class="c-body">
-                                @if (editandoId() === c.id) {
-                                    <div class="edit-mode">
-                                        <textarea [(ngModel)]="textoEditando"></textarea>
-                                        <div class="edit-actions">
-                                            <button (click)="guardarEdicion()" class="btn-save">Guardar</button>
-                                            <button (click)="editandoId.set(null)" class="btn-cancel">Cancelar</button>
-                                        </div>
-                                    </div>
-                                } @else {
-                                    <div class="comment-text" [innerHTML]="parseMarkdown(c.texto)"></div>
-                                    
-                                    <!-- ENCUESTA -->
-                                    @if (c.poll) {
-                                        <div class="poll-display">
-                                            <p class="poll-question">{{ c.poll.question }}</p>
-                                            <div class="poll-options-stack">
-                                                @for (opt of c.poll.options; track $index; let i = $index) {
-                                                    <div class="poll-option-row" (click)="votarEncuesta(c, i)">
-                                                        <div class="poll-bar-fill" [style.width.%]="c.poll.totalVotes > 0 ? (opt.votes/c.poll.totalVotes*100) : 0"></div>
-                                                        <span class="opt-text">{{ opt.text }}</span>
-                                                        <span class="opt-percentage" *ngIf="c.poll.totalVotes > 0">
-                                                            {{ (opt.votes/c.poll.totalVotes*100).toFixed(0) }}%
-                                                        </span>
-                                                    </div>
-                                                }
-                                            </div>
-                                            <span class="total-voters">{{ c.poll.totalVotes }} votos • Pulsa para votar</span>
-                                        </div>
-                                    }
-                                }
-                            </div>
-                        </div>
-                    }
-                </div>
-            </section>
-        </main>
+        <div class="secondary-actions-suite">
+          <button class="btn-circle-elite wa" (click)="compartir('wa')" title="Compartir WhatsApp">
+            <i class="fab fa-whatsapp"></i>
+          </button>
+          <button class="btn-circle-elite tg" (click)="compartir('tg')" title="Compartir Telegram">
+            <i class="fab fa-telegram-plane"></i>
+          </button>
+          <button
+            class="btn-circle-elite cp"
+            (click)="compartir('copy')"
+            [class.active]="copiado()"
+            title="Copiar Link"
+          >
+            <i class="fas" [ngClass]="copiado() ? 'fa-check' : 'fa-link'"></i>
+          </button>
+          <button class="btn-circle-elite rp danger" (click)="abrirReporte()" title="Reportar">
+            <i class="fas fa-flag"></i>
+          </button>
+        </div>
+      </div>
     </div>
+
+    <!-- MAIN IMAGE EXHIBITION -->
+    <div class="exhibition-panel animate-slide-right">
+      <div
+        class="glass-frame main-image"
+        (mousemove)="handleImageMouseMove($event); isHoveringImg.set(true)"
+        (mouseleave)="resetImageTilt()"
+        [style.transform]="
+          isHoveringImg()
+            ? 'perspective(1500px) rotateX(' +
+              tiltX() +
+              'deg) rotateY(' +
+              tiltY() +
+              'deg) scale(1.05)'
+            : 'perspective(1500px) rotateX(0) rotateY(0) scale(1)'
+        "
+      >
+        <div class="shimmer-effect"></div>
+        <div class="pedestal-light"></div>
+        <img
+          [src]="
+            selectedImage() ||
+            'https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=1000&auto=format&fit=crop'
+          "
+          class="exhibition-img"
+          alt="Product View"
+          (click)="openLightbox()"
+        />
+
+        <!-- Nav Arrows for Gallery (CENTERED DOCK) -->
+        <div class="gallery-nav-dock" *ngIf="galeria().length > 1">
+          <button class="nav-btn prev" (click)="prevImage()">
+            <i class="fas fa-chevron-left"></i>
+          </button>
+          <div class="nav-dots">
+            @for (img of galeria(); track img; let i = $index) {
+              <span
+                class="dot"
+                [class.active]="selectedImageIdx() === i"
+                (click)="selectImage(img, i)"
+              ></span>
+            }
+          </div>
+          <button class="nav-btn next" (click)="nextImage()">
+            <i class="fas fa-chevron-right"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. EXHIBITION GALLERY GRID -->
+  <section class="cinematic-gallery-section animate-fade-up" *ngIf="galeria().length > 1">
+    <div class="gallery-header">
+      <span class="g-subtitle">GALERÍA DE EXHIBICIÓN</span>
+      <h3 class="g-title">DETALLES VISUALES DEL PRODUCTO</h3>
+    </div>
+    <div class="gallery-grid">
+      @for (img of galeria(); track img; let i = $index) {
+        <div
+          class="gallery-item"
+          [style.--delay]="i * 0.1 + 's'"
+          [class.active]="selectedImageIdx() === i"
+          (click)="selectImage(img, i)"
+        >
+          <img [src]="img" />
+          <div class="item-overlay" (click)="$event.stopPropagation(); openLightbox(img)">
+            <i class="fas fa-expand"></i>
+          </div>
+        </div>
+      }
+    </div>
+  </section>
+
+  <!-- 4. CONTENT GRID (Information & Comments) -->
+  <div class="main-details-grid grid-layout">
+    <aside class="sidebar-info animate-fade-up">
+      <!-- Author Card Redesign (REAL REVIEWS) -->
+      <div class="glass-panel author-exhibit-centric">
+        <div class="panel-header">
+          <i class="fas fa-user-shield"></i>
+          <h3>CURADOR DEL CHOLLO</h3>
+        </div>
+        <div class="author-centric-body">
+          <div class="avatar-col">
+            <div class="avatar-ring-large">
+              <app-avatar
+                [avatarUrl]="oferta().actor?.avatar"
+                [googleAvatarUrl]="oferta().actor?.googleAvatarUrl"
+                [avatarSource]="oferta().actor?.avatarSource"
+                [nombre]="oferta().actor?.nombre"
+                [username]="oferta().actor?.user"
+                [size]="140"
+              ></app-avatar>
+            </div>
+          </div>
+          <div class="info-row">
+            <a [routerLink]="['/perfil', oferta().actor?.user]" class="author-name-hero"
+              >@{{ oferta().actor?.user }}</a
+            >
+
+            <!-- DYNAMIC REAL REVIEWS -->
+            <div class="elite-user-reviews">
+              <div class="review-stars">
+                @for (star of [1, 2, 3, 4, 5]; track star) {
+                  <i
+                    class="fas fa-star"
+                    [class.active-star]="actorReputation() >= star"
+                    [class.half-star]="actorReputation() >= star - 0.5 && actorReputation() < star"
+                  ></i>
+                }
+              </div>
+              <span class="review-label"
+                >{{ actorReputation().toFixed(1) }} ({{ actorSales() }} transacciones)</span
+              >
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Specs Grid -->
+      <div class="glass-panel specs-matrix">
+        <div class="matrix-item">
+          <i class="fas fa-truck-fast"></i>
+          <div class="m-data">
+            <span class="m-label">LOGÍSTICA</span>
+            <span class="m-val">{{
+              oferta().gastosEnvio ? (oferta().gastosEnvio | currencyEs) : 'Envío Gratuito'
+            }}</span>
+          </div>
+        </div>
+        <div class="matrix-item">
+          <i class="fas fa-shop"></i>
+          <div class="m-data">
+            <span class="m-label">CANAL</span>
+            <span class="m-val">{{
+              oferta().esOnline ? 'Plataforma Online' : 'Tienda Física'
+            }}</span>
+          </div>
+        </div>
+        <div class="matrix-item" *ngIf="countdown()">
+          <i class="fas fa-clock-rotate-left"></i>
+          <div class="m-data">
+            <span class="m-label">VIGENCIA</span>
+            <span class="m-val highlight-red">{{ countdown() }}</span>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <main class="main-narrative">
+      <!-- Coupon Code -->
+      <div class="glass-panel coupon-exhibit animate-fade-up" *ngIf="oferta().codigoDescuento">
+        <div class="coupon-content">
+          <div class="c-info">
+            <span class="c-tag">CÓDIGO EXCLUSIVO</span>
+            <h4 class="c-code">{{ oferta().codigoDescuento }}</h4>
+          </div>
+          <button class="btn-copy-elite" (click)="compartir('copy')">
+            {{ copiado() ? 'COPIADO' : 'COPIAR CÓDIGO' }}
+          </button>
+        </div>
+      </div>
+
+      <!-- Description -->
+      <section class="glass-panel description-panel animate-fade-up">
+        <div class="panel-header">
+          <i class="fas fa-align-left"></i>
+          <h3>ESPECIFICACIONES Y DETALLES</h3>
+        </div>
+        <div class="narrative-text" [innerHTML]="parseMarkdown(oferta().descripcion)"></div>
+      </section>
+
+      <!-- COMENTARIOS REDESIGN (Photo Match) -->
+      <section class="comments-section-elite">
+        <div class="section-header-elite">
+          <h2>COMUNIDAD NEXUS ({{ comentarios().length }})</h2>
+          <button
+            class="btn-ghost-elite-centric"
+            *ngIf="authStore.isLoggedIn()"
+            (click)="togglePollBuilder()"
+          >
+            <i class="fas fa-poll"></i>
+            {{ mostrandoCreadorEncuesta() ? 'Cancelar Encuesta' : 'Lanzar Encuesta' }}
+          </button>
+        </div>
+
+        <!-- INPUT COMENTARIO CENTRIC (Rich Text + Poll Builder) -->
+        <div class="comment-centric-container" *ngIf="authStore.isLoggedIn()">
+          <div class="centric-composer-inner">
+            <div class="composer-toolbar-centric">
+              <button (click)="formatText('bold')" class="op-box" title="Negrita"><b>B</b></button>
+              <button (click)="formatText('italic')" class="op-box" title="Cursiva">
+                <i>I</i>
+              </button>
+              <button (click)="formatText('list')" class="op-box" title="Lista">
+                <i class="fas fa-list-ul"></i>
+              </button>
+              <button (click)="formatText('header')" class="op-box" title="Título"><b>H</b></button>
+            </div>
+
+            <!-- Poll Builder UI -->
+            <div class="poll-builder-centric animate-fade-in" *ngIf="mostrandoCreadorEncuesta()">
+              <div class="poll-question-wrap">
+                <i class="fas fa-question-circle"></i>
+                <input
+                  type="text"
+                  [(ngModel)]="preguntaEncuesta"
+                  class="poll-q-input"
+                  placeholder="¿Qué quieres preguntar?"
+                />
+              </div>
+              <div class="poll-options-grid">
+                @for (opt of opcionesEncuesta; track $index; let i = $index) {
+                  <div class="opt-input-row">
+                    <span class="opt-number">{{ i + 1 }}</span>
+                    <input
+                      type="text"
+                      [(ngModel)]="opcionesEncuesta[i]"
+                      [placeholder]="'Opción ' + (i + 1)"
+                    />
+                  </div>
+                }
+                <button
+                  class="btn-add-option"
+                  *ngIf="opcionesEncuesta.length < 5"
+                  (click)="addPollOption()"
+                >
+                  <i class="fas fa-plus"></i> Añadir opción
+                </button>
+              </div>
+            </div>
+
+            <!-- Rich Text ContentEditable -->
+            <div class="textarea-shell">
+              <div
+                #composer
+                contenteditable="true"
+                class="centric-textarea-rich"
+                (keydown)="handleComposerKeydown($event)"
+                data-placeholder="Comparte tu opinión con la comunidad..."
+              ></div>
+            </div>
+
+            <!-- Submit Button aligned as per photo -->
+            <div class="centric-actions">
+              <button
+                class="btn-centric-submit"
+                (click)="publicarComentario()"
+                [disabled]="enviandoComentario()"
+              >
+                <i class="fas fa-paper-plane"></i> ENVIAR
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- FEED DE COMENTARIOS -->
+        <div class="comments-flow">
+          @for (c of comentarios(); track c.id) {
+            <div class="comment-item glass-panel animate-fade-up">
+              <div class="c-header">
+                <div class="user-info">
+                  <app-avatar
+                    [avatarUrl]="c.actor?.avatar"
+                    [googleAvatarUrl]="c.actor?.googleAvatarUrl"
+                    [avatarSource]="c.actor?.avatarSource"
+                    [nombre]="c.actor?.nombre"
+                    [username]="c.actor?.user"
+                    [size]="45"
+                    customClass="c-ava"
+                  ></app-avatar>
+                  <div class="u-meta">
+                    <a [routerLink]="['/perfil', c.actor?.user]" class="u-name"
+                      >@{{ c.actor?.user }}</a
+                    >
+                    <span class="u-date">{{ c.fecha | timeAgo }}</span>
+                  </div>
+                </div>
+                <div class="c-ops" *ngIf="authStore.user()?.id === c.actor?.id">
+                  <button class="op-btn" (click)="iniciarEdicion(c)">
+                    <i class="fas fa-edit"></i>
+                  </button>
+                  <button class="op-btn danger" (click)="borrarComentario(c.id)">
+                    <i class="fas fa-trash-alt"></i>
+                  </button>
+                </div>
+              </div>
+
+              <div class="c-body">
+                @if (editandoId() === c.id) {
+                  <div class="edit-bundle">
+                    <textarea [(ngModel)]="textoEditando"></textarea>
+                    <div class="edit-btns">
+                      <button (click)="guardarEdicion()" class="btn-save">GUARDAR</button>
+                      <button (click)="editandoId.set(null)" class="btn-cancel">CANCELAR</button>
+                    </div>
+                  </div>
+                } @else {
+                  <div class="c-text" [innerHTML]="parseMarkdown(c.texto)"></div>
+
+                  @if (c.poll) {
+                    <div class="poll-exhibit">
+                      <p class="poll-q">{{ c.poll.question }}</p>
+                      <div class="poll-stack">
+                        @for (opt of c.poll.options; track $index; let i = $index) {
+                          <div class="poll-opt-btn" (click)="votarEncuesta(c, i)">
+                            <div
+                              class="poll-fill"
+                              [style.width.%]="
+                                c.poll.totalVotes > 0 ? (opt.votes / c.poll.totalVotes) * 100 : 0
+                              "
+                            ></div>
+                            <span class="opt-label">{{ opt.text }}</span>
+                            <span class="opt-val" *ngIf="c.poll.totalVotes > 0"
+                              >{{ ((opt.votes / c.poll.totalVotes) * 100).toFixed(0) }}%</span
+                            >
+                          </div>
+                        }
+                      </div>
+                      <span class="poll-meta"
+                        >{{ c.poll.totalVotes }} votos • Interactúa para votar</span
+                      >
+                    </div>
+                  }
+                }
+              </div>
+            </div>
+          }
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- 5. LIGHTBOX MODAL (Exhibition Modal) -->
+  <div class="lightbox-overlay" *ngIf="isLightboxOpen()" (click)="closeLightbox()">
+    <button class="lightbox-close" (click)="closeLightbox()">
+      <i class="fas fa-times"></i>
+    </button>
+    <div class="lightbox-content" (click)="$event.stopPropagation()">
+      <img [src]="activeLightboxImg()" class="lightbox-img animate-zoom-in" />
+    </div>
+  </div>
 </div>
 
 <app-reporte-modal></app-reporte-modal>

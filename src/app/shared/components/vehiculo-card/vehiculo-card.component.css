@@ -169,6 +169,63 @@
   padding-top: 8px;
 }
 
+/* ── Botón favorito ──────────────────────────────────────── */
+.fav-btn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 10;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(8px);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  padding: 0;
+}
+
+.fav-btn svg {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  transition: all 0.3s;
+}
+
+.fav-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  transform: scale(1.1);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.fav-btn.active {
+  background: rgba(239, 68, 68, 0.15);
+  border-color: rgba(239, 68, 68, 0.3);
+  color: #ef4444;
+}
+
+.fav-btn.active svg {
+  fill: #ef4444;
+  stroke: #ef4444;
+}
+
+.fav-btn.animating {
+  animation: heartPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes heartPop {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.4); }
+  100% { transform: scale(1); }
+}
+
 .scale-in {
   animation: scaleIn 0.3s ease-out;
 }

@@ -101,6 +101,10 @@ export class CompraService {
     return this.http.get<any>(`${environment.apiUrl}/envio/compra/${compraId}`);
   }
 
+  refreshTracking(envioId: number): Observable<any> {
+    return this.http.post<any>(`${environment.apiUrl}/envio/${envioId}/refresh-tracking`, {});
+  }
+
   /**
    * Historial de compras del usuario autenticado (/mis-compras)
    */

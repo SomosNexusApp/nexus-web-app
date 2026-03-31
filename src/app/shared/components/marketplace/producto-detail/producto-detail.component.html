@@ -1,121 +1,90 @@
-<!-- ═══════════════════════════════════════════════════ LOADING -->
-@if (cargando()) {
-  <div class="detail-loading">
-    <div class="loading-spinner"></div>
-    <p>Cargando producto…</p>
+<!-- ── Cinematic Background ────────────────────────────────── -->
+@if (producto()) {
+  <div class="hero-bg-container">
+    <div class="hero-bg-image" [style.backgroundImage]="'url(' + imagenActiva() + ')'"></div>
+    <div class="hero-overlay"></div>
   </div>
 }
 
-<!-- ═══════════════════════════════════════════════════ ERROR -->
+<!-- ── Loading / Error ═══════════════════════════════════════ -->
+@if (cargando()) {
+  <div class="detail-loading">
+    <div class="loading-spinner"></div>
+    <p>Preparando exhibición…</p>
+  </div>
+}
+
 @if (error()) {
   <div class="detail-error">
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="48"
-      height="48"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      stroke-width="1.5"
-    >
-      <circle cx="12" cy="12" r="10" />
-      <line x1="12" y1="8" x2="12" y2="12" />
-      <line x1="12" y1="16" x2="12.01" y2="16" />
+    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+      <circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" />
     </svg>
     <p>{{ error() }}</p>
     <button (click)="router.navigate(['/'])">Volver al inicio</button>
   </div>
 }
 
-<!-- ═══════════════════════════════════════════════════ DETALLE -->
+<!-- ── Main Content ══════════════════════════════════════════ -->
 @if (!cargando() && !error() && producto()) {
   <div class="detail-page">
-    <!-- ── Breadcrumb ───────────────────────────────────────── -->
+    
+    <!-- ── Header & Breadcomb ────────────────────────── -->
     <nav class="breadcrumb">
       <a routerLink="/">Inicio</a>
-      <span>/</span>
+      <span class="sep">/</span>
       @if (producto()!.categoria) {
         <a [routerLink]="['/search']" [queryParams]="{ categoria: producto()!.categoria!.slug }">
           {{ producto()!.categoria!.nombre }}
         </a>
-        <span>/</span>
+        <span class="sep">/</span>
       }
-      <span class="breadcrumb__current">{{ producto()!.titulo }}</span>
+      <span class="current">{{ producto()!.titulo }}</span>
     </nav>
 
-    <!-- ── Layout 2 cols ────────────────────────────────────── -->
-    <div class="detail-grid">
+    <!-- ── Elite Grid ─────────────────────────────────── -->
+    <div class="exhibition-grid">
       <!-- ╔═══════════════════ GALERÍA ═════════════════════╗ -->
-      <section class="gallery-col">
-        <!-- Imagen principal -->
-        <div
-          class="gallery-main"
-          (mouseenter)="zoomActivo.set(true)"
-          (mouseleave)="zoomActivo.set(false)"
-        >
-          <img
-            [src]="imagenActiva()"
-            [alt]="producto()!.titulo"
-            class="gallery-main__img"
-            [class.zoom-active]="zoomActivo()"
-            (error)="$any($event.target).src = 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=800&auto=format&fit=crop'"
-          />
+      <section class="gallery-col shadow-glow">
+        <div class="gallery-showcase" 
+             (mouseenter)="zoomActivo.set(true)" 
+             (mouseleave)="zoomActivo.set(false)">
+          
+          <!-- Imagen principal con efecto de carga -->
+          <div class="main-image-container">
+            <img [src]="imagenActiva()" 
+                 [alt]="producto()!.titulo" 
+                 class="main-image shadow-inner"
+                 [class.zoom-active]="zoomActivo()" 
+                 (error)="$any($event.target).src = 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=800&auto=format&fit=crop'" />
+          </div>
 
-          <!-- Flechas navegación -->
+          <!-- Navegación Refinada -->
           @if (todasImagenes().length > 1) {
-            <button
-              class="gallery-arrow gallery-arrow--prev"
-              (click)="prevImagen()"
-              type="button"
-              aria-label="Anterior"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2.5"
-              >
-                <polyline points="15 18 9 12 15 6" />
-              </svg>
-            </button>
-            <button
-              class="gallery-arrow gallery-arrow--next"
-              (click)="nextImagen()"
-              type="button"
-              aria-label="Siguiente"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2.5"
-              >
-                <polyline points="9 18 15 12 9 6" />
-              </svg>
-            </button>
-            <div class="gallery-counter">
-              {{ imagenActivaIdx() + 1 }} / {{ todasImagenes().length }}
+            <div class="gallery-nav">
+              <button class="nav-btn prev" (click)="prevImagen()" aria-label="Anterior">
+                <i class="fas fa-chevron-left"></i>
+              </button>
+              <div class="nav-counter">
+                <span>{{ imagenActivaIdx() + 1 }}</span>
+                <span class="divider">/</span>
+                <span>{{ todasImagenes().length }}</span>
+              </div>
+              <button class="nav-btn next" (click)="nextImagen()" aria-label="Siguiente">
+                <i class="fas fa-chevron-right"></i>
+              </button>
             </div>
           }
         </div>
 
-        <!-- Miniaturas -->
+        <!-- Film Strip Miniaturas -->
         @if (todasImagenes().length > 1) {
-          <div class="gallery-thumbs">
-            @for (img of todasImagenes().slice(0, 8); track trackByIdx($index)) {
-              <button
-                class="gallery-thumb"
-                [class.gallery-thumb--active]="imagenActivaIdx() === $index"
-                (click)="setImagenActiva($index)"
-                type="button"
-              >
-                <img [src]="img" [alt]="'Imagen ' + ($index + 1)" loading="lazy" />
+          <div class="film-strip">
+            @for (img of todasImagenes().slice(0, 12); track trackByIdx($index)) {
+              <button class="strip-item" 
+                      [class.active]="imagenActivaIdx() === $index" 
+                      (click)="setImagenActiva($index)">
+                <img [src]="img" [alt]="'Vista ' + ($index + 1)" loading="lazy" />
+                <div class="active-indicator"></div>
               </button>
             }
           </div>
@@ -123,467 +92,337 @@
       </section>
 
       <!-- ╔═══════════════════ INFO ════════════════════════╗ -->
-      <section class="info-col">
-        <!-- Título -->
-        <h1 class="detail-title">{{ producto()!.titulo }}</h1>
-
-        <!-- Precio + condición -->
-        <div class="price-condition-row">
-          @if (producto()!.tipoOferta === 'DONACION') {
-            <span class="detail-price text-green">GRATIS</span>
-          } @else if (producto()!.tipoOferta === 'INTERCAMBIO') {
-            <span class="detail-price text-purple">Intercambio</span>
-          } @else {
-            @if (precioNegociado()) {
-              <div class="negotiated-price-box">
-                <span class="detail-price text-blue">{{ precioNegociado() | currencyEs }}</span>
-                <span class="original-price-strikethrough">{{ producto()!.precio | currencyEs }}</span>
-                <span class="negotiated-badge">OFERTA ACEPTADA</span>
-              </div>
+      <section class="info-col glass-card">
+        <div class="info-header">
+          <div class="category-tag">{{ producto()!.categoria?.nombre || 'Producto' }}</div>
+          <h1 class="product-title">{{ producto()!.titulo }}</h1>
+          
+          <div class="price-showcase">
+            @if (producto()!.tipoOferta === 'DONACION') {
+              <div class="price-tag donation">GRATIS</div>
+            } @else if (producto()!.tipoOferta === 'INTERCAMBIO') {
+              <div class="price-tag exchange">INTERCAMBIO</div>
             } @else {
-              <span class="detail-price">{{ producto()!.precio | currencyEs }}</span>
+              <div class="price-container">
+                @if (precioNegociado()) {
+                  <span class="main-price discounted">{{ precioNegociado() | currencyEs }}</span>
+                  <span class="old-price">{{ producto()!.precio | currencyEs }}</span>
+                  <span class="promo-badge">OFERTA ACEPTADA</span>
+                } @else {
+                  <span class="main-price">{{ producto()!.precio | currencyEs }}</span>
+                }
+              </div>
             }
-          }
-          @if (producto()!.condicion) {
-            <span class="cond-badge" [ngClass]="'cond-' + producto()!.condicion!.toLowerCase()">
-              {{ producto()!.condicion!.replace('_', ' ') }}
-            </span>
-          }
-          @if (producto()!.tipoOferta === 'DONACION') {
-            <span class="tipo-badge tipo-donacion">DONACIÓN GRATIS</span>
-          }
-          @if (producto()!.tipoOferta === 'INTERCAMBIO') {
-            <span class="tipo-badge tipo-intercambio">INTERCAMBIO</span>
-          }
+            
+            @if (producto()!.condicion) {
+              <div class="condition-chip" [attr.data-condicion]="producto()!.condicion">
+                {{ producto()!.condicion!.replace('_', ' ') }}
+              </div>
+            }
+          </div>
         </div>
 
-        <!-- Banners estado -->
-        @if (producto()!.estado === 'VENDIDO') {
-          <div class="estado-banner estado-vendido">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-            >
-              <circle cx="12" cy="12" r="10" />
-              <line x1="15" y1="9" x2="9" y2="15" />
-              <line x1="9" y1="9" x2="15" y2="15" />
-            </svg>
-            Este producto ya no está disponible
+        <!-- Meta Grid -->
+        <div class="meta-info-grid">
+          <div class="meta-box">
+            <i class="fas fa-map-marker-alt"></i>
+            <span>{{ producto()!.ubicacion || 'España' }}</span>
           </div>
-        }
-        @if (producto()!.estado === 'RESERVADO') {
-          <div class="estado-banner estado-reservado">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-            >
-              <circle cx="12" cy="12" r="10" />
-              <line x1="12" y1="8" x2="12" y2="12" />
-              <line x1="12" y1="16" x2="12.01" y2="16" />
-            </svg>
-            En proceso de compra
+          <div class="meta-box">
+            <i class="fas fa-calendar-alt"></i>
+            <span>{{ producto()!.fechaPublicacion | timeAgo }}</span>
           </div>
-        }
-
-        <!-- Ubicación + fecha -->
-        <div class="meta-row">
-          <span class="meta-item">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="14"
-              height="14"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-            >
-              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
-              <circle cx="12" cy="10" r="3" />
-            </svg>
-            {{ producto()!.ubicacion || 'España' }}
-          </span>
-          <span class="meta-sep">·</span>
-          <span class="meta-item">{{ producto()!.fechaPublicacion | timeAgo }}</span>
           @if (producto()!.admiteEnvio) {
-            <span class="meta-sep">·</span>
-            <span class="meta-item envio-tag">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="13"
-                height="13"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-              >
-                <rect x="1" y="3" width="15" height="13" />
-                <polygon points="16 8 20 8 23 11 23 16 16 16 16 8" />
-                <circle cx="5.5" cy="18.5" r="2.5" />
-                <circle cx="18.5" cy="18.5" r="2.5" />
-              </svg>
-              Envío disponible
-              @if (producto()!.precioEnvio) {
-                ({{ producto()!.precioEnvio | currencyEs }})
-              }
-            </span>
+            <div class="meta-box delivery">
+              <i class="fas fa-truck"></i>
+              <span>Envío Disponible</span>
+            </div>
           }
         </div>
 
-        <!-- ── BOTONES ─────────────────────────────────────── -->
+        <!-- ── ACCIONES ─────────────────────────────────────── -->
         <div class="actions-block">
-          <!-- Comprador logueado, puede comprar (admiteEnvio === true) -->
           @if (puedeComprar()) {
-            <button class="btn btn-primary" (click)="comprarAhora()">
+            <button class="btn-elite primary" (click)="comprarAhora()">
+              <div class="glow"></div>
               <i class="fas fa-shopping-cart"></i>
-              Comprar ahora
+              <span>Comprar ahora</span>
             </button>
-            <button class="btn btn-secondary" (click)="abrirModalOferta()">
+            <button class="btn-elite secondary" (click)="abrirModalOferta()">
               <i class="fas fa-tags"></i>
-              Hacer oferta
+              <span>Hacer oferta</span>
             </button>
-            <button class="btn btn-chat" (click)="irAlChat()">
-              <i class="fas fa-comments"></i>
-              Chat con el vendedor
-            </button>
-            <button class="btn btn-fav" [class.active]="esFavorito()" (click)="toggleFavorito()">
-              <i class="fas fa-heart"></i>
-              {{ esFavorito() ? 'Guardado' : 'Guardar' }}
-            </button>
-          }
-
-          <!-- Solo recogida en persona (admiteEnvio === false) -->
-          @if (soloRecogidaPersonal() && isLoggedIn() && !esVendedorPropietario()) {
-            <div class="estado-banner estado-recogida">
-              <i class="fas fa-handshake"></i>
-              Solo recogida en persona — acuerda la entrega por el chat
+            <div class="action-row-split">
+              <button class="btn-elite ghost chat" (click)="irAlChat()">
+                <i class="fas fa-comments"></i>
+                <span>Chat</span>
+              </button>
+              <button class="btn-elite ghost fav" [class.active]="esFavorito()" (click)="toggleFavorito()">
+                <i class="fas fa-heart"></i>
+                <span>{{ esFavorito() ? 'Guardado' : 'Guardar' }}</span>
+              </button>
             </div>
-            <button class="btn btn-chat" (click)="irAlChat()">
+          }
+
+          @if (soloRecogidaPersonal() && isLoggedIn() && !esVendedorPropietario()) {
+            <div class="status-alert info">
+              <i class="fas fa-handshake"></i>
+              <span>Solo recogida en persona</span>
+            </div>
+            <button class="btn-elite primary" (click)="irAlChat()">
               <i class="fas fa-comments"></i>
-              Contactar al vendedor
+              <span>Contactar al vendedor</span>
             </button>
-            <button class="btn btn-fav" [class.active]="esFavorito()" (click)="toggleFavorito()">
+            <button class="btn-elite ghost fav" [class.active]="esFavorito()" (click)="toggleFavorito()">
               <i class="fas fa-heart"></i>
-              {{ esFavorito() ? 'Guardado' : 'Guardar' }}
+              <span>{{ esFavorito() ? 'Guardado' : 'Guardar' }}</span>
             </button>
           }
 
-          <!-- Guest -->
           @if (!isLoggedIn()) {
             @if (producto()!.tipoOferta !== 'INTERCAMBIO' && producto()!.tipoOferta !== 'DONACION') {
-              <button class="btn btn-primary" (click)="comprarAhora()">
+              <button class="btn-elite primary" (click)="comprarAhora()">
                 <i class="fas fa-shopping-cart"></i>
-                Comprar ahora
+                <span>Comprar ahora</span>
               </button>
             }
-            <button class="btn btn-chat" (click)="irAlChat()">
+            <button class="btn-elite ghost" (click)="irAlChat()">
               <i class="fas fa-comments"></i>
-              Chat con el vendedor
-            </button>
-            <button class="btn btn-fav" (click)="toggleFavorito()">
-              <i class="fas fa-heart"></i>
-              Guardar
+              <span>Preguntar al vendedor</span>
             </button>
           }
 
-          <!-- Botones propietario -->
           @if (esVendedorPropietario()) {
-            <a [routerLink]="['/publicar/editar', producto()!.id]" class="btn btn-secondary">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="15"
-                height="15"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-              >
-                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
-                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
-              </svg>
-              Editar anuncio
+            <a [routerLink]="['/publicar/editar', producto()!.id]" class="btn-elite secondary">
+              <i class="fas fa-edit"></i>
+              <span>Editar anuncio</span>
             </a>
-            <button class="btn btn-warning" (click)="marcarVendido()">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="15"
-                height="15"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-              >
-                <polyline points="20 6 9 17 4 12" />
-              </svg>
-              Marcar como vendido
-            </button>
-            <button class="btn btn-danger" (click)="confirmarEliminar()">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="15"
-                height="15"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-              >
-                <polyline points="3 6 5 6 21 6" />
-                <path
-                  d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"
-                />
-              </svg>
-              Eliminar anuncio
-            </button>
+            <div class="action-row-split">
+              <button class="btn-elite ghost warning" (click)="marcarVendido()">
+                <i class="fas fa-check-circle"></i>
+                <span>Vendido</span>
+              </button>
+              <button class="btn-elite ghost danger" (click)="confirmarEliminar()">
+                <i class="fas fa-trash-alt"></i>
+                <span>Borrar</span>
+              </button>
+            </div>
           }
         </div>
       </section>
     </div>
-    <!-- /detail-grid -->
 
-    <!-- ═══════════════════ DESCRIPCIÓN ════════════════════ -->
-    <section class="detail-section">
-      <h2 class="section-title">Descripción</h2>
-      <div class="desc-text" [class.desc-expandida]="descExpandida()">
-        <p>{{ producto()!.descripcion }}</p>
-      </div>
-      @if (descLarga() && !descExpandida()) {
-        <button class="leer-mas-btn" (click)="descExpandida.set(true)">Leer más</button>
-      }
-
-      <!-- Detalles del producto -->
-      <div class="detail-specs">
-        @if (producto()!.marca) {
-          <div class="spec-item">
-            <i class="fas fa-car"></i>
-            <span class="spec-label">Marca</span>
-            <span class="spec-value">{{ producto()!.marca }}</span>
-          </div>
-        }
-        @if (producto()!.modelo) {
-          <div class="spec-item">
-            <i class="fas fa-fingerprint"></i>
-            <span class="spec-label">Modelo</span>
-            <span class="spec-value">{{ producto()!.modelo }}</span>
-          </div>
-        }
-        @if (producto()!.condicion) {
-          <div class="spec-item">
-            <i class="fas fa-info-circle"></i>
-            <span class="spec-label">Condición</span>
-            <span class="spec-value">{{ producto()!.condicion!.replace('_', ' ') }}</span>
-          </div>
-        }
-        @if (producto()!.talla) {
-          <div class="spec-item">
-            <i class="fas fa-ruler-combined"></i>
-            <span class="spec-label">Talla</span>
-            <span class="spec-value">{{ producto()!.talla }}</span>
-          </div>
-        }
-        @if (producto()!.color) {
-          <div class="spec-item">
-            <i class="fas fa-palette"></i>
-            <span class="spec-label">Color</span>
-            <span class="spec-value">{{ producto()!.color }}</span>
-          </div>
-        }
-        <div class="spec-item">
-          <i class="fas fa-truck"></i>
-          <span class="spec-label">Envío</span>
-          <span class="spec-value">{{ producto()!.admiteEnvio ? 'Sí' : 'No' }}</span>
+    <!-- ── EXHIBITION DETAILS ────────────────────────────── -->
+    <div class="details-showcase">
+      <!-- Descripción -->
+      <section class="details-panel glass-card">
+        <h2 class="panel-title">Insignias y Detalles</h2>
+        <div class="description-wrap" [class.expanded]="descExpandida()">
+          <p class="desc-content">{{ producto()!.descripcion }}</p>
         </div>
-        @if (producto()!.admiteEnvio && producto()!.precioEnvio) {
-          <div class="spec-item">
-            <i class="fas fa-coins"></i>
-            <span class="spec-label">Precio envío</span>
-            <span class="spec-value">{{ producto()!.precioEnvio | currencyEs }}</span>
-          </div>
+        @if (descLarga() && !descExpandida()) {
+          <button class="reveal-btn" (click)="descExpandida.set(true)">
+            <span>Mostrar todo</span>
+            <i class="fas fa-chevron-down"></i>
+          </button>
         }
-      </div>
-    </section>
 
-    <!-- ═══════════════════ VENDEDOR ════════════════════════ -->
-    @if (vendedor()) {
-      <section class="detail-section">
-        <h2 class="section-title">Sobre el vendedor</h2>
-        <div class="vendedor-card">
-          <!-- Avatar + info básica -->
-          <div class="vendedor-header">
-            <div class="vendedor-avatar">
+        <!-- Holographic Specs -->
+        <div class="hologram-specs">
+          @if (producto()!.marca) {
+            <div class="holo-chip">
+              <span class="label">Marca</span>
+              <span class="val">{{ producto()!.marca }}</span>
+            </div>
+          }
+          @if (producto()!.modelo) {
+            <div class="holo-chip">
+              <span class="label">Modelo</span>
+              <span class="val">{{ producto()!.modelo }}</span>
+            </div>
+          }
+          @if (producto()!.talla) {
+            <div class="holo-chip">
+              <span class="label">Talla</span>
+              <span class="val">{{ producto()!.talla }}</span>
+            </div>
+          }
+          @if (producto()!.color) {
+            <div class="holo-chip">
+              <span class="label">Color</span>
+              <span class="val">{{ producto()!.color }}</span>
+            </div>
+          }
+          <div class="holo-chip">
+            <span class="label">Envío</span>
+            <span class="val">{{ producto()!.admiteEnvio ? 'Permitido' : 'No disponible' }}</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Vendedor -->
+      <section class="details-panel vendor-panel glass-card">
+        <h2 class="panel-title">{{ vendedor()?.nombre || vendedor()?.username || vendedor()?.user || 'Vendedor' }}</h2>
+        @if (vendedor()) {
+          <div class="vendor-showcase" [routerLink]="['/perfil', vendedor()!.id]" style="cursor: pointer;">
+            <div class="vendor-avatar-wrap">
               @if (vendedor()!.avatar) {
-                <img [src]="vendedor()!.avatar" [alt]="vendedor()!.nombre" />
+                <img [src]="vendedor()!.avatar" [alt]="vendedor()!.nombre" class="vendor-img" />
               } @else {
-                <span class="avatar-fallback">{{ getAvatarFallback(vendedor()!.nombre) }}</span>
+                <div class="avatar-fallback">{{ getAvatarFallback(vendedor()!.nombre) }}</div>
               }
               @if (vendedor()!.esVerificado) {
-                <span class="verified-badge" title="Vendedor verificado">✓</span>
+                <div class="verified-dot" title="Verificado">
+                  <i class="fas fa-check"></i>
+                </div>
               }
             </div>
-            <div class="vendedor-info">
-              <p class="vendedor-nombre">{{ vendedor()!.nombre }} {{ vendedor()!.apellidos }}</p>
-              <p class="vendedor-username">&#64;{{ vendedor()!.user }}</p>
-              <!-- Estrellas -->
-              <div class="stars-row">
-                @for (star of starArray(); track trackByIdx($index)) {
-                  <svg
-                    class="star"
-                    [class.star--full]="star.full"
-                    [class.star--half]="star.half"
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="14"
-                    height="14"
-                    viewBox="0 0 24 24"
-                    [attr.fill]="star.full ? '#fbbf24' : 'none'"
-                    stroke="#fbbf24"
-                    stroke-width="2"
-                  >
-                    <polygon
-                      points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"
-                    />
-                  </svg>
-                }
-                <span class="stars-count">({{ valoraciones().length }} valoraciones)</span>
+            
+            <div class="vendor-meta">
+              <h3 class="vendor-name">
+                {{ vendedor()!.nombre }} {{ vendedor()!.apellidos }}
+              </h3>
+              <span class="vendor-at">@{{ vendedor()?.username || vendedor()?.user }}</span>
+              <div class="vendor-badges">
+                <span class="badge sale-count">{{ vendedor()!.totalVentas }} ventas</span>
+                <span class="badge member-since">Desde {{ vendedor()!.fechaRegistro | timeAgo }}</span>
               </div>
-              <div class="vendedor-stats">
-                <span>{{ vendedor()!.totalVentas }} ventas</span>
-                @if (vendedor()!.fechaRegistro) {
-                  <span>·</span>
-                  <span>Miembro desde {{ vendedor()!.fechaRegistro | timeAgo }}</span>
-                }
+              
+              <!-- Stars -->
+              <div class="rating-display">
+                <div class="stars">
+                  @for (star of starArray(); track trackByIdx($index)) {
+                    <i class="fas" 
+                       [ngClass]="{
+                         'fa-star': star.full,
+                         'fa-star-half-alt': star.half,
+                         'fa-star empty': !star.full && !star.half
+                       }"
+                       [class.full]="star.full" 
+                       [class.half]="star.half"></i>
+                  }
+                </div>
+                <span class="count">({{ valoraciones().length }} reseñas)</span>
               </div>
             </div>
           </div>
 
-          <!-- Últimas valoraciones -->
+          <!-- Valoraciones -->
           @if (valoraciones().length > 0) {
-            <div class="valoraciones-list">
+            <div class="feedback-scroll">
               @for (v of valoraciones(); track v.id) {
-                <div class="valoracion-item">
-                  <div class="val-header">
-                    <div class="val-stars">
+                <div class="feedback-card">
+                  <div class="fb-header">
+                    <div class="fb-stars">
                       @for (i of [1, 2, 3, 4, 5]; track i) {
-                        <svg
-                          width="12"
-                          height="12"
-                          viewBox="0 0 24 24"
-                          [attr.fill]="i <= v.puntuacion ? '#fbbf24' : 'none'"
-                          stroke="#fbbf24"
-                          stroke-width="2"
-                        >
-                          <polygon
-                            points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"
-                          />
-                        </svg>
+                        <i class="fas fa-star" [class.active]="i <= v.puntuacion"></i>
                       }
                     </div>
-                    <span class="val-fecha">{{ v.fecha | timeAgo }}</span>
+                    <span class="fb-date">{{ v.fecha | timeAgo }}</span>
                   </div>
-                  @if (v.comentario) {
-                    <p class="val-comentario">{{ v.comentario }}</p>
-                  }
+                  <p class="fb-text">{{ v.comentario }}</p>
                 </div>
               }
             </div>
           }
 
-          <!-- Otros productos del vendedor -->
+          <!-- Otros productos -->
           @if (productosVendedor().length > 0) {
-            <div class="vendedor-productos">
-              <p class="vendedor-prod-label">Otros anuncios del vendedor</p>
-              <div class="vendedor-prod-scroll">
-                @for (p of productosVendedor(); track p.id) {
-                  <div class="vendedor-prod-item">
-                    <app-producto-card [producto]="p" [showFavorito]="false" />
-                  </div>
-                }
-              </div>
+            <div class="vendor-extra-products">
+               <h3 class="extra-title">Más del vendedor</h3>
+               <div class="extra-scroll">
+                  @for (p of productosVendedor(); track p.id) {
+                    <div class="extra-item">
+                      <app-producto-card [producto]="p" [showFavorito]="false" />
+                    </div>
+                  }
+               </div>
+            </div>
+          }
+        }
+      </section>
+    </div>
+
+    <!-- ── RELATED EXHIBITS ──────────────────────────────── -->
+    @if (relacionados().length > 0) {
+      <section class="related-section">
+        <div class="section-header">
+          <h2 class="panel-title">Artículos Relacionados</h2>
+          <div class="line"></div>
+        </div>
+        <div class="related-grid">
+          @for (p of relacionados(); track p.id) {
+            <div class="related-item">
+              <app-producto-card [producto]="p" />
             </div>
           }
         </div>
       </section>
     }
 
-    <!-- ═══════════════════ RELACIONADOS ════════════════════ -->
-    @if (relacionados().length > 0) {
-      <section class="detail-section">
-        <h2 class="section-title">También te puede interesar</h2>
-        <div class="relacionados-grid">
-          @for (p of relacionados(); track p.id) {
-            <app-producto-card [producto]="p" />
-          }
-        </div>
-      </section>
-    }
-
-    <!-- ═══════════════════ REPORTAR ════════════════════════ -->
-    <div class="reportar-link">
-      <button class="reportar-btn" (click)="reportarAnuncio()">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="13"
-          height="13"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-        >
-          <path
-            d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"
-          />
-          <line x1="12" y1="9" x2="12" y2="13" />
-          <line x1="12" y1="17" x2="12.01" y2="17" />
-        </svg>
-        Reportar este anuncio
+    <!-- ── FOOTER ACTIONS ────────────────────────────────── -->
+    <div class="report-area">
+      <button class="btn-report" (click)="reportarAnuncio()">
+        <i class="fas fa-exclamation-triangle"></i>
+        <span>Reportar este anuncio</span>
       </button>
     </div>
-  </div>
-  <!-- /detail-page -->
+
+  </div> <!-- /detail-page -->
 }
 
-<!-- ═══════════════════ MODAL HACER OFERTA ══════════════════ -->
+<!-- ── MODALES ═══════════════════════════════════════════════ -->
 @if (modalOfertaAbierto()) {
   <div class="modal-overlay" (click)="modalOfertaAbierto.set(false)">
-    <div class="modal-box" (click)="$event.stopPropagation()">
-      <h3 class="modal-title">Hacer una oferta</h3>
-      <p class="modal-sub">
-        Precio actual: <strong>{{ producto()!.precio | currencyEs }}</strong>
-      </p>
-      <input
-        class="modal-input"
-        type="number"
-        placeholder="Tu precio (€)"
-        [ngModel]="precioOfertaInput()"
-        (ngModelChange)="precioOfertaInput.set($event)"
-        min="1"
-      />
-      <div class="modal-actions">
-        <button class="btn btn-secondary" (click)="modalOfertaAbierto.set(false)">Cancelar</button>
-        <button class="btn btn-primary" (click)="enviarOferta()" [disabled]="!precioOfertaInput()">
-          Enviar oferta
+    <div class="elite-modal" (click)="$event.stopPropagation()">
+      <header class="modal-header">
+        <div class="modal-icon"><i class="fas fa-hand-holding-usd"></i></div>
+        <div class="modal-title-group">
+          <h3>Propuesta de Adquisición</h3>
+          <p>Negocia un precio justo directamente</p>
+        </div>
+        <button class="modal-close-btn" (click)="modalOfertaAbierto.set(false)">
+          <i class="fas fa-times"></i>
+        </button>
+      </header>
+
+      <div class="modal-body">
+        <div class="price-input-container">
+          <span class="currency-prefix">€</span>
+          <input class="elite-input" 
+                 type="number" 
+                 placeholder="0.00"
+                 [ngModel]="precioOfertaInput()" 
+                 (ngModelChange)="precioOfertaInput.set($event)" 
+                 min="1" />
+        </div>
+
+        <button class="btn-nexus-submit" (click)="enviarOferta()" [disabled]="!precioOfertaInput()">
+          ENVIAR PROPUESTA
         </button>
       </div>
     </div>
   </div>
 }
 
-<!-- ═══════════════════ MODAL CONFIRMAR BORRAR ══════════════ -->
 @if (modalBorrarAbierto()) {
   <div class="modal-overlay" (click)="modalBorrarAbierto.set(false)">
-    <div class="modal-box" (click)="$event.stopPropagation()">
-      <h3 class="modal-title">¿Eliminar anuncio?</h3>
-      <p class="modal-sub">Esta acción no se puede deshacer.</p>
-      <div class="modal-actions">
-        <button class="btn btn-secondary" (click)="modalBorrarAbierto.set(false)">Cancelar</button>
-        <button class="btn btn-danger" (click)="eliminarProducto()">Sí, eliminar</button>
+    <div class="elite-modal danger" (click)="$event.stopPropagation()">
+      <header class="modal-header">
+        <div class="modal-icon" style="background: rgba(239, 68, 68, 0.1); color: var(--red);">
+          <i class="fas fa-trash-alt"></i>
+        </div>
+        <div class="modal-title-group">
+          <h3>¿Eliminar Anuncio?</h3>
+          <p>Esta acción retirará el producto permanentemente.</p>
+        </div>
+      </header>
+      
+      <div class="modal-body">
+        <div class="danger-actions">
+          <button class="btn-ghost" (click)="modalBorrarAbierto.set(false)">Cancelar</button>
+          <button class="btn-danger-solid" (click)="eliminarProducto()">Eliminar Anuncio</button>
+        </div>
       </div>
     </div>
   </div>

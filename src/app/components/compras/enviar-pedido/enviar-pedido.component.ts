@@ -1,6 +1,7 @@
 import {
   Component,
   OnInit,
+  OnDestroy,
   inject,
   signal,
   ChangeDetectionStrategy,
@@ -21,7 +22,7 @@ import { Envio } from '../../../models/envio.model';
   styleUrls: ['./enviar-pedido.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class EnviarPedidoComponent implements OnInit {
+export class EnviarPedidoComponent implements OnInit, OnDestroy {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private http = inject(HttpClient);
@@ -35,9 +36,11 @@ export class EnviarPedidoComponent implements OnInit {
   pasosExpandido = signal(true);
   cargando = signal(true);
   error = signal<string | null>(null);
-  marcandoEnviado = signal(false);
-  enviado = signal(false);
   copiado = signal(false);
+  refrescandoTracking = signal(false);
+  registrandoEntrega = signal(false);
+  trackingInput = signal('');
+  private pollTimer: ReturnType<typeof setInterval> | null = null;
 
   ngOnInit(): void {
     const compraId = this.route.snapshot.paramMap.get('compraId');
@@ -48,11 +51,18 @@ export class EnviarPedidoComponent implements OnInit {
     this.cargarEnvio(+compraId);
   }
 
+  ngOnDestroy(): void {
+    if (this.pollTimer) {
+      clearInterval(this.pollTimer);
+    }
+  }
+
   private cargarEnvio(compraId: number): void {
     this.compraSrv.getEnvioPorCompra(compraId).subscribe({
       next: (e: Envio) => {
         this.envio.set(e);
         this.cargarPuntosYContexto(compraId);
+        this.iniciarTrackingPoll();
         this.cargando.set(false);
         this.cdr.markForCheck();
       },
@@ -62,6 +72,28 @@ export class EnviarPedidoComponent implements OnInit {
         this.cdr.markForCheck();
       },
     });
+  }
+
+  private iniciarTrackingPoll(): void {
+    if (this.pollTimer) {
+      clearInterval(this.pollTimer);
+    }
+    this.pollTimer = setInterval(() => {
+      const current = this.envio();
+      if (!current?.id) return;
+      if (current.estado === 'ENTREGADO' || current.estado === 'CANCELADO') {
+        if (this.pollTimer) clearInterval(this.pollTimer);
+        return;
+      }
+      this.compraSrv.refreshTracking(current.id).subscribe({
+        next: (updated: Envio) => {
+          if (updated?.estado) {
+            this.envio.set(updated);
+            this.cdr.markForCheck();
+          }
+        },
+      });
+    }, 20000);
   }
 
   private cargarPuntosYContexto(compraId: number): void {
@@ -83,27 +115,49 @@ export class EnviarPedidoComponent implements OnInit {
     });
   }
 
-  marcarComoEnviado(): void {
+  refrescarTrackingManual(): void {
     const e = this.envio();
-    if (!e) return;
-    this.marcandoEnviado.set(true);
+    if (!e?.id) return;
+    this.refrescandoTracking.set(true);
+    this.compraSrv.refreshTracking(e.id).subscribe({
+      next: (updated: Envio) => {
+        if (updated?.estado) {
+          this.envio.set(updated);
+        }
+        this.refrescandoTracking.set(false);
+        this.cdr.markForCheck();
+      },
+      error: () => {
+        this.refrescandoTracking.set(false);
+        this.cdr.markForCheck();
+      },
+    });
+  }
 
+  registrarEntregaEnCorreos(): void {
+    const e = this.envio();
+    const tracking = this.trackingInput().trim();
+    if (!e?.id || !tracking) {
+      this.error.set('Debes introducir el tracking real que te dio Correos.');
+      return;
+    }
+
+    this.registrandoEntrega.set(true);
     const body = {
       transportista: e.transportistaEnum ?? e.transportista ?? 'CORREOS',
-      numeroSeguimiento: '',
-      diasEntregaEstimados: 5,
+      numeroSeguimiento: tracking,
+      diasEntregaEstimados: 3,
     };
-
     this.http.post<Envio>(`${environment.apiUrl}/envio/${e.id}/enviar`, body).subscribe({
       next: (updated) => {
         this.envio.set(updated);
-        this.enviado.set(true);
-        this.marcandoEnviado.set(false);
+        this.registrandoEntrega.set(false);
+        this.error.set(null);
         this.cdr.markForCheck();
       },
       error: (err) => {
-        this.error.set(err?.error?.error ?? 'Error al marcar como enviado.');
-        this.marcandoEnviado.set(false);
+        this.error.set(err?.error?.error ?? 'No se pudo registrar el tracking.');
+        this.registrandoEntrega.set(false);
         this.cdr.markForCheck();
       },
     });
@@ -146,6 +200,33 @@ export class EnviarPedidoComponent implements OnInit {
 
   getQrSrc(base64?: string): string {
     return base64 ? `data:image/png;base64,${base64}` : '';
+  }
+
+  getPuntoMapsUrl(p: { nombre?: string; direccion?: string; ciudad?: string }): string {
+    const q = [p.nombre, p.direccion, p.ciudad].filter(Boolean).join(', ');
+    return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(q)}`;
+  }
+
+  getTransportistaWebUrl(transportista?: string): string {
+    const t = (transportista || '').toUpperCase();
+    if (t.includes('SEUR')) return 'https://www.seur.com';
+    if (t.includes('MRW')) return 'https://www.mrw.es';
+    return 'https://www.correos.es';
+  }
+
+  getPasoActual(estado?: string): number {
+    switch (estado) {
+      case 'ENVIADO':
+        return 3;
+      case 'EN_TRANSITO':
+        return 4;
+      case 'EN_REPARTO':
+        return 5;
+      case 'ENTREGADO':
+        return 6;
+      default:
+        return 2;
+    }
   }
 
   volver(): void {

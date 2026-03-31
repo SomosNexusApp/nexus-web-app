@@ -4,26 +4,15 @@ import { Router, RouterModule } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../../environments/enviroment';
 import { ProductoCardComponent } from '../../../shared/components/marketplace/product-card/producto-card.component';
-
-export interface ProductoSimple {
-  id: number;
-  titulo: string;
-  precio: number;
-  imagenPrincipal?: string;
-  condicion?: string;
-  localidad?: string;
-  provincia?: string;
-  envioDisponible?: boolean;
-  favoritos?: number;
-  vendedor?: { nombre: string; verificado?: boolean };
-  fechaPublicacion?: string;
-  patrocinado?: boolean;
-}
+import { VehiculoCardComponent } from '../../../shared/components/vehiculo-card/vehiculo-card.component';
+import { OfertaCardComponent } from '../../../shared/components/marketplace/oferta-card/oferta-card.component';
+import { SearchService } from '../../../../app/core/services/search.service';
+import { MarketplaceItem } from '../../../../app/models/marketplace-item.model';
 
 @Component({
   selector: 'app-productos-recientes',
   standalone: true,
-  imports: [CommonModule, RouterModule, ProductoCardComponent],
+  imports: [CommonModule, RouterModule, ProductoCardComponent, VehiculoCardComponent, OfertaCardComponent],
   templateUrl: './productos-recientes.component.html',
   styleUrls: ['./productos-recientes.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -31,18 +20,18 @@ export interface ProductoSimple {
 export class ProductosRecientesComponent implements OnInit {
   private http = inject(HttpClient);
   private router = inject(Router);
+  private searchService = inject(SearchService);
 
-  productos = signal<ProductoSimple[]>([]);
+  productos = signal<MarketplaceItem[]>([]);
   loading = signal(true);
   error = signal(false);
 
   readonly skeletons = Array(12).fill(0);
 
   ngOnInit() {
-    this.http.get<any>(`${environment.apiUrl}/producto/disponibles`).subscribe({
+    this.searchService.buscar({ tipo: 'TODOS', orden: 'reciente', size: 12 }).subscribe({
       next: (res) => {
-        const list = Array.isArray(res) ? res : (res?.content ?? res?.productos ?? res?.data ?? []);
-        this.productos.set(list.slice(0, 12));
+        this.productos.set(res.items.slice(0, 12));
         this.loading.set(false);
       },
       error: () => {
@@ -53,6 +42,6 @@ export class ProductosRecientesComponent implements OnInit {
   }
 
   goToAll() {
-    this.router.navigate(['/search'], { queryParams: { tipo: 'PRODUCTO' } });
+    this.router.navigate(['/search'], { queryParams: { tipo: 'TODOS' } });
   }
 }
