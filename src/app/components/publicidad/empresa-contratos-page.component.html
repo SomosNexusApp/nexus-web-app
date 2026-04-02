@@ -1,54 +1,218 @@
 <div class="ec-page">
-  <header class="ec-head">
-    <h1>Publicidad y contratos</h1>
-    <p class="ec-sub">
-      Aquí recibes las propuestas del equipo Nexus con presupuesto. Si aceptas, pagas con tarjeta (Stripe) y se activa el
-      banner o la publicación patrocinada según lo acordado.
-    </p>
-  </header>
+  <!-- HERO HEADER -->
+  <div class="ec-hero">
+    <div class="ec-hero-bg"></div>
+    <div class="ec-hero-content">
+      <div class="ec-hero-icon">
+        <i class="fa-solid fa-bullhorn"></i>
+      </div>
+      <div>
+        <h1 class="ec-hero-title">Publicidad en Nexus</h1>
+        <p class="ec-hero-subtitle">Llega a miles de compradores activos con tus campañas de publicidad patrocinada</p>
+      </div>
+    </div>
+  </div>
 
+  <!-- PROPUESTAS PENDIENTES — BANNER URGENTE -->
+  @if (authStore.isEmpresa() && !loading()) {
+    @if (hasPropuestasPendientes()) {
+      <div class="ec-alert-banner">
+        <div class="ec-alert-icon">
+          <i class="fa-solid fa-bell"></i>
+        </div>
+        <div class="ec-alert-text">
+          <strong>Tienes {{ countPropuestasPendientes() }} propuesta(s) de publicidad pendiente(s)</strong>
+          <span>El equipo de Nexus ha preparado una propuesta personalizada para tu empresa. Revísala y acepta para activar la campaña.</span>
+        </div>
+        <a class="ec-alert-cta" href="#contratos-list">Ver propuestas →</a>
+      </div>
+    }
+  }
+
+  <!-- ESTADO PRINCIPAL -->
   @if (!authStore.isEmpresa()) {
-    <p class="ec-warn">Esta sección solo está disponible para cuentas empresa.</p>
+    <div class="ec-empty-state">
+      <div class="ec-empty-icon"><i class="fa-solid fa-building"></i></div>
+      <h2>Sección exclusiva para empresas</h2>
+      <p>Esta sección solo está disponible para cuentas de empresa verificadas en Nexus. Si tienes una cuenta empresa, asegúrate de haber iniciado sesión correctamente.</p>
+    </div>
   } @else if (loading()) {
-    <p>Cargando…</p>
+    <div class="ec-loading">
+      <div class="ec-spinner"></div>
+      <p>Cargando tus contratos...</p>
+    </div>
   } @else if (contratos().length === 0) {
-    <p class="ec-empty">No tienes contratos todavía.</p>
-  } @else {
-    <ul class="ec-list">
-      @for (c of contratos(); track c.id) {
-        <li class="ec-card">
-          <div class="ec-card-top">
-            <span class="ec-badge">{{ c.tipoContrato }}</span>
-            <span class="ec-state">{{ c.estado }}</span>
-          </div>
-          @if (c.monto != null) {
-            <p class="ec-monto">{{ c.monto | number: '1.2-2' }} €</p>
-          }
-          @if (c.descripcion) {
-            <p class="ec-desc">{{ c.descripcion }}</p>
-          }
-          @if (c.estado === 'PROPUESTA_ADMIN') {
-            <div class="ec-actions">
-              <button
-                type="button"
-                class="btn primary"
-                [disabled]="procesandoId() === c.id"
-                (click)="aceptar(c)"
-              >
-                Aceptar y pagar
-              </button>
-              <button
-                type="button"
-                class="btn ghost"
-                [disabled]="procesandoId() === c.id"
-                (click)="rechazar(c)"
-              >
-                Rechazar
-              </button>
+    <div class="ec-empty-state">
+      <div class="ec-empty-icon"><i class="fa-solid fa-file-signature"></i></div>
+      <h2>Sin contratos todavía</h2>
+      <p>Aún no tienes contratos de publicidad en Nexus. Nuestro equipo comercial se pondrá en contacto contigo para preparar una propuesta personalizada.</p>
+      <div class="ec-how-works">
+        <h3>¿Cómo funciona la publicidad en Nexus?</h3>
+        <div class="ec-steps">
+          <div class="ec-step">
+            <div class="ec-step-num">1</div>
+            <div>
+              <strong>Propuesta personalizada</strong>
+              <p>El equipo de Nexus te enviará una propuesta con el presupuesto y tipo de campaña.</p>
             </div>
-          }
-        </li>
-      }
-    </ul>
+          </div>
+          <div class="ec-step">
+            <div class="ec-step-num">2</div>
+            <div>
+              <strong>Acepta y paga con Stripe</strong>
+              <p>Revisa la propuesta y, si estás de acuerdo, paga de forma segura con tarjeta.</p>
+            </div>
+          </div>
+          <div class="ec-step">
+            <div class="ec-step-num">3</div>
+            <div>
+              <strong>¡Tu campaña se activa!</strong>
+              <p>Tu banner o producto patrocinado aparecerá ante miles de usuarios activos de Nexus.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  } @else {
+    <!-- LISTA DE CONTRATOS -->
+    <section id="contratos-list" class="ec-section">
+      <div class="ec-section-header">
+        <h2>Mis contratos</h2>
+        <span class="ec-count">{{ contratos().length }} contrato(s)</span>
+      </div>
+      <div class="ec-cards">
+        @for (c of contratos(); track c.id) {
+          <div class="ec-card" [class.ec-card--pendiente]="c.estado === 'PROPUESTA_ADMIN'" [class.ec-card--activo]="c.estado === 'ACTIVE'">
+            <!-- Header de card -->
+            <div class="ec-card-header">
+              <div class="ec-card-badges">
+                <span class="ec-badge-tipo" [class]="'tipo-' + c.tipoContrato.toLowerCase()">
+                  <i [class]="c.tipoContrato === 'BANNER' ? 'fa-solid fa-rectangle-ad' : 'fa-solid fa-star'"></i>
+                  {{ c.tipoContrato === 'BANNER' ? 'Banner publicitario' : 'Producto patrocinado' }}
+                </span>
+                <span class="ec-badge-estado" [class]="'estado-' + c.estado.toLowerCase()">
+                  {{ labelEstado(c.estado) }}
+                </span>
+              </div>
+              @if (c.estado === 'PROPUESTA_ADMIN') {
+                <div class="ec-card-urgent">
+                  <i class="fa-solid fa-circle-exclamation"></i> Acción requerida
+                </div>
+              }
+              @if (c.estado === 'ACTIVE') {
+                <div class="ec-card-live">
+                  <span class="ec-live-dot"></span> En directo
+                </div>
+              }
+            </div>
+
+            <!-- Detalles del contrato -->
+            <div class="ec-card-body">
+              @if (c.descripcion) {
+                <p class="ec-card-desc">{{ c.descripcion }}</p>
+              }
+              <div class="ec-card-meta">
+                @if (c.monto != null) {
+                  <div class="ec-meta-row">
+                    <span class="ec-meta-label"><i class="fa-solid fa-euro-sign"></i> Presupuesto</span>
+                    <span class="ec-meta-value ec-meta-price">{{ c.monto | number:'1.2-2' }} €</span>
+                  </div>
+                }
+                @if (c.fechaInicio) {
+                  <div class="ec-meta-row">
+                    <span class="ec-meta-label"><i class="fa-solid fa-calendar-check"></i> Inicio</span>
+                    <span class="ec-meta-value">{{ c.fechaInicio | date:'dd/MM/yyyy' }}</span>
+                  </div>
+                }
+                @if (c.fechaFin) {
+                  <div class="ec-meta-row">
+                    <span class="ec-meta-label"><i class="fa-solid fa-calendar-xmark"></i> Fin</span>
+                    <span class="ec-meta-value">{{ c.fechaFin | date:'dd/MM/yyyy' }}</span>
+                  </div>
+                }
+              </div>
+            </div>
+
+            <!-- ACCIONES: Propuesta pendiente -->
+            @if (c.estado === 'PROPUESTA_ADMIN') {
+              <div class="ec-card-footer ec-card-footer--action">
+                <p class="ec-action-hint">
+                  <i class="fa-solid fa-shield-check"></i>
+                  El pago se realiza de forma segura con Stripe. Tu campaña se activará inmediatamente tras la confirmación.
+                </p>
+                <div class="ec-action-btns">
+                  <button
+                    type="button"
+                    class="ec-btn ec-btn--primary"
+                    [disabled]="procesandoId() === c.id"
+                    (click)="aceptar(c)"
+                  >
+                    @if (procesandoId() === c.id) {
+                      <span class="ec-btn-spinner"></span> Procesando...
+                    } @else {
+                      <i class="fa-solid fa-credit-card"></i> Aceptar y pagar
+                    }
+                  </button>
+                  <button
+                    type="button"
+                    class="ec-btn ec-btn--ghost"
+                    [disabled]="procesandoId() === c.id"
+                    (click)="rechazar(c)"
+                  >
+                    Rechazar
+                  </button>
+                </div>
+              </div>
+            }
+
+            @if (c.estado === 'PENDIENTE_PAGO') {
+              <div class="ec-card-footer">
+                <div class="ec-status-info ec-status-info--warning">
+                  <i class="fa-solid fa-clock"></i>
+                  Pago en proceso — Si el pago fue interrumpido, puedes intentarlo de nuevo contactando con soporte.
+                </div>
+              </div>
+            }
+
+            @if (c.estado === 'ACTIVE') {
+              <div class="ec-card-footer">
+                <div class="ec-status-info ec-status-info--success">
+                  <i class="fa-solid fa-circle-check"></i>
+                  Tu campaña está activa y es visible para todos los usuarios de Nexus.
+                </div>
+              </div>
+            }
+
+            @if (c.estado === 'RECHAZADO') {
+              <div class="ec-card-footer">
+                <div class="ec-status-info ec-status-info--muted">
+                  <i class="fa-solid fa-ban"></i>
+                  Propuesta rechazada. Contacta con el equipo de Nexus para recibir una nueva propuesta.
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    </section>
+  }
+
+  <!-- INFO: Tipos de publicidad -->
+  @if (authStore.isEmpresa() && contratos().length > 0) {
+    <section class="ec-info-section">
+      <h3>Tipos de campaña disponibles</h3>
+      <div class="ec-info-grid">
+        <div class="ec-info-card">
+          <div class="ec-info-icon banner-icon"><i class="fa-solid fa-rectangle-ad"></i></div>
+          <h4>Banner publicitario</h4>
+          <p>Tu banner aparece en páginas estratégicas de Nexus con alto tráfico, generando visibilidad de marca ante miles de compradores activos.</p>
+        </div>
+        <div class="ec-info-card">
+          <div class="ec-info-icon sponsored-icon"><i class="fa-solid fa-star"></i></div>
+          <h4>Producto patrocinado</h4>
+          <p>Tu artículo aparece en las primeras posiciones del marketplace con el badge ⚡ Patrocinado, aumentando exponencialmente tus ventas.</p>
+        </div>
+      </div>
+    </section>
   }
 </div>
