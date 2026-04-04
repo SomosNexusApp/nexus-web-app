@@ -3,8 +3,8 @@
     <!-- Header -->
     <header class="sec-head">
       <div>
-        <span class="eyebrow">Por categoría</span>
-        <h2>Ofertas destacadas</h2>
+        <span class="eyebrow">Solo por tiempo limitado</span>
+        <h2>Top Chollos Flash ⚡</h2>
       </div>
 
       @if (activeSlug()) {
@@ -76,19 +76,21 @@
       }
 
       @if (!loadingItems() && !errorItems() && ofertas().length === 0) {
-        <div class="state-block">
-          <svg
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="1.4"
-            stroke-linecap="round"
-          >
-            <rect x="2" y="3" width="20" height="14" rx="2" />
-            <line x1="8" y1="21" x2="16" y2="21" />
-            <line x1="12" y1="17" x2="12" y2="21" />
-          </svg>
-          <p>No hay ofertas en esta categoría</p>
+        <div class="state-block fomo-empty-state">
+          <div class="fomo-icon-wrapper">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="#ef4444"
+              stroke-width="1.5"
+              stroke-linecap="round"
+            >
+              <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+            </svg>
+          </div>
+          <h3>¡Vendidos! Demasiado lento...</h3>
+          <p>La comunidad Elite ha arrasado con los chollos en esta categoría. Vuelve pronto para no perder la siguiente oleada de ofertas irresistibles.</p>
+          <button class="btn-ghost fomo-btn" (click)="selectTab('')">Rastrear otras categorías</button>
         </div>
       }
 

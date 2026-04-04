@@ -199,6 +199,7 @@ export class SearchService {
     if (params.lng) p = p.set('lng', String(params.lng));
     if (params.radius) p = p.set('radius', String(params.radius));
     if (usuarioId) p = p.set('usuarioId', String(usuarioId));
+    if (params.orden) p = p.set('orden', params.orden);
 
     return this.http.get<any>(`${this.apiUrl}/vehiculo/filtrar`, { params: p }).pipe(
       map((res) => {

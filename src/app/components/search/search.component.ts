@@ -14,8 +14,8 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
-import { Subject, Subscription } from 'rxjs';
-import { debounceTime, distinctUntilChanged, takeUntil, catchError } from 'rxjs/operators';
+import { Subject, Subscription, of } from 'rxjs';
+import { debounceTime, distinctUntilChanged, takeUntil, catchError, switchMap, map } from 'rxjs/operators';
 import { HostListener } from '@angular/core';
 
 import { SearchService, SearchParams, SearchResultItem } from '../../core/services/search.service';
@@ -65,6 +65,7 @@ export class SearchComponent implements OnInit, AfterViewInit, OnDestroy {
   cargandoMas = false;
   totalResultados = 0;
   busquedaRealizada = false;
+  private searchSubject = new Subject<{ params: SearchParams; reiniciar: boolean; usuarioId?: number }>();
 
   paginaActual = 0;
   sizePorPagina = 20;
@@ -102,6 +103,14 @@ export class SearchComponent implements OnInit, AfterViewInit, OnDestroy {
     { value: 'ACEPTABLE', label: 'Aceptable', icon: 'fas fa-thumbs-up' }
   ];
 
+  diasDisponibles = [
+    { value: '', label: 'Cualquier fecha', icon: 'fas fa-calendar' },
+    { value: '1', label: 'Últimas 24 horas', icon: 'fas fa-clock' },
+    { value: '7', label: 'Últimos 7 días', icon: 'fas fa-calendar-week' },
+    { value: '30', label: 'Último mes', icon: 'fas fa-calendar-alt' }
+  ];
+  mostrandoDias = false;
+
   opcionesOrden = [
     { value: 'relevancia', label: 'Mejor coincidencia', icon: 'fas fa-sort-amount-down' },
     { value: 'novedades', label: 'Novedades primero', icon: 'fas fa-calendar-plus' },
@@ -111,6 +120,9 @@ export class SearchComponent implements OnInit, AfterViewInit, OnDestroy {
 
   condicionNombreActual = signal<string>('Cualquier estado');
   condicionIconoActual = signal<string>('fas fa-tags');
+  
+  diasNombreActual = signal<string>('Cualquier fecha');
+  diasIconoActual = signal<string>('fas fa-calendar');
   
   ordenNombreActual = signal<string>('Mejor coincidencia');
   ordenIconoActual = signal<string>('fas fa-sort-amount-down');
@@ -122,6 +134,31 @@ export class SearchComponent implements OnInit, AfterViewInit, OnDestroy {
     this.initForm();
     this.cargarCategorias();
     this.cargarMarcas();
+
+    // Nueva lógica optimizada con switchMap DEBE ir antes de escucharCambiosURL
+    // para no perder el disparo inicial si se emite síncronamente.
+    this.searchSubject.pipe(
+      takeUntil(this.destroy$),
+      switchMap(({ params, reiniciar, usuarioId }) => {
+        return this.searchService.buscar(params, usuarioId).pipe(
+          map(res => ({ res, reiniciar })),
+          catchError((err) => {
+            console.error('Error en búsqueda:', err);
+            return of({ res: { items: [], total: 0 }, reiniciar });
+          })
+        );
+      })
+    ).subscribe(({ res, reiniciar }) => {
+       const { items, total } = res as any;
+       this.totalResultados = total;
+       this.resultados = reiniciar ? items : [...this.resultados, ...items];
+       this.hayMasResultados = this.resultados.length < total;
+       this.cargando = false;
+       this.cargandoMas = false;
+       this.busquedaRealizada = true;
+       this.cdr.detectChanges();
+    });
+
     this.escucharCambiosURL();
     this.escucharAutocompletados();
   }
@@ -144,6 +181,7 @@ export class SearchComponent implements OnInit, AfterViewInit, OnDestroy {
       this.mostrandoCategorias = false;
       this.mostrandoCondiciones = false;
       this.mostrandoOrden = false;
+      this.mostrandoDias = false;
       this.cdr.detectChanges();
     }
   }
@@ -153,6 +191,7 @@ export class SearchComponent implements OnInit, AfterViewInit, OnDestroy {
       q: [''],
       tipo: ['TODOS'],
       categoria: [''],
+      diasPublicacion: [''],
       precioMin: [''],
       precioMax: [''],
       condicion: [''],
@@ -461,25 +500,8 @@ export class SearchComponent implements OnInit, AfterViewInit, OnDestroy {
 
     const usuarioId = this.authStore.user()?.id;
 
-    this.searchService
-      .buscar(params, usuarioId)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: ({ items, total }) => {
-          this.totalResultados = total;
-          this.resultados = reiniciar ? items : [...this.resultados, ...items];
-          this.hayMasResultados = this.resultados.length < total;
-          this.cargando = false;
-          this.cargandoMas = false;
-          this.busquedaRealizada = true;
-          this.cdr.detectChanges();
-        },
-        error: () => {
-          this.cargando = false;
-          this.cargandoMas = false;
-          this.cdr.detectChanges();
-        },
-      });
+    // Emitir a través del subject para que switchMap cancele peticiones solapadas
+    this.searchSubject.next({ params, reiniciar, usuarioId });
   }
 
   private setupIntersectionObserver(): void {
@@ -595,6 +617,7 @@ export class SearchComponent implements OnInit, AfterViewInit, OnDestroy {
     this.mostrandoCategorias = !this.mostrandoCategorias;
     this.mostrandoCondiciones = false;
     this.mostrandoOrden = false;
+    this.mostrandoDias = false;
   }
 
   seleccionarCategoria(cat: Categoria | null): void {
@@ -626,6 +649,7 @@ export class SearchComponent implements OnInit, AfterViewInit, OnDestroy {
     this.mostrandoCondiciones = !this.mostrandoCondiciones;
     this.mostrandoCategorias = false;
     this.mostrandoOrden = false;
+    this.mostrandoDias = false;
   }
 
   seleccionarCondicion(val: string): void {
@@ -641,11 +665,33 @@ export class SearchComponent implements OnInit, AfterViewInit, OnDestroy {
     this.condicionIconoActual.set(opt.icon);
   }
 
+  toggleDias(event: Event): void {
+    event.stopPropagation();
+    this.mostrandoDias = !this.mostrandoDias;
+    this.mostrandoCategorias = false;
+    this.mostrandoCondiciones = false;
+    this.mostrandoOrden = false;
+  }
+
+  seleccionarDias(val: string): void {
+    this.filterForm.patchValue({ diasPublicacion: val });
+    this.mostrandoDias = false;
+    this.actualizarTituloDias(val);
+    this.cdr.detectChanges();
+  }
+
+  private actualizarTituloDias(val: string): void {
+    const opt = this.diasDisponibles.find(c => c.value === val) || this.diasDisponibles[0];
+    this.diasNombreActual.set(opt.label);
+    this.diasIconoActual.set(opt.icon);
+  }
+
   toggleOrden(event: Event): void {
     event.stopPropagation();
     this.mostrandoOrden = !this.mostrandoOrden;
     this.mostrandoCategorias = false;
     this.mostrandoCondiciones = false;
+    this.mostrandoDias = false;
   }
 
   seleccionarOrden(val: string): void {

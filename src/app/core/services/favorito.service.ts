@@ -1,7 +1,7 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, of, tap } from 'rxjs';
-import { map, shareReplay } from 'rxjs/operators';
+import { BehaviorSubject, Observable, of, tap } from 'rxjs';
+import { map, shareReplay, switchMap } from 'rxjs/operators';
 import { environment } from '../../../environments/enviroment';
 import { AuthStore } from '../auth/auth-store';
 
@@ -12,17 +12,28 @@ export class FavoritoService {
   private http = inject(HttpClient);
   private authStore = inject(AuthStore);
 
-  // Cache para IDs de favoritos (ahora guardamos strings: "producto_123", "vehiculo_456")
-  private favoritosIdsSignal = signal<string[]>([]);
-  private cargandoFavoritos = false;
+  // Fuente de verdad reactiva para IDs (ej: "producto_123", "vehiculo_456")
+  private favoritosIdsSubject = new BehaviorSubject<string[]>([]);
   private favoritosObservable$: Observable<string[]> | null = null;
+  
+  // Signal derivado para componentes modernos (se sincroniza con el subject)
+  public favoritosIds = signal<string[]>([]);
+
+  constructor() {
+    // Sincronizamos el signal con el subject para tener lo mejor de ambos mundos
+    this.favoritosIdsSubject.subscribe(ids => this.favoritosIds.set(ids));
+  }
 
   getFavoritosIds(): Observable<string[]> {
     const user = this.authStore.user();
     if (!user) return of([]);
 
+    // Si ya tenemos datos, retornamos el subject directamente para que sea reactivo
+    if (this.favoritosIdsSubject.value.length > 0) {
+      return this.favoritosIdsSubject.asObservable();
+    }
+
     if (this.favoritosObservable$) return this.favoritosObservable$;
-    if (this.favoritosIdsSignal().length > 0) return of(this.favoritosIdsSignal());
 
     this.favoritosObservable$ = this.http
       .get<any[]>(`${environment.apiUrl}/api/favoritos/usuario/${user.id}`, { withCredentials: true })
@@ -37,10 +48,12 @@ export class FavoritoService {
           return ids;
         }),
         tap((ids) => {
-          this.favoritosIdsSignal.set(ids);
+          this.favoritosIdsSubject.next(ids);
           this.favoritosObservable$ = null;
         }),
-        shareReplay(1),
+        // Una vez cargado, cambiamos al observable del subject para el futuro
+        switchMap(() => this.favoritosIdsSubject.asObservable()),
+        shareReplay(1)
       );
 
     return this.favoritosObservable$;
@@ -48,7 +61,7 @@ export class FavoritoService {
 
   isFavorito(id: number | undefined, type: string = 'producto'): boolean {
     if (!id) return false;
-    return this.favoritosIdsSignal().includes(`${type.toLowerCase()}_${id}`);
+    return this.favoritosIdsSubject.value.includes(`${type.toLowerCase()}_${id}`);
   }
 
   addFavorito(id: number, type: 'producto' | 'oferta' | 'vehiculo' = 'producto'): Observable<any> {
@@ -62,7 +75,10 @@ export class FavoritoService {
       { withCredentials: true },
     ).pipe(
       tap(() => {
-        this.favoritosIdsSignal.update(ids => [...ids, `${typeLower}_${id}`]);
+        const current = this.favoritosIdsSubject.value;
+        if (!current.includes(`${typeLower}_${id}`)) {
+          this.favoritosIdsSubject.next([...current, `${typeLower}_${id}`]);
+        }
       })
     );
   }
@@ -77,7 +93,8 @@ export class FavoritoService {
       { withCredentials: true },
     ).pipe(
       tap(() => {
-        this.favoritosIdsSignal.update(ids => ids.filter(compositeId => compositeId !== `${typeLower}_${id}`));
+        const current = this.favoritosIdsSubject.value;
+        this.favoritosIdsSubject.next(current.filter(compositeId => compositeId !== `${typeLower}_${id}`));
       })
     );
   }

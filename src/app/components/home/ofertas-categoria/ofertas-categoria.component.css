@@ -274,6 +274,51 @@
   color: rgba(255, 255, 255, 0.3);
 }
 
+.fomo-empty-state {
+  background: rgba(239, 68, 68, 0.02);
+  border: 1px dashed rgba(239, 68, 68, 0.15);
+  border-radius: var(--nx-radius-lg, 12px);
+  padding: 3rem 2rem;
+  max-width: 500px;
+  margin: 0 auto;
+}
+.fomo-icon-wrapper {
+  background: rgba(239, 68, 68, 0.1);
+  padding: 18px;
+  border-radius: 50%;
+  margin-bottom: 12px;
+  box-shadow: 0 0 30px rgba(239, 68, 68, 0.15);
+}
+.fomo-icon-wrapper svg {
+  width: 36px;
+  height: 36px;
+  stroke: #ef4444;
+  margin: 0;
+  filter: drop-shadow(0 0 8px rgba(239, 68, 68, 0.5));
+}
+.fomo-empty-state h3 {
+  color: #fff;
+  font-family: 'Syne', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 800;
+  margin: 0 0 8px 0;
+}
+.fomo-empty-state p {
+  font-size: 0.95rem;
+  color: rgba(255, 255, 255, 0.6);
+  line-height: 1.5;
+  margin-bottom: 24px;
+}
+.fomo-btn {
+  border-color: rgba(239, 68, 68, 0.3);
+  color: #fca5a5;
+}
+.fomo-btn:hover {
+  background: rgba(239, 68, 68, 0.1);
+  border-color: rgba(239, 68, 68, 0.6);
+  color: #fff;
+}
+
 /* ── Skeleton ── */
 .sk-ocard {
   pointer-events: none;

@@ -41,41 +41,6 @@
 
     <div class="nx-sidebar-scroll-container">
       <form [formGroup]="filterForm" class="nx-filter-form">
-        <!-- Tipo -->
-        <div class="nx-form-group">
-          <label class="nx-form-label">¿Qué estás buscando?</label>
-          <div class="nx-segmented-control">
-            <label class="nx-segment-item">
-              <input type="radio" formControlName="tipo" value="TODOS" />
-              <div class="nx-segment-btn btn-all">
-                <i class="fas fa-border-all"></i>
-                <span>Todo</span>
-              </div>
-            </label>
-            <label class="nx-segment-item">
-              <input type="radio" formControlName="tipo" value="PRODUCTO" />
-              <div class="nx-segment-btn btn-product">
-                <i class="fas fa-box-open"></i>
-                <span>Productos</span>
-              </div>
-            </label>
-            <label class="nx-segment-item">
-              <input type="radio" formControlName="tipo" value="OFERTA" />
-              <div class="nx-segment-btn btn-offer">
-                <i class="fas fa-fire"></i>
-                <span>Chollos</span>
-              </div>
-            </label>
-            <label class="nx-segment-item">
-              <input type="radio" formControlName="tipo" value="VEHICULO" />
-              <div class="nx-segment-btn btn-motor">
-                <i class="fas fa-car-side"></i>
-                <span>Motor</span>
-              </div>
-            </label>
-          </div>
-        </div>
-
         <!-- Ubicación -->
         <div class="nx-form-group">
           <div class="nx-form-label-row">
@@ -197,6 +162,33 @@
                 placeholder="Máx"
               />
             </div>
+          </div>
+        </div>
+
+        <!-- Fecha de Publicación -->
+        <div class="nx-form-group">
+          <label class="nx-form-label">Fecha de publicación</label>
+          <div class="nx-custom-select-container" [class.active-container]="mostrandoDias">
+            <div class="nx-custom-select-trigger" (click)="toggleDias($event)" [class.active]="mostrandoDias">
+              <i [class]="diasIconoActual() + ' nx-icon-left'"></i>
+              <span class="nx-select-text">{{ diasNombreActual() }}</span>
+              <i class="fas fa-chevron-down nx-icon-right" [class.nx-rotate]="mostrandoDias"></i>
+            </div>
+
+            @if (mostrandoDias) {
+              <div class="nx-custom-dropdown-panel scale-in">
+                @for (opt of diasDisponibles; track opt.value) {
+                  <div 
+                    class="nx-dropdown-option" 
+                    (click)="seleccionarDias(opt.value)" 
+                    [class.active]="filterForm.get('diasPublicacion')?.value === opt.value"
+                  >
+                    <i [class]="opt.icon"></i>
+                    <span>{{ opt.label }}</span>
+                  </div>
+                }
+              </div>
+            }
           </div>
         </div>
 
@@ -429,23 +421,52 @@
 
   <!-- ÁREA DE RESULTADOS -->
   <main class="nx-main-results-area">
-    <header class="nx-results-header">
-      <div class="nx-results-title-block">
-        <h1 class="nx-h1-gradient">
+    <!-- NUEVO: Banner Premium de Búsqueda -->
+    <div class="nx-premium-search-banner">
+      <div class="nx-banner-content" [formGroup]="filterForm">
+
+        <h1 class="nx-h1-glow-title">
           @if (filterForm.get('q')?.value) {
-            Resultados para
-            <span class="nx-text-highlight">"{{ filterForm.get('q')?.value }}"</span>
+            Tu próximo descubrimiento en <span class="nx-text-highlight">"{{ filterForm.get('q')?.value }}"</span>
           } @else if (categoriaNombreActual()) {
-            {{ categoriaNombreActual() }}
+            El escaparate VIP de <span class="nx-text-highlight">{{ categoriaNombreActual() }}</span>
           } @else {
-            Explora el catálogo completo
+            Catálogo <span class="nx-text-highlight">completo</span>
           }
         </h1>
-        <span class="nx-results-subtitle">
-          Hemos encontrado {{ totalResultados }} coincidencias exactas para ti.
-        </span>
-      </div>
 
+        <!-- Tabs Principales Integradas en el Banner -->
+        <div class="nx-top-category-tabs">
+          <label class="nx-tab-item">
+            <input type="radio" formControlName="tipo" value="TODOS" />
+            <div class="nx-tab-btn tab-all">
+              <i class="fas fa-layer-group"></i> Todo
+            </div>
+          </label>
+          <label class="nx-tab-item">
+            <input type="radio" formControlName="tipo" value="PRODUCTO" />
+            <div class="nx-tab-btn tab-product">
+              <i class="fas fa-box-open"></i> Productos
+            </div>
+          </label>
+          <label class="nx-tab-item">
+            <input type="radio" formControlName="tipo" value="OFERTA" />
+            <div class="nx-tab-btn tab-offer">
+              <i class="fas fa-fire-flame-curved"></i> Chollos
+            </div>
+          </label>
+          <label class="nx-tab-item">
+            <input type="radio" formControlName="tipo" value="VEHICULO" />
+            <div class="nx-tab-btn tab-motor">
+              <i class="fas fa-car-side"></i> Motor
+            </div>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Barra de Herramientas de Resultados -->
+    <header class="nx-results-toolbar">
       <div class="nx-sort-wrapper">
         <label class="nx-sort-label"><i class="fas fa-sort-amount-down"></i> Ordenar por</label>
         <div class="nx-custom-select-container nx-sort-select-container" [class.active-container]="mostrandoOrden">

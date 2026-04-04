@@ -288,9 +288,9 @@
                       [border]="true"
                       class="header-avatar"
                     ></app-avatar>
-                    <div class="user-info-elite">
-                      <span class="user-greeting-elite">Hola, {{ usuario()?.nombre || usuario()?.user }}</span>
-                      <span class="user-name-elite">{{ usuario()?.nombre }} {{ usuario()?.apellidos }}</span>
+                    <div class="user-info-elite" *ngIf="usuario() as u">
+                      <span class="user-greeting-elite">Hola,</span>
+                      <span class="user-name-elite">{{ (u.nombre || '') + (u.apellidos ? ' ' + u.apellidos : '') || u.user }}</span>
                     </div>
                   </a>
                   <div class="user-email-elite">{{ usuario()?.email }}</div>
