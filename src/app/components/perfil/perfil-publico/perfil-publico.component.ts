@@ -37,7 +37,7 @@ export class PerfilPublicoComponent implements OnInit, OnDestroy {
   perfil = signal<any>(null);
   cargando = signal(true);
   error = signal<string | null>(null);
-  activeTab = signal<'productos' | 'ofertas' | 'valoraciones' | 'sobre-mi'>('productos');
+  activeTab = signal<'productos' | 'vehiculos' | 'ofertas' | 'valoraciones' | 'sobre-mi'>('productos');
 
   // Actions states
   estaBloqueado = signal(false);
@@ -45,6 +45,7 @@ export class PerfilPublicoComponent implements OnInit, OnDestroy {
 
   // Datos de tabs
   productos = signal<any[]>([]);
+  vehiculos = signal<any[]>([]);
   ofertas = signal<any[]>([]);
   valoraciones = signal<any[]>([]);
   resumenValoraciones = signal<any>(null);
@@ -96,7 +97,6 @@ export class PerfilPublicoComponent implements OnInit, OnDestroy {
     this.error.set(null);
 
     // El backend usa ID, intentamos primero buscar por username
-    // Si el username es numérico, usamos directamente como ID
     const endpoint = isNaN(Number(username))
       ? `${environment.apiUrl}/usuario/username/${username}`
       : `${environment.apiUrl}/usuario/${username}/perfil`;
@@ -128,18 +128,34 @@ export class PerfilPublicoComponent implements OnInit, OnDestroy {
     });
   }
 
-  cambiarTab(tab: 'productos' | 'ofertas' | 'valoraciones' | 'sobre-mi') {
+  cambiarTab(tab: 'productos' | 'vehiculos' | 'ofertas' | 'valoraciones' | 'sobre-mi') {
     this.activeTab.set(tab);
     const p = this.perfil();
     if (!p) return;
 
     if (tab === 'productos' && this.productos().length === 0) {
       this.cargarTabProductos(p.id);
+    } else if (tab === 'vehiculos' && this.vehiculos().length === 0) {
+      this.cargarTabVehiculos(p.id);
     } else if (tab === 'ofertas' && this.ofertas().length === 0) {
       this.cargarTabOfertas(p.id);
     } else if (tab === 'valoraciones' && this.valoraciones().length === 0) {
       this.cargarTabValoraciones(p.id);
     }
+  }
+
+  cargarTabVehiculos(userId: number) {
+    this.cargandoTab.set(true);
+    this.http
+      .get<any>(`${environment.apiUrl}/vehiculos/usuario/${userId}`)
+      .subscribe({
+        next: (res) => {
+          const lista = res?.contenido ?? res?.content ?? res ?? [];
+          this.vehiculos.set(Array.isArray(lista) ? lista : []);
+          this.cargandoTab.set(false);
+        },
+        error: () => this.cargandoTab.set(false),
+      });
   }
 
   cargarTabProductos(userId: number) {
@@ -183,7 +199,7 @@ export class PerfilPublicoComponent implements OnInit, OnDestroy {
 
   contactar() {
     if (!this.authStore.isLoggedIn()) {
-      this.router.navigate(['/login']);
+      this.router.navigate(['/login'], { queryParams: { returnUrl: this.router.url } });
       return;
     }
     const p = this.perfil();

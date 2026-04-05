@@ -179,13 +179,54 @@
             </button>
           }
 
+          @if (esIntercambio() && isLoggedIn() && !esVendedorPropietario()) {
+            <div class="status-alert info">
+              <i class="fas fa-sync-alt"></i>
+              <span>Artículo disponible para intercambio</span>
+            </div>
+            <button class="btn-elite primary" (click)="irAlChat()">
+              <i class="fas fa-comments"></i>
+              <span>Proponer intercambio (Chat)</span>
+            </button>
+            <button class="btn-elite ghost fav" [class.active]="esFavorito()" (click)="toggleFavorito()">
+                <i class="fas fa-heart"></i>
+                <span>{{ esFavorito() ? 'Guardado' : 'Guardar' }}</span>
+            </button>
+          }
+
+          @if (esDonacion() && isLoggedIn() && !esVendedorPropietario()) {
+            <div class="status-alert info">
+              <i class="fas fa-gift"></i>
+              <span>Éste artículo se regala (Donación)</span>
+            </div>
+            <button class="btn-elite primary" (click)="irAlChat()">
+              <i class="fas fa-comments"></i>
+              <span>Solicitar donación (Chat)</span>
+            </button>
+            <button class="btn-elite ghost fav" [class.active]="esFavorito()" (click)="toggleFavorito()">
+                <i class="fas fa-heart"></i>
+                <span>{{ esFavorito() ? 'Guardado' : 'Guardar' }}</span>
+            </button>
+          }
+
           @if (!isLoggedIn()) {
-            @if (producto()!.tipoOferta !== 'INTERCAMBIO' && producto()!.tipoOferta !== 'DONACION') {
+            @if (producto()!.tipoOferta === 'VENTA') {
               <button class="btn-elite primary" (click)="comprarAhora()">
                 <i class="fas fa-shopping-cart"></i>
                 <span>Comprar ahora</span>
               </button>
+            } @else if (producto()!.tipoOferta === 'INTERCAMBIO') {
+              <button class="btn-elite primary" (click)="irAlChat()">
+                <i class="fas fa-comments"></i>
+                <span>Proponer intercambio</span>
+              </button>
+            } @else if (producto()!.tipoOferta === 'DONACION') {
+              <button class="btn-elite primary" (click)="irAlChat()">
+                <i class="fas fa-comments"></i>
+                <span>Preguntar por donación</span>
+              </button>
             }
+            
             <button class="btn-elite ghost" (click)="irAlChat()">
               <i class="fas fa-comments"></i>
               <span>Preguntar al vendedor</span>

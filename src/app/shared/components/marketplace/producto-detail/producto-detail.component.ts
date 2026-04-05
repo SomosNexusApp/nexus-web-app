@@ -24,6 +24,7 @@ import { FavoritoService } from '../../../../core/services/favorito.service';
 import { ChatService } from '../../../../core/services/chat.service';
 import { ToastService } from '../../../../core/services/toast.service';
 import { ReporteModalComponent } from '../../reporte-modal/reporte-modal.component';
+import { GuestPopupService } from '../../../../core/services/guest-popup.service';
 
 @Component({
   selector: 'app-producto-detail',
@@ -49,6 +50,7 @@ export class ProductoDetailComponent implements OnInit, OnDestroy {
   private favoritoService = inject(FavoritoService);
   private chatService = inject(ChatService);
   private toast = inject(ToastService);
+  private guestPopupService = inject(GuestPopupService);
 
   // ── Estado principal ────────────────────────────────────────────────
   producto = signal<Producto | null>(null);
@@ -110,8 +112,7 @@ export class ProductoDetailComponent implements OnInit, OnDestroy {
     // No se puede comprar si es intercambio, si ya está vendido/reservado, si es el vendedor o si no admite envío
     return (
       p?.estado === 'DISPONIBLE' &&
-      p?.tipoOferta !== 'INTERCAMBIO' &&
-      p?.tipoOferta !== 'DONACION' &&
+      p?.tipoOferta === 'VENTA' &&
       this.isLoggedIn() &&
       !this.esVendedorPropietario() &&
       p.admiteEnvio === true
@@ -120,7 +121,7 @@ export class ProductoDetailComponent implements OnInit, OnDestroy {
 
   soloRecogidaPersonal = computed(() => {
     const p = this.producto();
-    return !!p && p.admiteEnvio === false && p.estado === 'DISPONIBLE';
+    return !!p && p.admiteEnvio === false && p.estado === 'DISPONIBLE' && p.tipoOferta === 'VENTA';
   });
 
   mediaEstrellas = computed(() => {
@@ -139,6 +140,8 @@ export class ProductoDetailComponent implements OnInit, OnDestroy {
   });
 
   descLarga = computed(() => (this.producto()?.descripcion?.length ?? 0) > 300);
+  esIntercambio = computed(() => this.producto()?.tipoOferta === 'INTERCAMBIO');
+  esDonacion = computed(() => this.producto()?.tipoOferta === 'DONACION');
 
   private routeSub: any;
 
@@ -255,7 +258,7 @@ export class ProductoDetailComponent implements OnInit, OnDestroy {
 
   irAlChat(): void {
     if (!this.isLoggedIn()) {
-      // this.guestPopupService.showPopup('Para contactar al vendedor');
+      this.guestPopupService.showPopup('Para contactar al vendedor');
       return;
     }
     this.router.navigate(['/mensajes'], { queryParams: { productoId: this.producto()?.id } });
@@ -270,7 +273,7 @@ export class ProductoDetailComponent implements OnInit, OnDestroy {
 
   toggleFavorito(): void {
     if (!this.isLoggedIn()) {
-      // Si tuvieras un modal de login para invitados, lo llamas aquí
+      this.guestPopupService.showPopup('Para guardar tus productos favoritos');
       return;
     }
 
@@ -320,7 +323,7 @@ export class ProductoDetailComponent implements OnInit, OnDestroy {
   // ── Modal oferta de precio ────────────────────────────────────────────
   abrirModalOferta(): void {
     if (!this.isLoggedIn()) {
-      // this.guestPopupService.showPopup('Para hacer ofertas');
+      this.guestPopupService.showPopup('Para negociar precios');
       return;
     }
     this.modalOfertaAbierto.set(true);

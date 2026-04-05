@@ -312,6 +312,7 @@ export class VehiculosComponent implements OnInit, AfterViewInit, OnDestroy {
       page: this.paginaActual,
       size: this.sizePorPagina,
       condicion: condicionFinal === 'NUEVO_OFERTA' ? 'NUEVO' : fv.condicion || undefined,
+      orden: fv.orden || 'relevancia'
     };
 
     // Para las ofertas de vehiculos (chollos) no aplicamos los filtros super específicos de motor,

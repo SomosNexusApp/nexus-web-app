@@ -30,6 +30,7 @@ export interface ChatDraft {
 })
 export class ChatInputComponent {
   @Input() esDirecto = false;
+  @Input() puedeNegociar = true;
   @Output() enviarMensaje = new EventEmitter<ChatDraft>();
   @Output() escribiendo = new EventEmitter<void>();
   @Output() abrirNegociacion = new EventEmitter<void>();

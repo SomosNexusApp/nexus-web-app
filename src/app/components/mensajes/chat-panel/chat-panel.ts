@@ -65,6 +65,7 @@ export class ChatPanelComponent implements OnChanges, AfterViewChecked, OnDestro
   showMenu = signal(false);
   mostrarOfertaModal = signal(false);
   precioOferta = signal<number | null>(null);
+  puedeNegociar = signal(true);
   private autoScrollActivado = true;
   private wsSub: Subscription | null = null;
   private leidosSub: Subscription | null = null;
@@ -89,10 +90,15 @@ export class ChatPanelComponent implements OnChanges, AfterViewChecked, OnDestro
     }
 
     // Identificar si el otro es el vendedor del producto
-    if (this.conversacion.producto && this.otroUsuario()) {
-      this.esVendedor.set(this.conversacion.producto.usuario?.id === this.otroUsuario().id);
+    const prod = this.conversacion.producto;
+    if (prod && this.otroUsuario()) {
+      // El campo en Producto.java es 'vendedor' (Actor), no 'usuario'
+      const vendedorId = prod.vendedor?.id || prod.usuario?.id;
+      this.esVendedor.set(vendedorId === this.otroUsuario().id);
+      this.puedeNegociar.set(prod.tipoOferta === 'VENTA');
     } else {
       this.esVendedor.set(false);
+      this.puedeNegociar.set(false);
     }
 
     const productoId = this.conversacion.producto?.id || null;
@@ -180,15 +186,15 @@ export class ChatPanelComponent implements OnChanges, AfterViewChecked, OnDestro
     this.wsService.marcarComoRecibido(roomId, currUser.id);
     this.wsService.marcarComoLeido(roomId, currUser.id);
 
-    // Cargar historial (backend devuelve ASC → más antiguos primero, NO hacer reverse)
+    // Cargar historial
     this.chatService.getConversacion(roomId, currUser.id, otroId).subscribe({
       next: (msgs) => {
-        this.mensajes.set(msgs);
+        // Ordenar por fecha por si acaso el backend devuelve desordenado
+        this.mensajes.set(msgs.sort((a, b) => new Date(a.fechaEnvio).getTime() - new Date(b.fechaEnvio).getTime()));
         this.cargando.set(false);
         this.autoScrollActivado = true;
       },
       error: () => {
-        // Si no hay historial (conversación nueva), simplemente mostrar vacío
         this.mensajes.set([]);
         this.cargando.set(false);
       },
@@ -348,7 +354,11 @@ export class ChatPanelComponent implements OnChanges, AfterViewChecked, OnDestro
       (productoId
         ? `P_${productoId}`
         : `D_${Math.min(currUser.id, otroId)}_${Math.max(currUser.id, otroId)}`);
-    if (!otroId) return;
+
+    if (!otroId) {
+      this.toast.error('No se ha podido identificar al destinatario');
+      return;
+    }
 
     if (draft.tipo === 'TEXTO' && draft.texto) {
       // Optimistic UI: añadir mensaje inmediatamente

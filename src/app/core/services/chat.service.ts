@@ -69,7 +69,7 @@ export class ChatService {
   ): Observable<ChatMensaje> {
     const fd = new FormData();
     if (productoId) fd.append('productoId', productoId.toString());
-    fd.append('roomId', roomId);
+    if (roomId) fd.append('roomId', roomId);
     fd.append('remitenteId', remitenteId.toString());
     fd.append('receptorId', receptorId.toString());
     fd.append('tipo', tipo);

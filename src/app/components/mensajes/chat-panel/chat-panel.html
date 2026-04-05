@@ -1,16 +1,16 @@
 <div class="chat-wrapper" *ngIf="conversacion">
   <!-- Cabecera -->
   <header class="chat-header">
-    <div class="header-left">
+    <div class="header-left" [routerLink]="['/perfil', otroUsuario()?.user]">
       <app-avatar 
         [avatarUrl]="otroUsuario()?.avatar"
         [googleAvatarUrl]="otroUsuario()?.googleAvatarUrl"
         [nombre]="otroUsuario()?.nombre"
         [username]="otroUsuario()?.user"
         [size]="44"
-        customClass="avatar-small"
+        customClass="avatar-small clickable"
       ></app-avatar>
-      <div class="user-info">
+      <div class="user-info clickable">
         <span class="user-name">
           {{ otroUsuario()?.nombre || otroUsuario()?.user || 'Usuario' }}
           @if (esVendedor()) {
@@ -223,6 +223,7 @@
     } @else {
       <app-chat-input
         [esDirecto]="!conversacion.producto"
+        [puedeNegociar]="puedeNegociar()"
         (enviarMensaje)="onEnviarMensaje($event)"
         (escribiendo)="notificarEscribiendo()"
         (abrirNegociacion)="mostrarOfertaModal.set(true)"

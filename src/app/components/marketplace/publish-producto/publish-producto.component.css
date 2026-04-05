@@ -172,6 +172,39 @@
   transform: translateY(-5px) rotateX(2deg);
 }
 
+/* PRODUCTO HOVER (AZUL) */
+.select-card.product:hover {
+  border-color: rgba(59, 130, 246, 0.5);
+  box-shadow: 0 40px 100px rgba(59, 130, 246, 0.2);
+}
+.select-card.product:hover .card-icon,
+.select-card.product:hover .card-arrow {
+  color: #3b82f6;
+  filter: drop-shadow(0 0 20px rgba(59, 130, 246, 0.4));
+}
+
+/* VEHÍCULO HOVER (VERDE) */
+.select-card.vehicle:hover {
+  border-color: rgba(34, 197, 94, 0.5);
+  box-shadow: 0 40px 100px rgba(34, 197, 94, 0.2);
+}
+.select-card.vehicle:hover .card-icon,
+.select-card.vehicle:hover .card-arrow {
+  color: #22c55e;
+  filter: drop-shadow(0 0 20px rgba(34, 197, 94, 0.4));
+}
+
+/* OFERTA HOVER (NARANJA) */
+.select-card.offer:hover {
+  border-color: rgba(249, 115, 22, 0.5);
+  box-shadow: 0 40px 100px rgba(249, 115, 22, 0.2);
+}
+.select-card.offer:hover .card-icon,
+.select-card.offer:hover .card-arrow {
+  color: #f97316;
+  filter: drop-shadow(0 0 20px rgba(249, 115, 22, 0.4));
+}
+
 .card-number {
   position: absolute;
   right: 2rem;

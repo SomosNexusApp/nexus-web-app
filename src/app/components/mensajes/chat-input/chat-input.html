@@ -18,11 +18,11 @@
     <i class="fas fa-image"></i>
   </button>
 
-  @if (!esDirecto) {
+  @if (!esDirecto && puedeNegociar) {
     <button
       type="button"
       class="btn-icon text-nexus-primary"
-      title="Enviar Contrato / Oferta"
+      title="Enviar Propuesta de Precio"
       (click)="toggleOfertaModal()"
       [disabled]="isRecording()"
     >

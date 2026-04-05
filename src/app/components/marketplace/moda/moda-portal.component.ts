@@ -619,7 +619,7 @@ export class ModaPortalComponent implements OnInit {
 
     this.searchService.buscar({ 
       categoria: catSlug, 
-      tipo: 'TODOS', // Obtenemos tanto productos como ofertas
+      tipo: 'TODOS', 
       size: 40 
     }).subscribe({
       next: (res) => {
