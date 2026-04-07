@@ -61,7 +61,6 @@
 .perfil-header {
   position: relative;
   border-radius: 20px;
-  overflow: hidden;
   background: #fff;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
   margin-bottom: 2.5rem;
@@ -71,6 +70,8 @@
   height: 200px;
   background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #db2777 100%);
   position: relative;
+  border-top-left-radius: 20px;
+  border-top-right-radius: 20px;
 }
 .header-bg::after {
   content: '';
@@ -260,6 +261,83 @@
 .btn-editar-perfil:hover {
   background: #e2e8f0;
   transform: translateY(-1px);
+}
+
+/* Dropdown Menu Option */
+.actions-group {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.menu-container {
+  position: relative;
+}
+
+.btn-icon {
+  background: transparent;
+  border: none;
+  padding: 10px;
+  cursor: pointer;
+  color: #6b7280;
+  font-size: 1.25rem;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-icon:hover {
+  color: #111827;
+  transform: scale(1.1);
+}
+
+.dropdown-menu {
+  position: absolute;
+  right: 0;
+  top: 100%;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  width: 200px;
+  z-index: 1000;
+  padding: 8px 0;
+  margin-top: 8px;
+  animation: dropdownIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes dropdownIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.dropdown-menu button {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 10px 16px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #374151;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.dropdown-menu button:hover {
+  background: #f3f4f6;
+  color: #111827;
+}
+
+.dropdown-menu button.danger {
+  color: #ef4444;
+}
+
+.dropdown-menu button.danger:hover {
+  background: #fef2f2;
 }
 
 /* ── Tabs Navigation ───────────────────────── */
@@ -483,4 +561,107 @@
   .products-grid {
     grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
   }
+}
+
+/* ── Modals ───────────────────────────────── */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(8px);
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  animation: fadeIn 0.3s ease;
+}
+
+.modal-card {
+  background: #fff;
+  border-radius: 24px;
+  width: 100%;
+  max-width: 400px;
+  padding: 2.5rem;
+  text-align: center;
+  box-shadow: 0 40px 100px rgba(0, 0, 0, 0.4);
+  animation: scaleIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.modal-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  margin: 0 auto 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+}
+
+.modal-icon.danger {
+  background: #fef2f2;
+  color: #ef4444;
+}
+
+.modal-card h3 {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #111827;
+  margin-bottom: 0.8rem;
+}
+
+.modal-card p {
+  font-size: 0.95rem;
+  color: #64748b;
+  line-height: 1.5;
+  margin-bottom: 2rem;
+}
+
+.modal-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.btn-cancel, 
+.btn-confirm-danger {
+  width: 100%;
+  padding: 1rem;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-cancel {
+  background: #f3f4f6;
+  border: none;
+  color: #64748b;
+}
+
+.btn-cancel:hover {
+  background: #e5e7eb;
+}
+
+.btn-confirm-danger {
+  background: #ef4444;
+  border: none;
+  color: #fff;
+}
+
+.btn-confirm-danger:hover {
+  background: #dc2626;
+  transform: translateY(-2px);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.9); }
+  to { opacity: 1; transform: scale(1); }
 }

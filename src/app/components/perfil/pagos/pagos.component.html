@@ -26,21 +26,21 @@
       <div class="add-card-form animate-fade-in">
         <div class="input-group">
           <label>Nombre del titular</label>
-          <input 
-            type="text" 
-            [value]="nombreTitular()" 
+          <input
+            type="text"
+            [value]="nombreTitular()"
             (input)="nombreTitular.set($any($event.target).value)"
             placeholder="Nombre impreso en la tarjeta"
             class="standard-input"
           />
         </div>
         <div id="card-element-setup" class="stripe-card-element"></div>
-        
+
         @if (errorStripe()) {
-        <div class="alert alert-danger">
-          <i class="fas fa-exclamation-triangle"></i> {{ errorStripe() }}
-        </div>
-      }
+          <div class="alert alert-danger">
+            <i class="fas fa-exclamation-triangle"></i> {{ errorStripe() }}
+          </div>
+        }
       </div>
 
       <div class="form-actions mt-3">
@@ -79,9 +79,11 @@
           </div>
           <div class="card-footer">
             <span class="expiry">
-              Válida hasta: {{ (m.card.exp_month < 10 ? '0' : '') + m.card.exp_month }}/{{
-                m.card.exp_year
-              }}
+              Válida hasta:
+              {{
+                ((m.card.expMonth || m.card.exp_month) < 10 ? '0' : '') +
+                  (m.card.expMonth || m.card.exp_month)
+              }}/{{ m.card.expYear || m.card.exp_year }}
             </span>
             <button
               class="btn-icon text-danger"

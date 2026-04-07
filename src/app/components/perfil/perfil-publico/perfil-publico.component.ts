@@ -42,6 +42,7 @@ export class PerfilPublicoComponent implements OnInit, OnDestroy {
   // Actions states
   estaBloqueado = signal(false);
   mostrandoMenu = signal(false);
+  mostrandoModalBloqueo = signal(false);
 
   // Datos de tabs
   productos = signal<any[]>([]);
@@ -147,11 +148,12 @@ export class PerfilPublicoComponent implements OnInit, OnDestroy {
   cargarTabVehiculos(userId: number) {
     this.cargandoTab.set(true);
     this.http
-      .get<any>(`${environment.apiUrl}/vehiculos/usuario/${userId}`)
+      .get<any>(`${environment.apiUrl}/vehiculo/usuario/${userId}`)
       .subscribe({
         next: (res) => {
-          const lista = res?.contenido ?? res?.content ?? res ?? [];
-          this.vehiculos.set(Array.isArray(lista) ? lista : []);
+          // El backend devuelve una List<Vehiculo> directamente
+          const lista = Array.isArray(res) ? res : (res?.contenido ?? res?.content ?? []);
+          this.vehiculos.set(lista);
           this.cargandoTab.set(false);
         },
         error: () => this.cargandoTab.set(false),
@@ -236,21 +238,37 @@ export class PerfilPublicoComponent implements OnInit, OnDestroy {
       return;
     }
 
+    if (this.estaBloqueado()) {
+      this.confirmarAccionBloqueo();
+    } else {
+      this.mostrandoModalBloqueo.set(true);
+    }
+  }
+
+  confirmarAccionBloqueo() {
     const userId = this.perfil().id;
     if (this.estaBloqueado()) {
+      // Caso Desbloquear
       this.bloqueoService.desbloquear(userId).subscribe({
-        next: () => this.estaBloqueado.set(false),
+        next: () => {
+          this.estaBloqueado.set(false);
+          this.mostrandoModalBloqueo.set(false);
+        },
         error: (err) => alert('Error al desbloquear: ' + (err.error?.error || err.message)),
       });
     } else {
-      if (
-        confirm('¿Estás seguro de que deseas bloquear a este usuario? No podrá enviarte mensajes.')
-      ) {
-        this.bloqueoService.bloquearUsuario(userId).subscribe({
-          next: () => this.estaBloqueado.set(true),
-          error: (err) => alert('Error al bloquear: ' + (err.error?.error || err.message)),
-        });
-      }
+      // Caso Bloquear
+      this.bloqueoService.bloquearUsuario(userId).subscribe({
+        next: () => {
+          this.estaBloqueado.set(true);
+          this.mostrandoModalBloqueo.set(false);
+        },
+        error: (err) => alert('Error al bloquear: ' + (err.error?.error || err.message)),
+      });
     }
+  }
+
+  cerrarModalBloqueo() {
+    this.mostrandoModalBloqueo.set(false);
   }
 }

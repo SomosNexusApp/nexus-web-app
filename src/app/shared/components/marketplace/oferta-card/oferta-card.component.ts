@@ -171,7 +171,7 @@ export class OfertaCardComponent implements OnInit, OnDestroy, OnChanges {
     // Aplicar cambios optimistas en los signals locales
     this.sparkScore.set(newScore);
     this.miVoto.set(newVoto);
-    
+
     // Sincronizar también el objeto oferta por si se usa fuera
     (this.oferta as any).sparkScore = newScore;
     (this.oferta as any).miVoto = newVoto;
@@ -185,19 +185,21 @@ export class OfertaCardComponent implements OnInit, OnDestroy, OnChanges {
       .subscribe({
         next: (res: any) => {
           this.votando.set(false);
-          
+
           // Log para depuración en producción/desarrollo
-          console.log(`[Voto Fix] Oferta ${this.oferta.id}: Score devuelto=${res.sparkScore}, MiVoto=${res.miVoto}`);
+          console.log(
+            `[Voto Fix] Oferta ${this.oferta.id}: Score devuelto=${res.sparkScore}, MiVoto=${res.miVoto}`,
+          );
 
           // Actualizar signals con la confirmación real del servidor (ya no debería haber "bounce")
           this.sparkScore.set(res.sparkScore);
           this.miVoto.set(res.miVoto);
-          
+
           // Sincronizar objeto original
           (this.oferta as any).sparkScore = res.sparkScore;
           (this.oferta as any).badge = res.badge;
           (this.oferta as any).miVoto = res.miVoto;
-          
+
           this.cdr.detectChanges();
         },
         error: (err) => {

@@ -87,7 +87,7 @@ export class PagosComponent implements OnInit, OnDestroy {
         this.toast.success('Método de pago eliminado');
         this.methodIdToDelete = null;
       },
-      error: () => this.toast.error('Error al eliminar el método de pago')
+      error: () => this.toast.error('Error al eliminar el método de pago'),
     });
   }
 
@@ -158,8 +158,8 @@ export class PagosComponent implements OnInit, OnDestroy {
       payment_method: {
         card: this.cardEl,
         billing_details: {
-          name: this.nombreTitular() || this.user()?.nombre + ' ' + this.user()?.apellidos
-        }
+          name: this.nombreTitular() || this.user()?.nombre + ' ' + this.user()?.apellidos,
+        },
       },
     });
 

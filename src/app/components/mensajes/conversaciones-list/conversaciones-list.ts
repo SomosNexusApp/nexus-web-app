@@ -58,6 +58,7 @@ export class ConversacionesListComponent implements OnInit, OnDestroy {
 
   getOtroUsuario(msg: ChatMensaje): any {
     const miId = this.authStore.user()?.id;
+    if (!msg?.remitente) return msg?.receptor;
     return msg.remitente.id === miId ? msg.receptor : msg.remitente;
   }
 

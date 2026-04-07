@@ -103,6 +103,9 @@
           <a [routerLink]="['/perfil', user()?.user]" class="btn-secondary" target="_blank">
             <i class="fas fa-eye"></i> Ver mi perfil público
           </a>
+          <button (click)="setSection('configuracion')" class="btn-secondary">
+            <i class="fas fa-user-cog"></i> Editar mi perfil
+          </button>
         </div>
       </section>
     }

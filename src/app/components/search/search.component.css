@@ -1329,9 +1329,18 @@ h3,
   animation: pulse-dot 2s infinite;
 }
 @keyframes pulse-dot {
-  0% { transform: scale(0.9); opacity: 1; }
-  50% { transform: scale(1.5); opacity: 0.4; }
-  100% { transform: scale(0.9); opacity: 1; }
+  0% {
+    transform: scale(0.9);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.5);
+    opacity: 0.4;
+  }
+  100% {
+    transform: scale(0.9);
+    opacity: 1;
+  }
 }
 
 .nx-premium-search-banner::before {
@@ -1522,7 +1531,10 @@ h3,
 .nx-card-glass-wrapper::after {
   content: '';
   position: absolute;
-  top: -2px; left: -2px; right: -2px; bottom: -2px;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
   background: linear-gradient(135deg, var(--nx-primary-glow), #e879f9, #10b981);
   border-radius: calc(var(--nx-radius-lg) + 2px);
   z-index: -1;
@@ -1546,7 +1558,9 @@ h3,
   height: 100%;
   width: 100%;
   flex-grow: 1;
-  background: var(--nx-bg-app); /* Asegurar que no se vea transparente perdiendo contraste con hover glow */
+  background: var(
+    --nx-bg-app
+  ); /* Asegurar que no se vea transparente perdiendo contraste con hover glow */
   border-radius: var(--nx-radius-lg);
 }
 
@@ -2161,16 +2175,17 @@ h3,
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: rgba(255,255,255,0.02);
-  border: 1px solid rgba(255,255,255,0.08);
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 12px;
   padding: 12px 16px;
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   color: #fff;
 }
-.nx-custom-select-trigger:hover, .nx-custom-select-trigger.active {
-  background: rgba(255,255,255,0.05);
+.nx-custom-select-trigger:hover,
+.nx-custom-select-trigger.active {
+  background: rgba(255, 255, 255, 0.05);
   border-color: rgba(99, 102, 241, 0.4);
 }
 .nx-select-text {
@@ -2188,18 +2203,24 @@ h3,
   left: 0;
   right: 0;
   background: rgba(20, 20, 25, 0.95);
-  border: 1px solid rgba(255,255,255,0.1);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 12px;
   z-index: 100;
   overflow: hidden;
   backdrop-filter: blur(20px);
-  box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
   transform-origin: top;
   animation: scaleIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 @keyframes scaleIn {
-  from { opacity: 0; transform: scaleY(0.9); }
-  to { opacity: 1; transform: scaleY(1); }
+  from {
+    opacity: 0;
+    transform: scaleY(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scaleY(1);
+  }
 }
 .nx-dropdown-option {
   padding: 12px 16px;
@@ -2210,13 +2231,14 @@ h3,
   transition: background 0.2s;
   color: #d1d5db;
 }
-.nx-dropdown-option:hover, .nx-dropdown-option.active {
+.nx-dropdown-option:hover,
+.nx-dropdown-option.active {
   background: rgba(99, 102, 241, 0.15);
   color: #fff;
 }
 .nx-dropdown-divider {
   height: 1px;
-  background: rgba(255,255,255,0.1);
+  background: rgba(255, 255, 255, 0.1);
   margin: 5px 0;
 }
 
@@ -2246,5 +2268,5 @@ h3,
   justify-content: space-between;
   align-items: center;
   padding: 20px 0;
-  border-bottom: 1px solid rgba(255,255,255,0.05);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }

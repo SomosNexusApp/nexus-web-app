@@ -261,7 +261,7 @@
                       <i [class]="getBrandIcon(m.card.brand)" style="font-size: 2rem; color: #fff;"></i>
                       <div style="flex: 1; margin-left: 1.5rem;">
                         <strong style="display: block; font-size: 1rem; letter-spacing: 0.05em;">•••• •••• •••• {{ m.card.last4 }}</strong>
-                        <span style="font-size: 0.75rem; opacity: 0.6;">Vence {{ m.card.exp_month }}/{{ m.card.exp_year }}</span>
+                        <span style="font-size: 0.75rem; opacity: 0.6;">Vence {{ (m.card.expMonth || m.card.exp_month) < 10 ? '0' : '' }}{{ m.card.expMonth || m.card.exp_month }}/{{ m.card.expYear || m.card.exp_year }}</span>
                       </div>
                    </label>
                  }

@@ -234,3 +234,65 @@
   from { opacity: 0; transform: scale(0.95); }
   to { opacity: 1; transform: scale(1); }
 }
+
+@media (max-width: 768px) {
+  .veh-card {
+    border-radius: 12px;
+  }
+  
+  .img-wrapper {
+    aspect-ratio: 1/1; /* Square */
+  }
+
+  .card-body {
+    padding: 10px;
+    gap: 4px;
+  }
+
+  .veh-title {
+    font-size: 0.85rem;
+  }
+
+  .veh-price {
+    font-size: 1.1rem;
+  }
+
+  .chips-row {
+    gap: 4px;
+  }
+
+  .chip {
+    padding: 2px 6px;
+    font-size: 0.55rem;
+    gap: 3px;
+  }
+
+  .chip i, .chip svg {
+    width: 10px;
+    height: 10px;
+  }
+
+  .veh-location {
+    font-size: 0.65rem;
+    padding-top: 4px;
+  }
+
+  .fav-btn {
+    width: 28px;
+    height: 28px;
+    top: 6px;
+    right: 6px;
+  }
+  
+  .fav-btn svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  .tipo-badge {
+    top: 6px;
+    left: 6px;
+    font-size: 0.55rem;
+    padding: 2px 8px;
+  }
+}

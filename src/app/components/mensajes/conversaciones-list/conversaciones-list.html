@@ -39,7 +39,7 @@
               <span
                 class="texto-truncado"
                 [ngClass]="{
-                  'font-bold text-gray-900': !msg.leido && msg.receptor.id === authStore.user()?.id,
+                  'font-bold text-gray-900': !msg.leido && msg.receptor?.id === authStore.user()?.id,
                 }"
               >
                 @if (msg.tipo === 'IMAGEN') {
@@ -55,6 +55,16 @@
                 }
               </span>
             </div>
+          </div>
+
+          <div class="bottom-row">
+            <div class="msg-preview">
+              @if (msg.producto) {
+                <span class="product-title text-nexus-primary font-medium text-xs block mb-1">
+                  {{ msg.producto?.titulo | truncate: 25 }}
+                </span>
+              }
+            </div>
 
             <!-- Miniatura del producto -->
             @if (msg.producto) {
@@ -62,7 +72,7 @@
             }
 
             <!-- Badge No Leído -->
-            @if (!msg.leido && msg.receptor.id === authStore.user()?.id) {
+            @if (!msg.leido && msg.receptor?.id === authStore.user()?.id) {
               <div class="unread-badge">!</div>
             }
           </div>

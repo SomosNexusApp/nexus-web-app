@@ -113,66 +113,17 @@
                 <i class="fas fa-envelope"></i> Contactar
               </button>
 
-              <div class="menu-container" style="position: relative; display: inline-block">
-                <button
-                  class="btn-icon"
-                  style="
-                    background: transparent;
-                    border: none;
-                    padding: 10px;
-                    cursor: pointer;
-                    color: #6b7280;
-                    font-size: 1.25rem;
-                  "
-                  (click)="toggleOptionMenu()"
-                >
+              <div class="menu-container">
+                <button class="btn-icon" (click)="toggleOptionMenu()">
                   <i class="fas fa-ellipsis-v"></i>
                 </button>
 
                 @if (mostrandoMenu()) {
-                  <div
-                    class="dropdown-menu"
-                    style="
-                      position: absolute;
-                      right: 0;
-                      top: 100%;
-                      background: white;
-                      border: 1px solid #e5e7eb;
-                      border-radius: 8px;
-                      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-                      width: 200px;
-                      z-index: 50;
-                      padding: 8px 0;
-                    "
-                  >
-                    <button
-                      style="
-                        display: block;
-                        width: 100%;
-                        text-align: left;
-                        padding: 8px 16px;
-                        background: none;
-                        border: none;
-                        cursor: pointer;
-                        color: #374151;
-                      "
-                      (click)="abrirReporte()"
-                    >
+                  <div class="dropdown-menu">
+                    <button (click)="abrirReporte()">
                       <i class="fas fa-flag" style="margin-right: 8px"></i> Reportar usuario
                     </button>
-                    <button
-                      style="
-                        display: block;
-                        width: 100%;
-                        text-align: left;
-                        padding: 8px 16px;
-                        background: none;
-                        border: none;
-                        cursor: pointer;
-                        color: #ef4444;
-                      "
-                      (click)="toggleBloqueo()"
-                    >
+                    <button class="danger" (click)="toggleBloqueo()">
                       <i class="fas fa-ban" style="margin-right: 8px"></i>
                       {{ estaBloqueado() ? 'Desbloquear' : 'Bloquear' }} usuario
                     </button>
@@ -186,7 +137,7 @@
               </p>
             }
           } @else {
-            <a routerLink="/perfil" class="btn-editar-perfil">
+            <a routerLink="/configuracion" class="btn-editar-perfil">
               <i class="fas fa-edit"></i> Editar mi perfil
             </a>
           }
@@ -202,6 +153,13 @@
         (click)="cambiarTab('productos')"
       >
         <i class="fas fa-box-open"></i> Productos
+      </button>
+      <button
+        class="tab-btn"
+        [class.active]="activeTab() === 'vehiculos'"
+        (click)="cambiarTab('vehiculos')"
+      >
+        <i class="fas fa-car"></i> Vehículos
       </button>
       <button
         class="tab-btn"
@@ -241,6 +199,24 @@
           <div class="products-grid">
             @for (p of productos(); track p.id) {
               <app-producto-card [producto]="p"></app-producto-card>
+            }
+          </div>
+        }
+      }
+
+      <!-- Tab Vehículos -->
+      @if (activeTab() === 'vehiculos') {
+        @if (cargandoTab()) {
+          <div class="tab-loading"><div class="spinner-sm"></div></div>
+        } @else if (vehiculos().length === 0) {
+          <div class="empty-state">
+            <i class="fas fa-car"></i>
+            <p>Este usuario no tiene vehículos publicados.</p>
+          </div>
+        } @else {
+          <div class="products-grid">
+            @for (v of vehiculos(); track v.id) {
+              <app-producto-card [producto]="v"></app-producto-card>
             }
           </div>
         }
@@ -352,4 +328,22 @@
   </div>
 
   <app-reporte-modal></app-reporte-modal>
+
+  <!-- MODAL CONFIRMACION BLOQUEO -->
+  @if (mostrandoModalBloqueo()) {
+    <div class="modal-overlay" (click)="cerrarModalBloqueo()">
+      <div class="modal-card" (click)="$event.stopPropagation()">
+        <div class="modal-icon danger">
+          <i class="fas fa-user-slash"></i>
+        </div>
+        <h3>Bloquear a @{{ perfil().username }}</h3>
+        <p>¿Estás seguro de que deseas bloquear a este usuario? No podrá enviarte mensajes ni ver tus publicaciones.</p>
+        
+        <div class="modal-actions">
+          <button class="btn-cancel" (click)="cerrarModalBloqueo()">Cancelar</button>
+          <button class="btn-confirm-danger" (click) = "confirmarAccionBloqueo()">Bloquear Usuario</button>
+        </div>
+      </div>
+    </div>
+  }
 }
