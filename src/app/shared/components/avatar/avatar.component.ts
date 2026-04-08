@@ -1,4 +1,4 @@
-import { Component, input, computed, signal } from '@angular/core';
+import { Component, input, computed, signal, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ImgFallbackDirective } from '../../directives/img-fallback.directive';
 
@@ -22,6 +22,7 @@ import { ImgFallbackDirective } from '../../directives/img-fallback.directive';
           class="avatar-img"
           appImgFallback
           [skipDefaultFallback]="true"
+          referrerpolicy="no-referrer"
           (fallbackTriggered)="onFallback()"
         />
       } @else {
@@ -88,24 +89,36 @@ export class AvatarComponent {
 
   isBroken = signal<boolean>(false);
 
+  constructor() {
+    // Reset broken state when any relevant input changes
+    effect(() => {
+      this.avatarUrl();
+      this.googleAvatarUrl();
+      this.avatarSource();
+      this.isBroken.set(false);
+    }, { allowSignalWrites: true });
+  }
+
   effectiveAvatarUrl = computed(() => {
+    const source = this.avatarSource();
+    const gUrl = this.googleAvatarUrl();
+    const aUrl = this.avatarUrl();
+
     // Si la fuente es iniciales, no hay imagen
-    if (this.avatarSource() === 'INITIALS') return null;
+    if (source === 'INITIALS') return null;
 
     // Si la fuente es Google, priorizar googleAvatarUrl
-    const gUrl = this.googleAvatarUrl();
-    if (this.avatarSource() === 'GOOGLE' && gUrl) {
+    if (source === 'GOOGLE' && gUrl && gUrl.trim() !== '') {
       return gUrl;
     }
 
     // Por defecto (CUSTOM o AUTO), priorizar avatarUrl si existe y no es de ui-avatars
-    const aUrl = this.avatarUrl();
     if (aUrl && aUrl.trim() !== '' && !aUrl.includes('ui-avatars.com')) {
       return aUrl;
     }
 
-    // Fallback a google si CUSTOM no tiene imagen pero Google sí
-    if (this.avatarSource() !== 'INITIALS' && gUrl) {
+    // Fallback a google si CUSTOM no tiene imagen o es ui-avatars pero Google sí tiene algo
+    if (source !== 'INITIALS' && gUrl && gUrl.trim() !== '' && !gUrl.includes('ui-avatars.com')) {
       return gUrl;
     }
 
