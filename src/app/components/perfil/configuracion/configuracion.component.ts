@@ -172,16 +172,19 @@ export class ConfiguracionComponent implements OnInit, AfterViewInit, OnDestroy 
 
     const options = {
       root: null,
-      rootMargin: '-25% 0px -45% 0px', /* Wider and slightly lower band for better scroll tracking */
+      rootMargin: '-150px 0px -80% 0px', // Activa cuando la sección llega a la parte superior (considerando el header)
       threshold: 0
     };
 
     this.observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          this.activeSection.set(entry.target.id);
-        }
-      });
+      // Filtramos solo las que están entrando en la zona
+      const intersecting = entries.filter(e => e.isIntersecting);
+      
+      if (intersecting.length > 0) {
+        // Si hay varias, cogemos la que esté más arriba en el viewport
+        intersecting.sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+        this.activeSection.set(intersecting[0].target.id);
+      }
     }, options);
 
     this.sections.forEach(sec => {
