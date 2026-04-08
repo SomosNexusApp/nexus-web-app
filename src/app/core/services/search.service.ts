@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, forkJoin, of, shareReplay, switchMap, concat, map, catchError, take, tap } from 'rxjs';
 
@@ -55,6 +55,8 @@ export type SearchResultItem =
 export class SearchService {
   private http = inject(HttpClient);
   private apiUrl = environment.apiUrl;
+
+  public searchTerm = signal('');
 
   private marcasCache: any[] = [];
   private marcaIdMap: { [display: string]: string } = {};

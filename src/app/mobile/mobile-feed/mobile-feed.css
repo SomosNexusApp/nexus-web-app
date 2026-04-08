@@ -1,0 +1,145 @@
+.mobile-feed-container {
+  padding: 16px;
+  background: #000;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* SEARCH SECTION */
+.m-feed-search-section {
+  width: 100%;
+}
+
+.m-search-input-wrapper {
+  position: relative;
+  width: 100%;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+  padding: 14px 18px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  backdrop-filter: blur(10px);
+}
+
+.m-search-input-wrapper i {
+  color: #666;
+  font-size: 1.1rem;
+}
+
+.m-search-input-wrapper input {
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 1rem;
+  width: 100%;
+  outline: none;
+}
+
+/* TABS SCROLL */
+.m-feed-tabs-scroll {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding: 4px 0;
+}
+
+.m-feed-tabs-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.m-feed-tab-btn {
+  white-space: nowrap;
+  padding: 10px 20px;
+  border-radius: 25px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.03);
+  color: #888;
+  font-size: 0.9rem;
+  font-weight: 700;
+  transition: all 0.3s cubic-bezier(0.3, 0, 0, 1);
+  cursor: pointer;
+}
+
+.m-feed-tab-btn.active {
+  background: #fff;
+  color: #000;
+  border-color: #fff;
+  transform: scale(1.05);
+}
+
+.m-feed-separator {
+  width: 1px;
+  height: 24px;
+  background: rgba(255, 255, 255, 0.15);
+  margin: 0 4px;
+}
+
+/* SUBTABS */
+.m-feed-subtabs {
+  display: flex;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 25px;
+  padding: 4px;
+  gap: 4px;
+  animation: slideDown 0.3s ease;
+}
+
+.m-subtab-btn {
+  flex: 1;
+  padding: 12px;
+  border-radius: 22px;
+  border: none;
+  background: none;
+  color: #666;
+  font-size: 0.85rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.3s ease;
+}
+
+.m-subtab-btn.active {
+  background: #fff;
+  color: #000;
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* RESULTS GRID */
+.m-feed-results {
+  flex: 1;
+}
+
+.m-feed-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.m-feed-card {
+  width: 100%;
+}
+
+.m-feed-empty {
+  text-align: center;
+  color: #444;
+  padding: 100px 20px;
+  font-size: 0.9rem;
+}
+
+.m-feed-loader {
+  display: flex;
+  justify-content: center;
+  padding: 100px 0;
+}

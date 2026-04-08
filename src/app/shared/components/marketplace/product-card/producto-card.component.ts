@@ -28,6 +28,7 @@ export class ProductoCardComponent implements OnInit {
   @Input() producto!: MarketplaceItem;
   @Input() isSkeleton = false;
   @Input() showFavorito = true;
+  @Input() isMobileFeed = false;
 
   private router = inject(Router);
   private authStore = inject(AuthStore);

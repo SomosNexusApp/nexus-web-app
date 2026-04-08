@@ -1,116 +1,137 @@
 @if (isSkeleton) {
   <app-skeleton-card variant="oferta"></app-skeleton-card>
 } @else {
-  <div
-    class="nexus-card scale-in"
-    (click)="navigateToDetail()"
-    role="article"
-    [attr.aria-label]="oferta.titulo"
-    tabindex="0"
-  >
-    <!-- Votación Vertical -->
-    <div class="vote-sidebar" (click)="$event.stopPropagation()">
-      <button
-        class="vote-btn up"
-        [class.active]="miVoto() === 'SPARK'"
-        (click)="votar(true, $event)"
-        [disabled]="votando()"
-        title="¡Me gusta!"
-      >
-        <i class="fa-solid fa-fire"></i>
-      </button>
-
-      <span class="vote-score" [class.hot]="sparkScore() > 50" [class.cold]="sparkScore() < 0">
-        {{ sparkScore() }}º
-      </span>
-
-      <button
-        class="vote-btn down"
-        [class.active]="miVoto() === 'DRIP'"
-        (click)="votar(false, $event)"
-        [disabled]="votando()"
-        title="No me gusta"
-      >
-        <i class="fa-solid fa-snowflake"></i>
-      </button>
-    </div>
-
-    <!-- Contenido Principal -->
-    <div class="card-main">
-      <div class="img-wrapper">
-        <img
-          [src]="
-            oferta.imagenPrincipal ||
-            'https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=1000&auto=format&fit=crop'
-          "
-          [alt]="oferta.titulo"
-          class="object-cover"
-          loading="lazy"
-          (error)="
-            $any($event.target).src =
-              'https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=1000&auto=format&fit=crop'
-          "
-        />
-        <div class="img-overlay"></div>
-
-        @if (discountPercent > 0) {
-          <span class="discount-badge">-{{ discountPercent }}%</span>
-        }
-
-        @if ($any(oferta).badge) {
-          <span class="type-badge" [ngClass]="$any(oferta).badge.toLowerCase()">
-            {{ badgeLabel }}
-          </span>
-        }
+  @if (!isMobileFeed) {
+    <div
+      class="nexus-card scale-in"
+      (click)="navigateToDetail()"
+      role="article"
+      [attr.aria-label]="oferta.titulo"
+      tabindex="0"
+    >
+      <!-- Votación Vertical (Desktop) -->
+      <div class="vote-sidebar" (click)="$event.stopPropagation()">
+        <button
+          class="vote-btn up"
+          [class.active]="miVoto() === 'SPARK'"
+          (click)="votar(true, $event)"
+          [disabled]="votando()"
+        >
+          <i class="fa-solid fa-fire"></i>
+        </button>
+        <span class="vote-score" [class.hot]="sparkScore() > 50">
+          {{ sparkScore() }}º
+        </span>
+        <button
+          class="vote-btn down"
+          [class.active]="miVoto() === 'DRIP'"
+          (click)="votar(false, $event)"
+          [disabled]="votando()"
+        >
+          <i class="fa-solid fa-snowflake"></i>
+        </button>
       </div>
 
-      <div class="card-body">
-        <div class="store-row">
-          <span class="store-badge">
-            <i class="fa-solid fa-shop"></i>
-            {{ $any(oferta).tienda || 'Particular' }}
-          </span>
-          @if (expiraProxima && countdown()) {
-            <span class="countdown">
-              <i class="fa-solid fa-clock"></i>
-              {{ countdown() }}
-            </span>
-          } @else {
-            <span class="pub-time">{{ oferta.fechaPublicacion | timeAgo }}</span>
-          }
+      <!-- Contenido Principal (Desktop) -->
+      <div class="card-main">
+        <div class="img-wrapper">
+          <img [src]="oferta.imagenPrincipal || 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=1000&auto=format&fit=crop'" [alt]="oferta.titulo" class="object-cover" />
+          @if (discountPercent > 0) { <span class="discount-badge">-{{ discountPercent }}%</span> }
+          @if ($any(oferta).badge) { <span class="type-badge" [ngClass]="$any(oferta).badge.toLowerCase()">{{ badgeLabel }}</span> }
         </div>
 
-        <h3 class="oferta-title" [title]="oferta.titulo">{{ oferta.titulo }}</h3>
-
-        <div class="price-row">
-          <div class="prices">
-            <span class="price-new">{{ oferta.precioOferta || oferta.precio | currencyEs }}</span>
-            @if (oferta.precioOriginal) {
-              <span class="price-old">{{ oferta.precioOriginal | currencyEs }}</span>
-            }
+        <div class="card-body">
+          <div class="store-row">
+            <span class="store-badge"><i class="fa-solid fa-shop"></i> {{ $any(oferta).tienda || 'Particular' }}</span>
+            <span class="pub-time">{{ oferta.fechaPublicacion | timeAgo }}</span>
           </div>
+          <h3 class="oferta-title">{{ oferta.titulo }}</h3>
+          <div class="price-row">
+            <div class="prices">
+              <span class="price-new">{{ oferta.precioOferta || oferta.precio | currencyEs }}</span>
+              @if (oferta.precioOriginal) { <span class="price-old">{{ oferta.precioOriginal | currencyEs }}</span> }
+            </div>
+            <button class="btn-go" (click)="irALaOferta($event)">Ir <i class="fa-solid fa-arrow-up-right-from-square"></i></button>
+          </div>
+        </div>
+      </div>
+    </div>
+  } @else {
+    <!-- DISEÑO MÓVIL (HORIZONTAL) -->
+    <div class="nexus-card-mobile" (click)="navigateToDetail()">
+      
+      <!-- Lado Izquierdo: Imagen e Info Voto -->
+      <div class="card-mobile-left">
+        <div class="mobile-img-container">
+          <!-- Burbuja de Temperatura (Estática encima de la imagen) -->
+          <div class="mobile-spark-badge" [class.hot]="sparkScore() > 50">
+            <i class="fa-solid fa-fire" *ngIf="sparkScore() > 50"></i>
+            <i class="fa-solid fa-bolt" *ngIf="sparkScore() <= 50"></i>
+            <span>{{ sparkScore() }}º</span>
+          </div>
+          <img [src]="oferta.imagenPrincipal || 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=1000&auto=format&fit=crop'" class="mobile-thumb">
+        </div>
+        
+        <!-- Controles de Voto (Compactos y Temáticos) -->
+        <div class="mobile-vote-box">
+          <button class="m-v-btn m-v-up" [class.active]="miVoto() === 'SPARK'" (click)="votar(true, $event)" [disabled]="votando()">
+            <i class="fa-solid fa-fire"></i>
+          </button>
+          <button class="m-v-btn m-v-down" [class.active]="miVoto() === 'DRIP'" (click)="votar(false, $event)" [disabled]="votando()">
+            <i class="fa-solid fa-snowflake"></i>
+          </button>
+        </div>
+        
+        <!-- Comentarios debajo de la imagen -->
+        <div class="mobile-comments">
+          <i class="fa-regular fa-comment"></i>
+          <span>{{ ($any(oferta).numeroComentarios || 0) }}</span>
+        </div>
+      </div>
 
-          <button class="btn-go" (click)="irALaOferta($event)">
-            Ir <i class="fa-solid fa-arrow-up-right-from-square"></i>
+      <!-- Lado Derecho: Contenido -->
+      <div class="card-mobile-right">
+        <!-- Badges Superiores -->
+        <div class="mobile-top-badges">
+          <span class="m-badge m-badge-offer">{{ badgeLabel || 'Oferta' }}</span>
+          <span class="m-badge m-badge-time">{{ oferta.fechaPublicacion | timeAgo }}</span>
+          <button class="m-fav-btn" (click)="toggleFavorito($event)">
+            <i class="fa-heart" [class.fa-solid]="esFavorito()" [class.fa-regular]="!esFavorito()" [style.color]="esFavorito() ? '#ef4444' : '#666'"></i>
           </button>
         </div>
 
-        @if ($any(oferta).codigoDescuento) {
-          <div class="codigo-chip-wrapper">
-            <button
-              class="codigo-chip"
-              (click)="copiarCodigo($event)"
-              [class.copied]="copiado()"
-              type="button"
-            >
-              <i class="fa-solid fa-ticket-simple"></i>
-              <span class="codigo-text">{{
-                copiado() ? '¡Copiado!' : $any(oferta).codigoDescuento
-              }}</span>
-            </button>
+        <!-- Título -->
+        <h3 class="mobile-title">{{ oferta.titulo }}</h3>
+
+        <!-- Precios -->
+        <div class="mobile-price-section">
+          <span class="m-price-curr">{{ (oferta.precioOferta || oferta.precio) | currencyEs }}</span>
+          @if (oferta.precioOriginal) {
+            <span class="m-price-old">{{ oferta.precioOriginal | currencyEs }}</span>
+          }
+          @if (discountPercent > 0) {
+            <span class="m-discount">-{{ discountPercent }}%</span>
+          }
+        </div>
+
+        <!-- Tienda y Publicador -->
+        <div class="mobile-meta">
+          <div class="m-store">{{ tiendaReal }}</div>
+          <div class="m-author">
+            Publicado por {{ (oferta.vendedor?.nombre || $any(oferta).usuarioNombre || 'Usuario') }} 
+            <i class="fa-solid fa-user-check" *ngIf="oferta.vendedor?.verificado"></i>
           </div>
-        }
+        </div>
+
+        <!-- Botón Ir (Esquina Inferior Derecha) -->
+        <div class="mobile-action-bar">
+          <button class="m-btn-go" (click)="irALaOferta($event)">
+            Ir <i class="fa-solid fa-external-link"></i>
+          </button>
+        </div>
+
       </div>
+
     </div>
-  </div>
+  }
 }

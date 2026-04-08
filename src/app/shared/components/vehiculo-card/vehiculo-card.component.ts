@@ -2,6 +2,7 @@ import { Component, Input, inject, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { CurrencyEsPipe } from '../../pipes/currency-es.pipe';
+import { TimeAgoPipe } from '../../pipes/time-ago.pipe';
 import { SkeletonCardComponent } from '../skeleton-card/skeleton-card.component';
 import { CoverImagePipe } from '../../pipes/cover-image.pipe';
 import { Vehiculo } from '../../../models/vehiculo.model';
@@ -12,7 +13,7 @@ import { AuthStore } from '../../../core/auth/auth-store';
 @Component({
   selector: 'app-vehiculo-card',
   standalone: true,
-  imports: [CommonModule, RouterModule, CurrencyEsPipe, SkeletonCardComponent, CoverImagePipe],
+  imports: [CommonModule, RouterModule, CurrencyEsPipe, TimeAgoPipe, SkeletonCardComponent, CoverImagePipe],
   templateUrl: './vehiculo-card.component.html',
   styleUrls: ['./vehiculo-card.component.css'],
 })
@@ -20,6 +21,7 @@ export class VehiculoCardComponent implements OnInit {
   @Input() vehiculo!: Vehiculo | MarketplaceItem;
   @Input() isSkeleton = false;
   @Input() showFavorito = true;
+  @Input() isMobileFeed = false;
 
   private router = inject(Router);
   private favService = inject(FavoritoService);

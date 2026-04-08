@@ -21,6 +21,7 @@ import { MarketplaceItem } from '../../../../models/marketplace-item.model';
 import { environment } from '../../../../../environments/enviroment';
 import { AuthStore } from '../../../../core/auth/auth-store';
 import { ToastService } from '../../../../core/services/toast.service';
+import { FavoritoService } from '../../../../core/services/favorito.service';
 
 @Component({
   selector: 'app-oferta-card',
@@ -33,16 +34,20 @@ import { ToastService } from '../../../../core/services/toast.service';
 export class OfertaCardComponent implements OnInit, OnDestroy, OnChanges {
   @Input() oferta!: MarketplaceItem;
   @Input() isSkeleton = false;
+  @Input() isMobileFeed = false;
 
   private router = inject(Router);
   private http = inject(HttpClient);
   private authStore = inject(AuthStore);
   private cdr = inject(ChangeDetectorRef);
   private toast = inject(ToastService);
+  private favService = inject(FavoritoService);
 
   // Estados locales para reactividad inmediata
   sparkScore = signal(0);
   miVoto = signal<string | null>(null); // 'SPARK', 'DRIP' o 'NONE'
+  esFavorito = signal(false);
+  animandoCorazon = signal(false);
   votando = signal(false);
   copiado = signal(false);
   countdown = signal('');
@@ -58,6 +63,38 @@ export class OfertaCardComponent implements OnInit, OnDestroy, OnChanges {
     const off = this.oferta?.precioOferta || this.oferta?.precio;
     if (!orig || !off || orig <= off) return 0;
     return Math.round(((orig - off) / orig) * 100);
+  }
+
+  get tiendaReal(): string {
+    const t = (this.oferta as any).tienda;
+    if (t && t.trim() && t !== 'Tienda') return t;
+
+    const url = (this.oferta as any).urlOferta || (this.oferta as any).urlExterna;
+    if (url) {
+      try {
+        const domain = new URL(url).hostname.replace('www.', '');
+        // Mapeo inteligente de dominios comunes para que salgan bien (Capitalizados)
+        const parts = domain.split('.');
+        const name = parts[0]; // ej: mediamarkt de mediamarkt.es
+        
+        // Formateo especial para marcas conocidas
+        const map: Record<string, string> = {
+          'mediamarkt': 'MediaMarkt',
+          'amazon': 'Amazon',
+          'ebay': 'eBay',
+          'aliexpress': 'AliExpress',
+          'elcorteingles': 'El Corte Inglés',
+          'pccomponentes': 'PcComponentes',
+          'chollometro': 'Chollometro',
+          'showroomprive': 'Showroomprivé'
+        };
+
+        return map[name.toLowerCase()] || (name.charAt(0).toUpperCase() + name.slice(1));
+      } catch (e) {
+        return (this.oferta as any).tienda || 'Particular';
+      }
+    }
+    return (this.oferta as any).tienda || 'Particular';
   }
 
   get badgeLabel(): string {
@@ -90,6 +127,15 @@ export class OfertaCardComponent implements OnInit, OnDestroy, OnChanges {
   ngOnInit(): void {
     if (this.oferta) {
       this.updateState();
+      this.checkFavorito();
+    }
+  }
+
+  private checkFavorito(): void {
+    if (this.isLoggedIn && this.oferta?.id) {
+       this.favService.getFavoritosIds().subscribe(ids => {
+         this.esFavorito.set(ids.includes(`oferta_${this.oferta.id}`));
+       });
     }
   }
 
@@ -238,5 +284,35 @@ export class OfertaCardComponent implements OnInit, OnDestroy, OnChanges {
   navigateToDetail(): void {
     if (this.oferta.id === 9999) return;
     this.router.navigate(['/ofertas', this.oferta.id]);
+  }
+
+  toggleFavorito(event: MouseEvent): void {
+    event.stopPropagation();
+    event.preventDefault();
+
+    if (!this.isLoggedIn) {
+      this.toast.warning('Inicia sesión para guardar favoritos.');
+      return;
+    }
+
+    const id = this.oferta.id;
+    if (!id || id === 9999) return;
+
+    this.animandoCorazon.set(true);
+    const becomingFav = !this.esFavorito();
+    
+    // Update local state early for responsiveness
+    this.esFavorito.set(becomingFav);
+
+    const req = becomingFav ? this.favService.addFavorito(id, 'oferta') : this.favService.removeFavorito(id, 'oferta');
+
+    req.subscribe({
+      error: () => {
+        this.esFavorito.set(!becomingFav);
+      },
+      complete: () => {
+        setTimeout(() => this.animandoCorazon.set(false), 400);
+      }
+    });
   }
 }

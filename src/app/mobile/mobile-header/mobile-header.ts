@@ -4,6 +4,7 @@ import { RouterModule, Router } from '@angular/router';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { AuthStore } from '../../core/auth/auth-store';
 import { NotificationService } from '../../core/services/notification.service';
+import { SearchService } from '../../core/services/search.service';
 import { AvatarComponent } from '../../shared/components/avatar/avatar.component';
 
 @Component({
@@ -18,13 +19,22 @@ export class MobileHeader {
   private router = inject(Router);
   public authStore = inject(AuthStore);
   public notificationService = inject(NotificationService);
+  public searchService = inject(SearchService);
 
   searchControl = new FormControl('');
+
+  constructor() {
+    this.searchControl.valueChanges.subscribe(val => {
+       this.searchService.searchTerm.set(val || '');
+    });
+  }
 
   ejecutarBusqueda() {
     const term = this.searchControl.value;
     if (term?.trim()) {
-      this.router.navigate(['/search'], { queryParams: { q: term } });
+      if (this.router.url !== '/') {
+        this.router.navigate(['/search'], { queryParams: { q: term } });
+      }
     }
   }
 

@@ -1,115 +1,182 @@
 @if (isSkeleton) {
   <app-skeleton-card variant="producto"></app-skeleton-card>
 } @else {
-  <div
-    class="nexus-card scale-in"
-    [class.is-vendido]="isVendido"
-    [class.is-reservado]="isReservado"
-    (click)="navigateToDetail($event)"
-    role="article"
-    [attr.aria-label]="producto.titulo"
-    tabindex="0"
-  >
-    <div class="img-wrapper">
-      <img
-        [src]="producto | coverImage"
-        [alt]="producto.titulo"
-        class="object-cover"
-        loading="lazy"
-        (error)="
-          $any($event.target).src = 'https://placehold.co/600x400/0f1115/ffffff?text=Nexus+Product'
-        "
-      />
-      <div class="img-overlay"></div>
+  @if (!isMobileFeed) {
+    <div
+      class="nexus-card scale-in"
+      [class.is-vendido]="isVendido"
+      [class.is-reservado]="isReservado"
+      (click)="navigateToDetail($event)"
+      role="article"
+      [attr.aria-label]="producto.titulo"
+      tabindex="0"
+    >
+      <div class="img-wrapper">
+        <img
+          [src]="producto | coverImage"
+          [alt]="producto.titulo"
+          class="object-cover"
+          loading="lazy"
+          (error)="
+            $any($event.target).src = 'https://placehold.co/600x400/0f1115/ffffff?text=Nexus+Product'
+          "
+        />
+        <div class="img-overlay"></div>
 
-      <div class="top-badges">
-        @if ($any(producto).patrocinado || $any(producto).sponsored) {
-          <span class="badge patrocinado-badge">Patrocinado</span>
+        <div class="top-badges">
+          @if ($any(producto).patrocinado || $any(producto).sponsored) {
+            <span class="badge patrocinado-badge">Patrocinado</span>
+          }
+          @if (producto.condicion) {
+            <span class="badge condition-badge" [ngClass]="condicionClass">
+              {{ formatCondicion }}
+            </span>
+          }
+
+          @if ($any(producto).admiteEnvio) {
+            <span class="badge shipping-badge" title="Admite envío">
+              <i class="fas fa-truck"></i> Envío
+            </span>
+          }
+        </div>
+
+        @if (isVendido) {
+          <div class="estado-overlay vendido-overlay">
+            <span class="estado-text">VENDIDO</span>
+          </div>
+        } @else if (isReservado) {
+          <div class="estado-overlay reservado-overlay">
+            <span class="estado-text">RESERVADO</span>
+          </div>
         }
-        @if (producto.condicion) {
-          <span class="badge condition-badge" [ngClass]="condicionClass">
+
+        @if (showFavorito) {
+          <button
+            class="fav-btn"
+            [class.fav-btn--active]="esFavorito()"
+            [class.fav-btn--animating]="animandoCorazon()"
+            (click)="toggleFavorito($event)"
+            [attr.aria-label]="esFavorito() ? 'Quitar de favoritos' : 'Guardar en favoritos'"
+            type="button"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              [attr.fill]="esFavorito() ? 'currentColor' : 'none'"
+              stroke="currentColor"
+              stroke-width="2.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path
+                d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"
+              />
+            </svg>
+          </button>
+        }
+      </div>
+
+      <div class="card-body">
+        <div class="price-row">
+          @if ($any(producto).tipoOferta === 'DONACION') {
+            <h3 class="product-price text-green">GRATIS</h3>
+          } @else if ($any(producto).tipoOferta === 'INTERCAMBIO') {
+            <h3 class="product-price text-purple">Intercambio</h3>
+          } @else {
+            <h3 class="product-price">{{ producto.precio ?? producto.precioOferta | currencyEs }}</h3>
+          }
+        </div>
+
+        <h3 class="product-title" [title]="producto.titulo">{{ producto.titulo }}</h3>
+
+        <div class="card-footer">
+          <span class="location">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="12"
+              height="12"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
+              <circle cx="12" cy="10" r="3" />
+            </svg>
+            {{ producto.ubicacion || 'España' }}
+          </span>
+          <span class="time">{{ producto.fechaPublicacion | timeAgo }}</span>
+        </div>
+      </div>
+    </div>
+  } @else {
+    <!-- DISEÑO MÓVIL (HORIZONTAL) -->
+    <div class="nexus-card-mobile" (click)="navigateToDetail($event)">
+      
+      <!-- Lado Izquierdo: Imagen -->
+      <div class="card-mobile-left">
+        <div class="mobile-img-container">
+          <span class="m-cond-badge" [ngClass]="condicionClass" *ngIf="producto.condicion">
             {{ formatCondicion }}
           </span>
-        }
-
-        @if ($any(producto).admiteEnvio) {
-          <span class="badge shipping-badge" title="Admite envío">
-            <i class="fas fa-truck"></i> Envío
-          </span>
-        }
+          <img [src]="producto | coverImage" class="mobile-thumb" alt="Producto">
+        </div>
+        
+        <div class="mobile-location">
+          <i class="fa-solid fa-location-dot"></i>
+          <span>{{ producto.ubicacion || 'España' }}</span>
+        </div>
       </div>
 
-      @if (isVendido) {
-        <div class="estado-overlay vendido-overlay">
-          <span class="estado-text">VENDIDO</span>
+      <!-- Lado Derecho: Contenido -->
+      <div class="card-mobile-right">
+        <!-- Badges Superiores -->
+        <div class="mobile-top-badges">
+          <span class="m-badge m-badge-product">{{ (producto.categoria?.nombre || 'Producto') }}</span>
+          <span class="m-badge m-badge-time">{{ producto.fechaPublicacion | timeAgo }}</span>
+          
+          <button class="m-fav-btn" (click)="toggleFavorito($event)" *ngIf="showFavorito">
+            <i class="fa-heart" 
+               [class.fa-solid]="esFavorito()" 
+               [class.fa-regular]="!esFavorito()" 
+               [style.color]="esFavorito() ? '#ef4444' : '#666'"></i>
+          </button>
         </div>
-      } @else if (isReservado) {
-        <div class="estado-overlay reservado-overlay">
-          <span class="estado-text">RESERVADO</span>
+
+        <!-- Título -->
+        <h3 class="mobile-title">{{ producto.titulo }}</h3>
+
+        <!-- Precio -->
+        <div class="mobile-price-section">
+          @if ($any(producto).tipoOferta === 'DONACION') {
+            <span class="m-price-curr text-green">GRATIS</span>
+          } @else if ($any(producto).tipoOferta === 'INTERCAMBIO') {
+            <span class="m-price-curr text-purple">Intercambio</span>
+          } @else {
+            <span class="m-price-curr">{{ (producto.precio ?? producto.precioOferta) | currencyEs }}</span>
+          }
         </div>
-      }
 
-      @if (showFavorito) {
-        <button
-          class="fav-btn"
-          [class.fav-btn--active]="esFavorito()"
-          [class.fav-btn--animating]="animandoCorazon()"
-          (click)="toggleFavorito($event)"
-          [attr.aria-label]="esFavorito() ? 'Quitar de favoritos' : 'Guardar en favoritos'"
-          type="button"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            [attr.fill]="esFavorito() ? 'currentColor' : 'none'"
-            stroke="currentColor"
-            stroke-width="2.5"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          >
-            <path
-              d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"
-            />
-          </svg>
-        </button>
-      }
-    </div>
+        <!-- Vendedor -->
+        <div class="mobile-meta">
+          <div class="m-author">
+            Vendido por {{ (producto.vendedor?.nombre || 'Usuario') }}
+            <i class="fa-solid fa-user-check" *ngIf="producto.vendedor?.verificado"></i>
+          </div>
+        </div>
 
-    <div class="card-body">
-      <div class="price-row">
-        @if ($any(producto).tipoOferta === 'DONACION') {
-          <h3 class="product-price text-green">GRATIS</h3>
-        } @else if ($any(producto).tipoOferta === 'INTERCAMBIO') {
-          <h3 class="product-price text-purple">Intercambio</h3>
-        } @else {
-          <h3 class="product-price">{{ producto.precio ?? producto.precioOferta | currencyEs }}</h3>
-        }
-      </div>
+        <!-- Botón Ver -->
+        <div class="mobile-action-bar">
+          <button class="m-btn-go">
+            Ver producto <i class="fa-solid fa-chevron-right"></i>
+          </button>
+        </div>
 
-      <h3 class="product-title" [title]="producto.titulo">{{ producto.titulo }}</h3>
-
-      <div class="card-footer">
-        <span class="location">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="12"
-            height="12"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          >
-            <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
-            <circle cx="12" cy="10" r="3" />
-          </svg>
-          {{ producto.ubicacion || 'España' }}
-        </span>
-        <span class="time">{{ producto.fechaPublicacion | timeAgo }}</span>
       </div>
     </div>
-  </div>
+  }
 }

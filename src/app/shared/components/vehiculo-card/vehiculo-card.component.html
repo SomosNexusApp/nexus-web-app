@@ -1,148 +1,216 @@
 @if (isSkeleton) {
   <app-skeleton-card variant="vehiculo"></app-skeleton-card>
 } @else {
-  <div
-    class="veh-card scale-in"
-    (click)="navigateToDetail()"
-    role="article"
-    [attr.aria-label]="vehiculo.titulo"
-    tabindex="0"
-  >
-    <div class="img-wrapper">
-      <img
-        [src]="vehiculo | coverImage"
-        [alt]="vehiculo.titulo"
-        class="object-cover"
-        loading="lazy"
-        (error)="
-          $any($event.target).src =
-            'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?q=80&w=1000&auto=format&fit=crop'
-        "
-      />
-      <div class="img-overlay"></div>
+  @if (!isMobileFeed) {
+    <div
+      class="veh-card scale-in"
+      (click)="navigateToDetail()"
+      role="article"
+      [attr.aria-label]="vehiculo.titulo"
+      tabindex="0"
+    >
+      <div class="img-wrapper">
+        <img
+          [src]="vehiculo | coverImage"
+          [alt]="vehiculo.titulo"
+          class="object-cover"
+          loading="lazy"
+          (error)="
+            $any($event.target).src =
+              'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?q=80&w=1000&auto=format&fit=crop'
+          "
+        />
+        <div class="img-overlay"></div>
 
-      @if (showFavorito && authStore.isLoggedIn()) {
-        <button
-          class="fav-btn"
-          [class.active]="esFavorito()"
-          [class.animating]="animandoCorazon()"
-          (click)="toggleFavorito($event)"
-          aria-label="Guardar en favoritos"
-        >
-          <svg viewBox="0 0 24 24" fill="currentColor">
-            <path
-              d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"
-            />
+        @if (showFavorito && authStore.isLoggedIn()) {
+          <button
+            class="fav-btn"
+            [class.active]="esFavorito()"
+            [class.animating]="animandoCorazon()"
+            (click)="toggleFavorito($event)"
+            aria-label="Guardar en favoritos"
+          >
+            <svg viewBox="0 0 24 24" fill="currentColor">
+              <path
+                d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"
+              />
+            </svg>
+          </button>
+        }
+
+        <span class="tipo-badge">
+          <svg
+            class="badge-icon"
+            width="12"
+            height="12"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path [attr.d]="tipoIconPath"></path>
           </svg>
-        </button>
-      }
+          {{ tipoLabel }}
+        </span>
 
-      <span class="tipo-badge">
-        <svg
-          class="badge-icon"
-          width="12"
-          height="12"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2.5"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-        >
-          <path [attr.d]="tipoIconPath"></path>
-        </svg>
-        {{ tipoLabel }}
-      </span>
+        @if ($any(vehiculo).estadoVehiculo === 'VENDIDO') {
+          <div class="estado-overlay">
+            <span class="estado-text">VENDIDO</span>
+          </div>
+        } @else if ($any(vehiculo).estadoVehiculo === 'RESERVADO') {
+          <span class="reservado-badge">RESERVADO</span>
+        }
+      </div>
 
-      @if ($any(vehiculo).estadoVehiculo === 'VENDIDO') {
-        <div class="estado-overlay">
-          <span class="estado-text">VENDIDO</span>
+      <div class="card-body">
+        <h3 class="veh-title" [title]="vehiculo.titulo">{{ vehiculo.titulo }}</h3>
+        <p class="veh-price">{{ vehiculo.precio | currencyEs }}</p>
+
+        <div class="chips-row">
+          @if ($any(vehiculo).anio) {
+            <span class="chip">
+              <svg
+                width="10"
+                height="10"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                <line x1="16" y1="2" x2="16" y2="6" />
+                <line x1="8" y1="2" x2="8" y2="6" />
+                <line x1="3" y1="10" x2="21" y2="10" />
+              </svg>
+              {{ $any(vehiculo).anio }}
+            </span>
+          }
+          @if ($any(vehiculo).kilometros || $any(vehiculo).kilometros === 0) {
+            <span class="chip">
+              <svg
+                width="10"
+                height="10"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z" />
+                <path d="m12 12 4-4" />
+              </svg>
+              {{ kmFormateados }}
+            </span>
+          }
+          @if ($any(vehiculo).combustible) {
+            <span class="chip">
+              <svg
+                width="10"
+                height="10"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M3 22V2h11l7 7v13H3z" />
+                <path d="M14 2v7h7" />
+                <path d="M7 13h10" />
+                <path d="M7 17h10" />
+                <path d="M7 9h3" />
+              </svg>
+              {{ $any(vehiculo).combustible }}
+            </span>
+          }
         </div>
-      } @else if ($any(vehiculo).estadoVehiculo === 'RESERVADO') {
-        <span class="reservado-badge">RESERVADO</span>
-      }
-    </div>
 
-    <div class="card-body">
-      <h3 class="veh-title" [title]="vehiculo.titulo">{{ vehiculo.titulo }}</h3>
-      <p class="veh-price">{{ vehiculo.precio | currencyEs }}</p>
-
-      <div class="chips-row">
-        @if ($any(vehiculo).anio) {
-          <span class="chip">
-            <svg
-              width="10"
-              height="10"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2.5"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
-              <line x1="16" y1="2" x2="16" y2="6" />
-              <line x1="8" y1="2" x2="8" y2="6" />
-              <line x1="3" y1="10" x2="21" y2="10" />
-            </svg>
-            {{ $any(vehiculo).anio }}
-          </span>
-        }
-        @if ($any(vehiculo).kilometros || $any(vehiculo).kilometros === 0) {
-          <span class="chip">
-            <svg
-              width="10"
-              height="10"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2.5"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z" />
-              <path d="m12 12 4-4" />
-            </svg>
-            {{ kmFormateados }}
-          </span>
-        }
-        @if ($any(vehiculo).combustible) {
-          <span class="chip">
-            <svg
-              width="10"
-              height="10"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2.5"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <path d="M3 22V2h11l7 7v13H3z" />
-              <path d="M14 2v7h7" />
-              <path d="M7 13h10" />
-              <path d="M7 17h10" />
-              <path d="M7 9h3" />
-            </svg>
-            {{ $any(vehiculo).combustible }}
-          </span>
-        }
-      </div>
-
-      <div class="veh-location">
-        <svg
-          width="12"
-          height="12"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2.5"
-        >
-          <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
-          <circle cx="12" cy="10" r="3" />
-        </svg>
-        {{ vehiculo.ubicacion || 'España' }}
+        <div class="veh-location">
+          <svg
+            width="12"
+            height="12"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.5"
+          >
+            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+            <circle cx="12" cy="10" r="3" />
+          </svg>
+          {{ vehiculo.ubicacion || 'España' }}
+        </div>
       </div>
     </div>
-  </div>
+  } @else {
+    <!-- DISEÑO MÓVIL (HORIZONTAL) -->
+    <div class="nexus-card-mobile motor-theme" (click)="navigateToDetail()">
+      <!-- Lado Izquierdo: Imagen -->
+      <div class="card-mobile-left">
+        <div class="mobile-img-container">
+          <span class="m-type-badge">
+            {{ tipoLabel }}
+          </span>
+          <img [src]="vehiculo | coverImage" class="mobile-thumb" alt="Vehículo">
+        </div>
+        
+        <div class="mobile-location">
+          <i class="fa-solid fa-location-dot"></i>
+          <span>{{ vehiculo.ubicacion || 'España' }}</span>
+        </div>
+      </div>
+
+      <!-- Lado Derecho: Contenido -->
+      <div class="card-mobile-right">
+        <!-- Badges Superiores -->
+        <div class="mobile-top-badges">
+          <span class="m-badge m-badge-motor">Motor</span>
+          <span class="m-badge m-badge-time">{{ vehiculo.fechaPublicacion | timeAgo }}</span>
+          
+          <button class="m-fav-btn" 
+                  (click)="toggleFavorito($event)" 
+                  *ngIf="showFavorito && authStore.isLoggedIn()">
+            <i class="fa-heart" 
+               [class.fa-solid]="esFavorito()" 
+               [class.fa-regular]="!esFavorito()" 
+               [style.color]="esFavorito() ? '#fbbf24' : '#666'"></i>
+          </button>
+        </div>
+
+        <!-- Título -->
+        <h3 class="mobile-title">{{ vehiculo.titulo }}</h3>
+
+        <!-- Specs Rápidas -->
+        <div class="mobile-specs">
+          <span *ngIf="$any(vehiculo).anio">{{ $any(vehiculo).anio }}</span>
+          <span *ngIf="$any(vehiculo).kilometros !== undefined">• {{ kmFormateados }}</span>
+          <span *ngIf="$any(vehiculo).combustible">• {{ $any(vehiculo).combustible }}</span>
+        </div>
+
+        <!-- Precio -->
+        <div class="mobile-price-section">
+          <span class="m-price-curr price-accent">{{ vehiculo.precio | currencyEs }}</span>
+        </div>
+
+        <!-- Vendedor -->
+        <div class="mobile-meta">
+          <div class="m-author">
+             Por {{ ($any(vehiculo).vendedor?.nombre || 'Particular') }}
+            <i class="fa-solid fa-user-check" *ngIf="$any(vehiculo).vendedor?.verificado"></i>
+          </div>
+        </div>
+
+        <!-- Botón Ver -->
+        <div class="mobile-action-bar">
+          <button class="m-btn-go">
+            Detalles <i class="fa-solid fa-gauge-high"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  }
 }
