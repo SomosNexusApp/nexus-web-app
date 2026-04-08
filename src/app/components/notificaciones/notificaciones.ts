@@ -1,5 +1,5 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, Location } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { NotificationService, NotificacionInAppDto } from '../../core/services/notification.service';
 
@@ -10,7 +10,24 @@ import { NotificationService, NotificacionInAppDto } from '../../core/services/n
   template: `
     <div class="notif-page-nexus custom-scrollbar">
       <div class="container-elite">
-        <header class="page-header">
+        
+        <!-- Header format app para móvil -->
+        <header class="mobile-app-header">
+          <button (click)="goBack()" class="btn-back"><i class="fas fa-chevron-left"></i></button>
+          <h1 class="app-title">Notificaciones</h1>
+          <button 
+            *ngIf="unreadCount() > 0"
+            (click)="markAllAsRead()" 
+            class="btn-action-header"
+            title="Marcar todo como leído"
+          >
+            <i class="fas fa-check-double"></i>
+          </button>
+          <div *ngIf="unreadCount() === 0" style="width: 40px;"></div> <!-- Espaciador para centrar el título -->
+        </header>
+
+        <!-- Header original para Desktop (se oculta en móvil vía CSS) -->
+        <header class="page-header desktop-only">
           <div class="header-content">
             <h1 class="page-title">Centro de Notificaciones</h1>
             <p class="page-subtitle">Gestiona tus avisos, ventas y actividad en Nexus</p>
@@ -42,7 +59,7 @@ import { NotificationService, NotificacionInAppDto } from '../../core/services/n
               </div>
             </div>
 
-            <div class="stats-card">
+            <div class="stats-card desktop-only">
               <div class="stat-item">
                 <span class="stat-value">{{ unreadCount() }}</span>
                 <span class="stat-label">Pendientes</span>
@@ -59,70 +76,53 @@ import { NotificationService, NotificacionInAppDto } from '../../core/services/n
             @if (loading()) {
               <div class="loading-state">
                 <div class="spinner"></div>
-                <span>Cargando tu historial...</span>
+                <span>Cargando...</span>
               </div>
             } @else if (notifications().length === 0) {
               <div class="empty-state-elite">
                 <div class="empty-icon-glow">
                   <i class="fas fa-bell-slash"></i>
                 </div>
-                <h2>Nada por aquí todavía</h2>
-                <p>No tienes notificaciones que coincidan con el filtro <strong>"{{ filterLabel() }}"</strong>.</p>
-                <div class="empty-actions">
-                  <button (click)="setFilter('todas')" class="btn-reset-elite">
-                    <i class="fas fa-sync"></i> Ver todo el historial
-                  </button>
-                </div>
+                <h2>Nada por aquí</h2>
+                <p>No tienes notificaciones por el momento.</p>
               </div>
             } @else {
-              <div class="notif-grid">
+              <div class="notif-list-app">
                 @for (n of notifications(); track n.id; let i = $index) {
                   <div 
-                    class="notif-card-elite" 
+                    class="notif-item-app" 
                     [class.unread]="!n.leida"
-                    [class.featured]="n.destacada"
-                    [style.animation-delay]="(i * 40) + 'ms'"
+                    (click)="navigateTo(n.url || '')"
                   >
-                    <div class="card-left">
-                      <div class="icon-wrapper" [style.background-color]="service.getNotifColor(n.tipo) + '15'">
-                        <i [class]="service.getNotifIcon(n.tipo)" [style.color]="service.getNotifColor(n.tipo)"></i>
-                      </div>
+                    <div class="item-icon-container" [style.background-color]="service.getNotifColor(n.tipo) + '20'">
+                      <i [class]="service.getNotifIcon(n.tipo)" [style.color]="service.getNotifColor(n.tipo)"></i>
                     </div>
 
-                    <div class="card-body">
-                      <div class="card-meta">
-                        <span class="card-type" [style.color]="service.getNotifColor(n.tipo)">
+                    <div class="item-content">
+                      <div class="item-top">
+                        <span class="item-category" [style.color]="service.getNotifColor(n.tipo)">
                           {{ service.getNotifTypeLabel(n.tipo) }}
                         </span>
-                        <div class="meta-right">
-                          <span class="card-date">{{ n.fecha | date: 'medium' }}</span>
-                          <button 
-                            (click)="toggleDestacada(n)" 
-                            class="btn-star" 
-                            [class.active]="n.destacada"
-                            title="Destacar notificación"
-                          >
-                            <i class="fa-star" [class.fas]="n.destacada" [class.far]="!n.destacada"></i>
-                          </button>
-                        </div>
+                        <span class="item-time">{{ n.fecha | date: 'shortTime' }}</span>
                       </div>
-                      <h3 class="card-title">{{ n.titulo }}</h3>
-                      <p class="card-msg">{{ n.mensaje }}</p>
+                      <h3 class="item-title">{{ n.titulo }}</h3>
+                      <p class="item-msg">{{ n.mensaje }}</p>
                       
-                      <div class="card-actions">
-                        <button *ngIf="n.url" (click)="navigateTo(n.url)" class="btn-action-elite">Ver detalles</button>
-                        <button *ngIf="!n.leida" (click)="markAsRead(n)" class="btn-mark-single">Marcar leído</button>
+                      <div class="item-footer" *ngIf="!n.leida">
+                         <div class="unread-chip">Nuevo</div>
                       </div>
                     </div>
 
-                    <div class="unread-glow" *ngIf="!n.leida"></div>
+                    <div class="item-chevron">
+                      <i class="fas fa-chevron-right"></i>
+                    </div>
                   </div>
                 }
               </div>
 
               <div class="pagination-elite" *ngIf="totalPages() > 1">
                 <button [disabled]="page() === 0" (click)="prevPage()" class="btn-page"><i class="fas fa-chevron-left"></i></button>
-                <span class="page-info">Página {{ page() + 1 }} de {{ totalPages() }}</span>
+                <span>{{ page() + 1 }} / {{ totalPages() }}</span>
                 <button [disabled]="page() >= totalPages() - 1" (click)="nextPage()" class="btn-page"><i class="fas fa-chevron-right"></i></button>
               </div>
             }
@@ -130,19 +130,174 @@ import { NotificationService, NotificacionInAppDto } from '../../core/services/n
         </main>
       </div>
     </div>
+
   `,
   styles: [
     `
     .notif-page-nexus {
       min-height: 100vh;
-      background: #080808;
+      background: #000;
       color: #fff;
-      padding: 40px 20px;
+      padding: 0;
     }
 
     .container-elite {
       max-width: 1200px;
       margin: 0 auto;
+      padding: 40px 20px;
+    }
+
+    /* Estilos App Formato Móvil */
+    .mobile-app-header {
+      display: none;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(10, 10, 15, 0.8);
+      backdrop-filter: blur(20px);
+      padding: 16px;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .app-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin: 0;
+    }
+
+    .btn-back {
+      background: transparent;
+      border: none;
+      color: #fff;
+      font-size: 1.2rem;
+      padding: 8px;
+    }
+
+    .btn-action-header {
+      background: rgba(168, 85, 247, 0.1);
+      border: 1px solid rgba(168, 85, 247, 0.2);
+      color: #a855f7;
+      width: 38px;
+      height: 38px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      transition: all 0.2s;
+    }
+
+    .btn-action-header:active {
+      transform: scale(0.9);
+      background: #a855f7;
+      color: #fff;
+    }
+
+    .notif-list-app {
+      display: none;
+      flex-direction: column;
+      background: #0a0a0f;
+    }
+
+    .notif-item-app {
+      display: flex;
+      padding: 16px;
+      gap: 16px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+      transition: background 0.2s;
+    }
+
+    .item-icon-container {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-size: 1.2rem;
+    }
+
+    .item-content {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .item-top {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 4px;
+    }
+
+    .item-category {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+    }
+
+    .item-time {
+      font-size: 0.75rem;
+      color: #64748b;
+    }
+
+    .item-title {
+      font-size: 0.95rem;
+      margin: 0 0 4px 0;
+      font-weight: 600;
+    }
+
+    .item-msg {
+      font-size: 0.85rem;
+      color: #94a3b8;
+      margin: 0;
+      line-height: 1.4;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .unread-chip {
+      display: inline-block;
+      margin-top: 8px;
+      background: #a855f7;
+      color: #fff;
+      font-size: 0.65rem;
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .item-chevron {
+      display: flex;
+      align-items: center;
+      color: #334155;
+      font-size: 0.8rem;
+    }
+
+    .desktop-only {
+      display: flex;
+    }
+
+    @media (max-width: 768px) {
+      .desktop-only { display: none !important; }
+      .mobile-app-header { display: flex; }
+      .notif-list-app { display: flex; }
+      .container-elite { padding: 0; }
+      .notif-page-nexus { background: #0a0a0f; }
+      .notif-container { 
+        display: block; 
+        padding-top: 0;
+      }
+      .notif-sidebar {
+        padding: 12px 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      }
+      .notif-main-list { min-height: auto; }
     }
 
     .page-header {
@@ -439,9 +594,134 @@ import { NotificationService, NotificacionInAppDto } from '../../core/services/n
     @keyframes spin { to { transform: rotate(360deg); } }
     @keyframes fadeInUp { from { opacity:0; transform: translateY(20px); } to { opacity:1; transform: translateY(0); } }
 
-    @media (max-width: 992px) {
-      .notif-container { grid-template-columns: 1fr; }
-      .page-header { flex-direction: column; align-items: flex-start; gap: 20px; }
+    @media (max-width: 768px) {
+      .notif-page-nexus {
+        padding: 24px 16px;
+      }
+
+      .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+        margin-bottom: 32px;
+      }
+
+      .page-title {
+        font-size: 1.8rem;
+      }
+
+      .page-subtitle {
+        font-size: 0.95rem;
+      }
+
+      .btn-mark-all {
+        width: 100%;
+        justify-content: center;
+        padding: 14px;
+        font-size: 0.9rem;
+      }
+
+      .notif-container {
+        grid-template-columns: 1fr;
+        gap: 24px;
+      }
+
+      .filter-card {
+        padding: 12px;
+        background: transparent;
+        border: none;
+        backdrop-filter: none;
+      }
+
+      .filter-title {
+        display: none; /* Ahorramos espacio */
+      }
+
+      .filter-options {
+        flex-direction: row;
+        overflow-x: auto;
+        padding-bottom: 8px;
+        gap: 10px;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      .filter-options::-webkit-scrollbar {
+        display: none;
+      }
+
+      .filter-btn {
+        flex-shrink: 0;
+        padding: 8px 16px;
+        font-size: 0.85rem;
+        background: rgba(255,255,255,0.05);
+        border: 1px solid rgba(255,255,255,0.08);
+      }
+
+      .stats-card {
+        display: none; /* Ocultamos estadísticas en móvil para priorizar contenido */
+      }
+
+      .notif-card-elite {
+        padding: 16px;
+        gap: 14px;
+        border-radius: 20px;
+      }
+
+      .notif-card-elite:hover {
+        transform: none; /* Evitamos hover en móvil */
+      }
+
+      .icon-wrapper {
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
+        font-size: 1.1rem;
+      }
+
+      .card-title {
+        font-size: 1.05rem;
+      }
+
+      .card-msg {
+        font-size: 0.88rem;
+        margin-bottom: 16px;
+      }
+
+      .card-meta {
+        margin-bottom: 4px;
+      }
+
+      .btn-star {
+        font-size: 1.25rem;
+      }
+
+      .card-actions {
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .btn-action-elite, .btn-mark-single {
+        width: 100%;
+        text-align: center;
+        padding: 10px;
+        font-size: 0.85rem;
+      }
+
+      .empty-state-elite {
+        padding: 40px 20px;
+      }
+
+      .empty-icon-glow {
+        font-size: 3rem;
+      }
+
+      .empty-state-elite h2 {
+        font-size: 1.5rem;
+      }
+
+      .pagination-elite {
+        gap: 12px;
+      }
     }
 
     /* EMPTY STATE ELITE */
@@ -498,11 +778,6 @@ import { NotificationService, NotificacionInAppDto } from '../../core/services/n
       transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
 
-    .btn-reset-elite:hover {
-      transform: translateY(-4px) scale(1.02);
-      box-shadow: 0 15px 40px rgba(99,102,241,0.4);
-    }
-
     /* CARD IMPROVEMENTS */
     .meta-right {
       display: flex;
@@ -518,11 +793,6 @@ import { NotificationService, NotificacionInAppDto } from '../../core/services/n
       cursor: pointer;
       transition: all 0.3s;
       padding: 4px;
-    }
-
-    .btn-star:hover {
-      color: #f59e0b;
-      transform: scale(1.2);
     }
 
     .btn-star.active {
@@ -542,6 +812,7 @@ import { NotificationService, NotificacionInAppDto } from '../../core/services/n
 export class NotificacionesComponent implements OnInit {
   service = inject(NotificationService);
   private router = inject(Router);
+  private location = inject(Location);
 
   notifications = signal<NotificacionInAppDto[]>([]);
   unreadCount = this.service.unreadCount;
@@ -553,6 +824,10 @@ export class NotificacionesComponent implements OnInit {
 
   ngOnInit() {
     this.loadNotifications();
+  }
+
+  goBack() {
+    this.location.back();
   }
 
   loadNotifications() {

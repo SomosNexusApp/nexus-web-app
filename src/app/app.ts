@@ -15,6 +15,8 @@ import { OnboardingStepperComponent } from './shared/components/onboarding-stepp
 import { ToastContainerComponent } from './shared/components/toast-container/toast-container.component';
 import { HeaderComponent } from './components/header/header.component';
 import { SupportChatWidgetComponent } from './shared/components/support-chat-widget/support-chat-widget.component';
+import { MobileHeader } from './mobile/mobile-header/mobile-header';
+import { MobileBottomNav } from './mobile/mobile-bottom-nav/mobile-bottom-nav';
 
 @Component({
   selector: 'app-root',
@@ -27,6 +29,8 @@ import { SupportChatWidgetComponent } from './shared/components/support-chat-wid
     ToastContainerComponent,
     HeaderComponent,
     SupportChatWidgetComponent,
+    MobileBottomNav,
+    MobileHeader,
   ],
   templateUrl: './app.html',
   styleUrls: ['./app.component.scss'],
@@ -43,6 +47,7 @@ export class AppComponent implements OnInit {
   // Signals para controlar la visibilidad según la ruta
   isAdminRoute = signal(window.location.pathname.startsWith('/admin'));
   isMessagesRoute = signal(window.location.pathname.startsWith('/mensajes'));
+  isMobileUI = signal(window.innerWidth <= 768);
 
   // Signals para los popups post-registro
   showTwoFactorPopup = signal(false);
@@ -52,6 +57,10 @@ export class AppComponent implements OnInit {
   saleBanner = signal<NotificacionInAppDto | null>(null);
 
   constructor() {
+    // Escuchar el tamaño de la ventana para alternar entre componentes mobile/desktop
+    window.addEventListener('resize', () => {
+      this.isMobileUI.set(window.innerWidth <= 768);
+    });
     // Conectar o desconectar WebSocket dinámicamente según estado auth
     effect(() => {
       if (this.authStore.isLoggedIn()) {

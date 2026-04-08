@@ -1,0 +1,35 @@
+<nav class="mobile-bottom-nav" #navBox
+     (touchstart)="onTouchMove($event)"
+     (touchmove)="onTouchMove($event)"
+     (touchend)="onTouchEnd()"
+     (touchcancel)="onTouchEnd()">
+     
+  <!-- Efecto de luz dinámica táctil (iOS 26 Style) -->
+  <div class="tracking-light" 
+       [style.transform]="'translate3d(' + orbX() + 'px, -50%, 0)'"
+       [class.active]="orbActive()">
+  </div>
+
+  <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="nav-item">
+    <i class="fas fa-home"></i>
+  </a>
+  <a routerLink="/categorias" routerLinkActive="active" class="nav-item">
+    <i class="fas fa-th-large"></i>
+  </a>
+  
+  <!-- Botón central FAB -->
+  <button class="nav-item fab-item" (click)="onPublicarClick()">
+    <div class="fab-backdrop">
+      <div class="fab-inner">
+        <i class="fas fa-plus"></i>
+      </div>
+    </div>
+  </button>
+
+  <a routerLink="/perfil/favoritos" routerLinkActive="active" class="nav-item" (click)="checkAuth($event)">
+    <i class="fas fa-heart"></i>
+  </a>
+  <a routerLink="/mensajes" routerLinkActive="active" class="nav-item" (click)="checkAuth($event)">
+    <i class="fas fa-comment-dots"></i>
+  </a>
+</nav>

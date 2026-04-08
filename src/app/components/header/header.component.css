@@ -6,6 +6,12 @@
   font-family: var(--font-primary);
 }
 
+@media (max-width: 768px) {
+  :host {
+    display: none;
+  }
+}
+
 .nexus-header {
   width: 100%;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
@@ -1498,4 +1504,67 @@
 .nav-item.viajes-trigger.active .nav-icon {
   filter: drop-shadow(0 0 10px rgba(0, 242, 255, 0.8));
   color: #00f2ff;
+}
+
+/* ================================= */
+/* === MOBILE HEADER RESTRUCTURE === */
+/* ================================= */
+@media (max-width: 768px) {
+  .top-bar {
+    height: auto;
+    padding: 6px 0 8px 0;
+    border-bottom: none;
+  }
+  
+  .nexus-header {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08); /* Movit down below search */
+  }
+
+  .top-content {
+    flex-wrap: wrap;
+    gap: 8px 0;
+  }
+
+  /* 1. Ocultar el botón de menú tipo hamburguesa */
+  .mobile-menu-btn {
+    display: none !important;
+  }
+
+  /* 2. Logo a la izquierda */
+  .brand-link {
+    order: 1;
+    margin-right: auto;
+  }
+
+  /* 3. Iconos a la derecha */
+  .actions-wrapper {
+    order: 2;
+    gap: 12px;
+  }
+
+  /* Ocultar iconos de la fila superior que ya están en el menú inferiror */
+  .actions-wrapper > .icon-btn.mobile-only,
+  .actions-wrapper > .icon-btn[aria-label="Favoritos"],
+  .divider-v {
+    display: none !important;
+  }
+
+  /* 4. Buscador ocupando todo el ancho abajo */
+  .search-wrapper {
+    order: 3;
+    flex: 0 0 100%;
+    margin-top: 5px;
+    display: block !important;
+  }
+
+  /* Ajustar el contenedor de búsqueda y el input para ocupar todo el ancho */
+  .search-box {
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  /* Ocultar la navbar de escritorio que ya no se usa en móvil */
+  .bottom-bar {
+    display: none !important;
+  }
 }

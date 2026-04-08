@@ -1,5 +1,5 @@
 import { Component, inject, signal, OnInit, computed } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, Location } from '@angular/common';
 import { ActivatedRoute, RouterModule, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
@@ -65,6 +65,7 @@ export class MiCuentaComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private toast = inject(ToastService);
   private favoritoService = inject(FavoritoService);
+  private location = inject(Location);
 
   @ViewChild('confirmDeleteModal') confirmDeleteModal!: any;
   @ViewChild('logoutModal') logoutModal!: ConfirmModalComponent;
@@ -91,11 +92,36 @@ export class MiCuentaComponent implements OnInit {
   // Sidebar
   activeSection = signal<SidebarSection>('resumen');
   mobileMenuOpen = signal(false);
+  isMobileUI = signal(window.innerWidth <= 768);
 
   // Resumen KPIs
   kpis = signal<any>({
     tasaRespuesta: 0,
+    ventas: 0,
+    compras: 0,
+    valoracionMedia: 0,
+    totalEnvios: 0
   });
+
+  // Mobile Profile Specific
+  selectedCosasType = signal<'productos' | 'ofertas' | 'vehiculos'>('productos');
+  activeMobileTab = signal<'cosas' | 'valoraciones' | 'info'>('cosas');
+  isEditingProfile = signal(false);
+  valoraciones = signal<any[]>([]);
+  cargandoValoraciones = signal(false);
+  editForm = signal({
+    nombre: '',
+    apellidos: '',
+    biografia: '',
+    ubicacion: '',
+    telefono: ''
+  });
+
+  constructor() {
+    window.addEventListener('resize', () => {
+      this.isMobileUI.set(window.innerWidth <= 768);
+    });
+  }
 
   // Deep linking helper
   targetId = signal<number | null>(null);
@@ -220,6 +246,12 @@ export class MiCuentaComponent implements OnInit {
 
   ngOnInit() {
     this.cargarKPIs();
+    if (this.isMobileUI()) {
+      this.cargarMisProductos();
+      this.cargarMisOfertas();
+      this.cargarMisVehiculos();
+      this.cargarValoraciones();
+    }
     this.route.queryParams.subscribe((params) => {
       const tab = params['tab'];
       if (tab) {
@@ -253,6 +285,97 @@ export class MiCuentaComponent implements OnInit {
       el.scrollIntoView({ behavior: 'smooth', block: 'center' });
       // The pulse is handled by CSS [class.highlight-pulse]
     }
+  }
+
+  goBack() {
+    this.location.back();
+  }
+
+  cargarValoraciones() {
+    const u = this.user();
+    if (!u) return;
+    this.cargandoValoraciones.set(true);
+    this.http.get<any[]>(`${environment.apiUrl}/valoracion/vendedor/${u.id}/recibidas`).subscribe({
+      next: (res) => {
+        this.valoraciones.set(res || []);
+        this.cargandoValoraciones.set(false);
+      },
+      error: () => this.cargandoValoraciones.set(false)
+    });
+  }
+
+  compartirPerfil() {
+    const u = this.user();
+    if (!u) return;
+
+    const shareData = {
+      title: 'Mi Perfil en Nexus',
+      text: `¡Echa un vistazo a mi perfil de Nexus! Tengo artículos increíbles a la venta.`,
+      url: window.location.href
+    };
+
+    if (navigator.share) {
+      navigator.share(shareData)
+        .then(() => this.toast.success('¡Gracias por compartir!'))
+        .catch((err) => console.log('Error compartiendo:', err));
+    } else {
+      // Fallback: Copiar al portapapeles
+      navigator.clipboard.writeText(window.location.href).then(() => {
+        this.toast.info('Enlace copiado al portapapeles');
+      });
+    }
+  }
+
+  openEditProfile() {
+    const u = this.user();
+    if (!u) return;
+    this.editForm.set({
+      nombre: u.nombre || '',
+      apellidos: u.apellidos || '',
+      biografia: u.biografia || '',
+      ubicacion: u.ubicacion || '',
+      telefono: u.telefono || ''
+    });
+    this.isEditingProfile.set(true);
+  }
+
+  closeEditProfile() {
+    this.isEditingProfile.set(false);
+  }
+
+  updateEditField(field: string, value: string) {
+    this.editForm.update(f => ({ ...f, [field]: value }));
+  }
+
+  onAvatarSelected(event: any) {
+    const file = event.target.files[0];
+    if (file) {
+      const u = this.user();
+      if (!u) return;
+      const formData = new FormData();
+      formData.append('file', file);
+
+      this.http.post<any>(`${environment.apiUrl}/usuario/${u.id}/avatar`, formData).subscribe({
+        next: () => {
+          this.toast.success('Foto actualizada');
+          this.authService.loadCurrentUser().subscribe();
+        },
+        error: () => this.toast.error('Error al subir la imagen')
+      });
+    }
+  }
+
+  guardarCambiosPerfil() {
+    const u = this.user();
+    if (!u) return;
+    this.http.patch(`${environment.apiUrl}/usuario/${u.id}`, this.editForm()).subscribe({
+      next: () => {
+        this.toast.success('Perfil actualizado con éxito');
+        this.authService.loadCurrentUser().subscribe();
+        this.isEditingProfile.set(false);
+      },
+      error: () => this.toast.error('No se pudieron guardar los cambios')
+    });
   }
 
   setSection(section: SidebarSection) {
@@ -290,6 +413,7 @@ export class MiCuentaComponent implements OnInit {
           ventas: u.totalVentas || 0,
           compras: res.totalCompras || 0,
           tasaRespuesta: res.tasaRespuesta || 100,
+          totalEnvios: res.totalEnvios || 0
         }));
       },
     });

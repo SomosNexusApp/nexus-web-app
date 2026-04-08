@@ -1,4 +1,4 @@
-<div class="mi-cuenta-layout">
+<div class="mi-cuenta-layout" *ngIf="!isMobileUI()">
   <!-- SIDEBAR -->
   <aside class="sidebar" [class.open]="mobileMenuOpen()">
     <!-- Perfil mini -->
@@ -765,6 +765,300 @@
       </section>
     }
   </main>
+</div>
+
+<!-- VISTA APP MÓVIL (NATIVE STYLE) -->
+<div class="mobile-app-profile" *ngIf="isMobileUI()">
+  <div class="mobile-p-scroll-area custom-scrollbar">
+    <!-- Acciones Flotantes (Esquina Superior Derecha) -->
+    <div class="p-floating-actions">
+      <button (click)="compartirPerfil()" class="btn-floating-action" title="Compartir"><i class="fas fa-share-alt"></i></button>
+      <button (click)="openEditProfile()" class="btn-floating-action" title="Editar"><i class="fas fa-edit"></i></button>
+    </div>
+
+    <!-- Centro: Avatar y Nombre -->
+    <div class="p-hero-section">
+      <div class="p-avatar-wrapper">
+        <app-avatar 
+          [avatarUrl]="user()?.avatar"
+          [googleAvatarUrl]="user()?.googleAvatarUrl"
+          [avatarSource]="user()?.avatarSource"
+          [nombre]="user()?.nombre"
+          [username]="user()?.user"
+          [size]="120"
+          customClass="p-native-avatar"
+        ></app-avatar>
+      </div>
+
+      <h2 class="p-native-name">{{ user()?.nombre || user()?.user }}</h2>
+      <div class="p-native-stars">
+        @for (filled of getStarsArray(kpis().valoracionMedia); track $index) {
+          <i class="fas fa-star" [class.filled]="filled"></i>
+        }
+        <span class="p-rating-text">({{ kpis().valoracionMedia.toFixed(1) }})</span>
+      </div>
+    </div>
+
+    <!-- Fila de Estadísticas Principales -->
+    <div class="p-native-stats-row">
+      <div class="p-n-stat">
+        <i class="fas fa-chart-line"></i>
+        <div class="p-n-val">{{ kpis().ventas }}</div>
+        <div class="p-n-lab">Ventas</div>
+      </div>
+      <div class="p-n-stat">
+        <i class="fas fa-shopping-bag"></i>
+        <div class="p-n-val">{{ kpis().compras }}</div>
+        <div class="p-n-lab">Compras</div>
+      </div>
+      <div class="p-n-stat">
+        <i class="fas fa-tags"></i>
+        <div class="p-n-val">{{ misOfertas().length }}</div>
+        <div class="p-n-lab">Ofertas</div>
+      </div>
+    </div>
+
+    <!-- Info Secundaria con Iconos Modernos -->
+    <div class="p-native-info-list">
+      <div class="p-n-info-item">
+        <i class="fas fa-box-open"></i>
+        <span>{{ kpis().totalEnvios }} Envíos realizados con éxito</span>
+      </div>
+      <div class="p-n-info-item">
+        <i class="fas fa-map-marker-alt"></i>
+        <span>Sevilla, España · <a class="p-loc-link">Ver ubicación</a></span>
+      </div>
+    </div>
+
+    <!-- Tabs Dinámicas -->
+    <div class="p-native-tabs">
+       <button 
+         class="p-n-tab-btn" 
+         [class.active]="activeMobileTab() === 'cosas'"
+         (click)="activeMobileTab.set('cosas')"
+       >
+         Mis cosas
+       </button>
+       <button 
+         class="p-n-tab-btn" 
+         [class.active]="activeMobileTab() === 'valoraciones'"
+         (click)="activeMobileTab.set('valoraciones')"
+       >
+         Valoraciones
+       </button>
+       <button 
+         class="p-n-tab-btn" 
+         [class.active]="activeMobileTab() === 'info'"
+         (click)="activeMobileTab.set('info')"
+       >
+         Info
+       </button>
+    </div>
+
+    <!-- Secciones Dinámicas -->
+
+    <!-- CONTENIDO: MIS COSAS -->
+    @if (activeMobileTab() === 'cosas') {
+      <!-- Sub-filtros de Mis Cosas -->
+      <div class="p-native-subfilters">
+        <button [class.active]="selectedCosasType() === 'productos'" (click)="selectedCosasType.set('productos')">
+          Productos ({{ misProductos().length }})
+        </button>
+        <button [class.active]="selectedCosasType() === 'ofertas'" (click)="selectedCosasType.set('ofertas')">
+          Ofertas ({{ misOfertas().length }})
+        </button>
+        <button [class.active]="selectedCosasType() === 'vehiculos'" (click)="selectedCosasType.set('vehiculos')">
+          Vehículos ({{ misVehiculos().length }})
+        </button>
+      </div>
+
+      <div class="p-native-grid-container">
+         @if (cargandoProductos() || cargandoOfertas() || cargandoVehiculos()) {
+           <div class="p-n-loader"><div class="spinner-sm"></div></div>
+         } @else {
+           <div class="p-n-grid">
+             <!-- Vistas Por Tipo aquí... (lo dejo abreviado por espacio pero manteniendo la lógica anterior) -->
+             @if (selectedCosasType() === 'productos') {
+               @for (p of misProductos(); track p.id) {
+                 <div class="p-n-card" [routerLink]="['/productos', p.id]">
+                   <div class="p-n-card-img"><img [src]="p | coverImage"><div class="p-n-card-price">{{ p.precio | currencyEs }}</div></div>
+                   <div class="p-n-card-body"><h3 class="p-n-card-title">{{ p.titulo }}</h3><div class="p-n-card-footer"><span class="p-n-badge">{{ p.estado }}</span></div></div>
+                 </div>
+               }
+             }
+             @if (selectedCosasType() === 'ofertas') {
+               @for (o of misOfertas(); track o.id) {
+                 <div class="p-n-card" [routerLink]="['/ofertas', o.id]">
+                   <div class="p-n-card-img"><img [src]="o | coverImage"><div class="p-n-card-price">{{ o.precioOferta | currencyEs }}</div></div>
+                   <div class="p-n-card-body"><h3 class="p-n-card-title">{{ o.titulo }}</h3><div class="p-n-card-footer"><span class="p-n-badge">{{ o.estado }}</span></div></div>
+                 </div>
+               }
+             }
+             @if (selectedCosasType() === 'vehiculos') {
+               @for (v of misVehiculos(); track v.id) {
+                 <div class="p-n-card" [routerLink]="['/vehiculos', v.id]">
+                   <div class="p-n-card-img"><img [src]="v.imagenPrincipal"><div class="p-n-card-price">{{ v.precio | currencyEs }}</div></div>
+                   <div class="p-n-card-body"><h3 class="p-n-card-title">{{ v.marca }} {{ v.modelo }}</h3><div class="p-n-card-footer"><span class="p-n-badge">{{ v.estadoVehiculo }}</span></div></div>
+                 </div>
+               }
+             }
+           </div>
+           
+           @if ((selectedCosasType() === 'productos' && misProductos().length === 0) || (selectedCosasType() === 'ofertas' && misOfertas().length === 0) || (selectedCosasType() === 'vehiculos' && misVehiculos().length === 0)) {
+             <div class="p-n-empty">No hay elementos en esta categoría</div>
+           }
+         }
+      </div>
+    }
+
+    <!-- CONTENIDO: VALORACIONES -->
+    @if (activeMobileTab() === 'valoraciones') {
+      <div class="p-native-content-section">
+        @if (cargandoValoraciones()) {
+          <div class="p-n-loader"><div class="spinner-sm"></div></div>
+        } @else if (valoraciones().length === 0) {
+          <div class="p-n-empty-state">
+             <i class="fas fa-star-half-alt"></i>
+             <p>Todavía no tienes valoraciones</p>
+             <span>Cuando compres o vendas, aquí verás lo que la gente opina de ti.</span>
+          </div>
+        } @else {
+          <div class="p-n-reviews-list">
+             @for (val of valoraciones(); track val.id) {
+               <div class="p-n-review-item">
+                 <div class="review-header">
+                   <app-avatar [avatarUrl]="val.autor?.avatar" [googleAvatarUrl]="val.autor?.googleAvatarUrl" [avatarSource]="val.autor?.avatarSource" [nombre]="val.autor?.nombre" [size]="40"></app-avatar>
+                   <div class="review-meta">
+                     <strong>{{ val.autor?.nombre }}</strong>
+                     <div class="review-stars">
+                       @for (s of getStarsArray(val.puntuacion); track $index) { <i class="fas fa-star" [class.filled]="s"></i> }
+                     </div>
+                   </div>
+                 </div>
+                 <p class="review-comment">{{ val.comentario }}</p>
+               </div>
+             }
+          </div>
+        }
+      </div>
+    }
+
+    <!-- CONTENIDO: INFO -->
+    @if (activeMobileTab() === 'info') {
+      <div class="p-native-content-section">
+         <div class="p-n-info-card">
+           <div class="p-n-info-group">
+             <label>Biografía</label>
+             <p>{{ user()?.biografia || 'Sin biografía escrita todavía.' }}</p>
+           </div>
+           <hr>
+           <div class="p-n-info-group">
+             <label>Ubicación</label>
+             <div class="info-row"><i class="fas fa-map-marker-alt"></i> <span>{{ user()?.ubicacion || 'En algún lugar del mundo' }}</span></div>
+           </div>
+           <div class="p-n-info-group">
+             <label>Miembro desde</label>
+             <div class="info-row"><i class="fas fa-calendar-alt"></i> <span>Abril, 2024</span></div>
+           </div>
+           <div class="p-n-info-group">
+             <label>Verificado</label>
+             <div class="info-row">
+               <i class="fas" [class.fa-check-circle]="user()?.esVerificado" [class.fa-times-circle]="!user()?.esVerificado" [style.color]="user()?.esVerificado ? '#22c55e' : '#666'"></i> 
+               <span>{{ user()?.esVerificado ? 'Cuenta Verificada' : 'Pendiente de verificar' }}</span>
+             </div>
+           </div>
+         </div>
+      </div>
+    }
+  </div>
+</div>
+
+<!-- CAPA DE EDICIÓN MÓVIL (FULLSCREEN) -->
+<div class="mobile-edit-overlay" [class.active]="isEditingProfile()">
+  <header class="edit-mobile-header">
+     <button (click)="closeEditProfile()" class="btn-close-edit"><i class="fas fa-times"></i></button>
+     <h3>Editar Perfil</h3>
+     <button (click)="guardarCambiosPerfil()" class="btn-save-edit">Guardar</button>
+  </header>
+
+  <div class="edit-mobile-content">
+    <!-- Cambio de Imagen -->
+    <div class="edit-avatar-section">
+      <div class="edit-avatar-container">
+        <app-avatar 
+          [avatarUrl]="user()?.avatar"
+          [googleAvatarUrl]="user()?.googleAvatarUrl"
+          [avatarSource]="user()?.avatarSource"
+          [nombre]="user()?.nombre"
+          [size]="100"
+        ></app-avatar>
+        <label for="mobile-avatar-input" class="btn-change-img">
+          <i class="fas fa-camera"></i>
+        </label>
+        <input 
+          id="mobile-avatar-input" 
+          type="file" 
+          accept="image/*" 
+          (change)="onAvatarSelected($event)" 
+          style="display: none"
+        >
+      </div>
+      <p class="edit-hint">Toca la cámara para cambiar tu foto</p>
+    </div>
+
+    <!-- Formulario Directo -->
+    <div class="edit-mobile-form">
+      <div class="edit-input-group">
+        <label>Nombre</label>
+        <input 
+          type="text" 
+          [ngModel]="editForm().nombre" 
+          (ngModelChange)="updateEditField('nombre', $event)"
+          placeholder="Tu nombre"
+        >
+      </div>
+
+      <div class="edit-input-group">
+        <label>Apellidos</label>
+        <input 
+          type="text" 
+          [ngModel]="editForm().apellidos" 
+          (ngModelChange)="updateEditField('apellidos', $event)"
+          placeholder="Tus apellidos"
+        >
+      </div>
+
+      <div class="edit-input-group">
+        <label>Biografía</label>
+        <textarea 
+          rows="3" 
+          [ngModel]="editForm().biografia" 
+          (ngModelChange)="updateEditField('biografia', $event)"
+          placeholder="Cuenta algo sobre ti..."
+        ></textarea>
+      </div>
+
+      <div class="edit-input-group">
+        <label>Ubicación</label>
+        <input 
+          type="text" 
+          [ngModel]="editForm().ubicacion" 
+          (ngModelChange)="updateEditField('ubicacion', $event)"
+          placeholder="Ciudad, Provincia"
+        >
+      </div>
+
+      <div class="edit-input-group">
+        <label>Teléfono</label>
+        <input 
+          type="tel" 
+          [ngModel]="editForm().telefono" 
+          (ngModelChange)="updateEditField('telefono', $event)"
+          placeholder="Número de contacto"
+        >
+      </div>
+    </div>
+  </div>
 </div>
 
 <!-- Modal Logout -->

@@ -1,0 +1,39 @@
+<header class="mobile-header-container">
+  <div class="header-top">
+    <a routerLink="/" class="brand-link">
+      <img src="logo.webp" alt="Nexus" class="brand-logo" />
+    </a>
+
+    <div class="actions">
+      <button class="action-btn" (click)="onNotifClick()">
+        <i class="fas fa-bell"></i>
+        <span class="badge" *ngIf="notificationService.unreadCount() > 0">
+          {{ notificationService.unreadCount() > 99 ? '9+': notificationService.unreadCount() }}
+        </span>
+      </button>
+
+      <button class="action-btn profile-btn" (click)="onProfileClick()">
+        <app-avatar
+          [avatarUrl]="authStore.user()?.avatar"
+          [googleAvatarUrl]="authStore.user()?.googleAvatarUrl"
+          [avatarSource]="authStore.user()?.avatarSource"
+          [nombre]="authStore.user()?.nombre || (authStore.isLoggedIn() ? '' : 'Invitado')"
+          [username]="authStore.user()?.user"
+          [size]="46"
+        ></app-avatar>
+      </button>
+    </div>
+  </div>
+
+  <div class="header-search">
+    <div class="search-box">
+      <i class="fas fa-search search-icon"></i>
+      <input
+        type="text"
+        [formControl]="searchControl"
+        placeholder="Busca ofertas o artículos..."
+        (keydown.enter)="ejecutarBusqueda()"
+      />
+    </div>
+  </div>
+</header>

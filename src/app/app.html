@@ -1,5 +1,9 @@
 @if (!isAdminRoute()) {
-  <app-header></app-header>
+  @if (isMobileUI()) {
+    <app-mobile-header></app-mobile-header>
+  } @else {
+    <app-header></app-header>
+  }
 }
 
 @if (saleBanner(); as sale) {
@@ -32,3 +36,6 @@
   <app-register-popup></app-register-popup>
 }
 <app-onboarding-stepper></app-onboarding-stepper>
+@if (!isAdminRoute() && !isMessagesRoute()) {
+  <app-mobile-bottom-nav></app-mobile-bottom-nav>
+}
