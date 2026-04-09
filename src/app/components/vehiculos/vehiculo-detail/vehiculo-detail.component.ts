@@ -1,5 +1,5 @@
 import { Component, OnInit, inject, signal, OnDestroy } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, Location } from '@angular/common';
 import { ActivatedRoute, RouterModule, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../../environments/enviroment';
@@ -11,6 +11,7 @@ import { ReporteModalComponent } from '../../../shared/components/reporte-modal/
 import { ToastService } from '../../../core/services/toast.service';
 import { ViewChild } from '@angular/core';
 import { FavoritoService } from '../../../core/services/favorito.service';
+import { UiService } from '../../../core/services/ui.service';
 
 import { AvatarComponent } from '../../../shared/components/avatar/avatar.component';
 
@@ -29,11 +30,13 @@ import { AvatarComponent } from '../../../shared/components/avatar/avatar.compon
   templateUrl: './vehiculo-detail.component.html',
   styleUrls: ['./vehiculo-detail.component.css'],
 })
-export class VehiculoDetailComponent implements OnInit {
+export class VehiculoDetailComponent implements OnInit, OnDestroy {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private http = inject(HttpClient);
   private favoritoService = inject(FavoritoService);
+  private location = inject(Location);
+  uiService = inject(UiService);
   authStore = inject(AuthStore);
   private toast = inject(ToastService);
 
@@ -49,6 +52,8 @@ export class VehiculoDetailComponent implements OnInit {
 
   ngOnInit() {
     window.scrollTo(0, 0);
+    this.uiService.isDetailView.set(true);
+    
     this.route.params.subscribe((params) => {
       const id = params['id'];
       if (id) {
@@ -57,6 +62,14 @@ export class VehiculoDetailComponent implements OnInit {
         this.cargarVehiculo(id);
       }
     });
+  }
+
+  ngOnDestroy() {
+    this.uiService.isDetailView.set(false);
+  }
+
+  goBack() {
+    this.location.back();
   }
 
   private cargarVehiculo(id: string) {
@@ -142,4 +155,18 @@ export class VehiculoDetailComponent implements OnInit {
       });
     }
   }
+
+  compartir() {
+    if (navigator.share) {
+      navigator.share({
+        title: this.vehiculo()?.titulo,
+        text: `Mira este vehículo en Nexus: ${this.vehiculo()?.titulo}`,
+        url: window.location.href
+      }).catch(() => {});
+    } else {
+      navigator.clipboard.writeText(window.location.href);
+      this.toast.success('Enlace copiado al portapapeles');
+    }
+  }
 }
+

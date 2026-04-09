@@ -4,6 +4,21 @@
   <div class="hero-overlay"></div>
 </div>
 
+<!-- ── Mobile Floating Header ────────────────────────── -->
+<div class="mobile-detail-nav" *ngIf="uiService.isMobileUI()">
+  <button class="nav-btn back-btn" (click)="goBack()">
+    <i class="fas fa-chevron-left"></i>
+  </button>
+  <div class="nav-actions">
+    <button class="nav-btn share-btn" (click)="compartir()">
+      <i class="fas fa-share-alt"></i>
+    </button>
+    <button class="nav-btn fav-btn" [class.active]="esFavorito()" (click)="toggleFavorito()">
+      <i class="fas fa-heart"></i>
+    </button>
+  </div>
+</div>
+
 <!-- ── Loading ═══════════════════════════════════════ -->
 <div class="detail-loading" *ngIf="cargando()">
   <div class="loading-spinner"></div>
@@ -11,10 +26,10 @@
 </div>
 
 <!-- ── Main Content ══════════════════════════════════════════ -->
-<div class="detail-page" *ngIf="!cargando() && vehiculo()">
+<div class="detail-page" *ngIf="!cargando() && vehiculo()" [class.mobile-active]="uiService.isMobileUI()">
   
   <!-- ── Header & Breadcrumb ────────────────────────── -->
-  <nav class="breadcrumb">
+  <nav class="breadcrumb" *ngIf="!uiService.isMobileUI()">
     <a routerLink="/">Inicio</a>
     <span class="sep">/</span>
     <a routerLink="/search" [queryParams]="{ tipo: 'VEHICULO' }">Vehículos</a>
@@ -83,7 +98,7 @@
       </div>
 
       <!-- ── ACCIONES ─────────────────────────────────────── -->
-      <div class="actions-block">
+      <div class="actions-block" *ngIf="!uiService.isMobileUI()">
         <button class="btn-elite primary" (click)="contactar()">
           <div class="glow"></div>
           <i class="fas fa-comments"></i>
@@ -156,7 +171,7 @@
             [googleAvatarUrl]="vehiculo().publicador.googleAvatarUrl"
             [nombre]="vehiculo().publicador.nombre"
             [username]="vehiculo().publicador.user"
-            [size]="80"
+            [size]="uiService.isMobileUI() ? 60 : 80"
           ></app-avatar>
           <div class="verified-dot" *ngIf="vehiculo().publicador.esVerificado" title="Verificado">
             <i class="fas fa-check"></i>
@@ -198,14 +213,16 @@
       <h2 class="panel-title">Más vehículos del vendedor</h2>
       <div class="line"></div>
     </div>
-    <div class="related-grid" style="display:flex; gap:16px;">
-        <div class="elite-mini-card" *ngFor="let s of similares()" [routerLink]="['/vehiculos', s.id]" style="width:200px; border-radius:12px; overflow:hidden; position:relative; cursor:pointer;">
-            <img [src]="s.imagenPrincipal" style="width:100%; height:140px; object-fit:cover;">
-            <div style="background:rgba(0,0,0,0.8); padding:10px; position:absolute; bottom:0; left:0; right:0;">
-                <h5 style="margin:0; font-size:0.8rem;">{{ s.marca }} {{ s.modelo }}</h5>
-                <p style="margin:0; color:var(--accent); font-weight:800; font-size:0.9rem;">{{ s.precio | currencyEs }}</p>
-            </div>
-        </div>
+    <div class="related-scroll-container">
+      <div class="related-grid">
+          <div class="elite-mini-card" *ngFor="let s of similares()" [routerLink]="['/vehiculos', s.id]">
+              <img [src]="s.imagenPrincipal" alt="Miniatura">
+              <div class="mini-card-info">
+                  <h5>{{ s.marca }} {{ s.modelo }}</h5>
+                  <p>{{ s.precio | currencyEs }}</p>
+              </div>
+          </div>
+      </div>
     </div>
   </section>
 
@@ -219,4 +236,17 @@
 
 </div>
 
+<!-- Sticky Mobile Action Bar -->
+<div class="mobile-sticky-actions" *ngIf="uiService.isMobileUI() && !cargando() && vehiculo()">
+  <div class="mobile-price-info">
+    <span class="mobile-price">{{ vehiculo().precio | currencyEs }}</span>
+    <span class="mobile-status">{{ vehiculo().estadoVehiculo || 'Disponible' }}</span>
+  </div>
+  <button class="btn-mobile-chat" (click)="contactar()">
+    <i class="fas fa-comments"></i>
+    <span>Chat</span>
+  </button>
+</div>
+
 <app-reporte-modal></app-reporte-modal>
+
