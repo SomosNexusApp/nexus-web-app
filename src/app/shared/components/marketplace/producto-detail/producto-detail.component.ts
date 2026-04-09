@@ -25,6 +25,7 @@ import { ChatService } from '../../../../core/services/chat.service';
 import { ToastService } from '../../../../core/services/toast.service';
 import { ReporteModalComponent } from '../../reporte-modal/reporte-modal.component';
 import { GuestPopupService } from '../../../../core/services/guest-popup.service';
+import { UiService } from '../../../../core/services/ui.service';
 
 @Component({
   selector: 'app-producto-detail',
@@ -51,6 +52,7 @@ export class ProductoDetailComponent implements OnInit, OnDestroy {
   private chatService = inject(ChatService);
   private toast = inject(ToastService);
   private guestPopupService = inject(GuestPopupService);
+  uiService = inject(UiService);
 
   // ── Estado principal ────────────────────────────────────────────────
   producto = signal<Producto | null>(null);
@@ -139,7 +141,7 @@ export class ProductoDetailComponent implements OnInit, OnDestroy {
     }));
   });
 
-  descLarga = computed(() => (this.producto()?.descripcion?.length ?? 0) > 300);
+  descLarga = computed(() => (this.producto()?.descripcion?.length ?? 0) > 220);
   esIntercambio = computed(() => this.producto()?.tipoOferta === 'INTERCAMBIO');
   esDonacion = computed(() => this.producto()?.tipoOferta === 'DONACION');
 
@@ -147,6 +149,7 @@ export class ProductoDetailComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     window.scrollTo(0, 0);
+    this.uiService.isDetailView.set(true);
     this.routeSub = this.route.paramMap.subscribe((params) => {
       const id = params.get('id');
       if (id) this.cargarProducto(+id);
@@ -154,6 +157,7 @@ export class ProductoDetailComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    this.uiService.isDetailView.set(false);
     this.routeSub?.unsubscribe();
   }
 

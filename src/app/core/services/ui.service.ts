@@ -7,6 +7,7 @@ export class UiService {
   readonly isCategoriasPanelOpen = signal(false);
   readonly isPublishModalOpen = signal(false);
   readonly isAnyChatSelected = signal(false);
+  readonly isDetailView = signal(false);
 
   toggleCategoriasPanel(): void {
     this.isCategoriasPanelOpen.update(v => !v);

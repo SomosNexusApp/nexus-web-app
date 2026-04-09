@@ -258,7 +258,9 @@
       <!-- Descripción -->
       <section class="details-panel glass-card">
         <h2 class="panel-title">Insignias y Detalles</h2>
-        <div class="description-wrap" [class.expanded]="descExpandida()">
+        <div class="description-wrap" 
+             [class.collapsible]="descLarga()" 
+             [class.expanded]="descExpandida()">
           <p class="desc-content">{{ producto()!.descripcion }}</p>
         </div>
         @if (descLarga() && !descExpandida()) {
@@ -401,11 +403,41 @@
       </section>
     }
 
-    <!-- ── FOOTER ACTIONS ────────────────────────────────── -->
-    <div class="report-area">
-      <button class="btn-report" (click)="reportarAnuncio()">
-        <i class="fas fa-exclamation-triangle"></i>
-        <span>Reportar este anuncio</span>
+    <!-- ── Mobile Sticky Bottom Bar ──────────────────────── -->
+    <div class="mobile-sticky-actions">
+      @if (puedeComprar()) {
+        <button class="sticky-btn primary" (click)="comprarAhora()">
+          <span>Comprar</span>
+        </button>
+        <button class="sticky-btn secondary" (click)="irAlChat()">
+          <i class="fas fa-comments"></i>
+        </button>
+      } @else if (soloRecogidaPersonal() && isLoggedIn() && !esVendedorPropietario()) {
+        <button class="sticky-btn primary" (click)="irAlChat()">
+          <span>Contactar</span>
+        </button>
+      } @else if (esIntercambio() && isLoggedIn() && !esVendedorPropietario()) {
+        <button class="sticky-btn primary" (click)="irAlChat()">
+          <span>Proponer Intercambio</span>
+        </button>
+      } @else if (esDonacion() && isLoggedIn() && !esVendedorPropietario()) {
+        <button class="sticky-btn primary" (click)="irAlChat()">
+          <span>Solicitar</span>
+        </button>
+      } @else if (!isLoggedIn()) {
+        <button class="sticky-btn primary" (click)="comprarAhora()">
+          <span>Comprar</span>
+        </button>
+        <button class="sticky-btn secondary" (click)="irAlChat()">
+          <i class="fas fa-comments"></i>
+        </button>
+      } @else if (esVendedorPropietario()) {
+        <a [routerLink]="['/publicar/editar', producto()!.id]" class="sticky-btn primary">
+          <span>Editar</span>
+        </a>
+      }
+      <button class="sticky-btn fav" [class.active]="esFavorito()" (click)="toggleFavorito()">
+        <i class="fas fa-heart"></i>
       </button>
     </div>
 

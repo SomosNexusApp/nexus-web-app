@@ -1,6 +1,6 @@
 @if (!isAdminRoute()) {
   @if (isMobileUI()) {
-    @if (!uiService.isAnyChatSelected()) {
+    @if (!uiService.isAnyChatSelected() && !uiService.isDetailView()) {
       <app-mobile-header></app-mobile-header>
     }
   } @else {
@@ -38,7 +38,7 @@
   <app-register-popup></app-register-popup>
 }
 <app-onboarding-stepper></app-onboarding-stepper>
-@if (!isAdminRoute() && (!isMobileUI() || !uiService.isAnyChatSelected())) {
+@if (!isAdminRoute() && (!isMobileUI() || (!uiService.isAnyChatSelected() && !uiService.isDetailView()))) {
   <app-mobile-bottom-nav></app-mobile-bottom-nav>
 }
 
