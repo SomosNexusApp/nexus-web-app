@@ -302,13 +302,6 @@ export const routes: Routes = [
       ),
   },
   {
-    path: 'moda',
-    loadComponent: () =>
-      import('./components/marketplace/moda/moda-portal.component').then(
-        (m) => m.ModaPortalComponent,
-      ),
-  },
-  {
     path: 'viajes',
     loadComponent: () =>
       import('./components/marketplace/viajes/viajes-portal.component').then(

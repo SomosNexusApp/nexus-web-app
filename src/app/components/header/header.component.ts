@@ -82,7 +82,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
     { label: 'Categorías', route: '/search', icon: 'grid' },
     { label: 'Ofertas Flash', route: '/ofertas', icon: 'flash' },
     { label: 'Vehículos', route: '/vehiculos', icon: 'car' },
-    { label: 'Moda', route: '/moda', icon: 'gem' },
     { label: 'Viajes', route: '/viajes', icon: 'plane' },
     { label: 'Cerca de ti', route: '/cerca', icon: 'pin' },
     { label: 'Gratis', route: '/gratis', icon: 'gift' },
@@ -114,14 +113,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
       accentColor: '#6366f1',
       viewAllLink: '/search',
       viewAllParams: { tipo: 'VEHICULO' }
-    },
-    moda: {
-      id: 'moda',
-      title: 'Nexus Moda',
-      subtitle: 'Tendencias y artículos exclusivos de estilo',
-      icon: 'fas fa-gem',
-      accentColor: '#ec4899',
-      viewAllLink: '/moda'
     },
     viajes: {
       id: 'viajes',
