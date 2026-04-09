@@ -1,0 +1,57 @@
+<div class="publish-modal-overlay" 
+     [class.active]="uiService.isPublishModalOpen()" 
+     (click)="close()">
+  <div class="publish-modal-sheet" 
+       [class.active]="uiService.isPublishModalOpen()" 
+       (click)="$event.stopPropagation()">
+    
+    <div class="sheet-indicator"></div>
+    
+    <div class="sheet-header">
+      <h3>¿Qué quieres subir?</h3>
+      <p>Elige el tipo de anuncio que deseas publicar</p>
+    </div>
+
+    <div class="publish-options">
+      <!-- Artículos -->
+      <button class="publish-opt-card opt-product" (click)="navegar('/publicar')">
+        <div class="opt-icon-box">
+          <i class="fas fa-box-open"></i>
+        </div>
+        <div class="opt-content">
+          <span class="opt-title">Subir artículo</span>
+          <span class="opt-desc">Vende ropa, electrónica, muebles y más</span>
+        </div>
+        <i class="fas fa-chevron-right opt-arrow"></i>
+      </button>
+
+      <!-- Ofertas -->
+      <button class="publish-opt-card opt-offer" (click)="navegar('/publicar/oferta')">
+        <div class="opt-icon-box">
+          <i class="fas fa-fire-flame-curved"></i>
+        </div>
+        <div class="opt-content">
+          <span class="opt-title">Subir oferta</span>
+          <span class="opt-desc">Comparte un chollo o descuento brutal</span>
+        </div>
+        <i class="fas fa-chevron-right opt-arrow"></i>
+      </button>
+
+      <!-- Vehículos -->
+      <button class="publish-opt-card opt-vehicle" (click)="navegar('/publicar/vehiculo')">
+        <div class="opt-icon-box">
+          <i class="fas fa-car-side"></i>
+        </div>
+        <div class="opt-content">
+          <span class="opt-title">Subir vehículo</span>
+          <span class="opt-desc">Vuelve a poner en ruta tu coche o moto</span>
+        </div>
+        <i class="fas fa-chevron-right opt-arrow"></i>
+      </button>
+    </div>
+
+    <button class="btn-cancel-publish" (click)="close()">
+      Cancelar
+    </button>
+  </div>
+</div>

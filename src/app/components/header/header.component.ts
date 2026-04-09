@@ -15,6 +15,7 @@ import { CategoriaPanelComponent } from '../../shared/components/categoria-panel
 import { ConfirmModalComponent } from '../../shared/components/confirm-modal/confirm-modal.component';
 import { AvatarComponent } from '../../shared/components/avatar/avatar.component';
 import { MegaMenuComponent, MegaMenuConfig } from '../../shared/components/mega-menu/mega-menu.component';
+import { UiService } from '../../core/services/ui.service';
 import { environment } from '../../../environments/enviroment';
 
 interface NavLink {
@@ -47,6 +48,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   public notificationService = inject(NotificationService);
   public wsService = inject(WebSocketService);
   private searchService = inject(SearchService);
+  public uiService = inject(UiService);
   private http = inject(HttpClient);
 
   private destroy$ = new Subject<void>();
@@ -67,7 +69,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   readonly searchHistory = signal<string[]>([]);
 
   // Categorias & Mega Menus
-  readonly isCategoriasPanelOpen = signal(false);
+  readonly isCategoriasPanelOpen = this.uiService.isCategoriasPanelOpen;
   readonly activeMenuId = signal<string | null>(null);
   readonly menuItems = signal<any[]>([]);
   readonly loadingMenu = signal(false);
@@ -77,7 +79,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   @ViewChild('logoutModal') logoutModal!: ConfirmModalComponent;
 
   navLinks: NavLink[] = [
-    { label: 'Categorías', route: '/categorias', icon: 'grid' },
+    { label: 'Categorías', route: '/search', icon: 'grid' },
     { label: 'Ofertas Flash', route: '/ofertas', icon: 'flash' },
     { label: 'Vehículos', route: '/vehiculos', icon: 'car' },
     { label: 'Moda', route: '/moda', icon: 'gem' },
@@ -195,7 +197,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   toggleCategoriasPanel(): void {
-    this.isCategoriasPanelOpen.update((v) => !v);
+    this.uiService.toggleCategoriasPanel();
     this.activeMenuId.set(null);
   }
 
@@ -235,7 +237,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   closeAllPanels(): void {
     this.activeMenuId.set(null);
-    this.isCategoriasPanelOpen.set(false);
+    this.uiService.closeCategoriasPanel();
     this.menuItems.set([]);
   }
 

@@ -1075,3 +1075,68 @@
 }
 
 /* Fin Elite Player */
+@media (max-width: 768px) {
+  .chat-header {
+    height: 70px;
+    padding: 0 16px;
+  }
+
+  .header-left {
+    padding-left: 0;
+  }
+
+  .avatar-small {
+    width: 36px;
+    height: 36px;
+  }
+
+  .user-name {
+    font-size: 0.95rem;
+  }
+
+  .header-product {
+    display: none; /* Ocultamos producto en header móvil para ganar espacio */
+  }
+
+  .messages-container {
+    padding: 20px 12px;
+  }
+
+  .bubble {
+    max-width: 92%;
+    padding: 12px 14px;
+  }
+
+  .audio-elite-player {
+    min-width: unset;
+    width: 100%;
+    max-width: 100%;
+    padding: 10px 12px;
+    gap: 10px;
+  }
+
+  .elite-play-btn {
+    width: 40px;
+    height: 40px;
+  }
+
+  .offer-card {
+    min-width: unset;
+    width: 100%;
+    padding: 20px 14px;
+  }
+
+  .offer-amount {
+    font-size: 1.8rem;
+  }
+
+  .offer-actions {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .chat-footer {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+}
+

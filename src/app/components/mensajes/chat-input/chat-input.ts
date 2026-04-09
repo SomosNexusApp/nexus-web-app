@@ -43,6 +43,8 @@ export class ChatInputComponent {
 
   texto = signal('');
   isRecording = signal(false);
+  recordingSeconds = signal(0);
+  private recordingInterval: any;
 
   // Gifs
   mostrarGifs = signal(false);
@@ -483,6 +485,11 @@ export class ChatInputComponent {
 
       this.mediaRecorder.start();
       this.isRecording.set(true);
+      this.recordingSeconds.set(0);
+      this.recordingInterval = setInterval(() => {
+        this.recordingSeconds.update(s => s + 1);
+        if (this.recordingSeconds() >= 60) this.detenerGrabacion();
+      }, 1000);
     } catch (err) {
       console.error('Error accediendo al micrófono:', err);
       this.toast.error('No se pudo acceder al micrófono. Asegúrate de dar permiso.');
@@ -493,6 +500,10 @@ export class ChatInputComponent {
     if (this.mediaRecorder && this.isRecording()) {
       this.mediaRecorder.stop();
       this.isRecording.set(false);
+      if (this.recordingInterval) {
+        clearInterval(this.recordingInterval);
+        this.recordingInterval = null;
+      }
     }
   }
 }

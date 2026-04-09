@@ -1,6 +1,7 @@
 :host {
   display: block;
-  height: 100%;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .nexus-card {
@@ -21,8 +22,37 @@
 
 .nexus-card:hover, .nexus-card:focus-visible {
   transform: translateY(-6px);
-  border-color: rgba(99, 102, 241, 0.3);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6), 0 0 20px rgba(99, 102, 241, 0.1);
+  border-color: rgba(16, 185, 129, 0.4);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6), 0 0 25px rgba(16, 185, 129, 0.15);
+}
+
+.nexus-card.product-theme {
+  border: 1px solid rgba(255, 255, 255, 0.05); /* Borde sutil en escritorio */
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.nexus-card.product-theme:hover {
+  border-color: rgba(16, 185, 129, 0.4);
+}
+
+.nexus-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 20px;
+  padding: 1px;
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.3), transparent 50%, rgba(16, 185, 129, 0.3));
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+  opacity: 0.5;
+  transition: opacity 0.4s;
+}
+
+.nexus-card:hover::after {
+  opacity: 1;
 }
 
 .nexus-card.is-vendido {
@@ -84,7 +114,7 @@
 }
 
 .vendido-overlay { background: rgba(0, 0, 0, 0.45); }
-.reservado-overlay { background: rgba(251, 191, 36, 0.15); }
+.reservado-overlay { background: rgba(99, 102, 241, 0.15); }
 
 .estado-text {
   font-size: 1rem;
@@ -99,9 +129,9 @@
 }
 
 .reservado-overlay .estado-text {
-  background: rgba(251, 191, 36, 0.95);
-  color: #000;
-  border-color: rgba(0,0,0,0.1);
+  background: rgba(99, 102, 241, 0.95);
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.1);
 }
 
 /* --- BADGES --- */
@@ -133,8 +163,8 @@
 .cond-nuevo { background: rgba(34, 197, 94, 0.4); color: #fff; border-color: rgba(74, 222, 128, 0.4); }
 .cond-como-nuevo { background: rgba(59, 130, 246, 0.4); color: #fff; border-color: rgba(96, 165, 250, 0.4); }
 .cond-muy-buen { background: rgba(6, 182, 212, 0.4); color: #fff; border-color: rgba(34, 211, 238, 0.4); }
-.cond-buen { background: rgba(234, 179, 8, 0.4); color: #fff; border-color: rgba(250, 204, 21, 0.4); }
-.cond-aceptable { background: rgba(249, 115, 22, 0.4); color: #fff; border-color: rgba(251, 146, 60, 0.4); }
+.cond-buen { background: rgba(148, 163, 184, 0.4); color: #fff; border-color: rgba(203, 213, 225, 0.4); }
+.cond-aceptable { background: rgba(100, 116, 139, 0.4); color: #fff; border-color: rgba(148, 163, 184, 0.4); }
 
 .shipping-badge {
   background: rgba(10, 132, 255, 0.4);
@@ -300,12 +330,27 @@
 .nexus-card-mobile {
   display: flex;
   background: #0a0a0f;
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  border-radius: 20px;
-  padding: 12px;
-  gap: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08); /* Borde base más visible */
+  border-radius: 24px;
+  padding: 14px;
+  gap: 16px;
   width: 100%;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  box-sizing: border-box;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+  position: relative;
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+
+.nexus-card-mobile.product-theme {
+  border: 1px solid rgba(16, 185, 129, 0.2);
+  background: linear-gradient(110deg, rgba(16, 185, 129, 0.04) 0%, #0a0a0f 40%);
+  box-shadow: 0 8px 25px rgba(16, 185, 129, 0.08);
+}
+
+.nexus-card-mobile.product-theme:hover {
+  border-color: rgba(16, 185, 129, 0.5);
+  box-shadow: 0 12px 35px rgba(16, 185, 129, 0.15);
 }
 
 /* Izquierda: Imagen */
@@ -340,7 +385,9 @@
   border-radius: 20px;
   font-size: 10px;
   font-weight: 800;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  background: #10b981;
+  color: #fff;
+  box-shadow: 0 4px 10px rgba(16, 185, 129, 0.3);
   white-space: nowrap;
   z-index: 5;
 }
@@ -378,8 +425,8 @@
 }
 
 .m-badge-product {
-  background: #eef2ff;
-  color: #6366f1;
+  background: rgba(16, 185, 129, 0.1);
+  color: #10b981;
 }
 
 .m-badge-time {
@@ -417,10 +464,10 @@
 }
 
 .m-price-curr {
-  font-family: 'Syne', sans-serif;
+  font-family: 'Outfit', sans-serif;
   font-size: 20px;
   font-weight: 800;
-  color: #4ade80;
+  color: #10b981;
 }
 
 .mobile-meta {
@@ -448,7 +495,7 @@
 }
 
 .m-btn-go {
-  background: #1a1a2e;
+  background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 12px;
   padding: 6px 14px;

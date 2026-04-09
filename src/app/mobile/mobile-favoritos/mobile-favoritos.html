@@ -1,0 +1,75 @@
+<div class="mobile-fav-container">
+  <!-- Header Premium -->
+  <header class="mobile-fav-header">
+    <h1>Mis Favoritos</h1>
+    <p>Guarda lo que te gusta y encuéntralo aquí</p>
+  </header>
+
+  <!-- Tabs Switcher -->
+  <div class="fav-tabs">
+    <button [class.active]="activeTab() === 'productos'" (click)="setTab('productos')">
+      <i class="fas fa-box"></i> Productos
+    </button>
+    <button [class.active]="activeTab() === 'ofertas'" (click)="setTab('ofertas')">
+      <i class="fas fa-fire"></i> Ofertas
+    </button>
+    <button [class.active]="activeTab() === 'vehiculos'" (click)="setTab('vehiculos')">
+      <i class="fas fa-car"></i> Vehículos
+    </button>
+  </div>
+
+  <!-- Content Area -->
+  <main class="fav-content">
+    @if (loading()) {
+      <div class="fav-skeleton">
+        <div class="skeleton-card" *ngFor="let i of [1,2,3,4]"></div>
+      </div>
+    } @else {
+      <!-- Productos -->
+      @if (activeTab() === 'productos') {
+        <div class="fav-grid">
+          @for (p of favProductos(); track p.id) {
+            <app-producto-card [producto]="p" [isMobileFeed]="true"></app-producto-card>
+          } @empty {
+            <div class="empty-fav">
+              <i class="fas fa-heart-broken"></i>
+              <h3>No hay productos</h3>
+              <p>Añade los productos que más te gusten pulsando el corazón</p>
+            </div>
+          }
+        </div>
+      }
+
+      <!-- Ofertas -->
+      @if (activeTab() === 'ofertas') {
+        <div class="fav-grid">
+          @for (o of favOfertas(); track o.id) {
+            <app-producto-card [producto]="o" [isMobileFeed]="true"></app-producto-card>
+          } @empty {
+            <div class="empty-fav">
+              <i class="fas fa-fire-extinguisher"></i>
+              <h3>No hay ofertas</h3>
+              <p>No te pierdas los mejores chollos de Nexus</p>
+            </div>
+          }
+        </div>
+      }
+
+      <!-- Vehículos -->
+      @if (activeTab() === 'vehiculos') {
+        <div class="fav-grid">
+          @for (v of favVehiculos(); track v.id) {
+            <app-vehiculo-card [vehiculo]="v" [isMobileFeed]="true"></app-vehiculo-card>
+          } @empty {
+            <div class="empty-fav">
+              <i class="fas fa-car-crash"></i>
+              <h3>No hay vehículos</h3>
+              <p>Busca tu próximo coche o moto y guárdalo aquí</p>
+            </div>
+          }
+        </div>
+      }
+
+    }
+  </main>
+</div>

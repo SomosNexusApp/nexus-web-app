@@ -3,7 +3,7 @@
 } @else {
   @if (!isMobileFeed) {
     <div
-      class="nexus-card scale-in"
+      class="nexus-card scale-in offer-theme"
       (click)="navigateToDetail()"
       role="article"
       [attr.aria-label]="oferta.titulo"
@@ -58,7 +58,7 @@
     </div>
   } @else {
     <!-- DISEÑO MÓVIL (HORIZONTAL) -->
-    <div class="nexus-card-mobile" (click)="navigateToDetail()">
+    <div class="nexus-card-mobile offer-theme" (click)="navigateToDetail()">
       
       <!-- Lado Izquierdo: Imagen e Info Voto -->
       <div class="card-mobile-left">

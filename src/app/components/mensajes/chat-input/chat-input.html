@@ -7,97 +7,97 @@
     (change)="onFileSelected($event)"
   />
 
-  <!-- Botones de Accesorios -->
-  <button
-    type="button"
-    class="btn-icon"
-    (click)="abrirSelectorImagen()"
-    title="Adjuntar Imagen"
-    [disabled]="isRecording()"
-  >
-    <i class="fas fa-image"></i>
-  </button>
-
-  @if (!esDirecto && puedeNegociar) {
+  <!-- Fila Superior: Botones de Accesorios (Toolbar) -->
+  <div class="chat-input-toolbar" *ngIf="!isRecording()">
     <button
       type="button"
-      class="btn-icon text-nexus-primary"
-      title="Enviar Propuesta de Precio"
-      (click)="toggleOfertaModal()"
-      [disabled]="isRecording()"
+      class="btn-icon"
+      (click)="abrirSelectorImagen()"
+      title="Adjuntar Imagen"
     >
-      <i class="fas fa-handshake"></i>
+      <i class="fas fa-image"></i>
     </button>
-  }
 
-  <button
-    type="button"
-    class="btn-icon"
-    title="Buscar GIFs"
-    (click)="toggleGifs()"
-    [disabled]="isRecording()"
-  >
-    <i class="fas fa-sticky-note text-yellow-500"></i>
-  </button>
-
-  <button
-    type="button"
-    class="btn-icon"
-    title="Emojis"
-    (click)="toggleEmojis()"
-    [disabled]="isRecording()"
-  >
-    <i class="fas fa-smile text-nexus-primary"></i>
-  </button>
-
-  <!-- Area de Texto o Indicador de Grabación -->
-  <div class="input-container">
-    @if (!isRecording()) {
-      <textarea
-        #textArea
-        placeholder="Escribe un mensaje..."
-        [ngModel]="texto()"
-        (ngModelChange)="texto.set($event)"
-        (input)="onInput()"
-        (keydown.enter)="enviarTexto(); $event.preventDefault()"
-        rows="1"
+    @if (!esDirecto && puedeNegociar) {
+      <button
+        type="button"
+        class="btn-icon"
+        title="Enviar Propuesta de Precio"
+        (click)="toggleOfertaModal()"
       >
-      </textarea>
-    } @else {
-      <div class="recording-indicator">
-        <div class="recording-dot"></div>
-        <span class="recording-text">Grabando audio... <strong>Suelta</strong> para enviar</span>
-        <span class="recording-timer">(Max 60s)</span>
-      </div>
+        <i class="fas fa-handshake"></i>
+      </button>
     }
+
+    <button
+      type="button"
+      class="btn-icon"
+      title="Buscar GIFs"
+      (click)="toggleGifs()"
+    >
+      <i class="fas fa-sticky-note"></i>
+    </button>
+
+    <button
+      type="button"
+      class="btn-icon emoji-btn"
+      title="Emojis"
+      (click)="toggleEmojis()"
+    >
+      <i class="fas fa-smile"></i>
+    </button>
   </div>
 
-  <!-- Botones de Acción (Enviar / Grabar Audio) -->
-  @if (texto().trim().length > 0 && !isRecording()) {
-    <button type="button" class="btn-send text-nexus-primary" (click)="enviarTexto()">
-      <i class="fas fa-paper-plane text-xl"></i>
-    </button>
-  } @else {
-    <button
-      type="button"
-      class="btn-mic"
-      (mousedown)="iniciarGrabacion()"
-      (touchstart)="iniciarGrabacion()"
-      (mouseup)="detenerGrabacion()"
-      (mouseleave)="detenerGrabacion()"
-      (touchend)="detenerGrabacion()"
-    >
-      <i
-        class="fas"
-        [ngClass]="isRecording() ? 'fa-stop-circle text-red-500' : 'fa-microphone text-gray-500'"
-      ></i>
-    </button>
-  }
+  <!-- Fila Inferior: Input y Enviar -->
+  <div class="chat-input-main">
+    <div class="input-container">
+      @if (!isRecording()) {
+        <textarea
+          #textArea
+          placeholder="Escribe un mensaje..."
+          [ngModel]="texto()"
+          (ngModelChange)="texto.set($event)"
+          (input)="onInput()"
+          (keydown.enter)="enviarTexto(); $event.preventDefault()"
+          rows="1"
+        ></textarea>
+      } @else {
+        <div class="recording-indicator">
+          <div class="recording-dot"></div>
+          <span class="recording-text">Suelte para enviar</span>
+          <span class="recording-timer">{{ recordingSeconds() }}s</span>
+        </div>
+      }
+    </div>
+
+    <!-- Botón de Acción -->
+    <div class="action-button">
+      @if (texto().trim().length > 0 && !isRecording()) {
+        <button type="button" class="btn-send" (click)="enviarTexto()">
+          <i class="fas fa-paper-plane"></i>
+        </button>
+      } @else {
+        <button
+          type="button"
+          class="btn-mic"
+          [class.recording-active]="isRecording()"
+          (mousedown)="iniciarGrabacion()"
+          (touchstart)="iniciarGrabacion()"
+          (mouseup)="detenerGrabacion()"
+          (touchend)="detenerGrabacion()"
+        >
+          <i class="fas" [ngClass]="isRecording() ? 'fa-stop' : 'fa-microphone'"></i>
+        </button>
+      }
+    </div>
+  </div>
 </div>
+
 
 <!-- GIF Tracker Overlay -->
 @if (mostrarGifs()) {
   <div class="gifs-overlay">
+    <div class="drawer-handle"></div>
     <div class="gifs-header">
       <input
         type="text"

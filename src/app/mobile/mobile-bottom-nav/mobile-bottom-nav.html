@@ -13,9 +13,9 @@
   <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="nav-item">
     <i class="fas fa-home"></i>
   </a>
-  <a routerLink="/categorias" routerLinkActive="active" class="nav-item">
+  <button class="nav-item" (click)="toggleCategories()">
     <i class="fas fa-th-large"></i>
-  </a>
+  </button>
   
   <!-- Botón central FAB -->
   <button class="nav-item fab-item" (click)="onPublicarClick()">
@@ -26,7 +26,7 @@
     </div>
   </button>
 
-  <a routerLink="/perfil/favoritos" routerLinkActive="active" class="nav-item" (click)="checkAuth($event)">
+  <a routerLink="/mobile/favoritos" routerLinkActive="active" class="nav-item" (click)="checkAuth($event)">
     <i class="fas fa-heart"></i>
   </a>
   <a routerLink="/mensajes" routerLinkActive="active" class="nav-item" (click)="checkAuth($event)">

@@ -1,6 +1,8 @@
 @if (!isAdminRoute()) {
   @if (isMobileUI()) {
-    <app-mobile-header></app-mobile-header>
+    @if (!uiService.isAnyChatSelected()) {
+      <app-mobile-header></app-mobile-header>
+    }
   } @else {
     <app-header></app-header>
   }
@@ -36,6 +38,14 @@
   <app-register-popup></app-register-popup>
 }
 <app-onboarding-stepper></app-onboarding-stepper>
-@if (!isAdminRoute() && !isMessagesRoute()) {
+@if (!isAdminRoute() && (!isMobileUI() || !uiService.isAnyChatSelected())) {
   <app-mobile-bottom-nav></app-mobile-bottom-nav>
 }
+
+<app-categoria-panel
+  [isOpen]="uiService.isCategoriasPanelOpen()"
+  (cerrar)="uiService.closeCategoriasPanel()"
+></app-categoria-panel>
+
+<app-mobile-publish-modal></app-mobile-publish-modal>
+

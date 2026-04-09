@@ -8,6 +8,7 @@ import { GuestPopupService } from './core/services/guest-popup.service';
 import { AuthStore } from './core/auth/auth-store';
 import { WebSocketService } from './core/services/websocket.service';
 import { NotificationService, NotificacionInAppDto } from './core/services/notification.service';
+import { UiService } from './core/services/ui.service';
 
 // Popups Globales
 import { RegisterPopupComponent } from './shared/components/register-popup/register-popup.component';
@@ -17,6 +18,8 @@ import { HeaderComponent } from './components/header/header.component';
 import { SupportChatWidgetComponent } from './shared/components/support-chat-widget/support-chat-widget.component';
 import { MobileHeader } from './mobile/mobile-header/mobile-header';
 import { MobileBottomNav } from './mobile/mobile-bottom-nav/mobile-bottom-nav';
+import { CategoriaPanelComponent } from './shared/components/categoria-panel/categoria-panel.component';
+import { MobilePublishModalComponent } from './mobile/mobile-publish-modal/mobile-publish-modal';
 
 @Component({
   selector: 'app-root',
@@ -31,6 +34,8 @@ import { MobileBottomNav } from './mobile/mobile-bottom-nav/mobile-bottom-nav';
     SupportChatWidgetComponent,
     MobileBottomNav,
     MobileHeader,
+    CategoriaPanelComponent,
+    MobilePublishModalComponent,
   ],
   templateUrl: './app.html',
   styleUrls: ['./app.component.scss'],
@@ -43,6 +48,7 @@ export class AppComponent implements OnInit {
   private authStore = inject(AuthStore);
   private wsService = inject(WebSocketService);
   private notifService = inject(NotificationService);
+  public uiService = inject(UiService);
 
   // Signals para controlar la visibilidad según la ruta
   isAdminRoute = signal(window.location.pathname.startsWith('/admin'));
@@ -105,7 +111,8 @@ export class AppComponent implements OnInit {
         const isAdmin = url.startsWith('/admin');
 
         this.isAdminRoute.set(isAdmin);
-        this.isMessagesRoute.set(url.startsWith('/mensajes'));
+        const isMessages = url.startsWith('/mensajes');
+        this.isMessagesRoute.set(isMessages);
 
         if (isAdmin) {
           this.guestPopup.hidePopup();

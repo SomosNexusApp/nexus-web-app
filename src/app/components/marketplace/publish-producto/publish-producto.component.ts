@@ -253,6 +253,10 @@ export class PublishProductoComponent implements OnInit, AfterViewInit {
         priceControl?.enable();
       }
     });
+    // Si entramos por /publicar para PRODUCTO, saltamos el paso 0
+    if (!this.isEditMode()) {
+      this.currentStep.set(1);
+    }
   }
 
   private cargarProducto(id: number): void {
@@ -387,7 +391,9 @@ export class PublishProductoComponent implements OnInit, AfterViewInit {
           c.nombre.toLowerCase().includes('servicio') || c.slug.toLowerCase().includes('servicio'),
       );
       if (catServicio) this.selectCategory(catServicio);
-    } else this.currentStep.set(1);
+    } else {
+      this.currentStep.set(1);
+    }
   }
 
   nextStep(): void {

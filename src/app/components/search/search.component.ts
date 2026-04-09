@@ -70,6 +70,7 @@ export class SearchComponent implements OnInit, AfterViewInit, OnDestroy {
   paginaActual = 0;
   sizePorPagina = 20;
   hayMasResultados = true;
+  isMobile = signal(window.innerWidth <= 768);
   @ViewChild('scrollAnchor') scrollAnchor!: ElementRef;
   private observer!: IntersectionObserver;
 
@@ -161,6 +162,10 @@ export class SearchComponent implements OnInit, AfterViewInit, OnDestroy {
 
     this.escucharCambiosURL();
     this.escucharAutocompletados();
+
+    window.addEventListener('resize', () => {
+      this.isMobile.set(window.innerWidth <= 768);
+    });
   }
 
   ngAfterViewInit(): void {

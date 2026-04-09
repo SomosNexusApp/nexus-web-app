@@ -1,4 +1,4 @@
-import { Component, signal, inject, OnInit } from '@angular/core';
+import { Component, signal, inject, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
@@ -7,6 +7,8 @@ import { ChatPanelComponent } from '../chat-panel/chat-panel';
 import { AuthStore } from '../../../core/auth/auth-store';
 import { environment } from '../../../../environments/enviroment';
 
+import { UiService } from '../../../core/services/ui.service';
+
 @Component({
   selector: 'app-mensajes-container',
   standalone: true,
@@ -14,12 +16,13 @@ import { environment } from '../../../../environments/enviroment';
   templateUrl: './mensajes-container.html',
   styleUrl: './mensajes-container.css',
 })
-export class MensajesContainerComponent implements OnInit {
+export class MensajesContainerComponent implements OnInit, OnDestroy {
   conversacionSeleccionada = signal<any>(null);
 
   private route = inject(ActivatedRoute);
   private http = inject(HttpClient);
   private authStore = inject(AuthStore);
+  private uiService = inject(UiService);
 
   ngOnInit() {
     this.route.queryParams.subscribe((params) => {
@@ -35,6 +38,7 @@ export class MensajesContainerComponent implements OnInit {
 
   onConversacionCambiada(conv: any) {
     this.conversacionSeleccionada.set(conv);
+    this.uiService.isAnyChatSelected.set(!!conv);
   }
 
   private iniciarNuevaConversacion(productoId: number) {
@@ -90,5 +94,8 @@ export class MensajesContainerComponent implements OnInit {
         this.conversacionSeleccionada.set(fakeConv);
       },
     });
+  }
+  ngOnDestroy() {
+    this.uiService.isAnyChatSelected.set(false);
   }
 }

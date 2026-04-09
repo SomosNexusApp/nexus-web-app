@@ -1,0 +1,116 @@
+.mobile-fav-container {
+    min-height: 100vh;
+    padding: 20px;
+    padding-top: calc(env(safe-area-inset-top, 0px) + 20px);
+    padding-bottom: 120px; /* Espacio para el bottom nav */
+    background: #000;
+}
+
+.mobile-fav-header {
+    margin-bottom: 30px;
+    padding-left: 4px;
+}
+
+.mobile-fav-header h1 {
+    font-size: 2rem;
+    font-weight: 800;
+    color: #fff;
+    margin: 0 0 4px 0;
+    letter-spacing: -1px;
+}
+
+.mobile-fav-header p {
+    color: #94a3b8;
+    margin: 0;
+    font-size: 0.95rem;
+}
+
+.fav-tabs {
+    display: flex;
+    background: rgba(255, 255, 255, 0.05);
+    padding: 6px;
+    border-radius: 16px;
+    margin-bottom: 24px;
+    gap: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.fav-tabs button {
+    flex: 1;
+    padding: 10px 4px;
+    border-radius: 12px;
+    background: transparent;
+    border: none;
+    color: #64748b;
+    font-size: 0.85rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.fav-tabs button i {
+    font-size: 0.9rem;
+}
+
+.fav-tabs button.active {
+    background: rgba(59, 130, 246, 0.15);
+    color: #3b82f6;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.fav-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.empty-fav {
+    padding: 60px 20px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.empty-fav i {
+    font-size: 3rem;
+    color: rgba(255, 255, 255, 0.1);
+    margin-bottom: 20px;
+}
+
+.empty-fav h3 {
+    color: #fff;
+    font-size: 1.25rem;
+    margin: 0 0 8px 0;
+}
+
+.empty-fav p {
+    color: #64748b;
+    font-size: 0.95rem;
+    max-width: 240px;
+    line-height: 1.5;
+}
+
+/* Skeleton Loading */
+.fav-skeleton {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.skeleton-card {
+    height: 120px;
+    background: linear-gradient(90deg, #111 25%, #181818 50%, #111 75%);
+    background-size: 200% 100%;
+    animation: skeleton-wave 1.5s infinite linear;
+    border-radius: 20px;
+}
+
+@keyframes skeleton-wave {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}

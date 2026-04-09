@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { AuthStore } from '../../core/auth/auth-store';
 import { GuestPopupService } from '../../core/services/guest-popup.service';
+import { UiService } from '../../core/services/ui.service';
 
 @Component({
   selector: 'app-mobile-bottom-nav',
@@ -16,6 +17,7 @@ export class MobileBottomNav {
   private router = inject(Router);
   private authStore = inject(AuthStore);
   private guestPopup = inject(GuestPopupService);
+  private uiService = inject(UiService);
 
   @ViewChild('navBox') navBox!: ElementRef<HTMLElement>;
   
@@ -47,11 +49,16 @@ export class MobileBottomNav {
     }
   }
 
+  toggleCategories() {
+    this.uiService.toggleCategoriasPanel();
+  }
+
   onPublicarClick() {
     if (!this.authStore.isLoggedIn()) {
       this.guestPopup.showPopup();
     } else {
-      this.router.navigate(['/subir-articulo']);
+      this.uiService.togglePublishModal();
     }
   }
 }
+

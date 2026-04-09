@@ -3,7 +3,7 @@
 } @else {
   @if (!isMobileFeed) {
     <div
-      class="nexus-card scale-in"
+      class="nexus-card scale-in product-theme"
       [class.is-vendido]="isVendido"
       [class.is-reservado]="isReservado"
       (click)="navigateToDetail($event)"
@@ -115,7 +115,7 @@
     </div>
   } @else {
     <!-- DISEÑO MÓVIL (HORIZONTAL) -->
-    <div class="nexus-card-mobile" (click)="navigateToDetail($event)">
+    <div class="nexus-card-mobile product-theme" (click)="navigateToDetail($event)">
       
       <!-- Lado Izquierdo: Imagen -->
       <div class="card-mobile-left">

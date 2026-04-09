@@ -597,26 +597,37 @@
 
         <div class="mobile-nav-body custom-scrollbar">
           <div class="mobile-section-title">Navegación</div>
-          <nav class="mobile-links-grid">
-            <a *ngFor="let link of navLinks" 
-               [routerLink]="link.route" 
-               [queryParams]="link.queryParams"
-               class="mobile-nav-link"
-               (click)="toggleMobileMenu()"
-               [class.active]="isNavActive(link)">
-                <div class="link-icon">
-                  <i [class]="'fas fa-' + link.icon" *ngIf="link.icon !== 'grid' && link.icon !== 'flash' && link.icon !== 'car' && link.icon !== 'gem' && link.icon !== 'plane' && link.icon !== 'pin' && link.icon !== 'gift'"></i>
-                  <i class="fas fa-th-large" *ngIf="link.icon === 'grid'"></i>
-                  <i class="fas fa-bolt" *ngIf="link.icon === 'flash'"></i>
-                  <i class="fas fa-car" *ngIf="link.icon === 'car'"></i>
-                  <i class="fas fa-tshirt" *ngIf="link.icon === 'gem'"></i>
-                  <i class="fas fa-plane" *ngIf="link.icon === 'plane'"></i>
-                  <i class="fas fa-map-marker-alt" *ngIf="link.icon === 'pin'"></i>
-                  <i class="fas fa-gift" *ngIf="link.icon === 'gift'"></i>
-                </div>
-                <span>{{ link.label }}</span>
-            </a>
-          </nav>
+            <ng-container *ngFor="let link of navLinks">
+              <!-- Categorías (Mobile Special) -->
+              <button *ngIf="link.icon === 'grid'" 
+                      class="mobile-nav-link"
+                      (click)="toggleCategoriasPanel(); toggleMobileMenu()"
+                      [class.active]="link.route === '/categorias'">
+                  <div class="link-icon">
+                    <i class="fas fa-th-large"></i>
+                  </div>
+                  <span>{{ link.label }}</span>
+              </button>
+
+              <!-- Otros enlaces -->
+              <a *ngIf="link.icon !== 'grid'" 
+                 [routerLink]="link.route" 
+                 [queryParams]="link.queryParams"
+                 class="mobile-nav-link"
+                 (click)="toggleMobileMenu()"
+                 [class.active]="isNavActive(link)">
+                  <div class="link-icon">
+                    <i [class]="'fas fa-' + link.icon" *ngIf="link.icon !== 'flash' && link.icon !== 'car' && link.icon !== 'gem' && link.icon !== 'plane' && link.icon !== 'pin' && link.icon !== 'gift'"></i>
+                    <i class="fas fa-bolt" *ngIf="link.icon === 'flash'"></i>
+                    <i class="fas fa-car" *ngIf="link.icon === 'car'"></i>
+                    <i class="fas fa-tshirt" *ngIf="link.icon === 'gem'"></i>
+                    <i class="fas fa-plane" *ngIf="link.icon === 'plane'"></i>
+                    <i class="fas fa-map-marker-alt" *ngIf="link.icon === 'pin'"></i>
+                    <i class="fas fa-gift" *ngIf="link.icon === 'gift'"></i>
+                  </div>
+                  <span>{{ link.label }}</span>
+              </a>
+            </ng-container>
 
           <div class="mobile-section-title">Acciones</div>
           <div class="mobile-actions-list">
@@ -684,10 +695,7 @@
     </div>
   </header>
 
-  <app-categoria-panel
-    [isOpen]="isCategoriasPanelOpen()"
-    (cerrar)="toggleCategoriasPanel()"
-  ></app-categoria-panel>
+
 
   <app-confirm-modal
     #logoutModal

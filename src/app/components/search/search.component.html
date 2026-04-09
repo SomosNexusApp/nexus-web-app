@@ -1,6 +1,6 @@
 <div class="nx-search-wrapper">
-  <!-- MOBILE GLASS HEADER -->
-  <div class="nx-mobile-glass-header">
+  <!-- CABECERA MÓVIL (Sticky) -->
+  <div class="nx-mobile-glass-header nx-sticky-header">
     <div class="nx-mobile-header-info">
       <h1 class="nx-mobile-title">
         @if (filterForm.get('q')?.value) {
@@ -8,13 +8,13 @@
         } @else if (categoriaNombreActual()) {
           {{ categoriaNombreActual() }}
         } @else {
-          Explorando {{ esBusquedaVehiculo ? 'Motor' : 'Catálogo' }}
+          {{ esBusquedaVehiculo ? 'Motor' : 'Catálogo' }}
         }
       </h1>
       <span class="nx-mobile-results-badge">{{ totalResultados }} resultados</span>
     </div>
     <button class="nx-btn-icon-glass" (click)="toggleMobileFilters()" aria-label="Abrir filtros">
-      <i class="icon-sliders"></i>
+      <i class="fas fa-sliders-h"></i>
       <span>Filtros</span>
     </button>
   </div>
@@ -514,11 +514,11 @@
         @for (item of resultados; track item.id) {
           <div class="nx-card-glass-wrapper">
             @if (item.searchType === 'OFERTA') {
-              <app-oferta-card [oferta]="item"></app-oferta-card>
+              <app-oferta-card [oferta]="item" [isMobileFeed]="isMobile()"></app-oferta-card>
             } @else if (item.searchType === 'PRODUCTO') {
-              <app-producto-card [producto]="item"></app-producto-card>
+              <app-producto-card [producto]="item" [isMobileFeed]="isMobile()"></app-producto-card>
             } @else if (item.searchType === 'VEHICULO') {
-              <app-vehiculo-card [vehiculo]="item"></app-vehiculo-card>
+              <app-vehiculo-card [vehiculo]="item" [isMobileFeed]="isMobile()"></app-vehiculo-card>
             }
           </div>
         }

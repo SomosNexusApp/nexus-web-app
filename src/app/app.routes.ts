@@ -219,6 +219,12 @@ export const routes: Routes = [
       ),
   },
   {
+    path: 'mobile/favoritos',
+    loadComponent: () =>
+      import('./mobile/mobile-favoritos/mobile-favoritos').then((m) => m.MobileFavoritosComponent),
+    canActivate: [authGuard],
+  },
+  {
     path: 'configuracion',
     loadComponent: () =>
       import('./components/perfil/configuracion/configuracion.component').then(

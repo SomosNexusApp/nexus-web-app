@@ -1,4 +1,4 @@
-<div class="mensajes-layout">
+<div class="mensajes-layout" [class.has-selection]="conversacionSeleccionada()">
   <!-- Columna Izquierda: Lista de Coversaciones -->
   <aside class="sidebar">
     <app-conversaciones-list
@@ -9,6 +9,8 @@
 
   <!-- Columna Derecha: Panel de Chat -->
   <main class="chat-area">
+
+
     <app-chat-panel
       *ngIf="conversacionSeleccionada() as conversacion; else emptyState"
       [conversacion]="conversacion"
@@ -23,3 +25,4 @@
     </ng-template>
   </main>
 </div>
+
