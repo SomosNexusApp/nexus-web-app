@@ -26,7 +26,23 @@
 
 <!-- ── Main Content ══════════════════════════════════════════ -->
 @if (!cargando() && !error() && producto()) {
-  <div class="detail-page">
+  <div class="detail-page" [class.is-mobile]="uiService.isDetailView()">
+    
+    <!-- ── Floating Mobile Header ──────────────────────── -->
+    <div class="mobile-top-actions">
+      <button class="action-circle back" (click)="goBack()">
+        <i class="fas fa-chevron-left"></i>
+      </button>
+      <div class="right-actions">
+        <button class="action-circle" (click)="toggleFavorito()">
+          <i class="fas fa-heart" [class.active]="esFavorito()"></i>
+        </button>
+        <button class="action-circle" (click)="compartir()">
+          <i class="fas fa-share-alt"></i>
+        </button>
+      </div>
+    </div>
+
     
     <!-- ── Header & Breadcomb ────────────────────────── -->
     <nav class="breadcrumb">
@@ -160,6 +176,10 @@
               <button class="btn-elite ghost fav" [class.active]="esFavorito()" (click)="toggleFavorito()">
                 <i class="fas fa-heart"></i>
                 <span>{{ esFavorito() ? 'Guardado' : 'Guardar' }}</span>
+              </button>
+              <button class="btn-elite ghost share" (click)="compartir()">
+                <i class="fas fa-share-alt"></i>
+                <span>Compartir</span>
               </button>
             </div>
           }
@@ -412,17 +432,29 @@
         <button class="sticky-btn secondary" (click)="irAlChat()">
           <i class="fas fa-comments"></i>
         </button>
+        <button class="sticky-btn share" (click)="compartir()">
+          <i class="fas fa-share-alt"></i>
+        </button>
       } @else if (soloRecogidaPersonal() && isLoggedIn() && !esVendedorPropietario()) {
         <button class="sticky-btn primary" (click)="irAlChat()">
           <span>Contactar</span>
+        </button>
+        <button class="sticky-btn share" (click)="compartir()">
+          <i class="fas fa-share-alt"></i>
         </button>
       } @else if (esIntercambio() && isLoggedIn() && !esVendedorPropietario()) {
         <button class="sticky-btn primary" (click)="irAlChat()">
           <span>Proponer Intercambio</span>
         </button>
+        <button class="sticky-btn share" (click)="compartir()">
+          <i class="fas fa-share-alt"></i>
+        </button>
       } @else if (esDonacion() && isLoggedIn() && !esVendedorPropietario()) {
         <button class="sticky-btn primary" (click)="irAlChat()">
           <span>Solicitar</span>
+        </button>
+        <button class="sticky-btn share" (click)="compartir()">
+          <i class="fas fa-share-alt"></i>
         </button>
       } @else if (!isLoggedIn()) {
         <button class="sticky-btn primary" (click)="comprarAhora()">
@@ -431,10 +463,16 @@
         <button class="sticky-btn secondary" (click)="irAlChat()">
           <i class="fas fa-comments"></i>
         </button>
+        <button class="sticky-btn share" (click)="compartir()">
+          <i class="fas fa-share-alt"></i>
+        </button>
       } @else if (esVendedorPropietario()) {
         <a [routerLink]="['/publicar/editar', producto()!.id]" class="sticky-btn primary">
           <span>Editar</span>
         </a>
+        <button class="sticky-btn share" (click)="compartir()">
+          <i class="fas fa-share-alt"></i>
+        </button>
       }
       <button class="sticky-btn fav" [class.active]="esFavorito()" (click)="toggleFavorito()">
         <i class="fas fa-heart"></i>

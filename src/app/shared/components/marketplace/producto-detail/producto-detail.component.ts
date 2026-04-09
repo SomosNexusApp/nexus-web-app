@@ -161,6 +161,30 @@ export class ProductoDetailComponent implements OnInit, OnDestroy {
     this.routeSub?.unsubscribe();
   }
 
+  goBack(): void {
+    if (window.history.length > 1) {
+      window.history.back();
+    } else {
+      this.router.navigate(['/']);
+    }
+  }
+
+  compartir(): void {
+    const p = this.producto();
+    if (!p) return;
+    if (navigator.share) {
+      navigator.share({
+        title: p.titulo,
+        text: `Mira este producto en Nexus: ${p.titulo}`,
+        url: window.location.href,
+      }).catch(() => {});
+    } else {
+      // Fallback: copiar al portapapeles
+      navigator.clipboard.writeText(window.location.href);
+      this.toast.info('Enlace copiado al portapapeles');
+    }
+  }
+
   // ── Carga de datos ────────────────────────────────────────────────────
   cargarProducto(id: number): void {
     this.cargando.set(true);
