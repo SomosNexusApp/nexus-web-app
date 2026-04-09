@@ -2083,19 +2083,28 @@ h3,
     box-sizing: border-box;
   }
 
+  .nx-mobile-header-info {
+    min-width: 0;
+    flex: 1;
+  }
+
   .nx-mobile-title {
     margin: 0;
-    font-size: 1.75rem;
+    font-size: 1.5rem; /* Reducido ligeramente para dar espacio */
     font-weight: 700;
     color: var(--nx-text-primary);
     letter-spacing: -0.01em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 100%;
   }
 
   .nx-mobile-results-badge {
     display: block;
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     color: var(--nx-text-secondary);
-    margin-top: 4px;
+    margin-top: 2px;
     font-weight: 500;
     opacity: 0.7;
   }
@@ -2129,13 +2138,14 @@ h3,
     display: none;
   }
 
-  .nx-results-main {
+  .nx-main-results-area {
     width: 100%;
     margin: 0;
-    padding: 0;
+    padding: 1.5rem 0; /* Padding vertical, sin padding horizontal (usa el del wrapper) */
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
+    overflow-y: visible; /* El scroll lo gestiona el wrapper en móvil o es global */
   }
 
   /* Transformar Sidebar en un Bottom Sheet de Cristal */
@@ -2212,6 +2222,7 @@ h3,
   .nx-sort-select-container {
     flex: 1;
     max-width: none;
+    min-width: auto; /* IMPORTANTE: Permitir que se encoja en pantallas pequeñas */
   }
 
   .nx-sort-trigger {
