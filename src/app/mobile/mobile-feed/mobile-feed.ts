@@ -1,3 +1,4 @@
+declare var L: any;
 import { Component, OnInit, inject, signal, effect, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -46,8 +47,18 @@ export class MobileFeedComponent implements OnInit, OnDestroy {
   filterForm!: FormGroup;
   isFiltersOpen = signal(false);
   categoriasDisponibles = signal<Categoria[]>([]);
-  marcasDisponibles = signal<string[]>([]);
+  marcasDisponibles = signal<any[]>([]);
   modelosDisponibles = signal<string[]>([]);
+  
+  // Ubicación / Mapa
+  mostrandoMapaModal = signal(false);
+  obteniendoUbicacion = signal(false);
+  sugerenciasUbicacion = signal<any[]>([]);
+  mostrandoSugerenciasUbi = signal(false);
+  private map: any;
+  private marker: any;
+  private radiusCircle: any;
+
   private destroy$ = new Subject<void>();
 
   constructor() {
@@ -74,6 +85,25 @@ export class MobileFeedComponent implements OnInit, OnDestroy {
         this.cargarModelos(marca);
       });
 
+    // Autocomplete de ubicación
+    this.filterForm.get('ubicacion')?.valueChanges
+      .pipe(
+        debounceTime(400),
+        distinctUntilChanged(),
+        takeUntil(this.destroy$)
+      )
+      .subscribe(q => {
+        if (q && q.length > 2 && !this.obteniendoUbicacion()) {
+          this.searchService.buscarUbicacionExterna(q).subscribe(s => {
+            this.sugerenciasUbicacion.set(s);
+            this.mostrandoSugerenciasUbi.set(s.length > 0);
+          });
+        } else {
+          this.sugerenciasUbicacion.set([]);
+          this.mostrandoSugerenciasUbi.set(false);
+        }
+      });
+
     // Escuchar cambios en el formulario para recargar automáticamente al aplicar filtros
     this.filterForm.valueChanges
       .pipe(
@@ -88,6 +118,9 @@ export class MobileFeedComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
     this.destroy$.next();
     this.destroy$.complete();
+    if (this.map) {
+      this.map.remove();
+    }
   }
 
   private initForm() {
@@ -104,7 +137,19 @@ export class MobileFeedComponent implements OnInit, OnDestroy {
       kmMax: [''],
       combustible: [''],
       cambio: [''],
-      orden: ['relevancia']
+      orden: ['relevancia'],
+      ubicacion: [''],
+      lat: [null],
+      lng: [null],
+      radius: [150],
+      diasPublicacion: [''],
+      potenciaMin: [''],
+      cilindradaMin: [''],
+      color: [''],
+      numeroPuertas: [''],
+      plazas: [''],
+      garantia: [false],
+      itv: [false]
     });
   }
 
@@ -132,6 +177,128 @@ export class MobileFeedComponent implements OnInit, OnDestroy {
 
   toggleFilters() {
     this.isFiltersOpen.update(v => !v);
+  }
+
+  // --- LÓGICA DE MAPA Y UBICACIÓN ---
+  
+  toggleMapa() {
+    this.mostrandoMapaModal.update(v => !v);
+    if (this.mostrandoMapaModal()) {
+      setTimeout(() => this.initMapa(), 100);
+    }
+  }
+
+  private initMapa() {
+    if (typeof L === 'undefined') return;
+
+    if (this.map) {
+      this.map.remove();
+      this.map = null;
+    }
+
+    const initialLat = this.filterForm.get('lat')?.value || 40.4168;
+    const initialLng = this.filterForm.get('lng')?.value || -3.7038;
+
+    this.map = L.map('m-filter-map', { 
+      attributionControl: false,
+      zoomControl: false 
+    }).setView([initialLat, initialLng], 13);
+
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+      maxZoom: 19
+    }).addTo(this.map);
+
+    this.marker = L.marker([initialLat, initialLng], { 
+      draggable: true,
+      icon: L.divIcon({
+        className: 'nx-custom-marker',
+        html: '<div class="nx-marker-dot"></div><div class="nx-marker-pulse"></div>',
+        iconSize: [20, 20],
+        iconAnchor: [10, 10]
+      })
+    }).addTo(this.map);
+
+    this.marker.on('dragend', () => this.updateRadiusCircle());
+    this.map.on('click', (e: any) => {
+      this.marker.setLatLng(e.latlng);
+      this.updateRadiusCircle();
+    });
+
+    this.updateRadiusCircle();
+  }
+
+  updateRadiusCircle() {
+    if (!this.map || !this.marker) return;
+    const pos = this.marker.getLatLng();
+    const radiusKm = this.filterForm.get('radius')?.value || 50;
+
+    if (this.radiusCircle) {
+      this.radiusCircle.setLatLng(pos);
+      this.radiusCircle.setRadius(radiusKm * 1000);
+    } else {
+      this.radiusCircle = L.circle(pos, {
+        radius: radiusKm * 1000,
+        color: '#6366f1',
+        fillColor: '#6366f1',
+        fillOpacity: 0.1,
+        weight: 1
+      }).addTo(this.map);
+    }
+    this.map.fitBounds(this.radiusCircle.getBounds(), { padding: [20, 20] });
+  }
+
+  confirmarUbicacionMapa() {
+    if (!this.marker) return;
+    const pos = this.marker.getLatLng();
+    this.filterForm.patchValue({
+      lat: pos.lat,
+      lng: pos.lng
+    });
+    this.reverseGeocode(pos.lat, pos.lng);
+    this.mostrandoMapaModal.set(false);
+  }
+
+  seleccionarUbicacion(u: string, coords?: {lat: number, lng: number}) {
+    this.filterForm.patchValue({ ubicacion: u });
+    this.mostrandoSugerenciasUbi.set(false);
+
+    if (coords && this.map && this.marker) {
+      this.filterForm.patchValue({ lat: coords.lat, lng: coords.lng }, { emitEvent: false });
+      this.marker.setLatLng([coords.lat, coords.lng]);
+      this.map.setView([coords.lat, coords.lng], 13);
+      this.updateRadiusCircle();
+    }
+  }
+
+  usarUbicacionActual() {
+    if (!navigator.geolocation) return;
+    this.obteniendoUbicacion.set(true);
+    
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const { latitude, longitude } = pos.coords;
+        this.filterForm.patchValue({ lat: latitude, lng: longitude }, { emitEvent: false });
+        if (this.map && this.marker) {
+          this.marker.setLatLng([latitude, longitude]);
+          this.map.setView([latitude, longitude], 13);
+          this.updateRadiusCircle();
+        }
+        this.reverseGeocode(latitude, longitude);
+      },
+      () => this.obteniendoUbicacion.set(false)
+    );
+  }
+
+  private reverseGeocode(lat: number, lng: number) {
+    this.http.get<any>(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`)
+      .subscribe({
+        next: (res) => {
+          const ciudad = res?.address?.city || res?.address?.town || res?.address?.village || `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
+          this.filterForm.patchValue({ ubicacion: ciudad });
+          this.obteniendoUbicacion.set(false);
+        },
+        error: () => this.obteniendoUbicacion.set(false)
+      });
   }
 
   fetchItems() {
@@ -187,7 +354,15 @@ export class MobileFeedComponent implements OnInit, OnDestroy {
       kmMax: '',
       combustible: '',
       cambio: '',
-      orden: 'relevancia'
+      orden: 'relevancia',
+      diasPublicacion: '',
+      potenciaMin: '',
+      cilindradaMin: '',
+      color: '',
+      numeroPuertas: '',
+      plazas: '',
+      garantia: false,
+      itv: false
     });
   }
 

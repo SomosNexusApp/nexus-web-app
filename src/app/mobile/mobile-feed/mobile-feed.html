@@ -40,6 +40,15 @@
     </button>
   </div>
 
+  <!-- BOTÓN DE FILTROS AVANZADOS -->
+  <div class="m-feed-actions">
+    <button class="m-feed-filter-trigger" (click)="toggleFilters()">
+      <i class="fas fa-sliders-h"></i>
+      <span>Filtros avanzados</span>
+      <span class="m-filter-dot" *ngIf="filterForm.dirty"></span>
+    </button>
+  </div>
+
   <!-- SUB-FILTROS DINÁMICOS (SOLO PARA OFERTAS) -->
   @if (selectedTab() === 'ofertas') {
     <div class="m-feed-subtabs">
@@ -59,6 +68,251 @@
        </button>
     </div>
   }
+
+  <!-- OVERLAY DE FILTROS AVANZADOS -->
+  <div class="m-filters-overlay" [class.open]="isFiltersOpen()" (click)="$event.stopPropagation()">
+    <div class="m-filters-modal">
+      <div class="m-filters-header">
+        <h3>Filtros específicos</h3>
+        <button class="m-close-filters" (click)="toggleFilters()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+
+      <div class="m-filters-body" [formGroup]="filterForm">
+        
+        <!-- Ubicación (Nuevo) -->
+        <div class="m-filter-group">
+          <label>Ubicación</label>
+          <div class="m-ubi-input-row">
+            <div class="m-ubi-relative">
+              <input 
+                type="text" 
+                formControlName="ubicacion" 
+                placeholder="Ciudad, CP..." 
+                class="m-feed-input with-left-icon"
+                (focus)="mostrandoSugerenciasUbi.set(sugerenciasUbicacion().length > 0)"
+              >
+              <i class="fas fa-location-dot m-input-icon"></i>
+              
+              <!-- Sugerencias Autocomplete -->
+              <div class="m-ubi-suggestions" *ngIf="mostrandoSugerenciasUbi() && sugerenciasUbicacion().length > 0">
+                @for (sug of sugerenciasUbicacion(); track $index) {
+                  <div class="m-sug-item" (click)="seleccionarUbicacion(sug.display_name, {lat: sug.lat, lng: sug.lng})">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <span>{{ sug.display_name }}</span>
+                  </div>
+                }
+              </div>
+            </div>
+            <button class="m-btn-map-trigger" (click)="toggleMapa()" [class.active]="filterForm.get('lat')?.value">
+              <i class="fas fa-map"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Ordenar por -->
+        <div class="m-filter-group">
+          <label>Ordenar por</label>
+          <select formControlName="orden" class="m-feed-select">
+            <option value="relevancia">Mejor coincidencia</option>
+            <option value="novedades">Novedades primero</option>
+            <option value="precio_asc">Precio: de menor a mayor</option>
+            <option value="precio_desc">Precio: de mayor a menor</option>
+          </select>
+        </div>
+
+        <!-- Categoría (Solo si no es motor) -->
+        <div class="m-filter-group" *ngIf="selectedTab() !== 'vehiculos'">
+          <label>Categoría</label>
+          <select formControlName="categoria" class="m-feed-select">
+            <option value="">Todas las categorías</option>
+            @for (cat of categoriasDisponibles(); track cat.id) {
+              <option [value]="cat.slug">{{ cat.nombre }}</option>
+            }
+          </select>
+        </div>
+
+        <!-- Rango de Precio -->
+        <div class="m-filter-group">
+          <label>Rango de precio (€)</label>
+          <div class="m-range-inputs compact">
+            <div class="m-range-field">
+              <span>Mín</span>
+              <input type="number" formControlName="precioMin">
+            </div>
+            <div class="m-range-field">
+              <span>Máx</span>
+              <input type="number" formControlName="precioMax">
+            </div>
+          </div>
+        </div>
+
+        <!-- Fecha de Publicación -->
+        <div class="m-filter-group">
+          <label>Fecha de publicación</label>
+          <select formControlName="diasPublicacion" class="m-feed-select">
+            <option value="">Cualquier fecha</option>
+            <option value="1">Últimas 24 horas</option>
+            <option value="7">Últimos 7 días</option>
+            <option value="30">Último mes</option>
+          </select>
+        </div>
+
+        <!-- Condición -->
+        <div class="m-filter-group" *ngIf="selectedTab() === 'todos' || selectedTab() === 'ofertas' || selectedTab() === 'nuevo' || selectedTab() === 'segunda_mano'">
+          <label>Condición</label>
+          <select formControlName="condicion" class="m-feed-select">
+            <option value="">Cualquier estado</option>
+            <option value="NUEVO">Nuevo / A estrenar</option>
+            <option value="COMO_NUEVO">Como nuevo</option>
+            <option value="MUY_BUEN_ESTADO">Muy buen estado</option>
+            <option value="BUEN_ESTADO">Aceptable / Usado</option>
+          </select>
+        </div>
+
+        <!-- FILTROS DE VEHÍCULOS (MOTOR) -->
+        <ng-container *ngIf="selectedTab() === 'vehiculos'">
+          <div class="m-filters-divider">Especificaciones de Motor</div>
+          
+          <div class="m-filter-group">
+            <label>Marca</label>
+            <select formControlName="marca" class="m-feed-select">
+              <option value="">Todas las marcas</option>
+              @for (marca of marcasDisponibles(); track $index) {
+                <option [value]="marca.name">{{ marca.name }}</option>
+              }
+            </select>
+          </div>
+
+          <div class="m-filter-group">
+            <label>Modelo</label>
+            <select formControlName="modelo" class="m-feed-select" [disabled]="!filterForm.get('marca')?.value">
+              <option value="">Todos los modelos</option>
+              @for (modelo of modelosDisponibles(); track $index) {
+                <option [value]="modelo">{{ modelo }}</option>
+              }
+            </select>
+          </div>
+
+          <div class="m-filter-double">
+            <div class="m-filter-group">
+              <label>Año (Desde)</label>
+              <input type="number" formControlName="anioMin" placeholder="Ej: 2018" class="m-feed-input">
+            </div>
+            <div class="m-filter-group">
+              <label>Año (Hasta)</label>
+              <input type="number" formControlName="anioMax" placeholder="Ej: 2024" class="m-feed-input">
+            </div>
+          </div>
+
+          <div class="m-filter-double">
+            <div class="m-filter-group">
+              <label>Kilometraje Máx.</label>
+              <input type="number" formControlName="kmMax" placeholder="Ej: 150000" class="m-feed-input">
+            </div>
+            <div class="m-filter-group">
+              <label>Color</label>
+              <input type="text" formControlName="color" placeholder="Blanco, Negro..." class="m-feed-input">
+            </div>
+          </div>
+
+          <div class="m-filter-double">
+            <div class="m-filter-group">
+              <label>Potencia Mín (CV)</label>
+              <input type="number" formControlName="potenciaMin" placeholder="120" class="m-feed-input">
+            </div>
+            <div class="m-filter-group">
+              <label>Cilindrada (cc)</label>
+              <input type="number" formControlName="cilindradaMin" placeholder="1900" class="m-feed-input">
+            </div>
+          </div>
+
+          <div class="m-filter-double">
+            <div class="m-filter-group">
+              <label>Puertas</label>
+              <input type="number" formControlName="numeroPuertas" placeholder="5" class="m-feed-input">
+            </div>
+            <div class="m-filter-group">
+              <label>Plazas</label>
+              <input type="number" formControlName="plazas" placeholder="5" class="m-feed-input">
+            </div>
+          </div>
+
+          <div class="m-filter-double">
+            <div class="m-filter-group">
+              <label>Combustible</label>
+              <select formControlName="combustible" class="m-feed-select">
+                <option value="">Todos</option>
+                <option value="GASOLINA">Gasolina</option>
+                <option value="DIESEL">Diésel</option>
+                <option value="ELECTRICO">Eléctrico</option>
+                <option value="HIBRIDO">Híbrido</option>
+              </select>
+            </div>
+            <div class="m-filter-group">
+              <label>Cambio</label>
+              <select formControlName="cambio" class="m-feed-select">
+                <option value="">Todos</option>
+                <option value="MANUAL">Manual</option>
+                <option value="AUTOMATICO">Automático</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="m-filter-grid-checks">
+            <label class="m-checkbox-label">
+              <input type="checkbox" formControlName="garantia">
+              <span>Garantía</span>
+            </label>
+            <label class="m-checkbox-label">
+              <input type="checkbox" formControlName="itv">
+              <span>ITV Vigor</span>
+            </label>
+          </div>
+        </ng-container>
+
+        <!-- Envío -->
+        <div class="m-filter-group checkbox-group" *ngIf="selectedTab() !== 'vehiculos'">
+          <label class="m-checkbox-label">
+            <input type="checkbox" formControlName="conEnvio">
+            <span>Solo artículos con envío</span>
+          </label>
+        </div>
+
+      </div>
+
+      <div class="m-filters-footer">
+        <button class="m-btn-reset" (click)="limpiarFiltros()">Restablecer</button>
+        <button class="m-btn-apply" (click)="toggleFilters()">Ver resultados</button>
+      </div>
+    </div>
+
+    <!-- MODAL DE MAPA (DENTRO DEL OVERLAY PARA CONTEXTO) -->
+    <div class="m-map-overlay" *ngIf="mostrandoMapaModal()">
+      <div class="m-map-header">
+        <button class="m-btn-back-map" (click)="toggleMapa()">
+          <i class="fas fa-arrow-left"></i>
+        </button>
+        <h3>Seleccionar Ubicación</h3>
+        <button class="m-btn-locate-me" (click)="usarUbicacionActual()" [class.loading]="obteniendoUbicacion()">
+          <i class="fas fa-crosshairs"></i>
+        </button>
+      </div>
+
+      <div id="m-filter-map" class="m-filter-map-view"></div>
+
+      <div class="m-map-footer" [formGroup]="filterForm">
+        <div class="m-radius-control">
+          <span>Radio: {{ filterForm.get('radius')?.value }}km</span>
+          <input type="range" formControlName="radius" min="5" max="500" step="5" (input)="updateRadiusCircle()">
+        </div>
+        <button class="m-btn-confirm-map" (click)="confirmarUbicacionMapa()">
+          Confirmar Ubicación
+        </button>
+      </div>
+    </div>
+  </div>
 
   <!-- REJILLA DE RESULTADOS -->
   <div class="m-feed-results">
