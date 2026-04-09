@@ -11,10 +11,9 @@ import { NotificationService, NotificacionInAppDto } from '../../core/services/n
     <div class="notif-page-nexus custom-scrollbar">
       <div class="container-elite">
         
-        <!-- Header format app para móvil -->
-        <header class="mobile-app-header">
-          <button (click)="goBack()" class="btn-back"><i class="fas fa-chevron-left"></i></button>
-          <h1 class="app-title">Notificaciones</h1>
+        <!-- Header format app para móvil (Simplificado) -->
+        <header class="mobile-app-header no-title">
+          <div style="flex: 1;"></div>
           <button 
             *ngIf="unreadCount() > 0"
             (click)="markAllAsRead()" 
@@ -23,7 +22,6 @@ import { NotificationService, NotificacionInAppDto } from '../../core/services/n
           >
             <i class="fas fa-check-double"></i>
           </button>
-          <div *ngIf="unreadCount() === 0" style="width: 40px;"></div> <!-- Espaciador para centrar el título -->
         </header>
 
         <!-- Header original para Desktop (se oculta en móvil vía CSS) -->
@@ -155,10 +153,16 @@ import { NotificationService, NotificacionInAppDto } from '../../core/services/n
       z-index: 100;
       background: rgba(10, 10, 15, 0.8);
       backdrop-filter: blur(20px);
-      padding: 16px;
+      padding: 12px 16px;
       align-items: center;
-      justify-content: space-between;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      justify-content: flex-end;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+    }
+
+    .mobile-app-header.no-title {
+      padding: 0 16px;
+      min-height: auto;
+      border: none;
     }
 
     .app-title {
@@ -596,7 +600,7 @@ import { NotificationService, NotificacionInAppDto } from '../../core/services/n
 
     @media (max-width: 768px) {
       .notif-page-nexus {
-        padding: 24px 16px;
+        padding: 0;
       }
 
       .page-header {
