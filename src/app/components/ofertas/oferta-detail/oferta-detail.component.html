@@ -1,4 +1,18 @@
 <div class="oferta-canvas elite-theme" *ngIf="!cargando() && oferta()">
+  <div class="mobile-detail-nav">
+    <button class="m-nav-btn back" (click)="back()" aria-label="Volver">
+      <i class="fas fa-arrow-left"></i>
+    </button>
+    <div class="m-nav-spacer"></div>
+    <div class="m-nav-right">
+      <button class="m-nav-btn fav" (click)="toggleFavorito()" [class.active]="esFavorito()">
+        <i class="fas fa-heart"></i>
+      </button>
+      <button class="m-nav-btn share" (click)="compartir('wa')" aria-label="Compartir">
+        <i class="fas fa-share-alt"></i>
+      </button>
+    </div>
+  </div>
   <!-- 1. CINEMATIC OVERLAYS (Elite Engine) -->
   <div class="cinematic-bg">
     <div
@@ -83,8 +97,8 @@
         </div>
       </div>
 
-      <!-- ENHANCED ACTION DOCK (Sharing Suite) -->
-      <div class="action-dock animate-fade-up">
+      <!-- ENHANCED ACTION DOCK (Sharing Suite) - HIDDEN ON MOBILE (moved to sticky) -->
+      <div class="action-dock animate-fade-up desktop-only">
         <a [href]="oferta().urlOferta" target="_blank" class="btn-elite primary">
           <span class="btn-glitch"></span>
           <i class="fas fa-external-link-alt"></i> IR A LA OFERTA
@@ -112,33 +126,35 @@
       </div>
     </div>
 
-    <!-- MAIN IMAGE EXHIBITION -->
+    <!-- MAIN IMAGE EXHIBITION (IMPROVED FOR MOBILE) -->
     <div class="exhibition-panel animate-slide-right">
       <div
         class="glass-frame main-image"
         (mousemove)="handleImageMouseMove($event); isHoveringImg.set(true)"
         (mouseleave)="resetImageTilt()"
         [style.transform]="
-          isHoveringImg()
+          isMobileUI() ? 'none' : (isHoveringImg()
             ? 'perspective(1500px) rotateX(' +
               tiltX() +
               'deg) rotateY(' +
               tiltY() +
               'deg) scale(1.05)'
-            : 'perspective(1500px) rotateX(0) rotateY(0) scale(1)'
+            : 'perspective(1500px) rotateX(0) rotateY(0) scale(1)')
         "
       >
         <div class="shimmer-effect"></div>
-        <div class="pedestal-light"></div>
-        <img
-          [src]="
-            selectedImage() ||
-            'https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=1000&auto=format&fit=crop'
-          "
-          class="exhibition-img"
-          alt="Product View"
-          (click)="openLightbox()"
-        />
+        <div class="pedestal-light desktop-only"></div>
+        <div class="exhibition-img-container">
+          <img
+            [src]="
+              selectedImage() ||
+              'https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=1000&auto=format&fit=crop'
+            "
+            class="exhibition-img"
+            alt="Product View"
+            (click)="openLightbox()"
+          />
+        </div>
 
         <!-- Nav Arrows for Gallery (CENTERED DOCK) -->
         <div class="gallery-nav-dock" *ngIf="galeria().length > 1">
@@ -453,6 +469,39 @@
     <div class="lightbox-content" (click)="$event.stopPropagation()">
       <img [src]="activeLightboxImg()" class="lightbox-img animate-zoom-in" />
     </div>
+  </div>
+
+  <!-- STICKY BOTTOM BAR FOR MOBILE -->
+  <div class="mobile-sticky-action-bar">
+    <div class="sticky-vote-wrap">
+      <button
+        class="sticky-v-btn s-spark"
+        [class.active]="oferta().miVoto === 'SPARK'"
+        (click)="votar(true)"
+      >
+        <i class="fas fa-fire"></i>
+      </button>
+
+      <span
+        class="sticky-v-count"
+        [style.color]="oferta().sparkScore > 50 ? 'var(--nexus-spark)' : 'var(--nexus-drip)'"
+      >
+        {{ oferta().sparkScore }}º
+      </span>
+
+      <button
+        class="sticky-v-btn s-drip"
+        [class.active]="oferta().miVoto === 'DRIP'"
+        (click)="votar(false)"
+      >
+        <i class="fas fa-snowflake"></i>
+      </button>
+    </div>
+
+    <a [href]="oferta().urlOferta" target="_blank" class="sticky-main-btn">
+      <span>IR</span>
+      <i class="fas fa-external-link-alt"></i>
+    </a>
   </div>
 </div>
 

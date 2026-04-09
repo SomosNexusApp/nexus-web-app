@@ -65,7 +65,9 @@ export class AppComponent implements OnInit {
   constructor() {
     // Escuchar el tamaño de la ventana para alternar entre componentes mobile/desktop
     window.addEventListener('resize', () => {
-      this.isMobileUI.set(window.innerWidth <= 768);
+      const isMobile = window.innerWidth <= 768;
+      this.isMobileUI.set(isMobile);
+      this.uiService.isMobileUI.set(isMobile);
     });
     // Conectar o desconectar WebSocket dinámicamente según estado auth
     effect(() => {

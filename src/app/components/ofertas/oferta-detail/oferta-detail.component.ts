@@ -10,6 +10,10 @@ import { FormsModule } from '@angular/forms';
 import { ReporteModalComponent } from '../../../shared/components/reporte-modal/reporte-modal.component';
 import { ToastService } from '../../../core/services/toast.service';
 import { ConfirmacionModalComponent } from '../../../shared/components/confirmacion-modal/confirmacion-modal.component';
+import { UiService } from '../../../core/services/ui.service';
+import { Location } from '@angular/common';
+import { FavoritoService } from '../../../core/services/favorito.service';
+import { GuestPopupService } from '../../../core/services/guest-popup.service';
 
 export interface PollOption { text: string; votes: number; }
 export interface PollData { question: string; options: PollOption[]; totalVotes: number; votedUsers: number[]; }
@@ -37,6 +41,12 @@ export class OfertaDetailComponent implements OnInit, OnDestroy {
   private http = inject(HttpClient);
   authStore = inject(AuthStore);
   private toast = inject(ToastService);
+  private uiService = inject(UiService);
+  private location = inject(Location);
+  private favoritoService = inject(FavoritoService);
+  private guestPopup = inject(GuestPopupService);
+
+  public isMobileUI = this.uiService.isMobileUI;
 
   @ViewChild(ReporteModalComponent) reporteModal!: ReporteModalComponent;
   @ViewChild(ConfirmacionModalComponent) confirmModal!: ConfirmacionModalComponent;
@@ -54,6 +64,7 @@ export class OfertaDetailComponent implements OnInit, OnDestroy {
   selectedImage = signal<string | null>(null);
   selectedImageIdx = signal<number>(0);
   galeria = signal<string[]>([]);
+  esFavorito = signal(false);
   
   // High-End Tilt Control
   tiltX = signal(0);
@@ -79,6 +90,7 @@ export class OfertaDetailComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     window.scrollTo(0, 0);
+    this.uiService.isDetailView.set(true);
     this.route.params.subscribe(params => {
       const id = params['id'];
       if (id) this.cargarOferta(id);
@@ -86,7 +98,12 @@ export class OfertaDetailComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
+    this.uiService.isDetailView.set(false);
     if (this.timer) clearInterval(this.timer);
+  }
+
+  back() {
+    this.location.back();
   }
 
   private cargarOferta(id: string) {
@@ -111,6 +128,7 @@ export class OfertaDetailComponent implements OnInit, OnDestroy {
         this.extraerFavicon(res.urlOferta);
         this.cargarComentarios(id);
         if (res.fechaExpiracion) this.startTimer();
+        this.verificarFavorito(res.id);
 
         // Real Reputation Mapping
         const actor = res.actor;
@@ -445,6 +463,34 @@ export class OfertaDetailComponent implements OnInit, OnDestroy {
     }
     if (plataforma === 'wa') window.open(`https://wa.me/?text=${encodeURIComponent(text + ' ' + url)}`, '_blank');
     if (plataforma === 'tg') window.open(`https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`, '_blank');
+  }
+
+  verificarFavorito(ofertaId: number): void {
+    if (!this.authStore.isLoggedIn()) return;
+    this.favoritoService.getFavoritosIds().subscribe({
+      next: (ids: string[]) => this.esFavorito.set(ids.includes(`oferta_${ofertaId}`)),
+    });
+  }
+
+  toggleFavorito(): void {
+    if (!this.authStore.isLoggedIn()) {
+      this.guestPopup.showPopup('Para guardar tus chollos favoritos');
+      return;
+    }
+
+    const ofertaId = this.oferta().id;
+    const esFavActual = this.esFavorito();
+    this.esFavorito.set(!esFavActual);
+
+    if (!esFavActual) {
+      this.favoritoService.addFavorito(ofertaId, 'oferta').subscribe({
+        error: () => this.esFavorito.set(esFavActual),
+      });
+    } else {
+      this.favoritoService.removeFavorito(ofertaId, 'oferta').subscribe({
+        error: () => this.esFavorito.set(esFavActual),
+      });
+    }
   }
 
   get discountPercent(): number {
