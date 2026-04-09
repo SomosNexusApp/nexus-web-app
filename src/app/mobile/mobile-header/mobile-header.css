@@ -32,6 +32,7 @@
     align-items: center;
     margin-top: 8px;
     overflow: visible;
+    min-height: 52px;
   }
 
   .brand-link {
@@ -42,12 +43,12 @@
   }
 
   .brand-logo {
-    height: 32px;
+    height: 42px;
     width: auto;
     object-fit: contain;
     display: block;
-    transform: translateY(4px);
-    filter: drop-shadow(0 0 8px rgba(168, 85, 247, 0.2));
+    transform: translateY(-4px);
+    filter: drop-shadow(0 0 10px rgba(168, 85, 247, 0.25));
   }
 
   .actions {
