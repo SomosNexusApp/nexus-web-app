@@ -66,6 +66,9 @@ export class ChatPanelComponent implements OnChanges, AfterViewChecked, OnDestro
   mostrarOfertaModal = signal(false);
   precioOferta = signal<number | null>(null);
   puedeNegociar = signal(true);
+  mensajeSeleccionadoId = signal<number | null>(null);
+  private pressTimer: any;
+  private isLongPress = false;
   private autoScrollActivado = true;
   private wsSub: Subscription | null = null;
   private leidosSub: Subscription | null = null;
@@ -187,7 +190,7 @@ export class ChatPanelComponent implements OnChanges, AfterViewChecked, OnDestro
     this.wsService.marcarComoLeido(roomId, currUser.id);
 
     // Cargar historial
-    this.chatService.getConversacion(roomId, currUser.id, otroId).subscribe({
+    this.chatService.getConversacion(roomId, currUser.id, otroId, currUser.id).subscribe({
       next: (msgs) => {
         // Ordenar por fecha por si acaso el backend devuelve desordenado
         this.mensajes.set(msgs.sort((a, b) => new Date(a.fechaEnvio).getTime() - new Date(b.fechaEnvio).getTime()));
@@ -481,6 +484,56 @@ export class ChatPanelComponent implements OnChanges, AfterViewChecked, OnDestro
           : `D_${Math.min(currUser.id, otroId)}_${Math.max(currUser.id, otroId)}`);
       this.wsService.notificarEscribiendo(productoId, currUser.id, roomId);
     }
+  }
+
+  startPress(event: Event, mensajeId: number) {
+    this.isLongPress = false;
+    this.pressTimer = setTimeout(() => {
+      this.isLongPress = true;
+      this.toggleMensajeMenu(event, mensajeId);
+      if (window.navigator && window.navigator.vibrate) {
+        window.navigator.vibrate(50); // Feedback háptico
+      }
+    }, 600);
+  }
+
+  endPress(event: Event, msg?: any) {
+    if (this.pressTimer) {
+      clearTimeout(this.pressTimer);
+    }
+    // Si fue un click corto y es una imagen, podemos manejar la apertura
+    if (!this.isLongPress && msg?.tipo === 'IMAGEN') {
+      // Opcional: manejar click normal en imagen
+    }
+  }
+
+  toggleMensajeMenu(event: Event, mensajeId: number) {
+    if (event) event.stopPropagation();
+    if (this.mensajeSeleccionadoId() === mensajeId) {
+      this.mensajeSeleccionadoId.set(null);
+    } else {
+      this.mensajeSeleccionadoId.set(mensajeId);
+    }
+  }
+
+  cerrarMenuMensaje() {
+    this.mensajeSeleccionadoId.set(null);
+  }
+
+  eliminarMensajeParaMi(mensajeId: number) {
+    const currUser = this.authStore.user();
+    if (!currUser) return;
+
+    this.chatService.eliminarMensajeParaMi(mensajeId, currUser.id).subscribe({
+      next: () => {
+        this.mensajes.update(msgs => msgs.filter(m => m.id !== mensajeId));
+        this.toast.success('Mensaje eliminado para ti');
+        this.mensajeSeleccionadoId.set(null);
+      },
+      error: (err) => {
+        this.toast.error('Error al eliminar mensaje: ' + (err.error?.error || err.message));
+      }
+    });
   }
 
   ngOnDestroy() {

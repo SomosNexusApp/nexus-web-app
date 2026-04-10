@@ -29,9 +29,10 @@ export class ChatService {
     roomId: string,
     usuario1Id: number,
     usuario2Id: number,
+    requesterId: number
   ): Observable<ChatMensaje[]> {
     return this.http.get<ChatMensaje[]>(
-      `${this.apiUrl}/chat/conversacion/${roomId}?usuario1Id=${usuario1Id}&usuario2Id=${usuario2Id}`,
+      `${this.apiUrl}/chat/conversacion/${roomId}?usuario1Id=${usuario1Id}&usuario2Id=${usuario2Id}&requesterId=${requesterId}`,
     );
   }
 
@@ -100,6 +101,10 @@ export class ChatService {
 
   getOfertaAceptada(productoId: number, compradorId: number): Observable<any> {
     return this.http.get(`${this.apiUrl}/chat/propuesta/aceptada?productoId=${productoId}&compradorId=${compradorId}`);
+  }
+
+  eliminarMensajeParaMi(mensajeId: number, usuarioId: number): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/chat/mensaje/${mensajeId}/eliminar?usuarioId=${usuarioId}`);
   }
 
   // Compatibilidad legacy

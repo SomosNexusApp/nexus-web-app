@@ -86,9 +86,36 @@
             mine: msg.tipo !== 'SISTEMA' && msg.remitente.id === authStore.user()?.id,
             theirs: msg.tipo !== 'SISTEMA' && msg.remitente.id !== authStore.user()?.id,
             system: msg.tipo === 'SISTEMA',
+            'is-selected': mensajeSeleccionadoId() === msg.id
           }"
         >
-          <div class="bubble" [ngClass]="msg.tipo.toLowerCase()">
+          <!-- Overlay de Selección (Global) -->
+          @if (mensajeSeleccionadoId() === msg.id) {
+            <div class="message-selection-overlay" (click)="cerrarMenuMensaje()">
+              <div class="message-actions-menu animate-pop" (click)="$event.stopPropagation()">
+                <div class="menu-header">ACCIONES</div>
+                <button class="action-btn delete" (click)="eliminarMensajeParaMi(msg.id)">
+                  <i class="fas fa-trash-alt"></i>
+                  <span>Eliminar para mí</span>
+                </button>
+                <button class="action-btn cancel" (click)="cerrarMenuMensaje()">
+                  <i class="fas fa-times"></i>
+                  <span>Cancelar</span>
+                </button>
+              </div>
+            </div>
+          }
+
+          <div 
+            class="bubble" 
+            [ngClass]="msg.tipo.toLowerCase()"
+            (mousedown)="startPress($event, msg.id)"
+            (touchstart)="startPress($event, msg.id)"
+            (mouseup)="endPress($event, msg)"
+            (touchend)="endPress($event, msg)"
+            (contextmenu)="$event.preventDefault()"
+          >
+
             <!-- TEXTO -->
             @if (msg.tipo === 'TEXTO' || msg.tipo === 'SISTEMA') {
               <p class="text-content">{{ msg.texto }}</p>
@@ -117,31 +144,30 @@
 
             <!-- AUDIO SPECTACULAR -->
             @if (msg.tipo === 'AUDIO' && msg.mediaUrl) {
-              <div class="audio-elite-player" (click)="$event.stopPropagation()">
-                <div class="player-left">
+                <div class="audio-elite-player" (click)="$event.stopPropagation()">
                   <button class="elite-play-btn" (click)="toggleAudio(audioEl)">
                     <i class="fas" [ngClass]="audioEl.paused ? 'fa-play' : 'fa-pause'"></i>
                     <div class="btn-glow"></div>
                   </button>
+                  
+                  <div class="player-center">
+                    <div class="waveform-visual">
+                      <div class="wave-bar" *ngFor="let i of [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]" [class.active]="audioEl.currentTime > 0"></div>
+                    </div>
+                    <div class="premium-progress-container" (click)="seek(audioEl, $event)">
+                      <div class="premium-progress-bg">
+                        <div class="premium-progress-fill" [style.width.%]="(audioEl.currentTime / (audioEl.duration || 1)) * 100"></div>
+                      </div>
+                    </div>
+                    <div class="premium-time-info">
+                      <span>{{ formatTime(audioEl.currentTime) }}</span>
+                      <span>{{ formatTime(audioEl.duration) }}</span>
+                    </div>
+                  </div>
+
                   <button class="speed-toggle" (click)="changeSpeed(audioEl)">
                     {{ audioEl.playbackRate }}x
                   </button>
-                </div>
-                
-                <div class="player-center">
-                  <div class="waveform-visual">
-                    <div class="wave-bar" *ngFor="let i of [1,2,3,4,5,6,7,8,9,10]" [class.active]="audioEl.currentTime > 0"></div>
-                  </div>
-                  <div class="premium-progress-container" (click)="seek(audioEl, $event)">
-                    <div class="premium-progress-bg">
-                      <div class="premium-progress-fill" [style.width.%]="(audioEl.currentTime / (audioEl.duration || 1)) * 100"></div>
-                    </div>
-                  </div>
-                  <div class="premium-time-info">
-                    <span>{{ formatTime(audioEl.currentTime) }}</span>
-                    <span>{{ formatTime(audioEl.duration) }}</span>
-                  </div>
-                </div>
 
                 <audio #audioEl [src]="msg.mediaUrl" (timeupdate)="0" (ended)="audioEl.pause()" (play)="0" (pause)="0" (ratechange)="0"></audio>
               </div>
