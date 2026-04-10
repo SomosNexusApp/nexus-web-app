@@ -468,7 +468,11 @@ export class PublishOfertaComponent implements OnInit {
   private procederConEnvio(): void {
     const formData = new FormData();
     const val = this.ofertaForm.getRawValue();
-    const ofertaData = { ...val, categoria: { id: this.selectedCategory()?.id } };
+    const ofertaData = { 
+      ...val, 
+      fechaExpiracion: val.fechaExpiracion ? val.fechaExpiracion : null,
+      categoria: { id: this.selectedCategory()?.id } 
+    };
     formData.append('oferta', new Blob([JSON.stringify(ofertaData)], { type: 'application/json' }));
     
     // Identificar imagen principal (ya sea un File nuevo o una URL existente)

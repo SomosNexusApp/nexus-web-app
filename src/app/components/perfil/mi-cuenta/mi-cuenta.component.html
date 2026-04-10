@@ -912,9 +912,17 @@
              }
              @if (selectedCosasType() === 'vehiculos') {
                @for (v of misVehiculos(); track v.id) {
-                 <div class="p-n-card" [routerLink]="['/vehiculos', v.id]">
+                 <div 
+                   class="p-n-card" 
+                   [class.is-long-pressing]="selectedItemForMenu()?.id === v.id && selectedItemType() === 'vehiculo'"
+                   (pointerdown)="onPressStart(v, 'vehiculo')"
+                   (pointerup)="onPressEnd()"
+                   (pointerleave)="onPressEnd()"
+                   (contextmenu)="$event.preventDefault()"
+                   (click)="!showActionSheet() ? router.navigate(['/vehiculos', v.id]) : null"
+                 >
                    <div class="p-n-card-img"><img [src]="v.imagenPrincipal"><div class="p-n-card-price">{{ v.precio | currencyEs }}</div></div>
-                   <div class="p-n-card-body"><h3 class="p-n-card-title">{{ v.marca }} {{ v.modelo }}</h3><div class="p-n-card-footer"><span class="p-n-badge">{{ v.estadoVehiculo }}</span></div></div>
+                   <div class="p-n-card-body"><h3 class="p-n-card-title">{{ v.marca }} {{ v.modelo }}</h3><div class="p-n-card-footer"><span class="p-n-badge" [style.background]="getEstadoColor(v.estadoVehiculo)">{{ v.estadoVehiculo }}</span></div></div>
                  </div>
                }
              }

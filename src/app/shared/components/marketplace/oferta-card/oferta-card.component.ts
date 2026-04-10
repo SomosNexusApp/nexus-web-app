@@ -124,6 +124,12 @@ export class OfertaCardComponent implements OnInit, OnDestroy, OnChanges {
     return diff > 0 && diff < 24 * 3600 * 1000;
   }
 
+  get isExpired(): boolean {
+    const fe = (this.oferta as any)?.fechaExpiracion;
+    if (!fe) return false;
+    return new Date(fe).getTime() < Date.now();
+  }
+
   ngOnInit(): void {
     if (this.oferta) {
       this.updateState();

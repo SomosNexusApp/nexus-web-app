@@ -500,6 +500,12 @@ export class OfertaDetailComponent implements OnInit, OnDestroy {
     return Math.round(((o.precioOriginal - o.precioOferta) / o.precioOriginal) * 100);
   }
 
+  get isExpired(): boolean {
+    const o = this.oferta();
+    if (!o || !o.fechaExpiracion) return false;
+    return new Date(o.fechaExpiracion).getTime() < Date.now();
+  }
+
   get sparkTempWidth(): number {
     const s = this.oferta()?.sparkScore || 0;
     return s <= 0 ? 0 : (s >= 100 ? 100 : s);

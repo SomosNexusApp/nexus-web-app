@@ -1143,3 +1143,24 @@
         padding-bottom: 8px;
     }
 }
+
+/* ── Expiradas ── */
+.img-expirada {
+  filter: grayscale(80%) opacity(0.85);
+}
+
+.expired-detail-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-weight: 800;
+  font-size: 2rem;
+  letter-spacing: 0.1em;
+  z-index: 10;
+  backdrop-filter: blur(2px);
+  pointer-events: none;
+}

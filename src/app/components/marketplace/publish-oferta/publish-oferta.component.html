@@ -83,6 +83,14 @@
             </div>
           </div>
           
+          <div class="input-group">
+            <label>Fecha de Expiración</label>
+            <div class="input-wrapper">
+              <input type="datetime-local" formControlName="fechaExpiracion">
+            </div>
+            <span class="error-msg" style="color: #666; display: block; margin-top: 5px;">Si la dejas vacía, la oferta no expira</span>
+          </div>
+          
           <div class="console-toggles">
             <div class="premium-toggle" [class.active]="ofertaForm.get('esGratis')?.value" (click)="ofertaForm.get('esGratis')?.setValue(!ofertaForm.get('esGratis')?.value)">
               <div class="toggle-icon">

@@ -4,6 +4,7 @@
   @if (!isMobileFeed) {
     <div
       class="nexus-card scale-in offer-theme"
+      [class.oferta-expirada]="isExpired"
       (click)="navigateToDetail()"
       role="article"
       [attr.aria-label]="oferta.titulo"
@@ -38,6 +39,11 @@
           <img [src]="oferta.imagenPrincipal || 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=1000&auto=format&fit=crop'" [alt]="oferta.titulo" class="object-cover" />
           @if (discountPercent > 0) { <span class="discount-badge">-{{ discountPercent }}%</span> }
           @if ($any(oferta).badge) { <span class="type-badge" [ngClass]="$any(oferta).badge.toLowerCase()">{{ badgeLabel }}</span> }
+          @if (isExpired) {
+            <div class="expired-overlay">
+              <i class="fa-regular fa-clock"></i> Ya ha expirado
+            </div>
+          }
         </div>
 
         <div class="card-body">
@@ -58,7 +64,7 @@
     </div>
   } @else {
     <!-- DISEÑO MÓVIL (HORIZONTAL) -->
-    <div class="nexus-card-mobile offer-theme" (click)="navigateToDetail()">
+    <div class="nexus-card-mobile offer-theme" [class.oferta-expirada]="isExpired" (click)="navigateToDetail()">
       
       <!-- Lado Izquierdo: Imagen e Info Voto -->
       <div class="card-mobile-left">
@@ -70,6 +76,9 @@
             <span>{{ sparkScore() }}º</span>
           </div>
           <img [src]="oferta.imagenPrincipal || 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=1000&auto=format&fit=crop'" class="mobile-thumb">
+          @if (isExpired) {
+            <div class="expired-overlay-mobile">Expirado</div>
+          }
         </div>
         
         <!-- Controles de Voto (Compactos y Temáticos) -->
