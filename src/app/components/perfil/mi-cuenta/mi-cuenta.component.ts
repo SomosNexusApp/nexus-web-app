@@ -61,7 +61,7 @@ export class MiCuentaComponent implements OnInit {
   authStore = inject(AuthStore);
   authService = inject(AuthService);
   private http = inject(HttpClient);
-  private router = inject(Router);
+  public router = inject(Router);
   private route = inject(ActivatedRoute);
   private toast = inject(ToastService);
   private favoritoService = inject(FavoritoService);
@@ -116,6 +116,12 @@ export class MiCuentaComponent implements OnInit {
     ubicacion: '',
     telefono: ''
   });
+
+  // Long-press Actions
+  selectedItemForMenu = signal<any | null>(null);
+  selectedItemType = signal<'producto' | 'oferta' | 'vehiculo' | null>(null);
+  showActionSheet = signal(false);
+  longPressTimer: any;
 
   constructor() {
     window.addEventListener('resize', () => {
@@ -852,5 +858,72 @@ export class MiCuentaComponent implements OnInit {
 
   irAChat(conv: any) {
     this.router.navigate(['/mensajes']);
+  }
+
+  // ── Long-press Handlers ─────────────────
+  onPressStart(item: any, type: 'producto' | 'oferta' | 'vehiculo') {
+    if (!this.isMobileUI()) return;
+    
+    // Prevent starting multiple timers
+    this.onPressEnd();
+    
+    this.longPressTimer = setTimeout(() => {
+      this.selectedItemForMenu.set(item);
+      this.selectedItemType.set(type);
+      this.showActionSheet.set(true);
+      
+      // Haptic feedback if available
+      if ('vibrate' in navigator) {
+        navigator.vibrate(50);
+      }
+    }, 600); // 600ms long press
+  }
+
+  onPressEnd() {
+    if (this.longPressTimer) {
+      clearTimeout(this.longPressTimer);
+      this.longPressTimer = null;
+    }
+  }
+
+  closeActionSheet() {
+    this.showActionSheet.set(false);
+    setTimeout(() => {
+      this.selectedItemForMenu.set(null);
+      this.selectedItemType.set(null);
+    }, 300);
+  }
+
+  executeMenuAction(action: string) {
+    const item = this.selectedItemForMenu();
+    const type = this.selectedItemType();
+    if (!item || !type) return;
+
+    this.closeActionSheet();
+
+    switch (action) {
+      case 'edit':
+        if (type === 'producto') this.editarProducto(item.id);
+        else if (type === 'oferta') this.router.navigate(['/publicar/oferta/editar', item.id]);
+        else if (type === 'vehiculo') this.editarVehiculo(item.id);
+        break;
+      
+      case 'VENDIDO':
+      case 'RESERVADO':
+      case 'PAUSADO':
+      case 'DISPONIBLE':
+      case 'ACTIVA':
+      case 'AGOTADA':
+        if (type === 'producto') this.confirmStatusChange(item.id, action);
+        else if (type === 'oferta') this.confirmOfferStatusChange(item.id, action);
+        else if (type === 'vehiculo') this.confirmVehicleStatusChange(item.id, action);
+        break;
+
+      case 'delete':
+        if (type === 'producto') this.eliminarProducto(item.id);
+        else if (type === 'oferta') this.eliminarOferta(item.id);
+        else if (type === 'vehiculo') this.eliminarVehiculo(item.id);
+        break;
+    }
   }
 }

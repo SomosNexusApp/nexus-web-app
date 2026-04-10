@@ -880,18 +880,34 @@
              <!-- Vistas Por Tipo aquí... (lo dejo abreviado por espacio pero manteniendo la lógica anterior) -->
              @if (selectedCosasType() === 'productos') {
                @for (p of misProductos(); track p.id) {
-                 <div class="p-n-card" [routerLink]="['/productos', p.id]">
-                   <div class="p-n-card-img"><img [src]="p | coverImage"><div class="p-n-card-price">{{ p.precio | currencyEs }}</div></div>
-                   <div class="p-n-card-body"><h3 class="p-n-card-title">{{ p.titulo }}</h3><div class="p-n-card-footer"><span class="p-n-badge">{{ p.estado }}</span></div></div>
-                 </div>
+                  <div 
+                    class="p-n-card" 
+                    [class.is-long-pressing]="selectedItemForMenu()?.id === p.id && selectedItemType() === 'producto'"
+                    (pointerdown)="onPressStart(p, 'producto')"
+                    (pointerup)="onPressEnd()"
+                    (pointerleave)="onPressEnd()"
+                    (contextmenu)="$event.preventDefault()"
+                    (click)="!showActionSheet() ? router.navigate(['/productos', p.id]) : null"
+                  >
+                    <div class="p-n-card-img"><img [src]="p | coverImage"><div class="p-n-card-price">{{ p.precio | currencyEs }}</div></div>
+                    <div class="p-n-card-body"><h3 class="p-n-card-title">{{ p.titulo }}</h3><div class="p-n-card-footer"><span class="p-n-badge" [style.background]="getEstadoColor(p.estado)">{{ p.estado }}</span></div></div>
+                  </div>
                }
              }
              @if (selectedCosasType() === 'ofertas') {
                @for (o of misOfertas(); track o.id) {
-                 <div class="p-n-card" [routerLink]="['/ofertas', o.id]">
-                   <div class="p-n-card-img"><img [src]="o | coverImage"><div class="p-n-card-price">{{ o.precioOferta | currencyEs }}</div></div>
-                   <div class="p-n-card-body"><h3 class="p-n-card-title">{{ o.titulo }}</h3><div class="p-n-card-footer"><span class="p-n-badge">{{ o.estado }}</span></div></div>
-                 </div>
+                  <div 
+                    class="p-n-card" 
+                    [class.is-long-pressing]="selectedItemForMenu()?.id === o.id && selectedItemType() === 'oferta'"
+                    (pointerdown)="onPressStart(o, 'oferta')"
+                    (pointerup)="onPressEnd()"
+                    (pointerleave)="onPressEnd()"
+                    (contextmenu)="$event.preventDefault()"
+                    (click)="!showActionSheet() ? router.navigate(['/ofertas', o.id]) : null"
+                  >
+                    <div class="p-n-card-img"><img [src]="o | coverImage"><div class="p-n-card-price">{{ o.precioOferta | currencyEs }}</div></div>
+                    <div class="p-n-card-body"><h3 class="p-n-card-title">{{ o.titulo }}</h3><div class="p-n-card-footer"><span class="p-n-badge" [style.background]="getEstadoColor(o.estado)">{{ o.estado }}</span></div></div>
+                  </div>
                }
              }
              @if (selectedCosasType() === 'vehiculos') {
@@ -1093,3 +1109,126 @@
   [icon]="modalStatusConfig().icon"
   (confirmed)="proceedStatusChange()"
 />
+
+<!-- ACTION SHEET MÓVIL (MENÚ CONTEXTUAL) -->
+<div class="action-sheet-overlay" [class.active]="showActionSheet()" (click)="closeActionSheet()">
+  <div class="action-sheet" [class.active]="showActionSheet()" (click)="$event.stopPropagation()">
+    <div class="as-handle"></div>
+    
+    <div class="as-header">
+      <div class="as-item-preview">
+        <img [src]="selectedItemForMenu() | coverImage" *ngIf="selectedItemType() !== 'vehiculo'">
+        <img [src]="selectedItemForMenu()?.imagenPrincipal" *ngIf="selectedItemType() === 'vehiculo'">
+        <div class="as-item-info">
+          <h4>{{ selectedItemForMenu()?.titulo || (selectedItemForMenu()?.marca + ' ' + selectedItemForMenu()?.modelo) }}</h4>
+          <span>{{ selectedItemForMenu()?.precio || selectedItemForMenu()?.precioOferta | currencyEs }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="as-options">
+      <!-- MODO PRODUCTO -->
+      @if (selectedItemType() === 'producto') {
+        <button class="as-option" (click)="executeMenuAction('edit')">
+          <i class="fas fa-edit"></i>
+          <span>Editar producto</span>
+        </button>
+
+        @if (selectedItemForMenu()?.estado !== 'VENDIDO') {
+          <button class="as-option" (click)="executeMenuAction('VENDIDO')">
+            <i class="fas fa-check-circle"></i>
+            <span>Marcar como vendido</span>
+          </button>
+        }
+
+        @if (selectedItemForMenu()?.estado === 'DISPONIBLE') {
+          <button class="as-option" (click)="executeMenuAction('RESERVADO')">
+            <i class="fas fa-bookmark"></i>
+            <span>Marcar como reservado</span>
+          </button>
+        }
+
+        @if (selectedItemForMenu()?.estado === 'PAUSADO') {
+          <button class="as-option success" (click)="executeMenuAction('DISPONIBLE')">
+            <i class="fas fa-play"></i>
+            <span>Reactivar anuncio</span>
+          </button>
+        } @else if (selectedItemForMenu()?.estado !== 'VENDIDO') {
+          <button class="as-option" (click)="executeMenuAction('PAUSADO')">
+            <i class="fas fa-eye-slash"></i>
+            <span>Pausar anuncio</span>
+          </button>
+        }
+      }
+
+      <!-- MODO VEHÍCULO -->
+      @if (selectedItemType() === 'vehiculo') {
+        <button class="as-option" (click)="executeMenuAction('edit')">
+          <i class="fas fa-car-side"></i>
+          <span>Editar vehículo</span>
+        </button>
+
+        @if (selectedItemForMenu()?.estadoVehiculo !== 'VENDIDO') {
+          <button class="as-option" (click)="executeMenuAction('VENDIDO')">
+            <i class="fas fa-check-circle"></i>
+            <span>Marcar como vendido</span>
+          </button>
+        }
+
+        @if (selectedItemForMenu()?.estadoVehiculo === 'DISPONIBLE') {
+          <button class="as-option" (click)="executeMenuAction('RESERVADO')">
+            <i class="fas fa-bookmark"></i>
+            <span>Marcar como reservado</span>
+          </button>
+        }
+
+        @if (selectedItemForMenu()?.estadoVehiculo === 'PAUSADO') {
+          <button class="as-option success" (click)="executeMenuAction('DISPONIBLE')">
+            <i class="fas fa-play"></i>
+            <span>Reactivar anuncio</span>
+          </button>
+        } @else if (selectedItemForMenu()?.estadoVehiculo !== 'VENDIDO') {
+          <button class="as-option" (click)="executeMenuAction('PAUSADO')">
+            <i class="fas fa-eye-slash"></i>
+            <span>Pausar anuncio</span>
+          </button>
+        }
+      }
+
+      <!-- MODO OFERTA (CHOLLO) -->
+      @if (selectedItemType() === 'oferta') {
+        <button class="as-option" (click)="executeMenuAction('edit')">
+          <i class="fas fa-edit"></i>
+          <span>Editar oferta</span>
+        </button>
+
+        @if (selectedItemForMenu()?.estado === 'ACTIVA') {
+          <button class="as-option danger" (click)="executeMenuAction('AGOTADA')">
+            <i class="fas fa-fire-extinguisher"></i>
+            <span>Marcar como agotada</span>
+          </button>
+          
+          <button class="as-option" (click)="executeMenuAction('PAUSADA')">
+            <i class="fas fa-pause-circle"></i>
+            <span>Pausar oferta</span>
+          </button>
+        }
+
+        @if (selectedItemForMenu()?.estado === 'PAUSADA') {
+          <button class="as-option success" (click)="executeMenuAction('ACTIVA')">
+            <i class="fas fa-bolt"></i>
+            <span>Reactivar oferta</span>
+          </button>
+        }
+      }
+
+      <!-- Eliminar (Siempre al final) -->
+      <button class="as-option danger" (click)="executeMenuAction('delete')">
+        <i class="fas fa-trash-alt"></i>
+        <span>Eliminar {{ selectedItemType() }}</span>
+      </button>
+    </div>
+
+    <button class="as-cancel" (click)="closeActionSheet()">Cancelar</button>
+  </div>
+</div>
