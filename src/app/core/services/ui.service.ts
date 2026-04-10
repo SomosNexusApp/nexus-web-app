@@ -1,4 +1,4 @@
-import { Injectable, signal, computed } from '@angular/core';
+import { Injectable, signal, computed, HostListener } from '@angular/core';
 
 @Injectable({
   providedIn: 'root'
@@ -9,6 +9,12 @@ export class UiService {
   readonly isAnyChatSelected = signal(false);
   readonly isDetailView = signal(false);
   readonly isMobileUI = signal(window.innerWidth <= 768);
+
+  constructor() {
+    window.addEventListener('resize', () => {
+      this.isMobileUI.set(window.innerWidth <= 768);
+    });
+  }
 
   toggleCategoriasPanel(): void {
     this.isCategoriasPanelOpen.update(v => !v);

@@ -28,6 +28,7 @@ import { Categoria } from '../../../models/categoria.model';
 
 import { CondicionProducto } from '../../../models/producto.model';
 import { ProductoCardComponent } from '../../../shared/components/marketplace/product-card/producto-card.component';
+import { UiService } from '../../../core/services/ui.service';
 
 export type PublishStep = 0 | 1 | 2 | 3 | 4;
 
@@ -49,6 +50,7 @@ export class PublishProductoComponent implements OnInit, AfterViewInit {
   private searchService = inject(SearchService);
   private toast = inject(ToastService);
   private route = inject(ActivatedRoute);
+  private uiService = inject(UiService);
 
   // ── ESTADO ────────────────────────────────────────────────────────
   currentStep = signal<PublishStep>(0);
@@ -253,8 +255,8 @@ export class PublishProductoComponent implements OnInit, AfterViewInit {
         priceControl?.enable();
       }
     });
-    // Si entramos por /publicar para PRODUCTO, saltamos el paso 0
-    if (!this.isEditMode()) {
+    // Si entramos por /publicar para PRODUCTO, saltamos el paso 0 SOLO en móvil
+    if (!this.isEditMode() && this.uiService.isMobileUI()) {
       this.currentStep.set(1);
     }
   }
