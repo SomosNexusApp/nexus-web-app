@@ -1140,114 +1140,138 @@
     padding-bottom: env(safe-area-inset-bottom, 0px);
   }
 }
-/* --- MESSAGE SELECTION UI --- */
+/* --- ULTRA-PREMIUM SELECTION UI --- */
 .message-selection-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.4);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  z-index: 1000;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  z-index: 99999;
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   justify-content: center;
-  animation: overlayFadeIn 0.3s ease;
+  animation: backdropEnter 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-@keyframes overlayFadeIn {
+@keyframes backdropEnter {
   from { opacity: 0; }
   to { opacity: 1; }
 }
 
 .message-actions-menu {
-  background: rgba(15, 15, 20, 0.98);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  border-radius: 28px;
-  padding: 12px;
-  min-width: 260px;
-  box-shadow: 0 40px 100px rgba(0, 0, 0, 0.6);
+  background: rgba(30, 30, 35, 0.7);
+  backdrop-filter: blur(40px);
+  -webkit-backdrop-filter: blur(40px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 40px 40px 0 0;
+  width: 100%;
+  max-width: 500px;
+  padding: 12px 16px env(safe-area-inset-bottom, 24px);
+  box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.5);
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  animation: sheetSlideUp 0.5s cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+@keyframes sheetSlideUp {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
 }
 
 .menu-header {
-  padding: 12px 16px;
-  font-size: 0.7rem;
-  font-weight: 800;
-  color: #64748b;
-  text-transform: uppercase;
-  letter-spacing: 0.15em;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.menu-header::before {
+  content: '';
+  width: 36px;
+  height: 5px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+  position: absolute;
+  top: 8px;
+}
+
+.menu-header span {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #94a3b8;
+  letter-spacing: 0.05em;
+  margin-top: 10px;
 }
 
 .action-btn {
+  height: 64px;
   width: 100%;
-  padding: 16px 20px;
   background: transparent;
   border: none;
-  border-radius: 18px;
   color: #fff;
   display: flex;
   align-items: center;
+  padding: 0 24px;
   gap: 16px;
-  cursor: pointer;
-  font-size: 0.95rem;
+  font-size: 1.05rem;
   font-weight: 600;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 20px;
+  transition: background 0.2s;
 }
 
-.action-btn:hover {
+.action-btn:active {
   background: rgba(255, 255, 255, 0.05);
 }
 
 .action-btn i {
-  font-size: 1.1rem;
-  width: 24px;
-  text-align: center;
+  font-size: 1.25rem;
+  width: 32px;
+  display: flex;
+  justify-content: center;
 }
 
 .action-btn.delete {
-  color: #f87171;
-}
-
-.action-btn.delete:hover {
-  background: rgba(248, 113, 113, 0.1);
+  color: #ff4d4d;
 }
 
 .action-btn.cancel {
-  margin-top: 4px;
-  color: #94a3b8;
-  border-top: 1px solid rgba(255, 255, 255, 0.05);
-  border-radius: 0 0 18px 18px;
+  margin-top: 8px;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.05);
+  color: #fff;
+}
+
+/* Row & Bubble highlight */
+.message-row.is-selected {
+  position: relative;
+  z-index: 100000;
 }
 
 .message-row.is-selected .bubble {
-  transform: scale(1.02);
-  z-index: 1001;
-  box-shadow: 0 0 0 2px #3b82f6, 0 10px 32px rgba(59, 130, 246, 0.3);
+  transform: scale(1.05);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  filter: brightness(1.1) contrast(1.1);
 }
 
-.animate-pop {
-  animation: modalPop 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-@keyframes modalPop {
-  from { opacity: 0; transform: scale(0.9) translateY(20px); }
-  to { opacity: 1; transform: scale(1) translateY(0); }
-}
-
-@media (max-width: 480px) {
+@media (min-width: 769px) {
+  .message-selection-overlay {
+    align-items: center;
+  }
+  
   .message-actions-menu {
-    width: calc(100% - 40px);
-    margin: 20px;
-    position: fixed;
-    bottom: 20px;
-    animation: slideUpAction 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    border-radius: 32px;
+    max-width: 320px;
+    padding: 16px;
+    animation: desktopPop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
   }
 
-  @keyframes slideUpAction {
-    from { transform: translateY(100%); }
-    to { transform: translateY(0); }
+  @keyframes desktopPop {
+    from { opacity: 0; transform: scale(0.8); }
+    to { opacity: 1; transform: scale(1); }
   }
 }
 

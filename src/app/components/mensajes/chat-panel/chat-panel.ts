@@ -66,7 +66,7 @@ export class ChatPanelComponent implements OnChanges, AfterViewChecked, OnDestro
   mostrarOfertaModal = signal(false);
   precioOferta = signal<number | null>(null);
   puedeNegociar = signal(true);
-  mensajeSeleccionadoId = signal<number | null>(null);
+  mensajeSeleccionado = signal<ChatMensaje | null>(null);
   private pressTimer: any;
   private isLongPress = false;
   private autoScrollActivado = true;
@@ -486,11 +486,11 @@ export class ChatPanelComponent implements OnChanges, AfterViewChecked, OnDestro
     }
   }
 
-  startPress(event: Event, mensajeId: number) {
+  startPress(event: Event, mensaje: ChatMensaje) {
     this.isLongPress = false;
     this.pressTimer = setTimeout(() => {
       this.isLongPress = true;
-      this.toggleMensajeMenu(event, mensajeId);
+      this.toggleMensajeMenu(event, mensaje);
       if (window.navigator && window.navigator.vibrate) {
         window.navigator.vibrate(50); // Feedback háptico
       }
@@ -507,17 +507,17 @@ export class ChatPanelComponent implements OnChanges, AfterViewChecked, OnDestro
     }
   }
 
-  toggleMensajeMenu(event: Event, mensajeId: number) {
+  toggleMensajeMenu(event: Event, mensaje: ChatMensaje) {
     if (event) event.stopPropagation();
-    if (this.mensajeSeleccionadoId() === mensajeId) {
-      this.mensajeSeleccionadoId.set(null);
+    if (this.mensajeSeleccionado()?.id === mensaje.id) {
+      this.mensajeSeleccionado.set(null);
     } else {
-      this.mensajeSeleccionadoId.set(mensajeId);
+      this.mensajeSeleccionado.set(mensaje);
     }
   }
 
   cerrarMenuMensaje() {
-    this.mensajeSeleccionadoId.set(null);
+    this.mensajeSeleccionado.set(null);
   }
 
   eliminarMensajeParaMi(mensajeId: number) {
@@ -528,7 +528,7 @@ export class ChatPanelComponent implements OnChanges, AfterViewChecked, OnDestro
       next: () => {
         this.mensajes.update(msgs => msgs.filter(m => m.id !== mensajeId));
         this.toast.success('Mensaje eliminado para ti');
-        this.mensajeSeleccionadoId.set(null);
+        this.mensajeSeleccionado.set(null);
       },
       error: (err) => {
         this.toast.error('Error al eliminar mensaje: ' + (err.error?.error || err.message));

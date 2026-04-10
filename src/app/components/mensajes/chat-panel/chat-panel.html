@@ -86,33 +86,17 @@
             mine: msg.tipo !== 'SISTEMA' && msg.remitente.id === authStore.user()?.id,
             theirs: msg.tipo !== 'SISTEMA' && msg.remitente.id !== authStore.user()?.id,
             system: msg.tipo === 'SISTEMA',
-            'is-selected': mensajeSeleccionadoId() === msg.id
+            'is-selected': mensajeSeleccionado()?.id === msg.id
           }"
         >
-          <!-- Overlay de Selección (Global) -->
-          @if (mensajeSeleccionadoId() === msg.id) {
-            <div class="message-selection-overlay" (click)="cerrarMenuMensaje()">
-              <div class="message-actions-menu animate-pop" (click)="$event.stopPropagation()">
-                <div class="menu-header">ACCIONES</div>
-                <button class="action-btn delete" (click)="eliminarMensajeParaMi(msg.id)">
-                  <i class="fas fa-trash-alt"></i>
-                  <span>Eliminar para mí</span>
-                </button>
-                <button class="action-btn cancel" (click)="cerrarMenuMensaje()">
-                  <i class="fas fa-times"></i>
-                  <span>Cancelar</span>
-                </button>
-              </div>
-            </div>
-          }
-
           <div 
             class="bubble" 
             [ngClass]="msg.tipo.toLowerCase()"
-            (mousedown)="startPress($event, msg.id)"
-            (touchstart)="startPress($event, msg.id)"
+            (mousedown)="startPress($event, msg)"
+            (touchstart)="startPress($event, msg)"
             (mouseup)="endPress($event, msg)"
             (touchend)="endPress($event, msg)"
+            (touchmove)="endPress($event)"
             (contextmenu)="$event.preventDefault()"
           >
 
@@ -239,6 +223,25 @@
       }
     </div>
   </div>
+
+  <!-- Overlay de Selección (Global y fuera del loop para mejor stacking) -->
+  @if (mensajeSeleccionado()) {
+    <div class="message-selection-overlay" (click)="cerrarMenuMensaje()">
+      <div class="message-actions-menu animate-pop" (click)="$event.stopPropagation()">
+        <div class="menu-header">
+          <span>Opciones de mensaje</span>
+        </div>
+        <button class="action-btn delete" (click)="eliminarMensajeParaMi(mensajeSeleccionado()!.id)">
+          <i class="fas fa-trash-alt"></i>
+          <span>Eliminar para mí</span>
+        </button>
+        <button class="action-btn cancel" (click)="cerrarMenuMensaje()">
+          <i class="fas fa-times"></i>
+          <span>Cerrar</span>
+        </button>
+      </div>
+    </div>
+  }
 
   <!-- Input Area (Será el siguiente componente) -->
   <footer class="chat-footer">
