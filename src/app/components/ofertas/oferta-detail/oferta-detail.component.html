@@ -54,8 +54,9 @@
 
         <div class="store-pill">
           <img
+            *ngIf="!logoError()"
             [src]="favicon()"
-            (error)="$any($event.target).src = 'assets/icons/store-fallback.svg'"
+            (error)="logoError.set(true)"
           />
           <span>{{ oferta().tienda }}</span>
         </div>
@@ -138,11 +139,11 @@
               tiltX() +
               'deg) rotateY(' +
               tiltY() +
-              'deg) scale(1.05)'
+              'deg) scale(1)'
             : 'perspective(1500px) rotateX(0) rotateY(0) scale(1)')
         "
       >
-        <div class="shimmer-effect"></div>
+
         <div class="pedestal-light desktop-only"></div>
         <div class="exhibition-img-container">
           <img

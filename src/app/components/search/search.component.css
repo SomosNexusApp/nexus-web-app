@@ -62,12 +62,13 @@
 
 @media (min-width: 1025px) {
   :host {
-    height: 100vh;
+    height: calc(100vh - 130px);
     overflow: hidden;
     position: fixed;
-    top: 0;
+    top: 130px;
     left: 0;
     width: 100%;
+    margin-top: 0; /* Corrección: quita el margen global de 80px en desktop */
   }
 }
 
@@ -96,11 +97,11 @@ h3,
 /* Scroll Separado para Desktop */
 @media (min-width: 1025px) {
   .nx-search-wrapper {
-    height: calc(100vh - 130px);
+    height: 100%;
     overflow: hidden;
-    padding-bottom: 2rem;
-    padding-top: 2rem; /* Aumentado para que no se corte arriba */
-    align-items: stretch; /* Asegura que los hijos llenen la altura si es necesario */
+    padding-top: 2rem; /* Equilibrado */
+    padding-bottom: 15rem; /* Equilibrado */
+    align-items: stretch;
   }
 }
 
@@ -135,10 +136,12 @@ h3,
 
 @media (min-width: 1025px) {
   .nx-sidebar-glass {
-    height: 100%;
+    height: fit-content;
+    max-height: calc(100vh - 170px); /* Ajuste para evitar que se corte */
     position: sticky;
     top: 0;
-    max-height: none;
+    margin-top: auto;
+    margin-bottom: auto;
     flex-shrink: 0;
   }
 }
@@ -182,7 +185,7 @@ h3,
 }
 
 .nx-sidebar-scroll-container {
-  padding: 1.5rem;
+  padding: 1.25rem 1.25rem 0.5rem 1.25rem;
   flex-grow: 1;
   overflow-y: auto;
   scrollbar-gutter: stable;
@@ -356,10 +359,12 @@ h3,
 .nx-dark-input[type='number']::-webkit-inner-spin-button,
 .nx-dark-input[type='number']::-webkit-outer-spin-button {
   -webkit-appearance: none;
+  appearance: none;
   margin: 0;
 }
 .nx-dark-input[type='number'] {
   -moz-appearance: textfield;
+  appearance: textfield;
 }
 
 .nx-dark-input::placeholder {
@@ -1286,10 +1291,10 @@ h3,
   gap: 2rem;
   height: 100%;
   overflow-y: auto;
-  padding-top: 1.5rem; /* Margen para la primera fila */
+  padding-top: 0; /* Eliminado para pegar el contenido arriba */
   padding-left: 1.5rem; /* Evita que el resplandor lateral se corte por el scroll contenedor */
   padding-right: 1.5rem; /* Espacio para scroll invisible */
-  padding-bottom: 3rem; /* Margen al final */
+  padding-bottom: 1.5rem; /* Margen al final */
   scrollbar-width: none; /* Firefox */
   -ms-overflow-style: none; /* IE/Edge */
 }
@@ -2056,7 +2061,7 @@ h3,
 @media (max-width: 1024px) {
   .nx-search-wrapper {
     flex-direction: column;
-    padding: 0 16px; 
+    padding: 0 16px;
     gap: 0;
     margin: 0;
     width: 100%;
@@ -2072,7 +2077,7 @@ h3,
     display: flex;
     justify-content: space-between;
     align-items: flex-end;
-    background: #09090b; 
+    background: #09090b;
     padding: 16px 16px 12px 16px;
     position: sticky;
     top: 0;
@@ -2235,7 +2240,7 @@ h3,
   .nx-premium-grid {
     display: grid;
     grid-template-columns: 1fr;
-    gap: 16px; 
+    gap: 16px;
     padding: 0 0 120px 0;
     width: 100%;
     margin: 0;

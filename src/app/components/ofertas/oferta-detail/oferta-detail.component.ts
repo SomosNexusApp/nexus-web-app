@@ -85,6 +85,7 @@ export class OfertaDetailComponent implements OnInit, OnDestroy {
   // Real Actor Stats
   actorReputation = signal<number>(0);
   actorSales = signal<number>(0);
+  logoError = signal(false);
 
   private timer?: any;
 
