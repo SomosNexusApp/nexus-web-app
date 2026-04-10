@@ -112,11 +112,11 @@ export class PagosComponent implements OnInit, OnDestroy {
         base: {
           fontFamily: '"Inter", "Helvetica Neue", Helvetica, sans-serif',
           fontSize: '15px',
-          color: '#1a1a2e',
-          '::placeholder': { color: '#9ca3af' },
-          iconColor: '#6366f1',
+          color: '#ffffff',
+          '::placeholder': { color: '#94a3b8' },
+          iconColor: '#818cf8',
         },
-        invalid: { color: '#ef4444', iconColor: '#ef4444' },
+        invalid: { color: '#fb7185', iconColor: '#fb7185' },
       };
 
       this.cardEl = elements.create('card', { style, hidePostalCode: true });
