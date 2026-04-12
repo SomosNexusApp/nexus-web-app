@@ -14,21 +14,28 @@
     <div style="height: 540px; background: #040408"></div>
   }
 
-  <!-- 4. Productos recientes -->
+  <!-- 4. Mejores categorías -->
+  @defer (on viewport) {
+    <app-mejores-categorias />
+  } @placeholder (minimum 200ms) {
+    <div style="height: 480px; background: #05050d"></div>
+  }
+
+  <!-- 5. Productos recientes ("Lo último en Nexus") -->
   @defer (on viewport) {
     <app-productos-recientes />
   } @placeholder (minimum 200ms) {
     <div style="height: 640px; background: #06060a"></div>
   }
 
-  <!-- 5. CTA Registro -->
+  <!-- 6. CTA Registro -->
   @defer (on viewport) {
     <app-cta-registro />
   } @placeholder (minimum 100ms) {
     <div style="height: 420px; background: #070710"></div>
   }
 
-  <!-- 6. Ofertas por categoría -->
+  <!-- 7. Ofertas por categoría -->
   @defer (on viewport) {
     <app-ofertas-categoria />
   } @placeholder (minimum 200ms) {

@@ -1,23 +1,16 @@
 <section class="ofcat-wrap">
   <div class="section-inner">
-    <!-- Header -->
+    
+    <!-- 1. Header Premium -->
     <header class="sec-head">
-      <div>
-        <span class="eyebrow">Solo por tiempo limitado</span>
+      <div class="title-group">
         <h2>Top Chollos Flash ⚡</h2>
       </div>
 
       @if (activeSlug()) {
-        <button class="btn-ghost" (click)="goToCategory(activeSlug())">
-          Ver todo
-          <svg
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          >
+        <button class="btn-all" (click)="goToCategory(activeSlug())">
+          Ver todo el catálogo
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
             <line x1="5" y1="12" x2="19" y2="12" />
             <polyline points="12 5 19 12 12 19" />
           </svg>
@@ -25,80 +18,83 @@
       }
     </header>
 
-    <!-- Tabs -->
-    <div class="tabs-row">
-      @if (loadingCats()) {
-        @for (s of skeletonTabs; track $index) {
-          <div class="tab-btn sk-tab"></div>
+    <!-- 2. Tabs de Categorías (Diseño Píldora) -->
+    <nav class="tabs-container">
+      <div class="tabs-scroll">
+        @if (loadingCats()) {
+          @for (s of skeletonTabs; track $index) {
+            <div class="sk-tab"></div>
+          }
+        } @else if (errorCats()) {
+          <span class="error-text">No se pudieron cargar las categorías</span>
+        } @else {
+          @for (cat of categorias(); track cat.id) {
+            <button
+              class="tab-pill"
+              [class.active]="activeSlug() === cat.slug"
+              (click)="selectTab(cat.slug)"
+            >
+              {{ cat.nombre }}
+            </button>
+          }
         }
-      }
+      </div>
+    </nav>
 
-      @if (!loadingCats() && errorCats()) {
-        <span class="inline-msg">No se cargaron las categorías</span>
-      }
-
-      @if (!loadingCats() && !errorCats()) {
-        @for (cat of categorias(); track cat.id) {
-          <button
-            class="tab-btn"
-            [class.active]="activeSlug() === cat.slug"
-            (click)="selectTab(cat.slug)"
-          >
-            {{ cat.nombre }}
-          </button>
-        }
-      }
-    </div>
-
-    <!-- Cards -->
+    <!-- 3. Grid de Ofertas Dinámico -->
     <div class="offers-grid">
+      
+      <!-- Loading State -->
       @if (loadingItems()) {
         @for (s of skeletonCards; track $index) {
-          <app-oferta-card [isSkeleton]="true"></app-oferta-card>
+          <div class="card-anim-wrapper">
+            <app-oferta-card [isSkeleton]="true"></app-oferta-card>
+          </div>
         }
       }
 
+      <!-- Error State -->
       @if (!loadingItems() && errorItems()) {
-        <div class="state-block">
-          <svg
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="1.4"
-            stroke-linecap="round"
-          >
-            <circle cx="12" cy="12" r="10" />
-            <line x1="12" y1="8" x2="12" y2="12" />
-            <line x1="12" y1="16" x2="12.01" y2="16" />
-          </svg>
-          <p>Error al cargar las ofertas</p>
-        </div>
-      }
-
-      @if (!loadingItems() && !errorItems() && ofertas().length === 0) {
-        <div class="state-block fomo-empty-state">
-          <div class="fomo-icon-wrapper">
-            <svg
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="#ef4444"
-              stroke-width="1.5"
-              stroke-linecap="round"
-            >
-              <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
-            </svg>
+        <div class="state-container">
+          <div class="glass-empty-card">
+              <div class="empty-icon-wrap" style="background: rgba(255,165,0,0.1); color: orange;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+                    <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+                </svg>
+              </div>
+              <h3>Oops! Algo se perdió</h3>
+              <p>No pudimos conectar con el servidor para traer estas ofertas. Por favor, inténtalo de nuevo.</p>
+              <button class="btn-nexus-primary" (click)="selectTab(activeSlug())">Reintentar</button>
           </div>
-          <h3>¡Vendidos! Demasiado lento...</h3>
-          <p>La comunidad Elite ha arrasado con los chollos en esta categoría. Vuelve pronto para no perder la siguiente oleada de ofertas irresistibles.</p>
-          <button class="btn-ghost fomo-btn" (click)="selectTab('')">Rastrear otras categorías</button>
         </div>
       }
 
+      <!-- Empty State (FOMO optimized) -->
+      @if (!loadingItems() && !errorItems() && ofertas().length === 0) {
+        <div class="state-container">
+          <div class="glass-empty-card">
+            <div class="empty-icon-wrap">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+              </svg>
+            </div>
+            <h3>¡Sold Out! Han volado 💨</h3>
+            <p>La comunidad Nexus ha sido más rápida. Los chollos de esta categoría se han agotado, pero la próxima oleada está a punto de llegar.</p>
+            <button class="btn-nexus-glass" (click)="selectTab('')">Ver otras categorías</button>
+          </div>
+        </div>
+      }
+
+      <!-- Listado de Ofertas -->
       @if (!loadingItems() && !errorItems()) {
         @for (o of ofertas(); track o.id) {
-          <app-oferta-card [oferta]="$any(o)"></app-oferta-card>
+          <div class="card-anim-wrapper">
+            <app-oferta-card [oferta]="$any(o)"></app-oferta-card>
+          </div>
         }
       }
     </div>
+
   </div>
 </section>

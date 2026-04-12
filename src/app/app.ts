@@ -53,6 +53,7 @@ export class AppComponent implements OnInit {
   // Signals para controlar la visibilidad según la ruta
   isAdminRoute = signal(window.location.pathname.startsWith('/admin'));
   isMessagesRoute = signal(window.location.pathname.startsWith('/mensajes'));
+  isPublishRoute = signal(window.location.pathname.startsWith('/publicar'));
   isMobileUI = signal(window.innerWidth <= 768);
 
   // Signals para los popups post-registro
@@ -115,6 +116,9 @@ export class AppComponent implements OnInit {
         this.isAdminRoute.set(isAdmin);
         const isMessages = url.startsWith('/mensajes');
         this.isMessagesRoute.set(isMessages);
+
+        const isPublish = url.startsWith('/publicar');
+        this.isPublishRoute.set(isPublish);
 
         if (isAdmin) {
           this.guestPopup.hidePopup();

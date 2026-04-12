@@ -5,6 +5,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { environment } from '../../../../environments/enviroment';
 import { OfertaCardComponent } from '../../../shared/components/marketplace/oferta-card/oferta-card.component';
 import { AuthStore } from '../../../../app/core/auth/auth-store';
+import { MarketplaceItem } from '../../../../app/models/marketplace-item.model';
 
 export interface Categoria {
   id: number;
@@ -27,23 +28,24 @@ export class OfertasCategoriaComponent implements OnInit {
 
   categorias = signal<Categoria[]>([]);
   activeSlug = signal<string>('');
-  ofertas = signal<any[]>([]);
+  ofertas = signal<MarketplaceItem[]>([]);
 
   loadingCats = signal(true);
   loadingItems = signal(false);
   errorCats = signal(false);
   errorItems = signal(false);
 
-  private cache = new Map<string, any[]>();
+  private cache = new Map<string, MarketplaceItem[]>();
 
   readonly skeletonTabs = Array(6).fill(0);
-  readonly skeletonCards = Array(6).fill(0);
+  readonly skeletonCards = Array(3).fill(0); // Show 3 skeletons for a cleaner look
 
   ngOnInit() {
     this.http.get<any>(`${environment.apiUrl}/categorias/raiz`).subscribe({
       next: (res) => {
         const list = Array.isArray(res) ? res : (res?.content ?? res?.data ?? []);
-        const top = list.slice(0, 8);
+        // Filtramos solo categorías relevantes que suelen tener ofertas flash
+        const top = list.slice(0, 10);
         this.categorias.set(top);
         this.loadingCats.set(false);
         if (top.length > 0) this.selectTab(top[0].slug);
@@ -56,16 +58,19 @@ export class OfertasCategoriaComponent implements OnInit {
   }
 
   selectTab(slug: string) {
-    if (this.activeSlug() === slug) return;
+    if (this.activeSlug() === slug && this.ofertas().length > 0) return;
+    
     this.activeSlug.set(slug);
 
     if (this.cache.has(slug)) {
       this.ofertas.set(this.cache.get(slug)!);
+      this.errorItems.set(false);
       return;
     }
 
     this.loadingItems.set(true);
     this.errorItems.set(false);
+    this.ofertas.set([]); // Clear current offers to show skeletons
 
     let params = new HttpParams()
       .set('categoria', slug)
@@ -78,8 +83,9 @@ export class OfertasCategoriaComponent implements OnInit {
 
     this.http.get<any>(`${environment.apiUrl}/oferta/filtrar`, { params }).subscribe({
       next: (res) => {
-        const list = Array.isArray(res) ? res : (res?.content ?? res?.ofertas ?? res?.data ?? []);
-        const items = list.slice(0, 6);
+        // El backend de Nexus devuelve 'contenido' en lugar del estándar 'content' de Spring Data
+        const list = Array.isArray(res) ? res : (res?.contenido ?? res?.content ?? res?.ofertas ?? res?.data ?? []);
+        const items = (list as MarketplaceItem[]).slice(0, 6);
         this.cache.set(slug, items);
         this.ofertas.set(items);
         this.loadingItems.set(false);
@@ -96,3 +102,4 @@ export class OfertasCategoriaComponent implements OnInit {
     this.router.navigate(['/search'], { queryParams: { categoria: slug, tipo: 'OFERTA' } });
   }
 }
+

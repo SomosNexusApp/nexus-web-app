@@ -98,7 +98,8 @@ export class PublishProductoComponent implements OnInit, AfterViewInit {
       nonNullable: true,
     }),
     precioEnvio: this.fb.control<number>(0, { nonNullable: true }),
-    peso: this.fb.control<number | null>(null),
+    peso: this.fb.control<number>(2, { nonNullable: true }),
+    weight_range: this.fb.control<string>('0-2', { nonNullable: true }),
     ubicacion: this.fb.control<string>('', {
       validators: [Validators.required],
       nonNullable: true,
@@ -191,6 +192,11 @@ export class PublishProductoComponent implements OnInit, AfterViewInit {
     { id: 'minimal', name: 'Minimal', icon: 'align-left', content: 'Producto original. Poco uso. Entrega en mano o envío.' },
   ];
 
+  getTemplateIcon(id: string): string {
+    const map: Record<string, string> = { tech: 'cpu', casual: 'zap', minimal: 'align-left' };
+    return map[id] || 'edit-3';
+  }
+
   descriptionWordCount = computed(() => {
     const desc = this.step2Value()?.descripcion || '';
     return desc.trim() ? desc.trim().split(/\s+/).length : 0;
@@ -203,6 +209,23 @@ export class PublishProductoComponent implements OnInit, AfterViewInit {
   applyTemplate(content: string): void {
     const current = this.step2Form.get('descripcion')?.value || '';
     this.step2Form.patchValue({ descripcion: current + (current ? '\n\n' : '') + content });
+  }
+
+  // Helper para el editor Word-style
+  execEditorCommand(command: string, value: string = ''): void {
+    document.execCommand(command, false, value);
+    this.syncDescription();
+  }
+
+  syncDescription(): void {
+    const editor = document.querySelector('.pixel-editor-rich') as HTMLElement;
+    if (editor) {
+      this.step2Form.get('descripcion')?.setValue(editor.innerHTML, { emitEvent: true });
+    }
+  }
+
+  onEditorBlur(): void {
+    this.syncDescription();
   }
 
   constructor() {
@@ -228,6 +251,49 @@ export class PublishProductoComponent implements OnInit, AfterViewInit {
     }, delay);
   }
 
+  // ── UBICACIÓN REFINADA ─────────────────────────────────────────
+  private searchTimeout: any;
+
+  buscarUbi(event: any): void {
+    const query = event.target.value;
+    if (query.length < 3) {
+      this.sugerenciasUbi.set([]);
+      return;
+    }
+
+    if (this.searchTimeout) clearTimeout(this.searchTimeout);
+
+    this.searchTimeout = setTimeout(() => {
+      this.buscandoUbi.set(true);
+      this.http
+        .get<any[]>(`https://nominatim.openstreetmap.org/search?format=json&q=${query}&addressdetails=1&limit=5`)
+        .subscribe({
+          next: (res) => {
+            this.sugerenciasUbi.set(res);
+            this.buscandoUbi.set(false);
+          },
+          error: () => this.buscandoUbi.set(false),
+        });
+    }, 500);
+  }
+
+  selectUbi(sug: any): void {
+    this.step3Form.patchValue({
+      ubicacion: sug.display_name,
+      latitude: parseFloat(sug.lat),
+      longitude: parseFloat(sug.lon),
+    });
+    this.sugerenciasUbi.set([]);
+    this.locationConfirmed.set(true);
+  }
+
+  selectWeight(range: string, val: number): void {
+    this.step3Form.patchValue({
+      weight_range: range,
+      peso: val
+    });
+  }
+
   ngOnInit(): void {
     if (!this.authStore.isLoggedIn()) {
       this.guestPopupService.showPopup('Para publicar');
@@ -235,7 +301,6 @@ export class PublishProductoComponent implements OnInit, AfterViewInit {
       return;
     }
     this.cargarCategorias();
-    this.setupLocationSearch();
 
     // Check for edit mode
     this.route.params.subscribe((params) => {
@@ -318,26 +383,37 @@ export class PublishProductoComponent implements OnInit, AfterViewInit {
 
   @HostListener('mousemove', ['$event'])
   onMouseMove(event: MouseEvent) {
-    if (this.currentStep() !== 0) return;
+    const step = this.currentStep();
+    if (step === 0) {
+      const cards = document.querySelectorAll('.select-card');
+      cards.forEach((card) => {
+        const rect = (card as HTMLElement).getBoundingClientRect();
+        const x = event.clientX - rect.left;
+        const y = event.clientY - rect.top;
 
-    const cards = document.querySelectorAll('.select-card');
-    cards.forEach((card) => {
-      const rect = (card as HTMLElement).getBoundingClientRect();
-      const x = event.clientX - rect.left;
-      const y = event.clientY - rect.top;
+        // Cálculo para efecto 3D Tilt
+        const centerX = rect.width / 2;
+        const centerY = rect.height / 2;
+        const rotateX = ((y - centerY) / centerY) * -8;
+        const rotateY = ((x - centerX) / centerX) * 8;
 
-      // Cálculo para efecto 3D Tilt
-      const centerX = rect.width / 2;
-      const centerY = rect.height / 2;
-      const rotateX = ((y - centerY) / centerY) * -8; // Reducido para profesionalidad
-      const rotateY = ((x - centerX) / centerX) * 8;
-
-      const el = card as HTMLElement;
-      el.style.setProperty('--mouse-x', `${x}px`);
-      el.style.setProperty('--mouse-y', `${y}px`);
-      el.style.setProperty('--rotate-x', `${rotateX}deg`);
-      el.style.setProperty('--rotate-y', `${rotateY}deg`);
-    });
+        const el = card as HTMLElement;
+        el.style.setProperty('--mouse-x', `${x}px`);
+        el.style.setProperty('--mouse-y', `${y}px`);
+        el.style.setProperty('--rotate-x', `${rotateX}deg`);
+        el.style.setProperty('--rotate-y', `${rotateY}deg`);
+      });
+    } else if (step === 2) {
+      const wrappers = document.querySelectorAll('.premium-input-container, .premium-textarea-container');
+      wrappers.forEach((w) => {
+        const rect = (w as HTMLElement).getBoundingClientRect();
+        const x = event.clientX - rect.left;
+        const y = event.clientY - rect.top;
+        const el = w as HTMLElement;
+        el.style.setProperty('--mouse-x', `${x}px`);
+        el.style.setProperty('--mouse-y', `${y}px`);
+      });
+    }
   }
 
   @HostListener('mouseleave', ['$event'])
@@ -366,19 +442,6 @@ export class PublishProductoComponent implements OnInit, AfterViewInit {
     });
   }
 
-  private setupLocationSearch(): void {
-    this.step3Form
-      .get('ubicacion')
-      ?.valueChanges.pipe(
-        debounceTime(400),
-        distinctUntilChanged(),
-        switchMap((q) => {
-          this.locationConfirmed.set(false); // Reset on change
-          return q && q.length > 1 ? this.searchService.buscarUbicacionEstructurada(q) : of([]);
-        }),
-      )
-      .subscribe((res) => this.sugerenciasUbi.set(res));
-  }
 
   // ── NAVEGACIÓN ─────────────────────────────────────────────────────
   setStep0(type: string): void {
@@ -468,15 +531,10 @@ export class PublishProductoComponent implements OnInit, AfterViewInit {
       currentForm.markAllAsTouched();
       this.toast.warning('Revisa los campos obligatorios en rojo');
       this.scrollToFirstError();
-    } else if (s === 2 && this.images().length === 0) {
-      this.toast.warning('Sube al menos una foto de tu producto');
-      document
-        .querySelector('.upload-zone')
-        ?.scrollIntoView({ behavior: 'smooth', block: 'center' });
     } else if (s === 3 && !this.locationConfirmed()) {
       this.toast.warning('Confirma la ubicación seleccionándola de la lista');
       document
-        .querySelector('.input-group input')
+        .querySelector('.premium-location-input input')
         ?.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
   }
@@ -643,50 +701,6 @@ export class PublishProductoComponent implements OnInit, AfterViewInit {
   }
 
   // ── GEOLOCALIZACIÓN ────────────────────────────────────────────────
-  useLocation(): void {
-    if (!navigator.geolocation) return;
-    this.buscandoUbi.set(true);
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        // Use the search service's external location lookup via reverse geocode
-        this.http
-          .get<any>(
-            `https://nominatim.openstreetmap.org/reverse?lat=${pos.coords.latitude}&lon=${pos.coords.longitude}&format=json`,
-          )
-          .subscribe({
-            next: (res) => {
-              const ciudad =
-                res?.address?.city ||
-                res?.address?.town ||
-                res?.address?.village ||
-                res?.address?.municipality ||
-                '';
-              if (ciudad) {
-                this.step3Form.patchValue({ ubicacion: ciudad });
-                this.locationConfirmed.set(true);
-              }
-              this.buscandoUbi.set(false);
-            },
-            error: () => this.buscandoUbi.set(false),
-          });
-      },
-      () => this.buscandoUbi.set(false),
-    );
-  }
-
-  selectUbi(u: any): void {
-    const cityName = u.display || u;
-    this.step3Form.patchValue(
-      {
-        ubicacion: cityName,
-        latitude: u.lat ?? null,
-        longitude: u.lng ?? null,
-      },
-      { emitEvent: false },
-    );
-    this.locationConfirmed.set(true);
-    this.sugerenciasUbi.set([]);
-  }
 
   // ── PUBLICAR ───────────────────────────────────────────────────────
   async onSubmit(): Promise<void> {

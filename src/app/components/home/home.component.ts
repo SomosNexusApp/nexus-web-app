@@ -6,6 +6,7 @@ import { ChollosDiaComponent } from './chollos-dia/chollos-dia.component';
 import { ProductosRecientesComponent } from './productos-recientes/productos-recientes.component';
 import { CtaRegistroComponent } from './cta-registro/cta-registro.component';
 import { OfertasCategoriaComponent } from './ofertas-categoria/ofertas-categoria.component';
+import { MejoresCategoriasComponent } from './mejores-categorias/mejores-categorias.component';
 import { PatrociniosStripComponent } from './patrocinios-strip/patrocinios-strip.component';
 import { MobileFeedComponent } from '../../mobile/mobile-feed/mobile-feed';
 
@@ -20,6 +21,7 @@ import { MobileFeedComponent } from '../../mobile/mobile-feed/mobile-feed';
     ProductosRecientesComponent,
     CtaRegistroComponent,
     OfertasCategoriaComponent,
+    MejoresCategoriasComponent,
     PatrociniosStripComponent,
     MobileFeedComponent,
   ],

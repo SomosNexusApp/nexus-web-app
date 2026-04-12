@@ -319,10 +319,12 @@ export class MobileFeedComponent implements OnInit, OnDestroy {
         params.tipo = 'OFERTA';
         break;
       case 'nuevo':
+        params.tipo = 'TODOS';
         params.condicion = 'NUEVO';
         break;
       case 'segunda_mano':
-        params.condicion = 'BUEN_ESTADO';
+        params.tipo = 'TODOS';
+        params.condicion = 'USADO';
         break;
       case 'vehiculos':
         params.tipo = 'VEHICULO';

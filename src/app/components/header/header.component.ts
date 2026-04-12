@@ -11,7 +11,6 @@ import { GuestPopupService } from '../../core/services/guest-popup.service';
 import { SearchService } from '../../core/services/search.service';
 import { NotificationService, NotificacionInAppDto } from '../../core/services/notification.service';
 import { WebSocketService } from '../../core/services/websocket.service';
-import { CategoriaPanelComponent } from '../../shared/components/categoria-panel/categoria-panel.component';
 import { ConfirmModalComponent } from '../../shared/components/confirm-modal/confirm-modal.component';
 import { AvatarComponent } from '../../shared/components/avatar/avatar.component';
 import { MegaMenuComponent, MegaMenuConfig } from '../../shared/components/mega-menu/mega-menu.component';
@@ -32,7 +31,6 @@ interface NavLink {
     CommonModule,
     RouterModule,
     ReactiveFormsModule,
-    CategoriaPanelComponent,
     ConfirmModalComponent,
     AvatarComponent,
     MegaMenuComponent,

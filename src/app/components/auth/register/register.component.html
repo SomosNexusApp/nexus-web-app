@@ -208,6 +208,7 @@
       </div>
     }
 
+    <!-- Paso 2: Verificación de Email -->
     @if (step() === 2) {
       <div class="verify-step text-center fade-in">
         <div class="icon-circle mb-4 text-nexus-blue text-4xl">
@@ -237,7 +238,7 @@
             [disabled]="verifyForm.invalid || isLoading()"
           >
             @if (!isLoading()) {
-              Verificando...
+              <span>Verificar código</span>
             } @else {
               <i class="fas fa-spinner fa-spin"></i>
             }
@@ -246,6 +247,7 @@
       </div>
     }
 
+    <!-- Paso 3: Sugerencia de Seguridad -->
     @if (step() === 3) {
       <div class="suggestion-step text-center fade-in">
         <h3 class="text-xl font-bold mb-2">Aumenta tu seguridad</h3>
@@ -262,3 +264,4 @@
     }
   </div>
 </div>
+

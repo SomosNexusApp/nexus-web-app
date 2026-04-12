@@ -98,6 +98,7 @@ export class SearchService {
     if (params.lat) p = p.set('lat', String(params.lat));
     if (params.lng) p = p.set('lng', String(params.lng));
     if (params.radius) p = p.set('radius', String(params.radius));
+    if (params.condicion) p = p.set('condicion', params.condicion);
     if (params.orden) p = p.set('orden', params.orden);
     if (usuarioId) p = p.set('usuarioId', String(usuarioId));
 
@@ -123,6 +124,7 @@ export class SearchService {
     if (this.hasValue(params.precioMax)) p = p.set('precioMax', String(params.precioMax));
     if (params.ubicacion) p = p.set('ubicacion', params.ubicacion);
     if (params.conEnvio) p = p.set('conEnvio', 'true');
+    if (params.condicion) p = p.set('condicion', params.condicion);
     if (params.orden) p = p.set('orden', params.orden);
     if (params.lat) p = p.set('lat', String(params.lat));
     if (params.lng) p = p.set('lng', String(params.lng));

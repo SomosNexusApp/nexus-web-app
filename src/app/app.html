@@ -38,7 +38,7 @@
   <app-register-popup></app-register-popup>
 }
 <app-onboarding-stepper></app-onboarding-stepper>
-@if (!isAdminRoute() && (!isMobileUI() || (!uiService.isAnyChatSelected() && !uiService.isDetailView()))) {
+@if (!isAdminRoute() && !isPublishRoute() && (!isMobileUI() || (!uiService.isAnyChatSelected() && !uiService.isDetailView()))) {
   <app-mobile-bottom-nav></app-mobile-bottom-nav>
 }
 

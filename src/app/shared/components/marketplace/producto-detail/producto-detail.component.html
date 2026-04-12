@@ -281,7 +281,7 @@
         <div class="description-wrap" 
              [class.collapsible]="descLarga()" 
              [class.expanded]="descExpandida()">
-          <p class="desc-content">{{ producto()!.descripcion }}</p>
+          <div class="desc-content rich-view" [innerHTML]="producto()!.descripcion"></div>
         </div>
         @if (descLarga() && !descExpandida()) {
           <button class="reveal-btn" (click)="descExpandida.set(true)">
