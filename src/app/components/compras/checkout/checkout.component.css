@@ -1263,3 +1263,259 @@
   position: relative;
   z-index: 50;
 }
+
+/* ══════════════════════════════════════════════════════════
+   MOBILE — Responsive Checkout (≤ 768px)
+   ══════════════════════════════════════════════════════════ */
+@media (max-width: 768px) {
+
+  /* ── Top Bar ── */
+  .ck-topbar {
+    padding: 0.75rem 1rem;
+    position: sticky;
+    top: 0;
+  }
+
+  .ck-header-container {
+    gap: 0.5rem;
+  }
+
+  .ck-back-btn {
+    padding: 0.55rem 0.9rem;
+    font-size: 0.75rem;
+    border-radius: 12px;
+    gap: 0.4rem;
+  }
+
+  .ck-back-btn span {
+    display: none;
+  }
+
+  .ck-lock-visual {
+    width: 36px;
+    height: 36px;
+    font-size: 1.1rem;
+    border-radius: 10px;
+  }
+
+  .ck-brand-tag {
+    font-size: 0.55rem;
+    letter-spacing: 0.12em;
+  }
+
+  .ck-brand-main {
+    font-size: 1rem;
+  }
+
+  .ck-topbar-ssl {
+    font-size: 0.6rem;
+    padding: 0.3rem 0.6rem;
+    gap: 0.3rem;
+  }
+
+  /* ── Grid ── */
+  .ck-grid {
+    flex-direction: column;
+    padding: 1rem;
+    gap: 1.5rem;
+  }
+
+  .ck-summary {
+    order: -1;
+    position: static;
+    flex: none;
+    width: 100%;
+  }
+
+  .ck-main-content {
+    width: 100%;
+  }
+
+  /* ── Cards ── */
+  .ck-step-card {
+    border-radius: 20px;
+    padding: 1.25rem;
+  }
+
+  .ck-product-card,
+  .ck-breakdown,
+  .ck-protection {
+    border-radius: 20px;
+  }
+
+  /* ── Product summary ── */
+  .ck-product-img {
+    max-height: 200px;
+    object-fit: cover;
+  }
+
+  .ck-product-info {
+    padding: 1rem !important;
+  }
+
+  .ck-product-title {
+    font-size: 1rem !important;
+  }
+
+  /* ── Step header ── */
+  .ck-step-header {
+    padding: 0 0 1rem 0;
+    margin-bottom: 1rem;
+    gap: 0.75rem;
+  }
+
+  .ck-step-num {
+    width: 34px !important;
+    height: 34px !important;
+    font-size: 0.9rem !important;
+    flex-shrink: 0;
+  }
+
+  .ck-step-title {
+    font-size: 1rem !important;
+  }
+
+  .ck-stripe-badge {
+    font-size: 0.6rem;
+    padding: 0.25rem 0.6rem;
+    margin-left: 0;
+  }
+
+  /* ── Form ── */
+  .ck-form-row--split {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .ck-field input {
+    padding: 0.9rem 1rem;
+    font-size: 0.95rem;
+    border-radius: 14px;
+  }
+
+  .ck-field label {
+    font-size: 0.7rem;
+  }
+
+  /* ── Shipping Options ── */
+  .ck-shipping-options {
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .ck-shipping-opt {
+    padding: 1rem 0.75rem;
+    border-radius: 16px;
+    gap: 0.6rem;
+  }
+
+  .ck-shipping-icon {
+    width: 42px;
+    height: 42px;
+    font-size: 1.2rem;
+    border-radius: 14px;
+  }
+
+  .ck-shipping-label strong {
+    font-size: 0.85rem;
+  }
+
+  .ck-shipping-label span {
+    font-size: 0.7rem;
+  }
+
+  /* ── Carrier ── */
+  .ck-carrier-section {
+    padding: 1rem;
+    border-radius: 16px;
+    gap: 1rem;
+    margin-top: 1.25rem;
+  }
+
+  /* ── Breakdown ── */
+  .ck-breakdown {
+    padding: 1rem 1.25rem;
+  }
+
+  .ck-breakdown-row {
+    font-size: 0.9rem;
+  }
+
+  .ck-breakdown-row.ck-breakdown-total {
+    font-size: 1.1rem !important;
+  }
+
+  /* ── Stripe Element ── */
+  .ck-stripe-element {
+    padding: 0.9rem 1rem;
+    border-radius: 14px;
+  }
+
+  /* ── Pay Button ── */
+  .ck-btn--pay {
+    padding: 1.1rem 1rem;
+    font-size: 1rem;
+    border-radius: 16px;
+    margin-top: 1.5rem;
+  }
+
+  .ck-btn--pay:hover:not(:disabled) {
+    transform: none;
+  }
+
+  /* ── Saved cards layout ── */
+  .ck-shipping-opt[style*="flex-direction: row"] {
+    flex-direction: row !important;
+  }
+
+  /* ── Coupon ── */
+  .ck-coupon-input-wrap {
+    flex-direction: row;
+  }
+
+  .ck-coupon-input {
+    font-size: 0.85rem;
+  }
+
+  /* ── Protection ── */
+  .ck-protection-toggle {
+    padding: 1rem 1.25rem;
+    font-size: 0.85rem;
+  }
+
+  /* ── Error ── */
+  .ck-error-card {
+    padding: 2.5rem 1.5rem;
+    border-radius: 28px;
+  }
+
+  .ck-error-title {
+    font-size: 1.6rem;
+  }
+
+  .ck-error-text {
+    font-size: 1rem;
+  }
+
+  /* ── Punto recogida container ── */
+  .ck-punto-container {
+    padding: 1rem !important;
+    border-radius: 16px !important;
+  }
+
+  /* ── Terms note ── */
+  .ck-terms-note {
+    font-size: 0.72rem;
+  }
+
+  /* ── Sub title ── */
+  .ck-sub-title {
+    font-size: 0.8rem !important;
+  }
+
+  /* ── Seller info ── */
+  .ck-seller {
+    flex-wrap: wrap;
+  }
+}

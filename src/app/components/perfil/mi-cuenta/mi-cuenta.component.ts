@@ -107,6 +107,9 @@ export class MiCuentaComponent implements OnInit {
   selectedCosasType = signal<'productos' | 'ofertas' | 'vehiculos'>('productos');
   activeMobileTab = signal<'cosas' | 'valoraciones' | 'info'>('cosas');
   isEditingProfile = signal(false);
+  isConfigOpen = signal(false);
+  isMisComprasOpen = signal(false);
+  misComprasInitialTab = signal<'COMPRAS' | 'VENTAS'>('COMPRAS');
   valoraciones = signal<any[]>([]);
   cargandoValoraciones = signal(false);
   editForm = signal({
@@ -925,5 +928,10 @@ export class MiCuentaComponent implements OnInit {
         else if (type === 'vehiculo') this.eliminarVehiculo(item.id);
         break;
     }
+  }
+
+  openMisCompras(tab: 'COMPRAS' | 'VENTAS') {
+    this.misComprasInitialTab.set(tab);
+    this.isMisComprasOpen.set(true);
   }
 }

@@ -770,10 +770,23 @@
 <!-- VISTA APP MÓVIL (NATIVE STYLE) -->
 <div class="mobile-app-profile" *ngIf="isMobileUI()">
   <div class="mobile-p-scroll-area custom-scrollbar">
+    <!-- Acciones Flotantes (Esquina Superior Izquierda) -->
+    <div class="p-floating-actions-left">
+      <button (click)="openMisCompras('COMPRAS')" class="btn-floating-left" title="Mis Pedidos">
+        <i class="fas fa-shopping-bag"></i>
+        <span>Pedidos</span>
+      </button>
+      <button (click)="openMisCompras('VENTAS')" class="btn-floating-left" title="Mis Envíos">
+        <i class="fas fa-truck"></i>
+        <span>Envíos</span>
+      </button>
+    </div>
+
     <!-- Acciones Flotantes (Esquina Superior Derecha) -->
     <div class="p-floating-actions">
       <button (click)="compartirPerfil()" class="btn-floating-action" title="Compartir"><i class="fas fa-share-alt"></i></button>
       <button (click)="openEditProfile()" class="btn-floating-action" title="Editar"><i class="fas fa-edit"></i></button>
+      <button (click)="isConfigOpen.set(true)" class="btn-floating-action" title="Configuración"><i class="fas fa-cog"></i></button>
     </div>
 
     <!-- Centro: Avatar y Nombre -->
@@ -1082,6 +1095,34 @@
         >
       </div>
     </div>
+  </div>
+</div>
+
+<!-- OVERLAY CONFIGURACIÓN MÓVIL -->
+<div class="mobile-edit-overlay" [class.active]="isConfigOpen()">
+  <header class="edit-mobile-header">
+    <button (click)="isConfigOpen.set(false)" class="btn-close-edit"><i class="fas fa-times"></i></button>
+    <h3>Configuración</h3>
+    <div style="width: 60px;"></div>
+  </header>
+  <div class="edit-mobile-content mobile-config-content">
+    @if (isConfigOpen()) {
+      <app-configuracion [isEmbedded]="true"></app-configuracion>
+    }
+  </div>
+</div>
+
+<!-- OVERLAY MIS COMPRAS / ENVÍOS MÓVIL -->
+<div class="mobile-edit-overlay" [class.active]="isMisComprasOpen()">
+  <header class="edit-mobile-header">
+    <button (click)="isMisComprasOpen.set(false)" class="btn-close-edit"><i class="fas fa-arrow-left"></i></button>
+    <h3>{{ misComprasInitialTab() === 'COMPRAS' ? 'Mis Pedidos' : 'Mis Envíos' }}</h3>
+    <div style="width: 60px;"></div>
+  </header>
+  <div class="edit-mobile-content mobile-compras-content">
+    @if (isMisComprasOpen()) {
+      <app-mis-compras [seccionPerfil]="misComprasInitialTab() === 'COMPRAS' ? 'compras' : 'ventas'"></app-mis-compras>
+    }
   </div>
 </div>
 

@@ -353,20 +353,21 @@
 
     </main>
 
-    <!-- FOOTER FUERA DE MAIN PARA QUE SEA EL TOPE FIJO -->
-    @if (currentStep() > 0 && currentStep() !== 4) {
-      <footer class="publish-footer">
-        <div style="flex: 1"></div> <!-- Espaciador para empujar el botón a la derecha si es necesario o centrarlo -->
-        <button
-          type="button"
-          class="btn-primary"
-          (click)="nextStep()"
-          [disabled]="!canAdvance()"
-        >
-          {{ currentStep() === 3 ? 'Ir a Revisión' : 'Continuar' }}
-        </button>
-        <div style="flex: 1"></div> <!-- Espaciador para centrar el botón si se desea -->
-      </footer>
-    }
   </div>
+
+  <!-- FOOTER FUERA DE MAIN PARA QUE SEA EL TOPE FIJO -->
+  @if (currentStep() > 0 && currentStep() !== 4) {
+    <footer class="publish-footer">
+      <div style="flex: 1"></div>
+      <button
+        type="button"
+        class="btn-primary"
+        (click)="nextStep()"
+        [disabled]="!canAdvance()"
+      >
+        {{ currentStep() === 3 ? 'Ir a Revisión' : 'Continuar' }}
+      </button>
+      <div style="flex: 1"></div>
+    </footer>
+  }
 </div>

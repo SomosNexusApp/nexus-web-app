@@ -1982,3 +1982,66 @@ hr {
   filter: brightness(1.2);
 }
 
+/* ── Left Floating Actions (Mis Pedidos / Mis Envíos) ────── */
+.p-floating-actions-left {
+  position: absolute;
+  top: 15px;
+  left: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  z-index: 10;
+}
+
+.btn-floating-left {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 12px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  backdrop-filter: blur(10px);
+  letter-spacing: 0.02em;
+}
+
+.btn-floating-left i {
+  font-size: 0.85rem;
+  color: #a8b4ff;
+}
+
+.btn-floating-left:active {
+  transform: scale(0.93);
+  background: rgba(168, 180, 255, 0.15);
+}
+
+/* ── Mobile Config / Compras Overlay ───────────────────── */
+.mobile-config-content {
+  padding: 0;
+  overflow-y: auto;
+  height: 100%;
+}
+
+.mobile-config-content ::ng-deep .configuracion-page {
+  min-height: unset;
+  padding-bottom: 60px;
+}
+
+.mobile-compras-content {
+  padding: 0;
+  overflow-y: auto;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.mobile-compras-content ::ng-deep .mc-container {
+  padding: 16px;
+  min-height: unset;
+}
+
