@@ -85,6 +85,18 @@ export class ProductoCardComponent implements OnInit {
     return this.producto?.estado === 'RESERVADO';
   }
 
+  get formattedLocation(): string {
+    const loc = this.producto?.ubicacion;
+    if (!loc) return 'España';
+
+    const parts = loc.split(',').map((p) => p.trim());
+    if (parts.length >= 3) {
+      // Sevilla, Andalucía, España -> Sevilla, España
+      return `${parts[0]}, ${parts[parts.length - 1]}`;
+    }
+    return loc;
+  }
+
   navigateToDetail(event: MouseEvent): void {
     this.router.navigate(['/productos', this.producto.id]);
   }

@@ -358,7 +358,7 @@ export class SearchService {
         }
         
         // Fallback a CarQuery si la local falla
-        const url = 'https://www.carqueryapi.com/api/0.3/?cmd=getMakes&sold_in_us=0';
+        const url = 'http://www.carqueryapi.com/api/0.3/?cmd=getMakes&sold_in_us=0';
         return this.http.jsonp<{ Makes: any[] }>(url, 'callback').pipe(
           map(res => {
             const marcas = res.Makes.map(m => ({ name: m.make_display, country: 'Internacional' })).sort((a: any, b: any) => a.name.localeCompare(b.name));
@@ -388,7 +388,7 @@ export class SearchService {
 
     // Carga desde APIs externas (Asíncrona)
     const brandId = marca.toLowerCase().replace(/\s+/g, '-');
-    const cqUrl = `https://www.carqueryapi.com/api/0.3/?cmd=getModels&make=${encodeURIComponent(brandId)}&sold_in_us=0`;
+    const cqUrl = `http://www.carqueryapi.com/api/0.3/?cmd=getModels&make=${encodeURIComponent(brandId)}&sold_in_us=0`;
     // Carga desde APIs externas (Asíncrona) - Solo si parece una marca seria (>3 chars) para evitar 500s de la API
     const isSeriousSearch = marca.length >= 4 || this.marcasCache.some(m => m.name.toLowerCase() === marca.toLowerCase());
     const externalModels$ = (!isSeriousSearch) ? of([]) : this.http.jsonp<{ Models: any[] }>(cqUrl, 'callback').pipe(

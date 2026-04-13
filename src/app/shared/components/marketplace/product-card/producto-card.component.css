@@ -395,10 +395,18 @@
 .mobile-location {
   display: flex;
   align-items: center;
-  gap: 6px;
-  color: #666;
-  font-size: 12px;
-  font-weight: 600;
+  gap: 4px;
+  color: #888;
+  font-size: 11px;
+  font-weight: 500;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.m-loc-text {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* Derecha: Información */

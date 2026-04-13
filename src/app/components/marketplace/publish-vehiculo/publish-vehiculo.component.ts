@@ -4,7 +4,7 @@ import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterModule, ActivatedRoute } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
-import { debounceTime, distinctUntilChanged, switchMap, of, startWith, tap } from 'rxjs';
+import { debounceTime, distinctUntilChanged, switchMap, of, startWith, tap, catchError } from 'rxjs';
 import { toSignal } from '@angular/core/rxjs-interop';
 
 import { environment } from '../../../../environments/enviroment';
@@ -155,19 +155,19 @@ export class PublishVehiculoComponent implements OnInit, AfterViewInit {
       id: 'professional',
       name: 'Profesional',
       icon: 'briefcase',
-      content: `### Estado General\nExcelente estado de conservación, siempre en garaje.\n\n### Mantenimiento\nLibro de revisiones al día en servicio oficial. ITV recién pasada.\n\n### Equipamiento Destacado\n- Pack AMG / M / S-Line\n- Techo panorámico\n- Asistentes de conducción avanzada\n\n### Otros Detalles\nNeumáticos nuevos y pintura original.`
+      content: `<h3>Estado General</h3>Excelente estado de conservación, siempre en garaje.<br><br><h3>Mantenimiento</h3>Libro de revisiones al día en servicio oficial. ITV recién pasada.<br><br><h3>Equipamiento Destacado</h3><ul><li>Pack AMG / M / S-Line</li><li>Techo panorámico</li><li>Asistentes de conducción avanzada</li></ul><br><h3>Otros Detalles</h3>Neumáticos nuevos y pintura original.`
     },
     {
       id: 'enthusiast',
       name: 'Entusiasta',
       icon: 'flame',
-      content: `### Sensaciones\nUn vehículo diseñado para disfrutar de la conducción. Respuesta inmediata y manejo deportivo.\n\n### Modificaciones y Extras\nEquipamiento premium seleccionado para mejorar la experiencia dinámica.\n\n### Cuidado Personal\nLavado siempre a mano, detallado periódico y mecánicamente impecable.`
+      content: `<h3>Sensaciones</h3>Un vehículo diseñado para disfrutar de la conducción. Respuesta inmediata y manejo deportivo.<br><br><h3>Modificaciones y Extras</h3>Equipamiento premium seleccionado para mejorar la experiencia dinámica.<br><br><h3>Cuidado Personal</h3>Lavado siempre a mano, detallado periódico y mecánicamente impecable.`
     },
     {
       id: 'technical',
       name: 'Técnico',
       icon: 'cpu',
-      content: `### Ficha Técnica Detallada\nMotorización optimizada, consumos reales de X l/100km.\n\n### Historial Mecánico\nÚltimo cambio de aceite y filtros hace X km. Discos y pastillas en buen estado.\n\n### Conectividad\nSistema de infoentretenimiento compatible con Apple CarPlay y Android Auto.`
+      content: `<h3>Ficha Técnica Detallada</h3>Motorización optimizada, consumos reales de X l/100km.<br><br><h3>Historial Mecánico</h3>Último cambio de aceite y filtros hace X km. Discos y pastillas en buen estado.<br><br><h3>Conectividad</h3>Sistema de infoentretenimiento compatible con Apple CarPlay y Android Auto.`
     }
   ];
 
@@ -185,13 +185,19 @@ export class PublishVehiculoComponent implements OnInit, AfterViewInit {
         const name = brandObj?.name || (typeof marca === 'string' ? marca : '');
         
         if (name) {
-          return this.searchService.getModelosPorMarca(name);
+          return this.searchService.getModelosPorMarca(name).pipe(
+            catchError(() => of([]))
+          );
         }
+        return of([]);
+      }),
+      catchError(err => {
+        console.error('Error in marca valueChanges pipe:', err);
         return of([]);
       })
     ).subscribe(mods => {
       this.isSearchingModelos.set(false);
-      const cleanMods = mods.map(m => m.split('(')[0].trim()).filter(m => m.length > 0);
+      const cleanMods = (mods || []).map(m => m.split('(')[0].trim()).filter(m => m.length > 0);
       const uniqueMods = [...new Set(cleanMods)];
       this.modelosRaw.set(uniqueMods.sort((a, b) => a.localeCompare(b)));
     });
@@ -559,11 +565,26 @@ export class PublishVehiculoComponent implements OnInit, AfterViewInit {
     });
   }
 
-  // ── VISUAL COMPOSER ───────────────────────────────
-  onEditorInput(event: any): void {
-    const content = event.target.innerHTML;
-    this.step4Form.get('descripcion')?.setValue(content, { emitEvent: false });
-    this.updateCounters(event.target.innerText);
+  // ── VISUAL COMPOSER (Rich Text Editor) ───────────────────────────────
+  execEditorCommand(command: string, value: string = ''): void {
+    document.execCommand(command, false, value);
+    this.syncDescription();
+    // Re-enfocar el editor después del comando
+    this.visualEditor?.nativeElement.focus();
+  }
+
+  syncDescription(): void {
+    if (this.visualEditor) {
+      const content = this.visualEditor.nativeElement.innerHTML;
+      const text = this.visualEditor.nativeElement.innerText;
+      
+      this.step4Form.get('descripcion')?.setValue(content, { emitEvent: true });
+      this.updateCounters(text);
+    }
+  }
+
+  onEditorBlur(): void {
+    this.syncDescription();
   }
 
   private updateCounters(text: string): void {
@@ -573,40 +594,9 @@ export class PublishVehiculoComponent implements OnInit, AfterViewInit {
   }
 
   applyTemplate(templateContent: string): void {
-    // Convertir markdown-ish a HTML simple para el editor
-    const htmlContent = templateContent
-      .replace(/### (.*)\n/g, '<h3>$1</h3>')
-      .replace(/- (.*)\n/g, '<li>$1</li>')
-      .replace(/\n\n/g, '<br>')
-      .replace(/\n/g, '<br>');
-
     if (this.visualEditor) {
-      this.visualEditor.nativeElement.innerHTML = htmlContent;
-      this.step4Form.get('descripcion')?.setValue(htmlContent);
-      this.updateCounters(this.visualEditor.nativeElement.innerText);
-    }
-  }
-
-  formatText(command: string): void {
-    document.execCommand(command, false);
-    // Force focus back if lost
-    this.visualEditor?.nativeElement.focus();
-    
-    // Sync back to form
-    const content = this.visualEditor?.nativeElement.innerHTML;
-    this.step4Form.get('descripcion')?.setValue(content);
-  }
-
-  insertList(): void {
-    document.execCommand('insertUnorderedList', false);
-    this.visualEditor?.nativeElement.focus();
-  }
-
-  insertHeader(): void {
-    // Alternar entre H3 y normal
-    const selection = window.getSelection();
-    if (selection && selection.rangeCount > 0) {
-      document.execCommand('formatBlock', false, '<h3>');
+      this.visualEditor.nativeElement.innerHTML = templateContent;
+      this.syncDescription();
     }
   }
 

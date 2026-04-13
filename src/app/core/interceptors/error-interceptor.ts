@@ -49,7 +49,9 @@ export class ErrorInterceptor implements HttpInterceptor {
             break;
 
           case 0:
-            this.toastService.error('No se pudo conectar con el servidor.');
+            if (req.url.startsWith(environment.apiUrl)) {
+              this.toastService.error('No se pudo conectar con el servidor.');
+            }
             break;
         }
 

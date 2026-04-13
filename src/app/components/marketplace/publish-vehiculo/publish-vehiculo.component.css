@@ -156,17 +156,58 @@
 
 .selection-card {
   position: relative;
-  height: 140px;
+  height: auto;
+  min-height: 140px;
   background: rgba(255, 255, 255, 0.02);
   backdrop-filter: blur(30px);
   border: 1px solid rgba(255, 255, 255, 0.05);
   border-radius: 20px;
   cursor: pointer;
-  overflow-x: hidden;
+  overflow: hidden !important; /* Forzamos que no haya scroll interno */
   transition: all 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
   animation: popIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) backwards;
   animation-delay: calc(var(--card-index) * 0.05s);
   transform-style: preserve-3d;
+}
+
+@media (max-width: 768px) {
+  .selection-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 12px !important;
+  }
+  .selection-card {
+    min-height: 120px !important;
+    padding: 12px !important;
+  }
+  .card-inner {
+    padding: 10px !important;
+    justify-content: flex-start !important;
+  }
+  .card-icon {
+    width: 36px !important;
+    height: 36px !important;
+    border-radius: 10px !important;
+  }
+  .card-icon i {
+    width: 18px !important;
+    height: 18px !important;
+  }
+  .card-text h3 {
+    font-size: 1.1rem !important;
+  }
+  .card-text p {
+    font-size: 0.7rem !important;
+    opacity: 0.8 !important;
+  }
+  .card-badge {
+    display: none !important; /* Quitamos el badge en móvil para evitar scroll innecesario */
+  }
+  .selection-indicator {
+    width: 20px !important;
+    height: 20px !important;
+    top: 5px !important;
+    right: 5px !important;
+  }
 }
 
 .card-content {
@@ -299,6 +340,7 @@
   text-transform: uppercase;
   z-index: 3;
 }
+
 
 .selection-indicator {
   position: absolute;
@@ -1907,6 +1949,24 @@
   .specs-grid-premium { grid-template-columns: 1fr; }
 }
 
+
+
+
+/* ==========================================================================
+   NEXUS MOBILE PRECEDENCE OVERRIDES (Max-width: 768px)
+   ========================================================================== */
+
+/* ==========================================================================
+   NEXUS MOBILE PRECEDENCE OVERRIDES (Max-width: 768px)
+   ========================================================================== */
+
+
+
+
+
+
+
+
 /* ─── NEXUS ELITE AUTOCOMPLETE V2 ─────────────────────────── */
 .nexus-dropdown {
   position: absolute;
@@ -2064,4 +2124,261 @@
  opacity: 0.7;
  text-transform: uppercase;
  letter-spacing: 0.05em;
+}
+
+/* ==========================================================================
+   RICHTEXT EDITOR (WORD STYLE) 
+   ========================================================================== */
+
+.rich-editor-container {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  margin-top: 10px;
+}
+
+.rich-editor-container:focus-within {
+  border-color: #3b82f6;
+  box-shadow: 0 0 40px rgba(59, 130, 246, 0.15);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.editor-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background: rgba(255, 255, 255, 0.02);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.tool-btn {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  color: #94a3b8;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.tool-btn:hover {
+  background: rgba(59, 130, 246, 0.1);
+  color: #3b82f6;
+}
+
+.tool-sep {
+  width: 1px;
+  height: 20px;
+  background: rgba(255, 255, 255, 0.1);
+  margin: 0 4px;
+}
+
+.pixel-editor-rich {
+  width: 100%;
+  min-height: 200px;
+  max-height: 500px;
+  padding: 24px;
+  color: #fff;
+  font-size: 1.1rem;
+  line-height: 1.7;
+  outline: none;
+  font-family: 'Inter', sans-serif;
+  overflow-y: auto;
+  text-align: left;
+}
+
+.pixel-editor-rich:empty:before {
+  content: attr(placeholder);
+  color: #475569;
+  opacity: 0.7;
+}
+
+.editor-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 0 0 16px 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.stat-item {
+  font-size: 0.65rem;
+  color: #475569;
+  margin-right: 12px;
+}
+.stat-item b {
+  color: #94a3b8;
+}
+
+.quality-indicator {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.65rem;
+  color: #475569;
+  font-weight: 800;
+}
+.quality-indicator .dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #475569;
+}
+.quality-indicator.good {
+  color: #10b981;
+}
+.quality-indicator.good .dot {
+  background: #10b981;
+  box-shadow: 0 0 8px #10b981;
+}
+
+/* Rich text visibility in standard containers */
+.description-content-final h3, .pixel-editor-rich h3 {
+  font-size: 1.4rem;
+  font-weight: 800;
+  margin: 1.5rem 0 1rem;
+  color: #fff;
+}
+
+.description-content-final ul, .pixel-editor-rich ul {
+  padding-left: 1.5rem;
+  margin: 1rem 0;
+  list-style-type: disc;
+}
+
+.description-content-final li, .pixel-editor-rich li {
+  margin-bottom: 0.5rem;
+  color: #94a3b8;
+}
+
+/* ==========================================================================
+   NEXUS FINAL MOBILE & TABLET OVERRIDES (MAX-WIDTH: 1024px)
+   ========================================================================== */
+@media (max-width: 1024px) {
+  /* 1. Global Container Reset */
+  .publish-container {
+    padding: 0 !important;
+    min-height: auto !important;
+    height: auto !important;
+    position: relative !important;
+    overflow: visible !important;
+    background: #050505 !important;
+    display: block !important;
+  }
+
+  .publish-content {
+    padding: 20px 20px 140px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    overflow: visible !important;
+    height: auto !important;
+  }
+
+  /* 2. Header Visibility */
+  .publish-header {
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 1000 !important;
+    background: rgba(5,5,5,0.95) !important;
+    backdrop-filter: blur(20px) !important;
+    padding: calc(20px + env(safe-area-inset-top)) 20px 15px !important;
+    border-bottom: 1px solid rgba(255,255,255,0.05) !important;
+  }
+
+  .step-title {
+    font-size: 1.5rem !important;
+    color: #fff !important;
+    font-weight: 900 !important;
+    -webkit-text-fill-color: #fff !important;
+  }
+
+  /* 3. STEP 2: TECHNICAL DATA - FORCED 1 COLUMN */
+  .console-grid, 
+  .console-toggles, 
+  .specs-grid-premium {
+    grid-template-columns: 1fr !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 20px !important;
+    width: 100% !important;
+  }
+
+  .input-group, 
+  .console-toggles > *, 
+  .specs-grid-premium > * {
+    width: 100% !important;
+    max-width: 100% !important;
+    grid-column: span 1 !important; /* Secondary safety */
+  }
+
+  .console-card {
+    padding: 20px 15px !important;
+    margin: 10px !important;
+    width: calc(100% - 20px) !important;
+    box-sizing: border-box !important;
+  }
+
+  .input-group input, 
+  .premium-select,
+  .custom-select-trigger {
+    padding: 16px !important;
+    font-size: 1rem !important;
+  }
+
+  /* 4. Dropdowns (Bottom Sheet on Mobile) */
+  .nexus-dropdown {
+    position: absolute !important;
+    top: calc(100% + 5px) !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: auto !important;
+    width: 100% !important;
+    max-height: 350px !important;
+    border-radius: 20px !important;
+    z-index: 10000 !important;
+    background: rgba(13, 17, 23, 0.98) !important;
+    backdrop-filter: blur(25px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.8) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    padding: 10px !important;
+  }
+
+  /* 5. Footer & Buttons */
+  .publish-footer {
+    position: fixed !important;
+    bottom: 0 !important;
+    padding: 15px 20px !important;
+    padding-bottom: calc(15px + env(safe-area-inset-bottom)) !important;
+    background: #08080c !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    z-index: 2000 !important;
+  }
+
+  .btn-primary, .btn-secondary, .btn-success {
+    padding: 16px !important;
+    font-weight: 800 !important;
+  }
+
+  /* 6. Step 1: Vehicle selection (Keep 2x2 but better gaps) */
+  .selection-grid {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 12px !important;
+  }
+
+  .selection-card {
+    min-height: 140px !important;
+  }
 }

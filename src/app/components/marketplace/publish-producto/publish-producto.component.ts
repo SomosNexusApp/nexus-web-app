@@ -320,10 +320,8 @@ export class PublishProductoComponent implements OnInit, AfterViewInit {
         priceControl?.enable();
       }
     });
-    // Si entramos por /publicar para PRODUCTO, saltamos el paso 0 SOLO en móvil
-    if (!this.isEditMode() && this.uiService.isMobileUI()) {
-      this.currentStep.set(1);
-    }
+    // Ya no saltamos el paso 0 en móvil, ahora lo optimizamos para que quepa sin scroll
+
   }
 
   private cargarProducto(id: number): void {

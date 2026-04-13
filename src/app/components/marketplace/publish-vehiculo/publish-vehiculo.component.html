@@ -489,25 +489,42 @@
                 </div>
               </div>
 
-              <div class="editor-container-premium" [class.error]="getErrorMessage(step4Form, 'descripcion')">
-                <!-- Simplified Editor (no toolbar) -->
-
-                <textarea formControlName="descripcion" 
-                          class="pixel-editor-textarea" 
-                          placeholder="Describe las sensaciones, el mantenimiento y por qué es una oportunidad única..."
-                          rows="12"></textarea>
-
-                <div class="editor-footer">
-                  <div class="stats">
-                    <span class="stat-item"><b>{{ descriptionWordCount() }}</b> PALABRAS</span>
-                    <span class="stat-item"><b>{{ descriptionCharCount() }}</b> CARACTERES</span>
+              <div class="input-group-premium">
+                <div class="label-row">
+                  <label>Descripción del vehículo</label>
+                </div>
+                
+                <div class="rich-editor-container" [class.error]="getErrorMessage(step4Form, 'descripcion')">
+                  <div class="editor-toolbar">
+                    <button type="button" class="tool-btn" (click)="execEditorCommand('bold')" title="Negrita"><b>B</b></button>
+                    <button type="button" class="tool-btn" (click)="execEditorCommand('italic')" title="Cursiva"><i>I</i></button>
+                    <button type="button" class="tool-btn" (click)="execEditorCommand('underline')" title="Subrayado"><u>U</u></button>
+                    <div class="tool-sep"></div>
+                    <button type="button" class="tool-btn" (click)="execEditorCommand('formatBlock', 'h3')" title="Título">H1</button>
+                    <button type="button" class="tool-btn" (click)="execEditorCommand('insertUnorderedList')" title="Lista">•</button>
                   </div>
-                  <div class="quality-indicator" [class.good]="descriptionWordCount() > 50">
-                    <div class="dot"></div> Calidad {{ descriptionWordCount() > 50 ? 'Alta' : 'Básica' }}
+                  
+                  <div 
+                    #visualEditor
+                    class="pixel-editor-rich" 
+                    contenteditable="true" 
+                    (input)="syncDescription()"
+                    (blur)="onEditorBlur()"
+                    placeholder="Describe las sensaciones, el mantenimiento y por qué es una oportunidad única..."
+                  ></div>
+
+                  <div class="editor-footer">
+                    <div class="stats">
+                      <span class="stat-item"><b>{{ descriptionWordCount() }}</b> PALABRAS</span>
+                      <span class="stat-item"><b>{{ descriptionCharCount() }}</b> CARACTERES</span>
+                    </div>
+                    <div class="quality-indicator" [class.good]="descriptionWordCount() > 50">
+                      <div class="dot"></div> Calidad {{ descriptionWordCount() > 50 ? 'Alta' : 'Básica' }}
+                    </div>
                   </div>
                 </div>
+                <span class="error-msg">{{ getErrorMessage(step4Form, 'descripcion') }}</span>
               </div>
-              <span class="error-msg">{{ getErrorMessage(step4Form, 'descripcion') }}</span>
             </form>
           </div>
         </div>

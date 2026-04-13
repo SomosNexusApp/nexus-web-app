@@ -70,6 +70,18 @@ export class VehiculoCardComponent implements OnInit {
     return new Intl.NumberFormat('es-ES').format(km) + ' km';
   }
 
+  get formattedLocation(): string {
+    const loc = this.vehiculo?.ubicacion;
+    if (!loc) return 'España';
+
+    const parts = loc.split(',').map((p) => p.trim());
+    if (parts.length >= 3) {
+      // Sevilla, Andalucía, España -> Sevilla, España
+      return `${parts[0]}, ${parts[parts.length - 1]}`;
+    }
+    return loc;
+  }
+
   navigateToDetail(): void {
     if (!this.vehiculo?.id) return;
     this.router.navigate(['/vehiculos', this.vehiculo.id]);

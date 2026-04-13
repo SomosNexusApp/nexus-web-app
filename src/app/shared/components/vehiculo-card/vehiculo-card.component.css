@@ -325,10 +325,18 @@
   display: flex;
   align-items: center;
   gap: 4px;
-  color: #666;
+  color: #888;
   font-size: 11px;
-  font-weight: 600;
-  justify-content: center;
+  font-weight: 500;
+  max-width: 100%;
+  overflow: hidden;
+  margin-top: 4px;
+}
+
+.m-loc-text {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* Derecha: Información */
