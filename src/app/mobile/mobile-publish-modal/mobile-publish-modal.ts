@@ -23,4 +23,9 @@ export class MobilePublishModalComponent {
     this.close();
     this.router.navigate([ruta]);
   }
+
+  navegarProducto(): void {
+    this.close();
+    this.router.navigate(['/publicar'], { queryParams: { fromMobile: '1' } });
+  }
 }

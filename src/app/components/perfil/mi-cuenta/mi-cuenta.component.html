@@ -770,25 +770,6 @@
 <!-- VISTA APP MÓVIL (NATIVE STYLE) -->
 <div class="mobile-app-profile" *ngIf="isMobileUI()">
   <div class="mobile-p-scroll-area custom-scrollbar">
-    <!-- Acciones Flotantes (Esquina Superior Izquierda) -->
-    <div class="p-floating-actions-left">
-      <button (click)="openMisCompras('COMPRAS')" class="btn-floating-left" title="Mis Pedidos">
-        <i class="fas fa-shopping-bag"></i>
-        <span>Pedidos</span>
-      </button>
-      <button (click)="openMisCompras('VENTAS')" class="btn-floating-left" title="Mis Envíos">
-        <i class="fas fa-truck"></i>
-        <span>Envíos</span>
-      </button>
-    </div>
-
-    <!-- Acciones Flotantes (Esquina Superior Derecha) -->
-    <div class="p-floating-actions">
-      <button (click)="compartirPerfil()" class="btn-floating-action" title="Compartir"><i class="fas fa-share-alt"></i></button>
-      <button (click)="openEditProfile()" class="btn-floating-action" title="Editar"><i class="fas fa-edit"></i></button>
-      <button (click)="isConfigOpen.set(true)" class="btn-floating-action" title="Configuración"><i class="fas fa-cog"></i></button>
-    </div>
-
     <!-- Centro: Avatar y Nombre -->
     <div class="p-hero-section">
       <div class="p-avatar-wrapper">
@@ -812,6 +793,41 @@
       </div>
     </div>
 
+    <!-- Barra de Acciones Rápidas -->
+    <div class="p-quick-actions">
+      <div class="p-qa-item">
+        <button (click)="openMisCompras('COMPRAS')" class="p-qa-btn p-qa-btn--accent">
+          <i class="fas fa-shopping-bag"></i>
+        </button>
+        <span>Pedidos</span>
+      </div>
+      <div class="p-qa-item">
+        <button (click)="openMisCompras('VENTAS')" class="p-qa-btn p-qa-btn--accent">
+          <i class="fas fa-truck"></i>
+        </button>
+        <span>Envíos</span>
+      </div>
+      <div class="p-qa-sep"></div>
+      <div class="p-qa-item">
+        <button (click)="compartirPerfil()" class="p-qa-btn">
+          <i class="fas fa-share-alt"></i>
+        </button>
+        <span>Compartir</span>
+      </div>
+      <div class="p-qa-item">
+        <button (click)="openEditProfile()" class="p-qa-btn">
+          <i class="fas fa-edit"></i>
+        </button>
+        <span>Editar</span>
+      </div>
+      <div class="p-qa-item">
+        <button (click)="isConfigOpen.set(true)" class="p-qa-btn">
+          <i class="fas fa-cog"></i>
+        </button>
+        <span>Ajustes</span>
+      </div>
+    </div>
+
     <!-- Fila de Estadísticas Principales -->
     <div class="p-native-stats-row">
       <div class="p-n-stat">
@@ -828,18 +844,6 @@
         <i class="fas fa-tags"></i>
         <div class="p-n-val">{{ misOfertas().length }}</div>
         <div class="p-n-lab">Ofertas</div>
-      </div>
-    </div>
-
-    <!-- Info Secundaria con Iconos Modernos -->
-    <div class="p-native-info-list">
-      <div class="p-n-info-item">
-        <i class="fas fa-box-open"></i>
-        <span>{{ kpis().totalEnvios }} Envíos realizados con éxito</span>
-      </div>
-      <div class="p-n-info-item">
-        <i class="fas fa-map-marker-alt"></i>
-        <span>Sevilla, España · <a class="p-loc-link">Ver ubicación</a></span>
       </div>
     </div>
 

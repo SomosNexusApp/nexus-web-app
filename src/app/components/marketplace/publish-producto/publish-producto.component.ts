@@ -302,6 +302,13 @@ export class PublishProductoComponent implements OnInit, AfterViewInit {
     }
     this.cargarCategorias();
 
+    // Check for mobile direct-publish (skip type selection step 0)
+    this.route.queryParams.subscribe((qp) => {
+      if (qp['fromMobile'] === '1' && !this.isEditMode()) {
+        this.currentStep.set(1);
+      }
+    });
+
     // Check for edit mode
     this.route.params.subscribe((params) => {
       if (params['id']) {

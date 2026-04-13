@@ -203,20 +203,104 @@
   color: var(--text-muted);
 }
 
-@media (max-width: 600px) {
-  .mc-item-body {
-    flex-direction: column;
+@media (max-width: 768px) {
+  :host {
+    min-height: unset;
+    padding: 0;
   }
-  .mc-item-img {
+
+  .mc-container {
+    padding: 16px 16px 32px;
+  }
+
+  /* ── Header ── */
+  .mc-header {
+    margin-bottom: 20px;
+    gap: 14px;
+    padding-top: 4px;
+  }
+
+  .mc-title {
+    font-size: 1.6rem;
+  }
+
+  .mc-tabs {
     width: 100%;
-    height: 180px;
   }
+
+  .mc-tab {
+    flex: 1;
+    padding: 10px 12px;
+    font-size: 0.9rem;
+    text-align: center;
+  }
+
+  /* ── List ── */
+  .mc-list {
+    gap: 14px;
+  }
+
+  /* ── Item card ── */
+  .mc-item {
+    padding: 16px;
+    border-radius: 18px;
+    gap: 14px;
+  }
+
+  .mc-item:hover {
+    transform: none;
+    box-shadow: none;
+  }
+
+  .mc-item-header {
+    font-size: 0.8rem;
+  }
+
+  /* ── Body: row layout with smaller image ── */
+  .mc-item-body {
+    flex-direction: row;
+    gap: 14px;
+    align-items: center;
+  }
+
+  .mc-item-img {
+    width: 76px;
+    height: 76px;
+    border-radius: 12px;
+    flex-shrink: 0;
+  }
+
+  .mc-item-title {
+    font-size: 1rem;
+  }
+
+  /* ── Footer buttons ── */
   .mc-item-footer {
     flex-direction: column;
+    gap: 8px;
+    padding-top: 14px;
   }
+
   .mc-btn {
     width: 100%;
     text-align: center;
+    padding: 12px;
+    font-size: 0.9rem;
+    border-radius: 14px;
+  }
+
+  /* ── Empty / Loading states ── */
+  .mc-loading {
+    padding: 40px 0;
+  }
+
+  .mc-empty {
+    padding: 40px 16px;
+    border-radius: 18px;
+  }
+
+  .mc-empty h3 {
+    font-size: 1.2rem;
   }
 }
 

@@ -1504,9 +1504,19 @@
     border-radius: 16px !important;
   }
 
-  /* ── Terms note ── */
+  /* ── Terms note: push above bottom nav ── */
   .ck-terms-note {
     font-size: 0.72rem;
+    margin-bottom: calc(80px + env(safe-area-inset-bottom, 0px));
+  }
+
+  /* ── Ensure last step card has breathing room above nav ── */
+  .ck-main-content > section:last-child {
+    padding-bottom: 0;
+  }
+
+  .ck-grid {
+    padding-bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
   }
 
   /* ── Sub title ── */

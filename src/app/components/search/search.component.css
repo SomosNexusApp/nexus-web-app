@@ -2052,6 +2052,18 @@ h3,
   font-size: 1.1rem;
 }
 
+.nx-adsense-desktop-slot {
+  width: 100%;
+  max-width: 900px;
+  margin: 24px auto 0;
+}
+
+@media (max-width: 768px) {
+  .nx-adsense-desktop-slot {
+    display: none;
+  }
+}
+
 @keyframes spin {
   to {
     transform: rotate(360deg);

@@ -72,6 +72,7 @@ export class SearchComponent implements OnInit, AfterViewInit, OnDestroy {
   hayMasResultados = true;
   isMobile = signal(window.innerWidth <= 768);
   @ViewChild('scrollAnchor') scrollAnchor!: ElementRef;
+  @ViewChild('adsenseSlot') adsenseSlot!: ElementRef;
   private observer!: IntersectionObserver;
 
   isMobileFiltersOpen = false;
@@ -170,6 +171,11 @@ export class SearchComponent implements OnInit, AfterViewInit, OnDestroy {
 
   ngAfterViewInit(): void {
     this.setupIntersectionObserver();
+    if (window.innerWidth > 768) {
+      try {
+        ((window as any).adsbygoogle = (window as any).adsbygoogle || []).push({});
+      } catch (_) {}
+    }
   }
 
   ngOnDestroy(): void {

@@ -301,7 +301,10 @@ import { NotificationService, NotificacionInAppDto } from '../../core/services/n
         padding: 12px 0;
         border-bottom: 1px solid rgba(255, 255, 255, 0.05);
       }
-      .notif-main-list { min-height: auto; }
+      .notif-main-list {
+        min-height: auto;
+        padding-bottom: calc(80px + env(safe-area-inset-bottom, 0px));
+      }
     }
 
     .page-header {
@@ -725,6 +728,10 @@ import { NotificationService, NotificacionInAppDto } from '../../core/services/n
 
       .pagination-elite {
         gap: 12px;
+      }
+
+      .notif-page-nexus {
+        padding-bottom: calc(80px + env(safe-area-inset-bottom, 0px));
       }
     }
 

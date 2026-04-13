@@ -1333,37 +1333,74 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 30px 20px 20px;
+  padding: 40px 20px 20px;
 }
 
-.p-floating-actions {
-  position: absolute;
-  top: 15px;
-  right: 15px;
+/* ── Quick Actions Bar ───────────────────────── */
+.p-quick-actions {
   display: flex;
+  justify-content: center;
+  align-items: flex-start;
   gap: 10px;
-  z-index: 10;
+  padding: 4px 20px 20px;
 }
 
-.btn-floating-action {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
+.p-qa-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  min-width: 52px;
+}
+
+.p-qa-btn {
+  width: 52px;
+  height: 52px;
+  border-radius: 16px;
   background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   color: #fff;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1rem;
+  font-size: 1.1rem;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
   backdrop-filter: blur(10px);
 }
 
-.btn-floating-action:active {
-  transform: scale(0.9);
-  background: rgba(168, 180, 255, 0.2);
+.p-qa-btn--accent {
+  background: rgba(168, 180, 255, 0.1);
+  border-color: rgba(168, 180, 255, 0.2);
+}
+
+.p-qa-btn--accent i {
+  color: #a8b4ff;
+}
+
+.p-qa-btn:active {
+  transform: scale(0.88);
+}
+
+.p-qa-btn--accent:active {
+  background: rgba(168, 180, 255, 0.25);
+}
+
+.p-qa-item > span {
+  font-size: 0.65rem;
+  color: #555;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  text-align: center;
+}
+
+.p-qa-sep {
+  width: 1px;
+  height: 40px;
+  background: rgba(255, 255, 255, 0.07);
+  margin: 0 4px;
+  align-self: center;
 }
 
 .p-avatar-wrapper {
@@ -1982,43 +2019,7 @@ hr {
   filter: brightness(1.2);
 }
 
-/* ── Left Floating Actions (Mis Pedidos / Mis Envíos) ────── */
-.p-floating-actions-left {
-  position: absolute;
-  top: 15px;
-  left: 15px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  z-index: 10;
-}
 
-.btn-floating-left {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 7px 12px;
-  border-radius: 20px;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: #fff;
-  font-size: 0.72rem;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all 0.25s ease;
-  backdrop-filter: blur(10px);
-  letter-spacing: 0.02em;
-}
-
-.btn-floating-left i {
-  font-size: 0.85rem;
-  color: #a8b4ff;
-}
-
-.btn-floating-left:active {
-  transform: scale(0.93);
-  background: rgba(168, 180, 255, 0.15);
-}
 
 /* ── Mobile Config / Compras Overlay ───────────────────── */
 .mobile-config-content {
@@ -2040,8 +2041,21 @@ hr {
   flex-direction: column;
 }
 
+.mobile-compras-content ::ng-deep :host {
+  min-height: unset !important;
+}
+
 .mobile-compras-content ::ng-deep .mc-container {
   padding: 16px;
   min-height: unset;
+}
+
+.mobile-config-content ::ng-deep .config-content {
+  gap: 24px !important;
+}
+
+.mobile-config-content ::ng-deep .section-card {
+  padding: 16px !important;
+  border-radius: 18px !important;
 }
 

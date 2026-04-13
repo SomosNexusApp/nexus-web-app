@@ -4,7 +4,7 @@
 
 .publish-container {
   position: fixed;
-  top: 80px; /* Dejamos espacio para el header global de la app */
+  top: 80px; 
   left: 0;
   right: 0;
   bottom: 0;
@@ -12,8 +12,10 @@
   color: #fff;
   display: flex;
   flex-direction: column;
+  align-items: center;
   z-index: 1000;
-  overflow: hidden;
+  /* CAMBIO: 'clip' en vez de 'hidden' evita crear doble scrollbar en navegadores modernos */
+  overflow-x: clip; 
 }
 
 @media (max-width: 768px) {
@@ -1504,30 +1506,31 @@ input[type="file"].hidden {
   background: rgba(8, 8, 12, 0.98);
   backdrop-filter: blur(30px);
   -webkit-backdrop-filter: blur(30px);
-  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  border-top: 1px solid rgba(255, 255, 255, 0.05); 
   width: 100%;
-  box-sizing: border-box;
-  z-index: 100;
+  max-width: 1300px;
+  z-index: 10;
 }
 
 @media (max-width: 768px) {
   .publish-footer {
     position: fixed !important;
     bottom: 0 !important;
-    left: 0 !important;
-    right: 0 !important;
-    width: auto !important; /* Usamos auto con left/right 0 para evitar overflow */
-    padding: 12px 16px; 
-    padding-bottom: calc(12px + env(safe-area-inset-bottom));
-    background: #08080c;
-    backdrop-filter: blur(20px);
-    box-shadow: 0 -15px 30px rgba(0, 0, 0, 0.8);
-    z-index: 99999;
-    margin: 0 !important;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    box-sizing: border-box;
+    left: 0 !important;  /* OBLIGATORIO para position fixed en móviles */
+    right: 0 !important; /* OBLIGATORIO para position fixed en móviles */
+    margin-top: 0 !important;
+    padding: 15px 20px !important;
+    padding-bottom: calc(15px + env(safe-area-inset-bottom)) !important; /* Soporte iPhone */
+    
+    /* UX Upgrade: Cristal translúcido para el footer móvil */
+    background: rgba(8, 8, 12, 0.90) !important;
+    backdrop-filter: blur(20px) !important;
+    -webkit-backdrop-filter: blur(20px) !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
+    
+    width: 100% !important;
+    box-sizing: border-box !important;
+    z-index: 9999 !important; /* Muy alto para que siempre esté por encima de inputs/teclados */
   }
 
   .publish-footer .btn-primary {
@@ -1607,12 +1610,13 @@ input[type="file"].hidden {
 @media (max-width: 768px) {
   /* 1. Global Container & Layout */
   .publish-container {
-    padding-top: 0 !important;
-    background: #050505 !important;
-    min-height: auto !important;
-    height: auto !important;
+    /* CAMBIO: Añadimos espacio abajo globalmente y usamos flex */
+    padding: 0 0 100px 0 !important; 
+    min-height: 100vh !important;
     position: relative !important;
-    overflow: visible !important;
+    overflow-x: clip !important;
+    display: flex !important;
+    flex-direction: column !important;
   }
 
   /* 2. Step 0: "Que vas a publicar" - NO SCROLL SOLUTION */

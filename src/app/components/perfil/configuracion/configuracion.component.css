@@ -1120,13 +1120,199 @@ input:checked + .premium-slider:before {
 }
 
 @media (max-width: 768px) {
+  /* ── Layout ── */
+  .configuracion-page {
+    padding: 80px 0 60px;
+  }
+
+  .configuracion-page.is-embedded {
+    padding: 0;
+  }
+
+  .config-layout-grid {
+    padding: 0 16px;
+    gap: 24px;
+  }
+
+  /* ── Section titles ── */
+  .config-section h2 {
+    font-size: 1.3rem;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+
+  .config-section h2 i {
+    font-size: 1.1rem;
+  }
+
+  /* ── Section cards ── */
+  .section-card {
+    padding: 20px 16px;
+    border-radius: 20px;
+  }
+
+  /* ── Form: single column ── */
   .form-row {
     grid-template-columns: 1fr;
+    gap: 16px;
   }
-  .config-section h2 {
-    font-size: 2.2rem;
+
+  /* ── Avatar edit: stack vertically ── */
+  .avatar-edit {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 20px;
+    margin-bottom: 24px;
+    padding-bottom: 24px;
   }
-  .section-card {
-    padding: 30px;
+
+  .user-handle {
+    font-size: 1.4rem;
+  }
+
+  .action-row {
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .avatar-source-options {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  /* ── Toggles ── */
+  .toggle-item {
+    padding: 16px;
+    border-radius: 16px;
+    gap: 12px;
+    align-items: flex-start;
+  }
+
+  .toggle-info h4 {
+    font-size: 1rem;
+  }
+
+  .toggle-info p {
+    font-size: 0.85rem;
+  }
+
+  /* ── 2FA ── */
+  .two-fa-item {
+    padding: 16px;
+    border-radius: 16px;
+    flex-direction: column;
+    gap: 12px;
+    align-items: flex-start;
+  }
+
+  .two-fa-info {
+    gap: 12px;
+  }
+
+  /* ── Sessions ── */
+  .session-card {
+    padding: 16px;
+    gap: 16px;
+    border-radius: 18px;
+  }
+
+  .session-card:hover {
+    transform: none;
+  }
+
+  /* ── GDPR ── */
+  .gdpr-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 16px;
+    border-radius: 16px;
+  }
+
+  /* ── Embedded: compact gaps ── */
+  .is-embedded .config-content {
+    gap: 24px;
+  }
+
+  /* ── Hide perfil section when embedded on mobile (edit from profile button) ── */
+  .is-embedded #perfil {
+    display: none;
+  }
+
+  /* ── Section actions ── */
+  .section-actions {
+    margin-top: 24px;
+  }
+
+  .btn-primary,
+  .btn-outline,
+  .btn-danger {
+    width: 100%;
+    text-align: center;
+    justify-content: center;
+  }
+
+  /* ── Header split ── */
+  .header-split {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  /* ── Input with button ── */
+  .input-with-button {
+    flex-direction: column;
+  }
+
+  .btn-text {
+    width: 100%;
+    justify-content: center;
+  }
+
+  /* ── Add horizontal margins so nothing is edge-to-edge ── */
+  .is-embedded .config-layout-grid,
+  .config-layout-grid {
+    padding: 0 16px;
+  }
+
+  /* ── Hide "Descargar mis datos" on mobile ── */
+  #gdpr .gdpr-item:first-child {
+    display: none;
+  }
+
+  /* ── Hide the divider between download and delete items ── */
+  #gdpr .divider-soft {
+    display: none;
+  }
+
+  /* ── Sticky "Guardar preferencias" buttons on mobile ── */
+  .section-actions {
+    position: sticky;
+    bottom: calc(70px + env(safe-area-inset-bottom, 0px));
+    background: rgba(10, 11, 16, 0.95);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    padding: 12px 0;
+    margin-left: -16px;
+    margin-right: -16px;
+    padding-left: 16px;
+    padding-right: 16px;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    z-index: 10;
+    border-radius: 0;
+  }
+
+  /* ── GDPR (Eliminar cuenta) — no sticky, keep normal flow ── */
+  #gdpr .section-actions {
+    position: static;
+    background: transparent;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    border-top: none;
+    padding: 12px 0 0;
+    margin: 0;
   }
 }
