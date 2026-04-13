@@ -7,7 +7,8 @@
   flex-direction: column;
   align-items: center;
   position: relative;
-  overflow-x: hidden;
+  /* CAMBIO: 'clip' en vez de 'hidden' evita crear doble scrollbar en navegadores modernos */
+  overflow-x: clip; 
 }
 
 /* ── MESH GRADIENT BACKGROUND ────────────────────────────────────── */
@@ -869,6 +870,9 @@
   margin-top: 40px; 
   padding-top: 30px; 
   border-top: 1px solid rgba(255, 255, 255, 0.05); 
+  width: 100%;
+  max-width: 1300px;
+  z-index: 10;
 }
 
 .btn-primary, .btn-success {
@@ -2267,21 +2271,21 @@
 @media (max-width: 1024px) {
   /* 1. Global Container Reset */
   .publish-container {
-    padding: 0 !important;
-    min-height: auto !important;
-    height: auto !important;
+    /* CAMBIO: Añadimos espacio abajo globalmente y usamos flex */
+    padding: 0 0 100px 0 !important; 
+    min-height: 100vh !important;
     position: relative !important;
-    overflow: visible !important;
-    background: #050505 !important;
-    display: block !important;
+    overflow-x: clip !important;
+    display: flex !important;
+    flex-direction: column !important;
   }
 
   .publish-content {
-    padding: 20px 20px 140px !important;
+    /* CAMBIO: Quitamos el padding-bottom de 140px masivo que causaba scroll fantasma */
+    padding: 20px !important; 
     width: 100% !important;
     box-sizing: border-box !important;
-    overflow: visible !important;
-    height: auto !important;
+    flex: 1; /* Empuja el contenedor de forma natural */
   }
 
   /* 2. Header Visibility */
@@ -2359,12 +2363,21 @@
   .publish-footer {
     position: fixed !important;
     bottom: 0 !important;
+    left: 0 !important;  /* OBLIGATORIO para position fixed en móviles */
+    right: 0 !important; /* OBLIGATORIO para position fixed en móviles */
+    margin-top: 0 !important;
     padding: 15px 20px !important;
-    padding-bottom: calc(15px + env(safe-area-inset-bottom)) !important;
-    background: #08080c !important;
+    padding-bottom: calc(15px + env(safe-area-inset-bottom)) !important; /* Soporte iPhone */
+    
+    /* UX Upgrade: Cristal translúcido para el footer móvil */
+    background: rgba(8, 8, 12, 0.90) !important;
+    backdrop-filter: blur(20px) !important;
+    -webkit-backdrop-filter: blur(20px) !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
+    
     width: 100% !important;
     box-sizing: border-box !important;
-    z-index: 2000 !important;
+    z-index: 9999 !important; /* Muy alto para que siempre esté por encima de inputs/teclados */
   }
 
   .btn-primary, .btn-secondary, .btn-success {

@@ -636,11 +636,12 @@
         </div>
       }
 
-      <footer class="publish-footer">
-        @if (currentStep() > 1) { <button class="btn-secondary" (click)="prevStep()">Atrás</button> } @else { <div></div> }
-        @if (currentStep() < 5) { <button class="btn-primary" (click)="nextStep()">Continuar</button> }
-        @else { <button class="btn-success" (click)="onSubmit()" [disabled]="uploading()">Publicar</button> }
-      </footer>
     </div>
   </main>
+
+  <footer class="publish-footer">
+    @if (currentStep() > 1) { <button class="btn-secondary" (click)="prevStep()">Atrás</button> } @else { <div></div> }
+    @if (currentStep() < 5) { <button class="btn-primary" (click)="nextStep()">Continuar</button> }
+    @else { <button class="btn-success" (click)="onSubmit()" [disabled]="uploading()">Publicar</button> }
+  </footer>
 </div>
