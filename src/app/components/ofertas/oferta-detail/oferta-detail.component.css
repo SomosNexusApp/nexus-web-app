@@ -288,6 +288,7 @@
     max-width: 100%;
     max-height: 100%;
     object-fit: contain;
+    object-position: center;
     filter: drop-shadow(0 10px 20px rgba(0,0,0,0.3));
     cursor: zoom-in;
     transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
@@ -1086,7 +1087,10 @@
     }
 
     .exhibition-img-container {
-        padding: 20px;
+        padding: 40px 20px 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
         background: radial-gradient(circle at center, rgba(99, 102, 241, 0.1) 0%, transparent 70%);
     }
 
