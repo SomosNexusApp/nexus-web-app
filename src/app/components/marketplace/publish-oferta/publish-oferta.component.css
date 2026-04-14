@@ -635,46 +635,193 @@
 }
 
 @media (max-width: 768px) {
+  /* ── Full-screen scrollable layout on mobile ── */
   .publish-container {
-    padding: 20px 0 0;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    min-height: unset;
+    overflow-x: hidden;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 0;
+    z-index: 900;
+    display: flex;
+    flex-direction: column;
   }
 
+  /* Hide decorative blobs on mobile (performance) */
+  .mesh-gradient {
+    display: none;
+  }
+
+  /* ── Compact top header ── */
+  .publish-header {
+    flex-shrink: 0;
+    padding: 60px 20px 16px;
+    margin-bottom: 0;
+    text-align: left;
+    background: rgba(5, 5, 5, 0.95);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  }
+
+  .step-count {
+    font-size: 0.75rem;
+    opacity: 0.6;
+  }
+
+  .step-title {
+    font-size: 1.6rem;
+    margin: 4px 0 0;
+  }
+
+  /* ── Scrollable content area ── */
   .publish-content {
-    padding-bottom: calc(180px + env(safe-area-inset-bottom, 0px));
+    flex: 1;
+    display: block;
+    padding: 16px 16px calc(140px + env(safe-area-inset-bottom, 0px));
+    overflow: visible;
   }
 
-  .publish-container {
-    overflow-x: clip;
-    overflow-y: visible;
+  .form-area {
+    width: 100%;
   }
 
-  /* Raise footer above bottom nav bar (~65px) */
+  /* ── Console card (the form card) ── */
+  .console-card {
+    padding: 20px 16px;
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+  }
+
+  .console-header {
+    gap: 10px;
+    margin-bottom: 16px;
+    font-size: 0.85rem;
+  }
+
+  .console-divider {
+    margin: 20px 0;
+  }
+
+  /* ── Input fields ── */
+  .input-group {
+    margin-bottom: 16px;
+  }
+
+  .input-group input,
+  .input-group textarea {
+    font-size: 1rem;
+    padding: 14px 16px;
+    border-radius: 14px;
+  }
+
+  /* URL verify group: stack on mobile */
+  .url-verify-group {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .url-verify-group .input-group {
+    width: 100%;
+  }
+
+  .elite-btn.btn-scan {
+    width: 100%;
+    text-align: center;
+    justify-content: center;
+    padding: 14px;
+    border-radius: 14px;
+  }
+
+  /* ── Category grid ── */
+  .category-grid-premium {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .cat-card-premium {
+    padding: 14px 16px;
+    border-radius: 16px;
+    gap: 14px;
+  }
+
+  .cat-icon-premium {
+    width: 40px;
+    height: 40px;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+  }
+
+  .cat-info-premium h3 {
+    font-size: 0.95rem;
+    margin-bottom: 2px;
+  }
+
+  .cat-info-premium p {
+    font-size: 0.8rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  /* ── Price / chips ── */
+  .price-tags {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  /* ── Fixed footer above bottom nav ── */
   .publish-footer-elite {
+    position: fixed;
     bottom: 65px;
-    padding: 14px 20px;
+    left: 0;
+    right: 0;
+    z-index: 1001;
+    background: rgba(10, 11, 16, 0.97);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 12px 20px;
+    margin-top: 0;
+    gap: 12px;
+    box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.6);
   }
 
   .btn-publish-elite {
     flex: 1;
     justify-content: center;
-    padding: 16px 24px;
+    padding: 16px 20px;
+    font-size: 0.9rem;
+    border-radius: 14px;
   }
 
   .btn-cancel-elite {
-    padding: 16px 12px;
+    padding: 16px 14px;
+    font-size: 0.8rem;
+    flex-shrink: 0;
   }
 
-  .console-card {
-    padding: 24px 16px;
-    border-radius: 20px;
+  /* ── Hide desktop preview ── */
+  .preview-column {
+    display: none;
   }
 
-  .category-grid-premium {
-    grid-template-columns: 1fr;
+  /* ── Error messages ── */
+  .error-msg {
+    font-size: 0.8rem;
   }
 
-  .step-title {
-    font-size: 1.8rem;
+  /* ── Dropdown ── */
+  .elite-dropdown {
+    max-height: 220px;
   }
 }
 

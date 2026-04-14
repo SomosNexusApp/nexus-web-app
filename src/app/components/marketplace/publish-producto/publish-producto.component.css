@@ -1520,10 +1520,10 @@ input[type="file"].hidden {
     right: 0 !important; /* OBLIGATORIO para position fixed en móviles */
     margin-top: 0 !important;
     padding: 15px 20px !important;
-    padding-bottom: calc(15px + env(safe-area-inset-bottom)) !important; /* Soporte iPhone */
+    padding-bottom: calc(15px + env(safe-area-inset-bottom, 20px)) !important; /* Soporte iPhone */
     
     /* UX Upgrade: Cristal translúcido para el footer móvil */
-    background: rgba(8, 8, 12, 0.90) !important;
+    background: rgba(8, 8, 12, 0.95) !important;
     backdrop-filter: blur(20px) !important;
     -webkit-backdrop-filter: blur(20px) !important;
     border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
@@ -1769,7 +1769,7 @@ input[type="file"].hidden {
 
   /* Fix for the fixed footer at the bottom */
   .publish-main {
-    padding-bottom: 140px !important;
+    padding-bottom: calc(160px + env(safe-area-inset-bottom, 0px)) !important;
     overflow-y: visible !important;
     height: auto !important;
   }

@@ -111,10 +111,19 @@
         <div class="nx-form-group">
           <label class="nx-form-label">Categoría</label>
           <div class="nx-custom-select-container" [class.active-container]="mostrandoCategorias">
-            <div class="nx-custom-select-trigger" (click)="toggleCategorias($event)" [class.active]="mostrandoCategorias">
+            <div
+              class="nx-custom-select-trigger"
+              (click)="toggleCategorias($event)"
+              [class.active]="mostrandoCategorias"
+            >
               <i [class]="categoriaIconoActual() + ' nx-icon-left'"></i>
-              <span class="nx-select-text">{{ categoriaNombreActual() || 'Cualquier categoría' }}</span>
-              <i class="fas fa-chevron-down nx-icon-right" [class.nx-rotate]="mostrandoCategorias"></i>
+              <span class="nx-select-text">{{
+                categoriaNombreActual() || 'Cualquier categoría'
+              }}</span>
+              <i
+                class="fas fa-chevron-down nx-icon-right"
+                [class.nx-rotate]="mostrandoCategorias"
+              ></i>
             </div>
 
             @if (mostrandoCategorias) {
@@ -125,9 +134,9 @@
                 </div>
                 <div class="nx-dropdown-divider"></div>
                 @for (cat of categoriasDisponibles; track cat.id) {
-                  <div 
-                    class="nx-dropdown-option" 
-                    (click)="seleccionarCategoria(cat)" 
+                  <div
+                    class="nx-dropdown-option"
+                    (click)="seleccionarCategoria(cat)"
                     [class.active]="filterForm.get('categoria')?.value === cat.slug"
                   >
                     <i [class]="getIconoCategoria(cat)"></i>
@@ -169,7 +178,11 @@
         <div class="nx-form-group">
           <label class="nx-form-label">Fecha de publicación</label>
           <div class="nx-custom-select-container" [class.active-container]="mostrandoDias">
-            <div class="nx-custom-select-trigger" (click)="toggleDias($event)" [class.active]="mostrandoDias">
+            <div
+              class="nx-custom-select-trigger"
+              (click)="toggleDias($event)"
+              [class.active]="mostrandoDias"
+            >
               <i [class]="diasIconoActual() + ' nx-icon-left'"></i>
               <span class="nx-select-text">{{ diasNombreActual() }}</span>
               <i class="fas fa-chevron-down nx-icon-right" [class.nx-rotate]="mostrandoDias"></i>
@@ -178,9 +191,9 @@
             @if (mostrandoDias) {
               <div class="nx-custom-dropdown-panel scale-in">
                 @for (opt of diasDisponibles; track opt.value) {
-                  <div 
-                    class="nx-dropdown-option" 
-                    (click)="seleccionarDias(opt.value)" 
+                  <div
+                    class="nx-dropdown-option"
+                    (click)="seleccionarDias(opt.value)"
                     [class.active]="filterForm.get('diasPublicacion')?.value === opt.value"
                   >
                     <i [class]="opt.icon"></i>
@@ -196,18 +209,25 @@
         <div class="nx-form-group">
           <label class="nx-form-label">Condición del artículo</label>
           <div class="nx-custom-select-container" [class.active-container]="mostrandoCondiciones">
-            <div class="nx-custom-select-trigger" (click)="toggleCondiciones($event)" [class.active]="mostrandoCondiciones">
+            <div
+              class="nx-custom-select-trigger"
+              (click)="toggleCondiciones($event)"
+              [class.active]="mostrandoCondiciones"
+            >
               <i [class]="condicionIconoActual() + ' nx-icon-left'"></i>
               <span class="nx-select-text">{{ condicionNombreActual() }}</span>
-              <i class="fas fa-chevron-down nx-icon-right" [class.nx-rotate]="mostrandoCondiciones"></i>
+              <i
+                class="fas fa-chevron-down nx-icon-right"
+                [class.nx-rotate]="mostrandoCondiciones"
+              ></i>
             </div>
 
             @if (mostrandoCondiciones) {
               <div class="nx-custom-dropdown-panel scale-in">
                 @for (opt of condicionesDisponibles; track opt.value) {
-                  <div 
-                    class="nx-dropdown-option" 
-                    (click)="seleccionarCondicion(opt.value)" 
+                  <div
+                    class="nx-dropdown-option"
+                    (click)="seleccionarCondicion(opt.value)"
                     [class.active]="filterForm.get('condicion')?.value === opt.value"
                   >
                     <i [class]="opt.icon"></i>
@@ -424,12 +444,13 @@
     <!-- NUEVO: Banner Premium de Búsqueda -->
     <div class="nx-premium-search-banner">
       <div class="nx-banner-content" [formGroup]="filterForm">
-
         <h1 class="nx-h1-glow-title">
           @if (filterForm.get('q')?.value) {
-            Tu próximo descubrimiento en <span class="nx-text-highlight">"{{ filterForm.get('q')?.value }}"</span>
+            Tu próximo descubrimiento en
+            <span class="nx-text-highlight">"{{ filterForm.get('q')?.value }}"</span>
           } @else if (categoriaNombreActual()) {
-            El escaparate VIP de <span class="nx-text-highlight">{{ categoriaNombreActual() }}</span>
+            El escaparate VIP de
+            <span class="nx-text-highlight">{{ categoriaNombreActual() }}</span>
           } @else {
             Catálogo <span class="nx-text-highlight">completo</span>
           }
@@ -439,27 +460,19 @@
         <div class="nx-top-category-tabs">
           <label class="nx-tab-item">
             <input type="radio" formControlName="tipo" value="TODOS" />
-            <div class="nx-tab-btn tab-all">
-              <i class="fas fa-layer-group"></i> Todo
-            </div>
+            <div class="nx-tab-btn tab-all"><i class="fas fa-layer-group"></i> Todo</div>
           </label>
           <label class="nx-tab-item">
             <input type="radio" formControlName="tipo" value="PRODUCTO" />
-            <div class="nx-tab-btn tab-product">
-              <i class="fas fa-box-open"></i> Productos
-            </div>
+            <div class="nx-tab-btn tab-product"><i class="fas fa-box-open"></i> Productos</div>
           </label>
           <label class="nx-tab-item">
             <input type="radio" formControlName="tipo" value="OFERTA" />
-            <div class="nx-tab-btn tab-offer">
-              <i class="fas fa-fire-flame-curved"></i> Chollos
-            </div>
+            <div class="nx-tab-btn tab-offer"><i class="fas fa-fire-flame-curved"></i> Chollos</div>
           </label>
           <label class="nx-tab-item">
             <input type="radio" formControlName="tipo" value="VEHICULO" />
-            <div class="nx-tab-btn tab-motor">
-              <i class="fas fa-car-side"></i> Motor
-            </div>
+            <div class="nx-tab-btn tab-motor"><i class="fas fa-car-side"></i> Motor</div>
           </label>
         </div>
       </div>
@@ -469,8 +482,15 @@
     <header class="nx-results-toolbar">
       <div class="nx-sort-wrapper">
         <label class="nx-sort-label"><i class="fas fa-sort-amount-down"></i> Ordenar por</label>
-        <div class="nx-custom-select-container nx-sort-select-container" [class.active-container]="mostrandoOrden">
-          <div class="nx-custom-select-trigger nx-sort-trigger" (click)="toggleOrden($event)" [class.active]="mostrandoOrden">
+        <div
+          class="nx-custom-select-container nx-sort-select-container"
+          [class.active-container]="mostrandoOrden"
+        >
+          <div
+            class="nx-custom-select-trigger nx-sort-trigger"
+            (click)="toggleOrden($event)"
+            [class.active]="mostrandoOrden"
+          >
             <i [class]="ordenIconoActual() + ' nx-icon-left'"></i>
             <span class="nx-select-text">{{ ordenNombreActual() }}</span>
             <i class="fas fa-chevron-down nx-icon-right" [class.nx-rotate]="mostrandoOrden"></i>
@@ -479,9 +499,9 @@
           @if (mostrandoOrden) {
             <div class="nx-custom-dropdown-panel nx-sort-panel scale-in">
               @for (opt of opcionesOrden; track opt.value) {
-                <div 
-                  class="nx-dropdown-option" 
-                  (click)="seleccionarOrden(opt.value)" 
+                <div
+                  class="nx-dropdown-option"
+                  (click)="seleccionarOrden(opt.value)"
                   [class.active]="filterForm.get('orden')?.value === opt.value"
                 >
                   <i [class]="opt.icon"></i>
@@ -562,28 +582,30 @@
     </div>
 
     <div class="nx-infinite-loader-zone" #scrollAnchor>
-        <div class="nx-glow-spinner" *ngIf="cargandoMas"></div>
-        <span *ngIf="cargandoMas">Cargando más resultados...</span>
-        
-        <button 
-          *ngIf="mostrarBotonCargarMas" 
-          (click)="cargarMasResultados()" 
-          class="nx-btn-load-more"
-        >
-          <i class="fas fa-plus-circle"></i>
-          Cargar más resultados
-        </button>
+      <div class="nx-glow-spinner" *ngIf="cargandoMas"></div>
+      <span *ngIf="cargandoMas">Cargando más resultados...</span>
 
-        <div class="nx-adsense-desktop-slot">
-          <ins #adsenseSlot
-               class="adsbygoogle"
-               style="display:block"
-               data-ad-client="ca-pub-6663448717051907"
-               data-ad-slot="YOUR_AD_SLOT_ID"
-               data-ad-format="auto"
-               data-full-width-responsive="true"></ins>
-        </div>
+      <button
+        *ngIf="mostrarBotonCargarMas"
+        (click)="cargarMasResultados()"
+        class="nx-btn-load-more"
+      >
+        <i class="fas fa-plus-circle"></i>
+        Cargar más resultados
+      </button>
+
+      <div class="nx-adsense-desktop-slot">
+        <ins
+          #adsenseSlot
+          class="adsbygoogle"
+          style="display: block"
+          data-ad-client="ca-pub-6663448717051907"
+          data-ad-slot="6885786825"
+          data-ad-format="auto"
+          data-full-width-responsive="true"
+        ></ins>
       </div>
+    </div>
   </main>
 </div>
 
