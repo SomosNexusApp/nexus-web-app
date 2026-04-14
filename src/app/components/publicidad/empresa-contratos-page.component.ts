@@ -2,7 +2,7 @@ import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule, DatePipe, DecimalPipe } from '@angular/common';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { ActivatedRoute, RouterModule } from '@angular/router';
-import { environment } from '../../../environments/enviroment';
+import { environment } from '../../../environments/environment';
 import { AuthStore } from '../../core/auth/auth-store';
 import { ToastService } from '../../core/services/toast.service';
 

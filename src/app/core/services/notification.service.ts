@@ -4,7 +4,7 @@ import { Observable, tap } from 'rxjs';
 import { WebSocketService, Notificacion } from './websocket.service';
 import { ToastService, Toast } from './toast.service';
 import { AuthStore } from '../auth/auth-store';
-import { environment } from '../../../environments/enviroment';
+import { environment } from '../../../environments/environment';
 
 export interface NotificacionInAppDto {
   id: number;

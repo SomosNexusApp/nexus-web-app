@@ -2,7 +2,7 @@ import { Component, OnInit, inject, signal, OnDestroy } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
 import { ActivatedRoute, RouterModule, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
-import { environment } from '../../../../environments/enviroment';
+import { environment } from '../../../../environments/environment';
 import { AuthStore } from '../../../core/auth/auth-store';
 import { CurrencyEsPipe } from '../../../shared/pipes/currency-es.pipe';
 import { TimeAgoPipe } from '../../../shared/pipes/time-ago.pipe';

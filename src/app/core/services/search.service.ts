@@ -5,7 +5,7 @@ import { Observable, forkJoin, of, shareReplay, switchMap, concat, map, catchErr
 import { Producto } from '../../models/producto.model';
 import { Oferta } from '../../models/oferta.model';
 import { Vehiculo } from '../../models/vehiculo.model';
-import { environment } from '../../../environments/enviroment';
+import { environment } from '../../../environments/environment';
 
 export interface SearchParams {
   q?: string;

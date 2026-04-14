@@ -2,7 +2,7 @@ import { Component, Input, Output, EventEmitter, inject, signal, ViewChild } fro
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
-import { environment } from '../../../../environments/enviroment';
+import { environment } from '../../../../environments/environment';
 import { AuthStore } from '../../../core/auth/auth-store';
 import { ToastService } from '../../../core/services/toast.service';
 import { StarRatingComponent } from '../star-rating/star-rating.component';

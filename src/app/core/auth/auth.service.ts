@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { Observable, of, tap, switchMap, map } from 'rxjs';
-import { environment } from '../../../environments/enviroment';
+import { environment } from '../../../environments/environment';
 
 import { JwtService } from './jwt-service';
 import { AuthStore } from './auth-store';

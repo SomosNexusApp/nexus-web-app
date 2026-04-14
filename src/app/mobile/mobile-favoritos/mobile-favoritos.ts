@@ -2,7 +2,7 @@ import { Component, ChangeDetectionStrategy, inject, signal, OnInit } from '@ang
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { AuthStore } from '../../core/auth/auth-store';
-import { environment } from '../../../environments/enviroment';
+import { environment } from '../../../environments/environment';
 import { ProductoCardComponent } from '../../shared/components/marketplace/product-card/producto-card.component';
 import { VehiculoCardComponent } from '../../shared/components/vehiculo-card/vehiculo-card.component';
 import { FavoritoService } from '../../core/services/favorito.service';

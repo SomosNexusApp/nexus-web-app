@@ -6,7 +6,7 @@ import { Router, RouterLink } from '@angular/router';
 
 import { AuthStore } from '../../../core/auth/auth-store';
 import { GuestPopupService } from '../../../core/services/guest-popup.service';
-import { environment } from '../../../../environments/enviroment';
+import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-oauth-terms-popup',

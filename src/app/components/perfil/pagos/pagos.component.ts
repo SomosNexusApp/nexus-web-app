@@ -13,7 +13,7 @@ import { PagoService } from '../../../core/services/pago.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { ConfirmModalComponent } from '../../../shared/components/confirm-modal/confirm-modal.component';
 import { AuthStore } from '../../../core/auth/auth-store';
-import { environment } from '../../../../environments/enviroment';
+import { environment } from '../../../../environments/environment';
 import { loadStripe, Stripe, StripeCardElement } from '@stripe/stripe-js';
 
 @Component({

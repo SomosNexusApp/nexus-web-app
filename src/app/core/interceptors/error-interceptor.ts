@@ -12,7 +12,7 @@ import { JwtService } from '../auth/jwt-service';
 import { AuthStore } from '../auth/auth-store';
 import { GuestPopupService } from '../services/guest-popup.service';
 import { ToastService } from '../services/toast.service';
-import { environment } from '../../../environments/enviroment';
+import { environment } from '../../../environments/environment';
 
 @Injectable()
 export class ErrorInterceptor implements HttpInterceptor {

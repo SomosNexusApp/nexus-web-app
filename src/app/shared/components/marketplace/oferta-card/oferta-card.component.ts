@@ -18,7 +18,7 @@ import { TimeAgoPipe } from '../../../pipes/time-ago.pipe';
 import { SkeletonCardComponent } from '../../skeleton-card/skeleton-card.component';
 import { CoverImagePipe } from '../../../pipes/cover-image.pipe';
 import { MarketplaceItem } from '../../../../models/marketplace-item.model';
-import { environment } from '../../../../../environments/enviroment';
+import { environment } from '../../../../../environments/environment';
 import { AuthStore } from '../../../../core/auth/auth-store';
 import { ToastService } from '../../../../core/services/toast.service';
 import { FavoritoService } from '../../../../core/services/favorito.service';

@@ -15,7 +15,7 @@ import { ConfirmModalComponent } from '../../shared/components/confirm-modal/con
 import { AvatarComponent } from '../../shared/components/avatar/avatar.component';
 import { MegaMenuComponent, MegaMenuConfig } from '../../shared/components/mega-menu/mega-menu.component';
 import { UiService } from '../../core/services/ui.service';
-import { environment } from '../../../environments/enviroment';
+import { environment } from '../../../environments/environment';
 
 interface NavLink {
   label: string;

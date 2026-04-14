@@ -2,7 +2,7 @@ import { Component, EventEmitter, inject, Output, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { environment } from '../../../../environments/enviroment';
+import { environment } from '../../../../environments/environment';
 import { AuthStore } from '../../../core/auth/auth-store';
 import { GuestPopupService } from '../../../core/services/guest-popup.service';
 import { AvatarComponent } from '../avatar/avatar.component';

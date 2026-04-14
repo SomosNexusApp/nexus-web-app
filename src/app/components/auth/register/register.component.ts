@@ -13,7 +13,7 @@ import { RouterLink, Router } from '@angular/router';
 import { RecaptchaModule, RecaptchaComponent } from 'ng-recaptcha';
 import { map, catchError, delay, switchMap, timer, Observable, of } from 'rxjs';
 import { AuthService } from '../../../core/auth/auth.service';
-import { environment } from '../../../../environments/enviroment';
+import { environment } from '../../../../environments/environment';
 import { GoogleAuthService } from '../../../core/auth/google-auth.service';
 import { FacebookAuthService } from '../../../core/auth/facebook-auth.service';
 import { GuestPopupService } from '../../../core/services/guest-popup.service';

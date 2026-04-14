@@ -5,7 +5,7 @@ import { HttpClient } from '@angular/common/http';
 import { ConversacionesListComponent } from '../conversaciones-list/conversaciones-list';
 import { ChatPanelComponent } from '../chat-panel/chat-panel';
 import { AuthStore } from '../../../core/auth/auth-store';
-import { environment } from '../../../../environments/enviroment';
+import { environment } from '../../../../environments/environment';
 
 import { UiService } from '../../../core/services/ui.service';
 

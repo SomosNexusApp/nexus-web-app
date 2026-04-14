@@ -1,10 +1,10 @@
 import { Component, AfterViewInit, inject, PLATFORM_ID } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
-import { environment } from '../../../../environments/enviroment';
+import { environment } from '../../../../environments/environment';
 
 /**
  * Banner inferior AdSense.
- * Configura en `src/environments/enviroment.ts`:
+ * Configura en `src/environments/environment.ts`:
  * - adsenseClient: ca-pub-XXXXXXXX (ID de editor de Google AdSense)
  * - adsenseSlotFooter: ID del bloque de anuncios (data-ad-slot)
  * Añade en index.html la etiqueta script de página de AdSense (ver comentario en index.html).

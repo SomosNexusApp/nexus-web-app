@@ -5,7 +5,7 @@ import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { AuthStore } from '../../../core/auth/auth-store';
 import { AuthService } from '../../../core/auth/auth.service';
-import { environment } from '../../../../environments/enviroment';
+import { environment } from '../../../../environments/environment';
 import { CurrencyEsPipe } from '../../../shared/pipes/currency-es.pipe';
 import { ToastService } from '../../../core/services/toast.service';
 import { ConfirmModalComponent } from '../../../shared/components/confirm-modal/confirm-modal.component';

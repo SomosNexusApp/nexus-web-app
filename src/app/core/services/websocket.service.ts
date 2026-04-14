@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Subject } from 'rxjs';
 import { Client } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
-import { environment } from '../../../environments/enviroment';
+import { environment } from '../../../environments/environment';
 import { JwtService } from '../auth/jwt-service';
 import { AuthStore } from '../auth/auth-store';
 

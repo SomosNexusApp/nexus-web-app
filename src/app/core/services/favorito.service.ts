@@ -2,7 +2,7 @@ import { inject, Injectable, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, of, tap } from 'rxjs';
 import { map, shareReplay, switchMap } from 'rxjs/operators';
-import { environment } from '../../../environments/enviroment';
+import { environment } from '../../../environments/environment';
 import { AuthStore } from '../auth/auth-store';
 
 @Injectable({

@@ -7,7 +7,7 @@ import { HttpClient } from '@angular/common/http';
 import { debounceTime, distinctUntilChanged, switchMap, of, startWith, tap, catchError } from 'rxjs';
 import { toSignal } from '@angular/core/rxjs-interop';
 
-import { environment } from '../../../../environments/enviroment';
+import { environment } from '../../../../environments/environment';
 import { AuthStore } from '../../../core/auth/auth-store';
 import { SearchService } from '../../../core/services/search.service';
 import { ToastService } from '../../../core/services/toast.service';

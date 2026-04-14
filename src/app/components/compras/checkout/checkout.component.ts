@@ -20,7 +20,7 @@ import {
   StripeCardCvcElement,
 } from '@stripe/stripe-js';
 
-import { environment } from '../../../../environments/enviroment';
+import { environment } from '../../../../environments/environment';
 import { AuthStore } from '../../../core/auth/auth-store';
 import { PagoService } from '../../../core/services/pago.service';
 import { CompraService } from '../../../core/services/compra.service';

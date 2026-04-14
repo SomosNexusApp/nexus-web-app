@@ -2,7 +2,7 @@ import { Injectable, inject, NgZone } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from './auth.service';
 import { GuestPopupService } from '../services/guest-popup.service';
-import { environment } from '../../../environments/enviroment';
+import { environment } from '../../../environments/environment';
 
 declare var FB: any;
 

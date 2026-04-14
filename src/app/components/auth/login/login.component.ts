@@ -10,7 +10,7 @@ import { FacebookAuthService } from '../../../core/auth/facebook-auth.service';
 import { GuestPopupService } from '../../../core/services/guest-popup.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { HttpClient } from '@angular/common/http';
-import { environment } from '../../../../environments/enviroment';
+import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-login',

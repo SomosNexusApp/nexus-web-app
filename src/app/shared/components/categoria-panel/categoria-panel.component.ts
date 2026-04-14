@@ -2,7 +2,7 @@ import { Component, Input, Output, EventEmitter, OnInit, inject, signal } from '
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
-import { environment } from '../../../../environments/enviroment';
+import { environment } from '../../../../environments/environment';
 import { getCategoryIconPath } from '../../utils/category-icons';
 
 export interface Categoria {

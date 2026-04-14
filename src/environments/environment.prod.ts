@@ -1,6 +1,6 @@
 // ============================================================
 // NEXUS — PRODUCCIÓN
-// Este archivo sustituye a enviroment.ts al compilar con:
+// Este archivo sustituye a environment.ts al compilar con:
 //   ng build --configuration=production
 // NUNCA subas claves reales a git. Usa variables de entorno
 // de tu CI/CD (GitHub Actions, Vercel, etc.) para inyectarlas.

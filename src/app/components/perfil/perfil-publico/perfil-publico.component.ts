@@ -2,7 +2,7 @@ import { Component, OnInit, inject, signal, computed, OnDestroy, ViewChild } fro
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
-import { environment } from '../../../../environments/enviroment';
+import { environment } from '../../../../environments/environment';
 import { AuthStore } from '../../../core/auth/auth-store';
 import { TimeAgoPipe } from '../../../shared/pipes/time-ago.pipe';
 import { BloqueoService } from '../../../core/services/bloqueo.service';

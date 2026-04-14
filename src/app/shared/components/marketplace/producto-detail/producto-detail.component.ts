@@ -18,7 +18,7 @@ import { ProductoCardComponent } from '../product-card/producto-card.component';
 import { Producto } from '../../../../models/producto.model';
 import { Valoracion } from '../../../../models/valoracion.model';
 import { Usuario } from '../../../../models/usuario.model';
-import { environment } from '../../../../../environments/enviroment';
+import { environment } from '../../../../../environments/environment';
 import { AuthStore } from '../../../../core/auth/auth-store';
 import { FavoritoService } from '../../../../core/services/favorito.service';
 import { ChatService } from '../../../../core/services/chat.service';

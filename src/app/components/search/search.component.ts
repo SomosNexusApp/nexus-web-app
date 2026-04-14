@@ -25,7 +25,7 @@ import { ProductoCardComponent } from '../../shared/components/marketplace/produ
 import { OfertaCardComponent } from '../../shared/components/marketplace/oferta-card/oferta-card.component';
 import { VehiculoCardComponent } from '../../shared/components/vehiculo-card/vehiculo-card.component';
 import { Categoria } from '../../models/categoria.model';
-import { environment } from '../../../environments/enviroment';
+import { environment } from '../../../environments/environment';
 import { MarketplaceItem } from '../../models/marketplace-item.model';
 
 const VEHICLE_SLUGS = [

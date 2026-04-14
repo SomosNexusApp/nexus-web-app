@@ -18,7 +18,7 @@ import { HttpClient } from '@angular/common/http';
 import { debounceTime, distinctUntilChanged, switchMap, of, startWith } from 'rxjs';
 import { toSignal } from '@angular/core/rxjs-interop';
 
-import { environment } from '../../../../environments/enviroment';
+import { environment } from '../../../../environments/environment';
 import { GuestPopupService } from '../../../core/services/guest-popup.service';
 import { AuthService } from '../../../core/auth/auth.service';
 import { AuthStore } from '../../../core/auth/auth-store';
