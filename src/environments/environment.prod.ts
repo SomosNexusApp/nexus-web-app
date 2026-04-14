@@ -34,7 +34,7 @@ export const environment = {
   // En producción debe ser WSS (seguro). Normalmente apunta
   // al mismo servidor que apiUrl.
   // ----------------------------------------------------------
-  wsUrl: 'wss://api.nexus-app.es',
+  wsUrl: 'https://api.nexus-app.es',
 
   // ----------------------------------------------------------
   // Stripe — clave pública (pk_live_...)
