@@ -3,7 +3,7 @@
   <div class="nx-mobile-glass-header nx-sticky-header">
     <div class="nx-mobile-header-info">
       <h1 class="nx-mobile-title">
-        @if (filterForm.get('q')?.value) {
+        @if (filterForm && filterForm.get('q')?.value) {
           "{{ filterForm.get('q')?.value }}"
         } @else if (categoriaNombreActual()) {
           {{ categoriaNombreActual() }}
@@ -607,9 +607,8 @@
       </div>
     </div>
   </main>
-</div>
 
-<!-- Mapa Interactivo en Modal (Relocalizado al final para evitar recortes de contenedor) -->
+  <!-- Mapa Interactivo en Modal (Relocalizado al final para evitar recortes de contenedor) -->
 @if (mostrandoMapaModal) {
   <div class="nx-map-modal-overlay" [formGroup]="filterForm">
     <div class="nx-map-modal-content">
@@ -686,3 +685,4 @@
     </div>
   </div>
 }
+</div>

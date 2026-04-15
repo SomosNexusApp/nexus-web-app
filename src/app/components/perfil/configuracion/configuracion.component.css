@@ -1054,6 +1054,7 @@ input:checked + .premium-slider:before {
 .totp-input-group .btn-primary {
   padding: 16px 32px;
   font-size: 1rem;
+  border-radius: 16px;
 }
 
 /* ================= FORM LAYOUT & ACTIONS ================= */
@@ -1126,7 +1127,8 @@ input:checked + .premium-slider:before {
   }
 
   .configuracion-page.is-embedded {
-    padding: 0;
+    padding-top: 2.5rem; /* Margen superior amplio */
+    padding-bottom: 2rem;
   }
 
   .config-layout-grid {
@@ -1184,10 +1186,16 @@ input:checked + .premium-slider:before {
 
   /* ── Toggles ── */
   .toggle-item {
-    padding: 16px;
-    border-radius: 16px;
-    gap: 12px;
-    align-items: flex-start;
+    padding: 1.25rem;
+    border-radius: 18px;
+    gap: 16px;
+    align-items: center; /* Alineado al centro para que el toggle no flote arriba */
+    background: rgba(255, 255, 255, 0.03);
+  }
+
+  .premium-toggle {
+    flex-shrink: 0; /* Evita que el switch se encoja */
+    scale: 0.9; /* Un poco más pequeño para mobile */
   }
 
   .toggle-info h4 {
@@ -1200,10 +1208,10 @@ input:checked + .premium-slider:before {
 
   /* ── 2FA ── */
   .two-fa-item {
-    padding: 16px;
-    border-radius: 16px;
-    flex-direction: column;
-    gap: 12px;
+    padding: 20px 16px;
+    border-radius: 20px;
+    flex-direction: column; /* Apilamos en mobile para ganar espacio */
+    gap: 16px;
     align-items: flex-start;
   }
 
@@ -1211,11 +1219,84 @@ input:checked + .premium-slider:before {
     gap: 12px;
   }
 
+  .two-fa-info i {
+    width: 48px;
+    height: 48px;
+    font-size: 1.25rem;
+  }
+
+  .setup-2fa-panel {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 24px;
+    padding: 24px 16px;
+    margin-top: 16px;
+  }
+
+  .qr-container {
+    background: #fff;
+    padding: 12px;
+    border-radius: 20px;
+    width: 220px;
+    height: 220px;
+    margin: 20px auto;
+  }
+
+  .qr-container img {
+    width: 100%;
+    height: 100%;
+  }
+
+  .totp-input-group {
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+  }
+
+  .totp-input-group input {
+    width: 100% !important;
+    font-size: 1.8rem !important;
+    letter-spacing: 8px !important;
+  }
+
+  .totp-input-group .btn-primary {
+    width: 100%;
+  }
+
   /* ── Sessions ── */
   .session-card {
-    padding: 16px;
+    padding: 20px 16px;
     gap: 16px;
-    border-radius: 18px;
+    border-radius: 20px;
+    flex-direction: column; /* Apilamos para que quepa toda la info */
+    align-items: flex-start;
+    text-align: left;
+  }
+
+  .session-icon {
+    width: 44px;
+    height: 44px;
+    font-size: 1.25rem;
+  }
+
+  .session-details strong {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .ip-address {
+    display: block;
+    margin-top: 4px;
+  }
+
+  .session-divider {
+    display: none; /* Quitamos el punto separador en mobile al estar apilados */
+  }
+
+  .session-date {
+    display: block;
+    font-size: 0.8rem;
+    margin-top: 4px;
   }
 
   .session-card:hover {
@@ -1233,12 +1314,14 @@ input:checked + .premium-slider:before {
 
   /* ── Embedded: compact gaps ── */
   .is-embedded .config-content {
-    gap: 24px;
+    gap: 32px;
+    padding-top: 1rem;
   }
 
   /* ── Hide perfil section when embedded on mobile (edit from profile button) ── */
-  .is-embedded #perfil {
-    display: none;
+  /* Ocultamos perfil en móviles por petición (ya se edita en otra parte) */
+  #perfil {
+    display: none !important;
   }
 
   /* ── Section actions ── */
@@ -1314,5 +1397,12 @@ input:checked + .premium-slider:before {
     border-top: none;
     padding: 12px 0 0;
     margin: 0;
+  }
+}
+
+/* Ocultar Historial de Sesiones en Mobile */
+@media (max-width: 768px) {
+  .sessions-history-group {
+    display: none !important;
   }
 }
