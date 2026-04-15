@@ -70,7 +70,7 @@ export class MobileFeedComponent implements OnInit, OnDestroy {
       this.selectedSubTab();
       this.searchService.searchTerm();
       this.fetchItems();
-    }, { allowSignalWrites: true });
+    });
   }
 
   ngOnInit() {

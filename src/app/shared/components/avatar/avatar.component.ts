@@ -96,7 +96,7 @@ export class AvatarComponent {
       this.googleAvatarUrl();
       this.avatarSource();
       this.isBroken.set(false);
-    }, { allowSignalWrites: true });
+    });
   }
 
   effectiveAvatarUrl = computed(() => {

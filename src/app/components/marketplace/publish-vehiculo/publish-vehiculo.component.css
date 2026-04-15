@@ -57,11 +57,12 @@
   to { transform: translate(10%, 10%) scale(1.15); }
 }
 
-.publish-header {
+.publish-container .publish-header {
   margin-bottom: 40px;
   text-align: center;
   z-index: 2;
   position: relative;
+  background: transparent !important; /* Fuerza transparencia total */
 }
 
 .publish-content {
@@ -173,7 +174,7 @@
 
 @media (max-width: 768px) {
   .selection-grid {
-    grid-template-columns: repeat(2, 1fr) !important;
+    grid-template-columns: 1fr !important;
     gap: 12px !important;
   }
   .selection-card {
@@ -2288,12 +2289,12 @@
   }
 
   /* 2. Header Visibility */
-  .publish-header {
+  .publish-container .publish-header {
     position: sticky !important;
     top: 0 !important;
     z-index: 1000 !important;
-    background: rgba(5,5,5,0.95) !important;
-    backdrop-filter: blur(20px) !important;
+    background: transparent !important; /* Permitir ver el mesh-gradient */
+    backdrop-filter: blur(15px) !important;
     padding: calc(20px + env(safe-area-inset-top)) 20px 15px !important;
     border-bottom: 1px solid rgba(255,255,255,0.05) !important;
   }
@@ -2386,7 +2387,7 @@
 
   /* 6. Step 1: Vehicle selection (Keep 2x2 but better gaps) */
   .selection-grid {
-    grid-template-columns: 1fr 1fr !important;
+    grid-template-columns: 1fr !important;
     gap: 12px !important;
   }
 

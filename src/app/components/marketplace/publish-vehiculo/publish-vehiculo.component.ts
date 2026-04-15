@@ -69,7 +69,7 @@ export class PublishVehiculoComponent implements OnInit, AfterViewInit {
 
   // --- FORMULARIOS ---
   step1Form = this.fb.group({
-    tipoVehiculo: this.fb.control<TipoVehiculo>('COCHE', Validators.required)
+    tipoVehiculo: this.fb.control<TipoVehiculo | null>(null, Validators.required)
   });
 
   step2Form = this.fb.group({
@@ -392,7 +392,6 @@ export class PublishVehiculoComponent implements OnInit, AfterViewInit {
 
   selectTipo(tipo: TipoVehiculo) {
     this.step1Form.patchValue({ tipoVehiculo: tipo });
-    this.nextStep();
   }
 
   selectMarca(m: any) {

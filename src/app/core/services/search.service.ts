@@ -199,6 +199,7 @@ export class SearchService {
     if (this.hasValue(params.plazas)) p = p.set('plazas', String(params.plazas));
     if (params.garantia === true) p = p.set('garantia', 'true');
     if (params.itv === true) p = p.set('itv', 'true');
+    if (params.categoria) p = p.set('categoria', String(params.categoria));
     if (params.lat) p = p.set('lat', String(params.lat));
     if (params.lng) p = p.set('lng', String(params.lng));
     if (params.radius) p = p.set('radius', String(params.radius));
