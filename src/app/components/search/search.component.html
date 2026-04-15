@@ -1,688 +1,756 @@
 <div class="nx-search-wrapper">
-  <!-- CABECERA MÓVIL (Sticky) -->
-  <div class="nx-mobile-glass-header nx-sticky-header">
-    <div class="nx-mobile-header-info">
-      <h1 class="nx-mobile-title">
-        @if (filterForm && filterForm.get('q')?.value) {
-          "{{ filterForm.get('q')?.value }}"
-        } @else if (categoriaNombreActual()) {
-          {{ categoriaNombreActual() }}
-        } @else {
-          {{ esBusquedaVehiculo ? 'Motor' : 'Catálogo' }}
-        }
-      </h1>
-      <span class="nx-mobile-results-badge">{{ totalResultados }} resultados</span>
-    </div>
-    <button class="nx-btn-icon-glass" (click)="toggleMobileFilters()" aria-label="Abrir filtros">
-      <i class="fas fa-sliders-h"></i>
-      <span>Filtros</span>
-    </button>
-  </div>
-
-  @if (isMobileFiltersOpen) {
-    <div class="nx-glass-overlay" (click)="toggleMobileFilters()"></div>
-  }
-
-  <!-- SIDEBAR FILTROS -->
-  <aside class="nx-sidebar-glass" [class.nx-sidebar-open]="isMobileFiltersOpen">
-    <div class="nx-sidebar-header">
-      <div class="nx-sidebar-brand">
-        <i class="icon-filter"></i>
-        <h2>Filtros de búsqueda</h2>
-      </div>
-      <button
-        class="nx-btn-close-glass"
-        (click)="toggleMobileFilters()"
-        aria-label="Cerrar filtros"
-      >
-        <i class="icon-x"></i>
-      </button>
-    </div>
-
-    <div class="nx-sidebar-scroll-container">
-      <form [formGroup]="filterForm" class="nx-filter-form">
-        <!-- Ubicación -->
-        <div class="nx-form-group">
-          <div class="nx-form-label-row">
-            <label class="nx-form-label">Ubicación</label>
-            <button
-              type="button"
-              class="nx-btn-map-toggle"
-              (click)="toggleMapa()"
-              [class.active]="mostrandoMapaModal"
-            >
-              <i class="fas fa-map"></i>
-              {{ filterForm.get('lat')?.value ? 'Ajustar Mapa' : 'Ver Mapa' }}
-            </button>
-          </div>
-
-          <div class="nx-input-with-icon">
-            <i class="fas fa-location-dot nx-icon-left"></i>
-            <input
-              type="text"
-              formControlName="ubicacion"
-              class="nx-dark-input no-left-icon"
-              placeholder="Ciudad, provincia, código postal..."
-              (focus)="mostrandoSugerenciasUbi = sugerenciasUbicacion.length > 0"
-            />
-            <button
-              type="button"
-              class="nx-btn-locate"
-              (click)="usarUbicacionActual()"
-              [disabled]="obteniendoUbicacion"
-              title="Usar mi ubicación actual"
-            >
-              <i class="fas fa-crosshairs anim-gps" [class.nx-spin]="obteniendoUbicacion"></i>
-            </button>
-          </div>
-
-          <!-- Resumen de Ubicación Seleccionada -->
-          @if (filterForm.get('lat')?.value && filterForm.get('ubicacion')?.value) {
-            <div class="nx-location-summary">
-              <i class="fas fa-location-crosshairs"></i>
-              <span
-                >{{ filterForm.get('ubicacion')?.value }} ({{
-                  filterForm.get('radius')?.value
-                }}
-                km)</span
-              >
-            </div>
-          }
-
-          <!-- Mapa Interactivo en Modal (Relocalizado al final) -->
-
-          @if (mostrandoSugerenciasUbi && sugerenciasUbicacion.length > 0) {
-            <div class="nx-autocomplete-dropdown">
-              <ul class="nx-dropdown-list">
-                @for (sug of sugerenciasUbicacion; track $index) {
-                  <li class="nx-dropdown-item" (click)="seleccionarUbicacion(sug)">
-                    <i class="fas fa-location-dot"></i>
-                    <span>{{ sug }}</span>
-                  </li>
+    <!-- CABECERA MÓVIL (Sticky) -->
+    <div class="nx-mobile-glass-header nx-sticky-header">
+        <div class="nx-mobile-header-info">
+            <h1 class="nx-mobile-title">
+                @if (filterForm && filterForm.get('q')?.value) {
+                    "{{ filterForm.get('q')?.value }}"
+                } @else if (categoriaNombreActual()) {
+                    {{ categoriaNombreActual() }}
+                } @else {
+                    {{ esBusquedaVehiculo ? 'Motor' : 'Catálogo' }}
                 }
-              </ul>
-            </div>
-          }
+            </h1>
+            <span class="nx-mobile-results-badge">{{ totalResultados }} resultados</span>
         </div>
-
-        <div class="nx-divider-subtle"></div>
-
-        <!-- Categoría — Custom Select con Iconos -->
-        <div class="nx-form-group">
-          <label class="nx-form-label">Categoría</label>
-          <div class="nx-custom-select-container" [class.active-container]="mostrandoCategorias">
-            <div
-              class="nx-custom-select-trigger"
-              (click)="toggleCategorias($event)"
-              [class.active]="mostrandoCategorias"
-            >
-              <i [class]="categoriaIconoActual() + ' nx-icon-left'"></i>
-              <span class="nx-select-text">{{
-                categoriaNombreActual() || 'Cualquier categoría'
-              }}</span>
-              <i
-                class="fas fa-chevron-down nx-icon-right"
-                [class.nx-rotate]="mostrandoCategorias"
-              ></i>
-            </div>
-
-            @if (mostrandoCategorias) {
-              <div class="nx-custom-dropdown-panel scale-in">
-                <div class="nx-dropdown-option" (click)="seleccionarCategoria(null)">
-                  <i class="fas fa-layer-group"></i>
-                  <span>Cualquier categoría</span>
-                </div>
-                <div class="nx-dropdown-divider"></div>
-                @for (cat of categoriasDisponibles; track cat.id) {
-                  <div
-                    class="nx-dropdown-option"
-                    (click)="seleccionarCategoria(cat)"
-                    [class.active]="filterForm.get('categoria')?.value === cat.slug"
-                  >
-                    <i [class]="getIconoCategoria(cat)"></i>
-                    <span>{{ cat.nombre }}</span>
-                  </div>
-                }
-              </div>
-            }
-          </div>
-        </div>
-
-        <!-- Precio -->
-        <div class="nx-form-group">
-          <label class="nx-form-label">Rango de precio (€)</label>
-          <div class="nx-dual-input-row">
-            <div class="nx-input-with-prefix">
-              <span class="nx-prefix">€</span>
-              <input
-                type="number"
-                formControlName="precioMin"
-                class="nx-dark-input"
-                placeholder="Mín"
-              />
-            </div>
-            <span class="nx-separator-line"></span>
-            <div class="nx-input-with-prefix">
-              <span class="nx-prefix">€</span>
-              <input
-                type="number"
-                formControlName="precioMax"
-                class="nx-dark-input"
-                placeholder="Máx"
-              />
-            </div>
-          </div>
-        </div>
-
-        <!-- Fecha de Publicación -->
-        <div class="nx-form-group">
-          <label class="nx-form-label">Fecha de publicación</label>
-          <div class="nx-custom-select-container" [class.active-container]="mostrandoDias">
-            <div
-              class="nx-custom-select-trigger"
-              (click)="toggleDias($event)"
-              [class.active]="mostrandoDias"
-            >
-              <i [class]="diasIconoActual() + ' nx-icon-left'"></i>
-              <span class="nx-select-text">{{ diasNombreActual() }}</span>
-              <i class="fas fa-chevron-down nx-icon-right" [class.nx-rotate]="mostrandoDias"></i>
-            </div>
-
-            @if (mostrandoDias) {
-              <div class="nx-custom-dropdown-panel scale-in">
-                @for (opt of diasDisponibles; track opt.value) {
-                  <div
-                    class="nx-dropdown-option"
-                    (click)="seleccionarDias(opt.value)"
-                    [class.active]="filterForm.get('diasPublicacion')?.value === opt.value"
-                  >
-                    <i [class]="opt.icon"></i>
-                    <span>{{ opt.label }}</span>
-                  </div>
-                }
-              </div>
-            }
-          </div>
-        </div>
-
-        <!-- Condición — Custom Select -->
-        <div class="nx-form-group">
-          <label class="nx-form-label">Condición del artículo</label>
-          <div class="nx-custom-select-container" [class.active-container]="mostrandoCondiciones">
-            <div
-              class="nx-custom-select-trigger"
-              (click)="toggleCondiciones($event)"
-              [class.active]="mostrandoCondiciones"
-            >
-              <i [class]="condicionIconoActual() + ' nx-icon-left'"></i>
-              <span class="nx-select-text">{{ condicionNombreActual() }}</span>
-              <i
-                class="fas fa-chevron-down nx-icon-right"
-                [class.nx-rotate]="mostrandoCondiciones"
-              ></i>
-            </div>
-
-            @if (mostrandoCondiciones) {
-              <div class="nx-custom-dropdown-panel scale-in">
-                @for (opt of condicionesDisponibles; track opt.value) {
-                  <div
-                    class="nx-dropdown-option"
-                    (click)="seleccionarCondicion(opt.value)"
-                    [class.active]="filterForm.get('condicion')?.value === opt.value"
-                  >
-                    <i [class]="opt.icon"></i>
-                    <span>{{ opt.label }}</span>
-                  </div>
-                }
-              </div>
-            }
-          </div>
-        </div>
-
-        <!-- Envío — solo si no es vehículo -->
-        @if (!esBusquedaVehiculo) {
-          <div class="nx-form-group">
-            <label class="nx-toggle-switch-container">
-              <div class="nx-toggle-text">
-                <span class="nx-toggle-title">Admite envío</span>
-                <span class="nx-toggle-subtitle">Mostrar solo artículos con envío</span>
-              </div>
-              <div class="nx-switch">
-                <input type="checkbox" formControlName="conEnvio" />
-                <span class="nx-switch-slider"></span>
-              </div>
-            </label>
-          </div>
-        }
-
-        <!-- ══ FILTROS DE MOTOR ══════════════════════════════════════ -->
-        @if (esBusquedaVehiculo) {
-          <div class="nx-divider-subtle"></div>
-          <div class="nx-motor-section-title">
-            <i class="icon-settings"></i> Especificaciones de Vehículo
-          </div>
-
-          <div class="nx-form-group">
-            <label class="nx-form-label">Marca</label>
-            <div class="nx-select-wrapper">
-              <select formControlName="marca" class="nx-dark-select">
-                <option value="">Cualquier marca</option>
-                @for (marca of marcasDisponibles; track $index) {
-                  <option [value]="marca">{{ marca }}</option>
-                }
-              </select>
-              <i class="icon-chevron-down nx-icon-right"></i>
-            </div>
-          </div>
-
-          <div class="nx-form-group">
-            <label class="nx-form-label">Modelo</label>
-            <div class="nx-select-wrapper" [class.nx-disabled]="!filterForm.get('marca')?.value">
-              <select formControlName="modelo" class="nx-dark-select">
-                <option value="">Cualquier modelo</option>
-                @for (modelo of modelosDisponibles; track $index) {
-                  <option [value]="modelo">{{ modelo }}</option>
-                }
-              </select>
-              <i class="icon-chevron-down nx-icon-right"></i>
-            </div>
-          </div>
-
-          <div class="nx-form-group">
-            <label class="nx-form-label">Año de matriculación</label>
-            <div class="nx-dual-input-row">
-              <input
-                type="number"
-                formControlName="anioMin"
-                class="nx-dark-input"
-                placeholder="Desde"
-              />
-              <span class="nx-separator-line"></span>
-              <input
-                type="number"
-                formControlName="anioMax"
-                class="nx-dark-input"
-                placeholder="Hasta"
-              />
-            </div>
-          </div>
-
-          <div class="nx-form-group">
-            <label class="nx-form-label">Kilometraje máximo</label>
-            <div class="nx-input-with-suffix">
-              <input
-                type="number"
-                formControlName="kmMax"
-                class="nx-dark-input"
-                placeholder="Ej: 150000"
-              />
-              <span class="nx-suffix">km</span>
-            </div>
-          </div>
-
-          <div class="nx-form-grid-2">
-            <div class="nx-form-group">
-              <label class="nx-form-label">Combustible</label>
-              <div class="nx-select-wrapper">
-                <select formControlName="combustible" class="nx-dark-select">
-                  <option value="">Todos</option>
-                  <option value="GASOLINA">Gasolina</option>
-                  <option value="DIESEL">Diésel</option>
-                  <option value="ELECTRICO">Eléctrico</option>
-                  <option value="HIBRIDO">Híbrido</option>
-                </select>
-                <i class="icon-chevron-down nx-icon-right"></i>
-              </div>
-            </div>
-            <div class="nx-form-group">
-              <label class="nx-form-label">Cambio</label>
-              <div class="nx-select-wrapper">
-                <select formControlName="cambio" class="nx-dark-select">
-                  <option value="">Todos</option>
-                  <option value="MANUAL">Manual</option>
-                  <option value="AUTOMATICO">Automático</option>
-                </select>
-                <i class="icon-chevron-down nx-icon-right"></i>
-              </div>
-            </div>
-          </div>
-
-          <div class="nx-form-grid-2">
-            <div class="nx-form-group">
-              <label class="nx-form-label">Potencia Mínima</label>
-              <div class="nx-input-with-suffix">
-                <input
-                  type="number"
-                  formControlName="potenciaMin"
-                  class="nx-dark-input"
-                  placeholder="Ej: 120"
-                />
-                <span class="nx-suffix">CV</span>
-              </div>
-            </div>
-            <div class="nx-form-group">
-              <label class="nx-form-label">Cilindrada Mínima</label>
-              <div class="nx-input-with-suffix">
-                <input
-                  type="number"
-                  formControlName="cilindradaMin"
-                  class="nx-dark-input"
-                  placeholder="Ej: 1900"
-                />
-                <span class="nx-suffix">cc</span>
-              </div>
-            </div>
-          </div>
-
-          <div class="nx-form-grid-2">
-            <div class="nx-form-group">
-              <label class="nx-form-label">Puertas</label>
-              <input
-                type="number"
-                formControlName="numeroPuertas"
-                class="nx-dark-input"
-                placeholder="Ej: 5"
-              />
-            </div>
-            <div class="nx-form-group">
-              <label class="nx-form-label">Plazas</label>
-              <input
-                type="number"
-                formControlName="plazas"
-                class="nx-dark-input"
-                placeholder="Ej: 5"
-              />
-            </div>
-          </div>
-
-          <div class="nx-form-group">
-            <label class="nx-form-label">Color</label>
-            <input
-              type="text"
-              formControlName="color"
-              class="nx-dark-input"
-              placeholder="Ej: Blanco, Negro..."
-            />
-          </div>
-
-          <div class="nx-form-group">
-            <label class="nx-toggle-switch-container">
-              <div class="nx-toggle-text">
-                <span class="nx-toggle-title">Garantía incluida</span>
-              </div>
-              <div class="nx-switch">
-                <input type="checkbox" formControlName="garantia" />
-                <span class="nx-switch-slider"></span>
-              </div>
-            </label>
-          </div>
-
-          <div class="nx-form-group">
-            <label class="nx-toggle-switch-container">
-              <div class="nx-toggle-text">
-                <span class="nx-toggle-title">ITV en vigor</span>
-              </div>
-              <div class="nx-switch">
-                <input type="checkbox" formControlName="itv" />
-                <span class="nx-switch-slider"></span>
-              </div>
-            </label>
-          </div>
-        }
-      </form>
-    </div>
-
-    <div class="nx-sidebar-footer">
-      <button type="button" class="nx-btn-clear-glass" (click)="limpiarFiltros()">
-        <i class="icon-refresh-cw"></i> Restablecer filtros
-      </button>
-    </div>
-  </aside>
-
-  <!-- ÁREA DE RESULTADOS -->
-  <main class="nx-main-results-area">
-    <!-- NUEVO: Banner Premium de Búsqueda -->
-    <div class="nx-premium-search-banner">
-      <div class="nx-banner-content" [formGroup]="filterForm">
-        <h1 class="nx-h1-glow-title">
-          @if (filterForm.get('q')?.value) {
-            Tu próximo descubrimiento en
-            <span class="nx-text-highlight">"{{ filterForm.get('q')?.value }}"</span>
-          } @else if (categoriaNombreActual()) {
-            El escaparate VIP de
-            <span class="nx-text-highlight">{{ categoriaNombreActual() }}</span>
-          } @else {
-            Catálogo <span class="nx-text-highlight">completo</span>
-          }
-        </h1>
-
-        <!-- Tabs Principales Integradas en el Banner -->
-        <div class="nx-top-category-tabs">
-          <label class="nx-tab-item">
-            <input type="radio" formControlName="tipo" value="TODOS" />
-            <div class="nx-tab-btn tab-all"><i class="fas fa-layer-group"></i> Todo</div>
-          </label>
-          <label class="nx-tab-item">
-            <input type="radio" formControlName="tipo" value="PRODUCTO" />
-            <div class="nx-tab-btn tab-product"><i class="fas fa-box-open"></i> Productos</div>
-          </label>
-          <label class="nx-tab-item">
-            <input type="radio" formControlName="tipo" value="OFERTA" />
-            <div class="nx-tab-btn tab-offer"><i class="fas fa-fire-flame-curved"></i> Chollos</div>
-          </label>
-          <label class="nx-tab-item">
-            <input type="radio" formControlName="tipo" value="VEHICULO" />
-            <div class="nx-tab-btn tab-motor"><i class="fas fa-car-side"></i> Motor</div>
-          </label>
-        </div>
-      </div>
-    </div>
-
-    <!-- Barra de Herramientas de Resultados -->
-    <header class="nx-results-toolbar">
-      <div class="nx-sort-wrapper">
-        <label class="nx-sort-label"><i class="fas fa-sort-amount-down"></i> Ordenar por</label>
-        <div
-          class="nx-custom-select-container nx-sort-select-container"
-          [class.active-container]="mostrandoOrden"
+        <button
+            class="nx-btn-icon-glass"
+            (click)="toggleMobileFilters()"
+            aria-label="Abrir filtros"
         >
-          <div
-            class="nx-custom-select-trigger nx-sort-trigger"
-            (click)="toggleOrden($event)"
-            [class.active]="mostrandoOrden"
-          >
-            <i [class]="ordenIconoActual() + ' nx-icon-left'"></i>
-            <span class="nx-select-text">{{ ordenNombreActual() }}</span>
-            <i class="fas fa-chevron-down nx-icon-right" [class.nx-rotate]="mostrandoOrden"></i>
-          </div>
+            <i class="fas fa-sliders-h"></i>
+            <span>Filtros</span>
+        </button>
+    </div>
 
-          @if (mostrandoOrden) {
-            <div class="nx-custom-dropdown-panel nx-sort-panel scale-in">
-              @for (opt of opcionesOrden; track opt.value) {
-                <div
-                  class="nx-dropdown-option"
-                  (click)="seleccionarOrden(opt.value)"
-                  [class.active]="filterForm.get('orden')?.value === opt.value"
-                >
-                  <i [class]="opt.icon"></i>
-                  <span>{{ opt.label }}</span>
+    @if (isMobileFiltersOpen) {
+        <div class="nx-glass-overlay" (click)="toggleMobileFilters()"></div>
+    }
+
+    <!-- SIDEBAR FILTROS -->
+    <aside class="nx-sidebar-glass" [class.nx-sidebar-open]="isMobileFiltersOpen">
+        <div class="nx-sidebar-header">
+            <div class="nx-sidebar-brand">
+                <i class="icon-filter"></i>
+                <h2>Filtros de búsqueda</h2>
+            </div>
+            <button
+                class="nx-btn-close-glass"
+                (click)="toggleMobileFilters()"
+                aria-label="Cerrar filtros"
+            >
+                <i class="icon-x"></i>
+            </button>
+        </div>
+
+        <div class="nx-sidebar-scroll-container">
+            <form [formGroup]="filterForm" class="nx-filter-form">
+                <!-- Ubicación -->
+                <div class="nx-form-group">
+                    <div class="nx-form-label-row">
+                        <label class="nx-form-label">Ubicación</label>
+                        <button
+                            type="button"
+                            class="nx-btn-map-toggle"
+                            (click)="toggleMapa()"
+                            [class.active]="mostrandoMapaModal"
+                        >
+                            <i class="fas fa-map"></i>
+                            {{ filterForm.get('lat')?.value ? 'Ajustar Mapa' : 'Ver Mapa' }}
+                        </button>
+                    </div>
+
+                    <div class="nx-input-with-icon">
+                        <i class="fas fa-location-dot nx-icon-left"></i>
+                        <input
+                            type="text"
+                            formControlName="ubicacion"
+                            class="nx-dark-input no-left-icon"
+                            placeholder="Ciudad, provincia, código postal..."
+                            (focus)="mostrandoSugerenciasUbi = sugerenciasUbicacion.length > 0"
+                        />
+                        <button
+                            type="button"
+                            class="nx-btn-locate"
+                            (click)="usarUbicacionActual()"
+                            [disabled]="obteniendoUbicacion"
+                            title="Usar mi ubicación actual"
+                        >
+                            <i
+                                class="fas fa-crosshairs anim-gps"
+                                [class.nx-spin]="obteniendoUbicacion"
+                            ></i>
+                        </button>
+                    </div>
+
+                    <!-- Resumen de Ubicación Seleccionada -->
+                    @if (filterForm.get('lat')?.value && filterForm.get('ubicacion')?.value) {
+                        <div class="nx-location-summary">
+                            <i class="fas fa-location-crosshairs"></i>
+                            <span
+                                >{{ filterForm.get('ubicacion')?.value }} ({{
+                                    filterForm.get('radius')?.value
+                                }}
+                                km)</span
+                            >
+                        </div>
+                    }
+
+                    <!-- Mapa Interactivo en Modal (Relocalizado al final) -->
+
+                    @if (mostrandoSugerenciasUbi && sugerenciasUbicacion.length > 0) {
+                        <div class="nx-autocomplete-dropdown">
+                            <ul class="nx-dropdown-list">
+                                @for (sug of sugerenciasUbicacion; track $index) {
+                                    <li
+                                        class="nx-dropdown-item"
+                                        (click)="seleccionarUbicacion(sug)"
+                                    >
+                                        <i class="fas fa-location-dot"></i>
+                                        <span>{{ sug }}</span>
+                                    </li>
+                                }
+                            </ul>
+                        </div>
+                    }
                 </div>
-              }
-            </div>
-          }
-        </div>
-      </div>
-    </header>
 
-    <div class="nx-premium-grid">
-      @if (cargando) {
-        @for (i of [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]; track $index) {
-          <div class="nx-skeleton-glass-card">
-            <div class="nx-skeleton-img"></div>
-            <div class="nx-skeleton-content">
-              <div class="nx-skeleton-line title"></div>
-              <div class="nx-skeleton-line subtitle"></div>
-              <div class="nx-skeleton-line price"></div>
-              <div class="nx-skeleton-footer">
-                <div class="nx-skeleton-circle"></div>
-                <div class="nx-skeleton-line short"></div>
-              </div>
+                <div class="nx-divider-subtle"></div>
+
+                <!-- Categoría — Custom Select con Iconos -->
+                <div class="nx-form-group">
+                    <label class="nx-form-label">Categoría</label>
+                    <div
+                        class="nx-custom-select-container"
+                        [class.active-container]="mostrandoCategorias"
+                    >
+                        <div
+                            class="nx-custom-select-trigger"
+                            (click)="toggleCategorias($event)"
+                            [class.active]="mostrandoCategorias"
+                        >
+                            <i [class]="categoriaIconoActual() + ' nx-icon-left'"></i>
+                            <span class="nx-select-text">{{
+                                categoriaNombreActual() || 'Cualquier categoría'
+                            }}</span>
+                            <i
+                                class="fas fa-chevron-down nx-icon-right"
+                                [class.nx-rotate]="mostrandoCategorias"
+                            ></i>
+                        </div>
+
+                        @if (mostrandoCategorias) {
+                            <div class="nx-custom-dropdown-panel scale-in">
+                                <div
+                                    class="nx-dropdown-option"
+                                    (click)="seleccionarCategoria(null)"
+                                >
+                                    <i class="fas fa-layer-group"></i>
+                                    <span>Cualquier categoría</span>
+                                </div>
+                                <div class="nx-dropdown-divider"></div>
+                                @for (cat of categoriasDisponibles; track cat.id) {
+                                    <div
+                                        class="nx-dropdown-option"
+                                        (click)="seleccionarCategoria(cat)"
+                                        [class.active]="
+                                            filterForm.get('categoria')?.value === cat.slug
+                                        "
+                                    >
+                                        <i [class]="getIconoCategoria(cat)"></i>
+                                        <span>{{ cat.nombre }}</span>
+                                    </div>
+                                }
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <!-- Precio -->
+                <div class="nx-form-group">
+                    <label class="nx-form-label">Rango de precio (€)</label>
+                    <div class="nx-dual-input-row">
+                        <div class="nx-input-with-prefix">
+                            <span class="nx-prefix">€</span>
+                            <input
+                                type="number"
+                                formControlName="precioMin"
+                                class="nx-dark-input"
+                                placeholder="Mín"
+                            />
+                        </div>
+                        <span class="nx-separator-line"></span>
+                        <div class="nx-input-with-prefix">
+                            <span class="nx-prefix">€</span>
+                            <input
+                                type="number"
+                                formControlName="precioMax"
+                                class="nx-dark-input"
+                                placeholder="Máx"
+                            />
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Fecha de Publicación -->
+                <div class="nx-form-group">
+                    <label class="nx-form-label">Fecha de publicación</label>
+                    <div
+                        class="nx-custom-select-container"
+                        [class.active-container]="mostrandoDias"
+                    >
+                        <div
+                            class="nx-custom-select-trigger"
+                            (click)="toggleDias($event)"
+                            [class.active]="mostrandoDias"
+                        >
+                            <i [class]="diasIconoActual() + ' nx-icon-left'"></i>
+                            <span class="nx-select-text">{{ diasNombreActual() }}</span>
+                            <i
+                                class="fas fa-chevron-down nx-icon-right"
+                                [class.nx-rotate]="mostrandoDias"
+                            ></i>
+                        </div>
+
+                        @if (mostrandoDias) {
+                            <div class="nx-custom-dropdown-panel scale-in">
+                                @for (opt of diasDisponibles; track opt.value) {
+                                    <div
+                                        class="nx-dropdown-option"
+                                        (click)="seleccionarDias(opt.value)"
+                                        [class.active]="
+                                            filterForm.get('diasPublicacion')?.value === opt.value
+                                        "
+                                    >
+                                        <i [class]="opt.icon"></i>
+                                        <span>{{ opt.label }}</span>
+                                    </div>
+                                }
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <!-- Condición — Custom Select -->
+                <div class="nx-form-group">
+                    <label class="nx-form-label">Condición del artículo</label>
+                    <div
+                        class="nx-custom-select-container"
+                        [class.active-container]="mostrandoCondiciones"
+                    >
+                        <div
+                            class="nx-custom-select-trigger"
+                            (click)="toggleCondiciones($event)"
+                            [class.active]="mostrandoCondiciones"
+                        >
+                            <i [class]="condicionIconoActual() + ' nx-icon-left'"></i>
+                            <span class="nx-select-text">{{ condicionNombreActual() }}</span>
+                            <i
+                                class="fas fa-chevron-down nx-icon-right"
+                                [class.nx-rotate]="mostrandoCondiciones"
+                            ></i>
+                        </div>
+
+                        @if (mostrandoCondiciones) {
+                            <div class="nx-custom-dropdown-panel scale-in">
+                                @for (opt of condicionesDisponibles; track opt.value) {
+                                    <div
+                                        class="nx-dropdown-option"
+                                        (click)="seleccionarCondicion(opt.value)"
+                                        [class.active]="
+                                            filterForm.get('condicion')?.value === opt.value
+                                        "
+                                    >
+                                        <i [class]="opt.icon"></i>
+                                        <span>{{ opt.label }}</span>
+                                    </div>
+                                }
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <!-- Envío — solo si no es vehículo -->
+                @if (!esBusquedaVehiculo) {
+                    <div class="nx-form-group">
+                        <label class="nx-toggle-switch-container">
+                            <div class="nx-toggle-text">
+                                <span class="nx-toggle-title">Admite envío</span>
+                                <span class="nx-toggle-subtitle"
+                                    >Mostrar solo artículos con envío</span
+                                >
+                            </div>
+                            <div class="nx-switch">
+                                <input type="checkbox" formControlName="conEnvio" />
+                                <span class="nx-switch-slider"></span>
+                            </div>
+                        </label>
+                    </div>
+                }
+
+                <!-- ══ FILTROS DE MOTOR ══════════════════════════════════════ -->
+                @if (esBusquedaVehiculo) {
+                    <div class="nx-divider-subtle"></div>
+                    <div class="nx-motor-section-title">
+                        <i class="icon-settings"></i> Especificaciones de Vehículo
+                    </div>
+
+                    <div class="nx-form-group">
+                        <label class="nx-form-label">Marca</label>
+                        <div class="nx-select-wrapper">
+                            <select formControlName="marca" class="nx-dark-select">
+                                <option value="">Cualquier marca</option>
+                                @for (marca of marcasDisponibles; track $index) {
+                                    <option [value]="marca">{{ marca }}</option>
+                                }
+                            </select>
+                            <i class="icon-chevron-down nx-icon-right"></i>
+                        </div>
+                    </div>
+
+                    <div class="nx-form-group">
+                        <label class="nx-form-label">Modelo</label>
+                        <div
+                            class="nx-select-wrapper"
+                            [class.nx-disabled]="!filterForm.get('marca')?.value"
+                        >
+                            <select formControlName="modelo" class="nx-dark-select">
+                                <option value="">Cualquier modelo</option>
+                                @for (modelo of modelosDisponibles; track $index) {
+                                    <option [value]="modelo">{{ modelo }}</option>
+                                }
+                            </select>
+                            <i class="icon-chevron-down nx-icon-right"></i>
+                        </div>
+                    </div>
+
+                    <div class="nx-form-group">
+                        <label class="nx-form-label">Año de matriculación</label>
+                        <div class="nx-dual-input-row">
+                            <input
+                                type="number"
+                                formControlName="anioMin"
+                                class="nx-dark-input"
+                                placeholder="Desde"
+                            />
+                            <span class="nx-separator-line"></span>
+                            <input
+                                type="number"
+                                formControlName="anioMax"
+                                class="nx-dark-input"
+                                placeholder="Hasta"
+                            />
+                        </div>
+                    </div>
+
+                    <div class="nx-form-group">
+                        <label class="nx-form-label">Kilometraje máximo</label>
+                        <div class="nx-input-with-suffix">
+                            <input
+                                type="number"
+                                formControlName="kmMax"
+                                class="nx-dark-input"
+                                placeholder="Ej: 150000"
+                            />
+                            <span class="nx-suffix">km</span>
+                        </div>
+                    </div>
+
+                    <div class="nx-form-grid-2">
+                        <div class="nx-form-group">
+                            <label class="nx-form-label">Combustible</label>
+                            <div class="nx-select-wrapper">
+                                <select formControlName="combustible" class="nx-dark-select">
+                                    <option value="">Todos</option>
+                                    <option value="GASOLINA">Gasolina</option>
+                                    <option value="DIESEL">Diésel</option>
+                                    <option value="ELECTRICO">Eléctrico</option>
+                                    <option value="HIBRIDO">Híbrido</option>
+                                </select>
+                                <i class="icon-chevron-down nx-icon-right"></i>
+                            </div>
+                        </div>
+                        <div class="nx-form-group">
+                            <label class="nx-form-label">Cambio</label>
+                            <div class="nx-select-wrapper">
+                                <select formControlName="cambio" class="nx-dark-select">
+                                    <option value="">Todos</option>
+                                    <option value="MANUAL">Manual</option>
+                                    <option value="AUTOMATICO">Automático</option>
+                                </select>
+                                <i class="icon-chevron-down nx-icon-right"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="nx-form-grid-2">
+                        <div class="nx-form-group">
+                            <label class="nx-form-label">Potencia Mínima</label>
+                            <div class="nx-input-with-suffix">
+                                <input
+                                    type="number"
+                                    formControlName="potenciaMin"
+                                    class="nx-dark-input"
+                                    placeholder="Ej: 120"
+                                />
+                                <span class="nx-suffix">CV</span>
+                            </div>
+                        </div>
+                        <div class="nx-form-group">
+                            <label class="nx-form-label">Cilindrada Mínima</label>
+                            <div class="nx-input-with-suffix">
+                                <input
+                                    type="number"
+                                    formControlName="cilindradaMin"
+                                    class="nx-dark-input"
+                                    placeholder="Ej: 1900"
+                                />
+                                <span class="nx-suffix">cc</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="nx-form-grid-2">
+                        <div class="nx-form-group">
+                            <label class="nx-form-label">Puertas</label>
+                            <input
+                                type="number"
+                                formControlName="numeroPuertas"
+                                class="nx-dark-input"
+                                placeholder="Ej: 5"
+                            />
+                        </div>
+                        <div class="nx-form-group">
+                            <label class="nx-form-label">Plazas</label>
+                            <input
+                                type="number"
+                                formControlName="plazas"
+                                class="nx-dark-input"
+                                placeholder="Ej: 5"
+                            />
+                        </div>
+                    </div>
+
+                    <div class="nx-form-group">
+                        <label class="nx-form-label">Color</label>
+                        <input
+                            type="text"
+                            formControlName="color"
+                            class="nx-dark-input"
+                            placeholder="Ej: Blanco, Negro..."
+                        />
+                    </div>
+
+                    <div class="nx-form-group">
+                        <label class="nx-toggle-switch-container">
+                            <div class="nx-toggle-text">
+                                <span class="nx-toggle-title">Garantía incluida</span>
+                            </div>
+                            <div class="nx-switch">
+                                <input type="checkbox" formControlName="garantia" />
+                                <span class="nx-switch-slider"></span>
+                            </div>
+                        </label>
+                    </div>
+
+                    <div class="nx-form-group">
+                        <label class="nx-toggle-switch-container">
+                            <div class="nx-toggle-text">
+                                <span class="nx-toggle-title">ITV en vigor</span>
+                            </div>
+                            <div class="nx-switch">
+                                <input type="checkbox" formControlName="itv" />
+                                <span class="nx-switch-slider"></span>
+                            </div>
+                        </label>
+                    </div>
+                }
+            </form>
+        </div>
+
+        <div class="nx-sidebar-footer">
+            <button type="button" class="nx-btn-clear-glass" (click)="limpiarFiltros()">
+                <i class="icon-refresh-cw"></i> Restablecer filtros
+            </button>
+        </div>
+    </aside>
+
+    <!-- ÁREA DE RESULTADOS -->
+    <main class="nx-main-results-area">
+        <!-- NUEVO: Banner Premium de Búsqueda -->
+        <div class="nx-premium-search-banner">
+            <div class="nx-banner-content" [formGroup]="filterForm">
+                <h1 class="nx-h1-glow-title">
+                    @if (filterForm.get('q')?.value) {
+                        Tu próximo descubrimiento en
+                        <span class="nx-text-highlight">"{{ filterForm.get('q')?.value }}"</span>
+                    } @else if (categoriaNombreActual()) {
+                        El escaparate VIP de
+                        <span class="nx-text-highlight">{{ categoriaNombreActual() }}</span>
+                    } @else {
+                        Catálogo <span class="nx-text-highlight">completo</span>
+                    }
+                </h1>
+
+                <!-- Tabs Principales Integradas en el Banner -->
+                <div class="nx-top-category-tabs">
+                    <label class="nx-tab-item">
+                        <input type="radio" formControlName="tipo" value="TODOS" />
+                        <div class="nx-tab-btn tab-all">
+                            <i class="fas fa-layer-group"></i> Todo
+                        </div>
+                    </label>
+                    <label class="nx-tab-item">
+                        <input type="radio" formControlName="tipo" value="PRODUCTO" />
+                        <div class="nx-tab-btn tab-product">
+                            <i class="fas fa-box-open"></i> Productos
+                        </div>
+                    </label>
+                    <label class="nx-tab-item">
+                        <input type="radio" formControlName="tipo" value="OFERTA" />
+                        <div class="nx-tab-btn tab-offer">
+                            <i class="fas fa-fire-flame-curved"></i> Chollos
+                        </div>
+                    </label>
+                    <label class="nx-tab-item">
+                        <input type="radio" formControlName="tipo" value="VEHICULO" />
+                        <div class="nx-tab-btn tab-motor">
+                            <i class="fas fa-car-side"></i> Motor
+                        </div>
+                    </label>
+                </div>
             </div>
-          </div>
-        }
-      } @else if (resultados.length > 0) {
-        @for (item of resultados; track item.id) {
-          <div class="nx-card-glass-wrapper">
-            @if (item.searchType === 'OFERTA') {
-              <app-oferta-card [oferta]="item" [isMobileFeed]="isMobile()"></app-oferta-card>
-            } @else if (item.searchType === 'PRODUCTO') {
-              <app-producto-card [producto]="item" [isMobileFeed]="isMobile()"></app-producto-card>
-            } @else if (item.searchType === 'VEHICULO') {
-              <app-vehiculo-card [vehiculo]="item" [isMobileFeed]="isMobile()"></app-vehiculo-card>
+        </div>
+
+        <!-- Barra de Herramientas de Resultados -->
+        <header class="nx-results-toolbar">
+            <div class="nx-sort-wrapper">
+                <label class="nx-sort-label"
+                    ><i class="fas fa-sort-amount-down"></i> Ordenar por</label
+                >
+                <div
+                    class="nx-custom-select-container nx-sort-select-container"
+                    [class.active-container]="mostrandoOrden"
+                >
+                    <div
+                        class="nx-custom-select-trigger nx-sort-trigger"
+                        (click)="toggleOrden($event)"
+                        [class.active]="mostrandoOrden"
+                    >
+                        <i [class]="ordenIconoActual() + ' nx-icon-left'"></i>
+                        <span class="nx-select-text">{{ ordenNombreActual() }}</span>
+                        <i
+                            class="fas fa-chevron-down nx-icon-right"
+                            [class.nx-rotate]="mostrandoOrden"
+                        ></i>
+                    </div>
+
+                    @if (mostrandoOrden) {
+                        <div class="nx-custom-dropdown-panel nx-sort-panel scale-in">
+                            @for (opt of opcionesOrden; track opt.value) {
+                                <div
+                                    class="nx-dropdown-option"
+                                    (click)="seleccionarOrden(opt.value)"
+                                    [class.active]="filterForm.get('orden')?.value === opt.value"
+                                >
+                                    <i [class]="opt.icon"></i>
+                                    <span>{{ opt.label }}</span>
+                                </div>
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
+        </header>
+
+        <div class="nx-premium-grid">
+            @if (cargando) {
+                @for (i of [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]; track $index) {
+                    <div class="nx-skeleton-glass-card">
+                        <div class="nx-skeleton-img"></div>
+                        <div class="nx-skeleton-content">
+                            <div class="nx-skeleton-line title"></div>
+                            <div class="nx-skeleton-line subtitle"></div>
+                            <div class="nx-skeleton-line price"></div>
+                            <div class="nx-skeleton-footer">
+                                <div class="nx-skeleton-circle"></div>
+                                <div class="nx-skeleton-line short"></div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            } @else if (resultados.length > 0) {
+                @for (item of resultados; track item.id) {
+                    <div class="nx-card-glass-wrapper">
+                        @if (item.searchType === 'OFERTA') {
+                            <app-oferta-card
+                                [oferta]="item"
+                                [isMobileFeed]="isMobile()"
+                            ></app-oferta-card>
+                        } @else if (item.searchType === 'PRODUCTO') {
+                            <app-producto-card
+                                [producto]="item"
+                                [isMobileFeed]="isMobile()"
+                            ></app-producto-card>
+                        } @else if (item.searchType === 'VEHICULO') {
+                            <app-vehiculo-card
+                                [vehiculo]="item"
+                                [isMobileFeed]="isMobile()"
+                            ></app-vehiculo-card>
+                        }
+                    </div>
+                }
+            } @else if (busquedaRealizada) {
+                <!-- Estado Vacío Premium (Spectacular) -->
+                <div class="nx-empty-glass-state">
+                    <div class="nx-spectacular-empty-container">
+                        <div class="nx-radar-wrap">
+                            <!-- Background Grid -->
+                            <div class="nx-radar-grid"></div>
+
+                            <!-- Concentric Rings -->
+                            <div class="nx-radar-ring nx-ring-1"></div>
+                            <div class="nx-radar-ring nx-ring-2"></div>
+                            <div class="nx-radar-ring nx-ring-3"></div>
+
+                            <!-- Moving Elements -->
+                            <div class="nx-radar-scanner"></div>
+                            <div class="nx-radar-echo"></div>
+
+                            <!-- Reactive Dots (Blips) -->
+                            <div class="nx-radar-dot nx-dot-1"></div>
+                            <div class="nx-radar-dot nx-dot-2"></div>
+                            <div class="nx-radar-dot nx-dot-3"></div>
+
+                            <div class="nx-empty-icon-circle">
+                                <i class="fas fa-search-minus nx-radar-icon"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <h2 class="nx-h2-spectacular">Vaya... parece que no hay nada por aquí</h2>
+                    <p class="nx-p-spectacular">
+                        No hemos encontrado resultados que coincidan con tus criterios. Prueba a
+                        ajustar los filtros o buscar algo diferente.
+                    </p>
+                    <button class="nx-btn-spectacular-glow" (click)="limpiarFiltros()">
+                        <i class="fas fa-undo"></i> Reiniciar filtros
+                    </button>
+                </div>
             }
-          </div>
-        }
-      } @else if (busquedaRealizada) {
-        <!-- Estado Vacío Premium (Spectacular) -->
-        <div class="nx-empty-glass-state">
-          <div class="nx-spectacular-empty-container">
-            <div class="nx-radar-wrap">
-              <!-- Background Grid -->
-              <div class="nx-radar-grid"></div>
-
-              <!-- Concentric Rings -->
-              <div class="nx-radar-ring nx-ring-1"></div>
-              <div class="nx-radar-ring nx-ring-2"></div>
-              <div class="nx-radar-ring nx-ring-3"></div>
-
-              <!-- Moving Elements -->
-              <div class="nx-radar-scanner"></div>
-              <div class="nx-radar-echo"></div>
-
-              <!-- Reactive Dots (Blips) -->
-              <div class="nx-radar-dot nx-dot-1"></div>
-              <div class="nx-radar-dot nx-dot-2"></div>
-              <div class="nx-radar-dot nx-dot-3"></div>
-
-              <div class="nx-empty-icon-circle">
-                <i class="fas fa-search-minus nx-radar-icon"></i>
-              </div>
-            </div>
-          </div>
-          <h2 class="nx-h2-spectacular">Vaya... parece que no hay nada por aquí</h2>
-          <p class="nx-p-spectacular">
-            No hemos encontrado resultados que coincidan con tus criterios. Prueba a ajustar los
-            filtros o buscar algo diferente.
-          </p>
-          <button class="nx-btn-spectacular-glow" (click)="limpiarFiltros()">
-            <i class="fas fa-undo"></i> Reiniciar filtros
-          </button>
         </div>
-      }
-    </div>
 
-    <div class="nx-infinite-loader-zone" #scrollAnchor>
-      <div class="nx-glow-spinner" *ngIf="cargandoMas"></div>
-      <span *ngIf="cargandoMas">Cargando más resultados...</span>
+        <div class="nx-infinite-loader-zone" #scrollAnchor>
+            <div class="nx-glow-spinner" *ngIf="cargandoMas"></div>
+            <span *ngIf="cargandoMas">Cargando más resultados...</span>
 
-      <button
-        *ngIf="mostrarBotonCargarMas"
-        (click)="cargarMasResultados()"
-        class="nx-btn-load-more"
-      >
-        <i class="fas fa-plus-circle"></i>
-        Cargar más resultados
-      </button>
-
-      <div class="nx-adsense-desktop-slot">
-        <ins
-          #adsenseSlot
-          class="adsbygoogle"
-          style="display: block"
-          data-ad-client="ca-pub-6663448717051907"
-          data-ad-slot="6885786825"
-          data-ad-format="auto"
-          data-full-width-responsive="true"
-        ></ins>
-      </div>
-    </div>
-  </main>
-
-  <!-- Mapa Interactivo en Modal (Relocalizado al final para evitar recortes de contenedor) -->
-@if (mostrandoMapaModal) {
-  <div class="nx-map-modal-overlay" [formGroup]="filterForm">
-    <div class="nx-map-modal-content">
-      <div class="nx-map-modal-header">
-        <div class="nx-modal-search-box">
-          <i class="fas fa-search nx-modal-search-icon"></i>
-          <input
-            type="text"
-            formControlName="ubicacion"
-            placeholder="Buscar ciudad o dirección..."
-            class="nx-modal-search-input"
-            (focus)="mostrandoSugerenciasUbi = sugerenciasUbicacion.length > 0"
-            (keyup.enter)="seleccionarUbicacion(filterForm.get('ubicacion')?.value)"
-          />
-          <button
-            class="nx-btn-modal-gps"
-            [class.nx-spin]="obteniendoUbicacion"
-            (click)="usarUbicacionActual()"
-            type="button"
-            title="Mi ubicación actual"
-          >
-            <i class="fas fa-crosshairs"></i>
-          </button>
-
-          <!-- Autocomplete Sugerencias (Modal) -->
-          <div
-            class="nx-modal-autocomplete"
-            *ngIf="mostrandoSugerenciasUbi && sugerenciasUbicacion.length > 0"
-          >
-            <div
-              class="nx-autocomplete-item"
-              *ngFor="let s of sugerenciasUbicacion"
-              (click)="seleccionarUbicacion(s.display_name, { lat: s.lat, lng: s.lng })"
+            <button
+                *ngIf="mostrarBotonCargarMas"
+                (click)="cargarMasResultados()"
+                class="nx-btn-load-more"
             >
-              <i class="fas fa-map-marker-alt"></i>
-              <span>{{ s.display_name }}</span>
+                <i class="fas fa-plus-circle"></i>
+                Cargar más resultados
+            </button>
+
+            <!-- ── Banner AdSense búsqueda ─────────────────────────────────────── -->
+            <div class="nx-adsense-banner-wrap">
+                <span class="nx-ad-label">Publicidad</span>
+                <div class="nx-adsense-inner">
+                    <ins
+                        #adsenseSlot
+                        class="adsbygoogle"
+                        style="display: block"
+                        [attr.data-ad-client]="adsenseClient"
+                        [attr.data-ad-slot]="adsenseSlotSearch"
+                        data-ad-format="leaderboard"
+                        data-full-width-responsive="true"
+                    ></ins>
+                </div>
             </div>
-          </div>
         </div>
-        <button type="button" class="nx-btn-close-modal" (click)="toggleMapa()">
-          <i class="fas fa-times"></i>
-        </button>
-      </div>
+    </main>
 
-      <div class="nx-map-modal-body">
-        <div id="nx-search-map" class="nx-search-mini-map"></div>
-      </div>
+    <!-- Mapa Interactivo en Modal (Relocalizado al final para evitar recortes de contenedor) -->
+    @if (mostrandoMapaModal) {
+        <div class="nx-map-modal-overlay" [formGroup]="filterForm">
+            <div class="nx-map-modal-content">
+                <div class="nx-map-modal-header">
+                    <div class="nx-modal-search-box">
+                        <i class="fas fa-search nx-modal-search-icon"></i>
+                        <input
+                            type="text"
+                            formControlName="ubicacion"
+                            placeholder="Buscar ciudad o dirección..."
+                            class="nx-modal-search-input"
+                            (focus)="mostrandoSugerenciasUbi = sugerenciasUbicacion.length > 0"
+                            (keyup.enter)="seleccionarUbicacion(filterForm.get('ubicacion')?.value)"
+                        />
+                        <button
+                            class="nx-btn-modal-gps"
+                            [class.nx-spin]="obteniendoUbicacion"
+                            (click)="usarUbicacionActual()"
+                            type="button"
+                            title="Mi ubicación actual"
+                        >
+                            <i class="fas fa-crosshairs"></i>
+                        </button>
 
-      <div class="nx-map-modal-footer">
-        <div class="nx-radius-selector">
-          <label>Radio de búsqueda:</label>
-          <div class="nx-select-wrapper-sm">
-            <select
-              formControlName="radius"
-              class="nx-dark-select-sm"
-              (change)="updateRadiusCircle()"
-            >
-              <option [value]="5">5 km</option>
-              <option [value]="10">10 km</option>
-              <option [value]="25">25 km</option>
-              <option [value]="50">50 km</option>
-              <option [value]="100">100 km</option>
-              <option [value]="150">150 km</option>
-              <option [value]="250">250 km</option>
-              <option [value]="500">500 km</option>
-              <option [value]="1000">1000 km</option>
-            </select>
-          </div>
+                        <!-- Autocomplete Sugerencias (Modal) -->
+                        <div
+                            class="nx-modal-autocomplete"
+                            *ngIf="mostrandoSugerenciasUbi && sugerenciasUbicacion.length > 0"
+                        >
+                            <div
+                                class="nx-autocomplete-item"
+                                *ngFor="let s of sugerenciasUbicacion"
+                                (click)="
+                                    seleccionarUbicacion(s.display_name, { lat: s.lat, lng: s.lng })
+                                "
+                            >
+                                <i class="fas fa-map-marker-alt"></i>
+                                <span>{{ s.display_name }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="button" class="nx-btn-close-modal" (click)="toggleMapa()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+
+                <div class="nx-map-modal-body">
+                    <div id="nx-search-map" class="nx-search-mini-map"></div>
+                </div>
+
+                <div class="nx-map-modal-footer">
+                    <div class="nx-radius-selector">
+                        <label>Radio de búsqueda:</label>
+                        <div class="nx-select-wrapper-sm">
+                            <select
+                                formControlName="radius"
+                                class="nx-dark-select-sm"
+                                (change)="updateRadiusCircle()"
+                            >
+                                <option [value]="5">5 km</option>
+                                <option [value]="10">10 km</option>
+                                <option [value]="25">25 km</option>
+                                <option [value]="50">50 km</option>
+                                <option [value]="100">100 km</option>
+                                <option [value]="150">150 km</option>
+                                <option [value]="250">250 km</option>
+                                <option [value]="500">500 km</option>
+                                <option [value]="1000">1000 km</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button
+                        type="button"
+                        class="nx-btn-confirm-loc"
+                        (click)="confirmarUbicacionMapa()"
+                    >
+                        Confirmar Ubicación
+                    </button>
+                </div>
+            </div>
         </div>
-        <button type="button" class="nx-btn-confirm-loc" (click)="confirmarUbicacionMapa()">
-          Confirmar Ubicación
-        </button>
-      </div>
-    </div>
-  </div>
-}
+    }
 </div>

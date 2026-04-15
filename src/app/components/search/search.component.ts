@@ -15,7 +15,14 @@ import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { Subject, Subscription, of } from 'rxjs';
-import { debounceTime, distinctUntilChanged, takeUntil, catchError, switchMap, map } from 'rxjs/operators';
+import {
+  debounceTime,
+  distinctUntilChanged,
+  takeUntil,
+  catchError,
+  switchMap,
+  map,
+} from 'rxjs/operators';
 import { HostListener } from '@angular/core';
 
 import { SearchService, SearchParams, SearchResultItem } from '../../core/services/search.service';
@@ -26,12 +33,24 @@ import { OfertaCardComponent } from '../../shared/components/marketplace/oferta-
 import { VehiculoCardComponent } from '../../shared/components/vehiculo-card/vehiculo-card.component';
 import { Categoria } from '../../models/categoria.model';
 import { environment } from '../../../environments/environment';
+
+// AdSense — exponer al template
 import { MarketplaceItem } from '../../models/marketplace-item.model';
 
 const VEHICLE_SLUGS = [
-  'vehiculo', 'vehiculos', 'motor', 'coches', 'coche', 
-  'motos', 'moto', 'furgoneta', 'camion', 'caravana', 
-  'autobus', 'quad', 'barco'
+  'vehiculo',
+  'vehiculos',
+  'motor',
+  'coches',
+  'coche',
+  'motos',
+  'moto',
+  'furgoneta',
+  'camion',
+  'caravana',
+  'autobus',
+  'quad',
+  'barco',
 ];
 const PAGINAS_AUTO_LOAD = 3;
 
@@ -65,7 +84,11 @@ export class SearchComponent implements OnInit, AfterViewInit, OnDestroy {
   cargandoMas = false;
   totalResultados = 0;
   busquedaRealizada = false;
-  private searchSubject = new Subject<{ params: SearchParams; reiniciar: boolean; usuarioId?: number }>();
+  private searchSubject = new Subject<{
+    params: SearchParams;
+    reiniciar: boolean;
+    usuarioId?: number;
+  }>();
 
   paginaActual = 0;
   sizePorPagina = 20;
@@ -74,6 +97,11 @@ export class SearchComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('scrollAnchor') scrollAnchor!: ElementRef;
   @ViewChild('adsenseSlot') adsenseSlot!: ElementRef;
   private observer!: IntersectionObserver;
+
+  // AdSense — leídos del environment para usarlos en el template
+  readonly adsenseClient = environment.adsenseClient || '';
+  readonly adsenseSlotSearch = (environment as any).adsenseSlotSearch || '';
+  private adsensePushed = false;
 
   isMobileFiltersOpen = false;
   esBusquedaVehiculo = false;
@@ -102,14 +130,14 @@ export class SearchComponent implements OnInit, AfterViewInit, OnDestroy {
     { value: 'COMO_NUEVO', label: 'Como nuevo', icon: 'fas fa-wand-magic-sparkles' },
     { value: 'MUY_BUEN_ESTADO', label: 'Muy buen estado', icon: 'fas fa-check-double' },
     { value: 'BUEN_ESTADO', label: 'Buen estado', icon: 'fas fa-check' },
-    { value: 'ACEPTABLE', label: 'Aceptable', icon: 'fas fa-thumbs-up' }
+    { value: 'ACEPTABLE', label: 'Aceptable', icon: 'fas fa-thumbs-up' },
   ];
 
   diasDisponibles = [
     { value: '', label: 'Cualquier fecha', icon: 'fas fa-calendar' },
     { value: '1', label: 'Últimas 24 horas', icon: 'fas fa-clock' },
     { value: '7', label: 'Últimos 7 días', icon: 'fas fa-calendar-week' },
-    { value: '30', label: 'Último mes', icon: 'fas fa-calendar-alt' }
+    { value: '30', label: 'Último mes', icon: 'fas fa-calendar-alt' },
   ];
   mostrandoDias = false;
 
@@ -117,18 +145,18 @@ export class SearchComponent implements OnInit, AfterViewInit, OnDestroy {
     { value: 'relevancia', label: 'Mejor coincidencia', icon: 'fas fa-sort-amount-down' },
     { value: 'novedades', label: 'Novedades primero', icon: 'fas fa-calendar-plus' },
     { value: 'precio_asc', label: 'Precio: bajo a alto', icon: 'fas fa-arrow-up-9-1' },
-    { value: 'precio_desc', label: 'Precio: alto a bajo', icon: 'fas fa-arrow-down-9-1' }
+    { value: 'precio_desc', label: 'Precio: alto a bajo', icon: 'fas fa-arrow-down-9-1' },
   ];
 
   condicionNombreActual = signal<string>('Cualquier estado');
   condicionIconoActual = signal<string>('fas fa-tags');
-  
+
   diasNombreActual = signal<string>('Cualquier fecha');
   diasIconoActual = signal<string>('fas fa-calendar');
-  
+
   ordenNombreActual = signal<string>('Mejor coincidencia');
   ordenIconoActual = signal<string>('fas fa-sort-amount-down');
-  
+
   mostrandoCondiciones = false;
   mostrandoOrden = false;
 
@@ -139,27 +167,29 @@ export class SearchComponent implements OnInit, AfterViewInit, OnDestroy {
 
     // Nueva lógica optimizada con switchMap DEBE ir antes de escucharCambiosURL
     // para no perder el disparo inicial si se emite síncronamente.
-    this.searchSubject.pipe(
-      takeUntil(this.destroy$),
-      switchMap(({ params, reiniciar, usuarioId }) => {
-        return this.searchService.buscar(params, usuarioId).pipe(
-          map(res => ({ res, reiniciar })),
-          catchError((err) => {
-            console.error('Error en búsqueda:', err);
-            return of({ res: { items: [], total: 0 }, reiniciar });
-          })
-        );
-      })
-    ).subscribe(({ res, reiniciar }) => {
-       const { items, total } = res as any;
-       this.totalResultados = total;
-       this.resultados = reiniciar ? items : [...this.resultados, ...items];
-       this.hayMasResultados = this.resultados.length < total;
-       this.cargando = false;
-       this.cargandoMas = false;
-       this.busquedaRealizada = true;
-       this.cdr.detectChanges();
-    });
+    this.searchSubject
+      .pipe(
+        takeUntil(this.destroy$),
+        switchMap(({ params, reiniciar, usuarioId }) => {
+          return this.searchService.buscar(params, usuarioId).pipe(
+            map((res) => ({ res, reiniciar })),
+            catchError((err) => {
+              console.error('Error en búsqueda:', err);
+              return of({ res: { items: [], total: 0 }, reiniciar });
+            }),
+          );
+        }),
+      )
+      .subscribe(({ res, reiniciar }) => {
+        const { items, total } = res as any;
+        this.totalResultados = total;
+        this.resultados = reiniciar ? items : [...this.resultados, ...items];
+        this.hayMasResultados = this.resultados.length < total;
+        this.cargando = false;
+        this.cargandoMas = false;
+        this.busquedaRealizada = true;
+        this.cdr.detectChanges();
+      });
 
     this.escucharCambiosURL();
     this.escucharAutocompletados();
@@ -171,11 +201,23 @@ export class SearchComponent implements OnInit, AfterViewInit, OnDestroy {
 
   ngAfterViewInit(): void {
     this.setupIntersectionObserver();
-    if (window.innerWidth > 768) {
-      try {
-        ((window as any).adsbygoogle = (window as any).adsbygoogle || []).push({});
-      } catch (_) {}
-    }
+    this.initAdsense();
+  }
+
+  /** Inicializa el slot de AdSense una sola vez y solo en producción. */
+  private initAdsense(): void {
+    if (this.adsensePushed) return;
+    if (!this.adsenseClient || !this.adsenseSlotSearch) return;
+
+    // En localhost no intentamos cargar AdSense (evita errores de consola)
+    const isLocal =
+      window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+    if (isLocal) return;
+
+    try {
+      ((window as any).adsbygoogle = (window as any).adsbygoogle || []).push({});
+      this.adsensePushed = true;
+    } catch (_) {}
   }
 
   ngOnDestroy(): void {
@@ -348,7 +390,7 @@ export class SearchComponent implements OnInit, AfterViewInit, OnDestroy {
     this.filterForm.patchValue({
       ubicacion: '',
       lat: null,
-      lng: null
+      lng: null,
     });
     if (this.marker) {
       this.marker.remove();
@@ -358,13 +400,13 @@ export class SearchComponent implements OnInit, AfterViewInit, OnDestroy {
       this.radiusCircle.remove();
       this.radiusCircle = null;
     }
-    // No cerramos el modal si está abierto, pero si estamos en el modo normal, 
+    // No cerramos el modal si está abierto, pero si estamos en el modo normal,
     // la URL se actualizará por el valueChanges
   }
 
   private initMapa(): void {
     if (typeof L === 'undefined') return;
-    
+
     // Si ya existe una instancia, la removemos para evitar conflictos con el DOM recreado por @if
     if (this.map) {
       try {
@@ -380,27 +422,24 @@ export class SearchComponent implements OnInit, AfterViewInit, OnDestroy {
     const initialLat = this.filterForm.get('lat')?.value || 40.4168; // Madrid (solo fallback)
     const initialLng = this.filterForm.get('lng')?.value || -3.7038;
 
-    this.map = L.map('nx-search-map', { 
+    this.map = L.map('nx-search-map', {
       attributionControl: false,
-      zoomControl: false // Opcional para un look más limpio
-    }).setView(
-      [initialLat, initialLng],
-      13,
-    );
+      zoomControl: false, // Opcional para un look más limpio
+    }).setView([initialLat, initialLng], 13);
 
     // Tile layer Premium Black (CartoDB Dark Matter)
     L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-      maxZoom: 19
+      maxZoom: 19,
     }).addTo(this.map);
 
-    this.marker = L.marker([initialLat, initialLng], { 
+    this.marker = L.marker([initialLat, initialLng], {
       draggable: true,
       icon: L.divIcon({
         className: 'nx-custom-marker',
         html: '<div class="nx-marker-dot"></div><div class="nx-marker-pulse"></div>',
         iconSize: [20, 20],
-        iconAnchor: [10, 10]
-      })
+        iconAnchor: [10, 10],
+      }),
     }).addTo(this.map);
 
     this.marker.on('dragend', () => this.updateRadiusCircle());
@@ -426,7 +465,7 @@ export class SearchComponent implements OnInit, AfterViewInit, OnDestroy {
         color: '#6366f1',
         fillColor: '#6366f1',
         fillOpacity: 0.1,
-        weight: 1
+        weight: 1,
       }).addTo(this.map);
     }
 
@@ -487,7 +526,7 @@ export class SearchComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     const fv = this.filterForm.value;
-    
+
     // CASO ESPECIAL: Nuevo / Oferta
     let tipoFinal = fv.tipo;
     let condicionFinal = fv.condicion;
@@ -519,9 +558,9 @@ export class SearchComponent implements OnInit, AfterViewInit, OnDestroy {
     this.observer = new IntersectionObserver(
       ([entry]) => {
         if (
-          entry.isIntersecting && 
-          !this.cargando && 
-          !this.cargandoMas && 
+          entry.isIntersecting &&
+          !this.cargando &&
+          !this.cargandoMas &&
           this.hayMasResultados &&
           this.paginaActual < PAGINAS_AUTO_LOAD
         ) {
@@ -576,18 +615,21 @@ export class SearchComponent implements OnInit, AfterViewInit, OnDestroy {
       });
   }
 
-  seleccionarUbicacion(u: string, coords?: {lat: number, lng: number}): void {
+  seleccionarUbicacion(u: string, coords?: { lat: number; lng: number }): void {
     if (!u) return;
     this.filterForm.patchValue({ ubicacion: u });
     this.mostrandoSugerenciasUbi = false;
 
     if (coords && this.map && this.marker) {
       // Usar coordenadas directas de la sugerencia (Precisión 100%)
-      this.filterForm.patchValue({ 
-        lat: coords.lat, 
-        lng: coords.lng 
-      }, { emitEvent: false });
-      
+      this.filterForm.patchValue(
+        {
+          lat: coords.lat,
+          lng: coords.lng,
+        },
+        { emitEvent: false },
+      );
+
       this.marker.setLatLng([coords.lat, coords.lng]);
       this.map.setView([coords.lat, coords.lng], 13);
       this.updateRadiusCircle();
@@ -595,11 +637,14 @@ export class SearchComponent implements OnInit, AfterViewInit, OnDestroy {
       // Geocodificar si no tenemos coordenadas (ej. Enter en el input)
       this.searchService.getCoordenadas(u).subscribe((newCoords) => {
         if (newCoords && this.map && this.marker) {
-          this.filterForm.patchValue({ 
-            lat: newCoords.lat, 
-            lng: newCoords.lng 
-          }, { emitEvent: false });
-          
+          this.filterForm.patchValue(
+            {
+              lat: newCoords.lat,
+              lng: newCoords.lng,
+            },
+            { emitEvent: false },
+          );
+
           this.marker.setLatLng([newCoords.lat, newCoords.lng]);
           this.map.setView([newCoords.lat, newCoords.lng], 13);
           this.updateRadiusCircle();
@@ -671,7 +716,8 @@ export class SearchComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private actualizarTituloCondicion(val: string): void {
-    const opt = this.condicionesDisponibles.find(c => c.value === val) || this.condicionesDisponibles[0];
+    const opt =
+      this.condicionesDisponibles.find((c) => c.value === val) || this.condicionesDisponibles[0];
     this.condicionNombreActual.set(opt.label);
     this.condicionIconoActual.set(opt.icon);
   }
@@ -692,7 +738,7 @@ export class SearchComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private actualizarTituloDias(val: string): void {
-    const opt = this.diasDisponibles.find(c => c.value === val) || this.diasDisponibles[0];
+    const opt = this.diasDisponibles.find((c) => c.value === val) || this.diasDisponibles[0];
     this.diasNombreActual.set(opt.label);
     this.diasIconoActual.set(opt.icon);
   }
@@ -713,7 +759,7 @@ export class SearchComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private actualizarTituloOrden(val: string): void {
-    const opt = this.opcionesOrden.find(o => o.value === val) || this.opcionesOrden[0];
+    const opt = this.opcionesOrden.find((o) => o.value === val) || this.opcionesOrden[0];
     this.ordenNombreActual.set(opt.label);
     this.ordenIconoActual.set(opt.icon);
   }
@@ -750,7 +796,7 @@ export class SearchComponent implements OnInit, AfterViewInit, OnDestroy {
 
   usarUbicacionActual(): void {
     if (!navigator.geolocation) return;
-    
+
     // Fix ExpressionChangedAfterItHasBeenCheckedError
     Promise.resolve().then(() => {
       this.obteniendoUbicacion = true;
@@ -760,12 +806,15 @@ export class SearchComponent implements OnInit, AfterViewInit, OnDestroy {
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         const { latitude, longitude } = pos.coords;
-        
+
         // Actualizar formulario
-        this.filterForm.patchValue({ 
-          lat: latitude, 
-          lng: longitude 
-        }, { emitEvent: false });
+        this.filterForm.patchValue(
+          {
+            lat: latitude,
+            lng: longitude,
+          },
+          { emitEvent: false },
+        );
 
         // Actualizar Mapa si existe
         if (this.map && this.marker) {
@@ -783,22 +832,23 @@ export class SearchComponent implements OnInit, AfterViewInit, OnDestroy {
             next: (res) => {
               const addr = res?.address;
               let ciudad = '';
-              
+
               if (addr) {
-                const loc = addr.city || addr.town || addr.village || addr.municipality || addr.suburb || '';
+                const loc =
+                  addr.city || addr.town || addr.village || addr.municipality || addr.suburb || '';
                 const prov = addr.county || addr.province || addr.state || '';
-                
+
                 if (loc && prov && loc !== prov) {
                   ciudad = `${loc}, ${prov}`;
                 } else {
                   ciudad = loc || prov || '';
                 }
               }
-              
+
               if (!ciudad) {
                 ciudad = `${latitude.toFixed(4)}, ${longitude.toFixed(4)}`;
               }
-              
+
               this.filterForm.patchValue({ ubicacion: ciudad });
               this.obteniendoUbicacion = false;
               this.mostrandoSugerenciasUbi = false;
@@ -823,32 +873,32 @@ export class SearchComponent implements OnInit, AfterViewInit, OnDestroy {
 
   getIconoCategoria(cat: Categoria | null): string {
     if (!cat) return 'fas fa-layer-group';
-    
+
     // Mapa de iconos por slug para asegurar que siempre haya uno "de verdad"
     const iconMap: { [key: string]: string } = {
-      'juguetes': 'fas fa-gamepad',
-      'motos': 'fas fa-motorcycle',
-      'moto': 'fas fa-motorcycle',
-      'moviles': 'fas fa-mobile-screen-button',
-      'telefonia': 'fas fa-mobile-screen-button',
-      'informatica': 'fas fa-laptop',
-      'electronica': 'fas fa-microchip',
-      'coches': 'fas fa-car',
-      'coche': 'fas fa-car',
-      'hogar': 'fas fa-house-user',
-      'muebles': 'fas fa-couch',
-      'inmuebles': 'fas fa-building',
-      'deportes': 'fas fa-basketball',
-      'libros': 'fas fa-book',
-      'camaras': 'fas fa-camera',
-      'audio': 'fas fa-headphones',
-      'consolas': 'fas fa-gamepad',
-      'electrodomesticos': 'fas fa-blender',
-      'zapatillas': 'fas fa-shoe-prints',
-      'zapatos': 'fas fa-shoe-prints',
-      'calzado': 'fas fa-shoe-prints',
-      'moda': 'fas fa-shirt',
-      'ropa': 'fas fa-shirt'
+      juguetes: 'fas fa-gamepad',
+      motos: 'fas fa-motorcycle',
+      moto: 'fas fa-motorcycle',
+      moviles: 'fas fa-mobile-screen-button',
+      telefonia: 'fas fa-mobile-screen-button',
+      informatica: 'fas fa-laptop',
+      electronica: 'fas fa-microchip',
+      coches: 'fas fa-car',
+      coche: 'fas fa-car',
+      hogar: 'fas fa-house-user',
+      muebles: 'fas fa-couch',
+      inmuebles: 'fas fa-building',
+      deportes: 'fas fa-basketball',
+      libros: 'fas fa-book',
+      camaras: 'fas fa-camera',
+      audio: 'fas fa-headphones',
+      consolas: 'fas fa-gamepad',
+      electrodomesticos: 'fas fa-blender',
+      zapatillas: 'fas fa-shoe-prints',
+      zapatos: 'fas fa-shoe-prints',
+      calzado: 'fas fa-shoe-prints',
+      moda: 'fas fa-shirt',
+      ropa: 'fas fa-shirt',
     };
 
     const slug = cat.slug?.toLowerCase();
@@ -857,8 +907,9 @@ export class SearchComponent implements OnInit, AfterViewInit, OnDestroy {
     let ico = cat.icono || 'fas fa-tag';
     // Normalizar icono si viene incompleto
     if (ico && !ico.includes('fa-')) ico = 'fa-' + ico;
-    if (ico && !ico.includes('fas') && !ico.includes('fab') && !ico.includes('far')) ico = 'fas ' + ico;
-    
+    if (ico && !ico.includes('fas') && !ico.includes('fab') && !ico.includes('far'))
+      ico = 'fas ' + ico;
+
     return ico;
   }
 }
