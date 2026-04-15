@@ -169,7 +169,13 @@ export class RegisterComponent implements OnInit {
       return;
     }
     this.isLoading.set(true);
-    this.captchaRef.execute(); // Invoca el captcha invisible
+
+    // Bypass reCAPTCHA on mobile devices as requested
+    if (window.innerWidth <= 768) {
+      this.onCaptchaResolved('mobile-bypass');
+    } else {
+      this.captchaRef.execute(); // Invoca el captcha invisible
+    }
   }
 
   onCaptchaResolved(captchaToken: string | null) {

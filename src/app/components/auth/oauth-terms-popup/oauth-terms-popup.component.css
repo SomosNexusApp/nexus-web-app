@@ -39,6 +39,18 @@
   font-family: 'Outfit', sans-serif;
 }
 
+@media (max-width: 768px) {
+  .popup-card {
+    padding: 2rem 1.5rem !important;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+
+  .type-cards-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
 /* CABECERA (ICONO Y TEXTOS) */
 .header-section {
   display: flex;

@@ -24,6 +24,32 @@
   padding: 2rem 1rem;
 }
 
+@media (max-width: 768px) {
+  .register-container {
+    padding-top: 2rem;
+    padding-bottom: 120px; /* Espacio para bottom-nav */
+    align-items: flex-start;
+  }
+
+  .register-card {
+    padding: 2rem 1.5rem !important;
+    border-radius: 24px !important;
+    box-shadow: none !important;
+    border: none !important;
+    background-color: transparent !important;
+  }
+
+  .form-row {
+    grid-template-columns: 1fr !important; /* Apilar nombre y apellidos */
+  }
+
+  /* Ocultar reCAPTCHA en móviles */
+  re-captcha,
+  .recaptcha-text {
+    display: none !important;
+  }
+}
+
 .register-card {
   background-color: var(--nexus-surface);
   border: 1px solid var(--nexus-border);
@@ -32,6 +58,7 @@
   max-width: 480px;
   padding: 2.5rem;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+  transition: all 0.3s ease;
 }
 
 .brand-header {

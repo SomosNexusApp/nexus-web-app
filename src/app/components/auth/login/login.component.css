@@ -23,6 +23,22 @@
   padding: 2rem 1rem;
 }
 
+@media (max-width: 768px) {
+  .login-container {
+    padding-top: 4rem;
+    padding-bottom: 120px; /* Evita que el bottom-nav tape el contenido */
+    align-items: flex-start; /* En móvil es mejor que empiece arriba si es largo */
+  }
+  
+  .login-card {
+    padding: 2rem 1.5rem !important;
+    border-radius: 24px !important;
+    box-shadow: none !important; /* En móvil suele quedar mejor más plano o con sombras leves */
+    border: none !important;
+    background-color: transparent !important; /* Look más moderno en móvil */
+  }
+}
+
 .login-card {
   background-color: var(--nexus-surface);
   border: 1px solid var(--nexus-border);
@@ -31,6 +47,7 @@
   max-width: 420px;
   padding: 2.5rem;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+  transition: all 0.3s ease;
 }
 
 .brand-header {
