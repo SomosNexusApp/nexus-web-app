@@ -525,6 +525,14 @@
   border-radius: 6px;
 }
 
+.product-cleanup-hint.danger-hint {
+  color: #ef4444;
+}
+.product-cleanup-hint-mini.danger-mini {
+  color: #ef4444;
+  background: rgba(239, 68, 68, 0.1);
+}
+
 .product-list-title {
   font-weight: 700;
   font-size: 1rem;

@@ -160,6 +160,12 @@
                       Se elimina en: <strong>{{ p.diasRestantesVendido ?? 'pocos' }} días</strong>
                     </span>
                   }
+                  @if (p.estado === 'EXPIRADO') {
+                    <span class="product-cleanup-hint danger-hint">
+                      <i class="fas fa-history"></i>
+                      Eliminación en: <strong>{{ p.diasRestantesExpirado ?? 'pocos' }} días</strong>
+                    </span>
+                  }
                   <span class="product-list-badge" [style.background]="getEstadoColor(p.estado)">
                     {{ p.estado }}
                   </span>
@@ -397,6 +403,12 @@
                   @if (v.fechaCaducidad) {
                     <span class="product-expiry-hint">
                       Caduca: {{ v.fechaCaducidad | date : 'mediumDate' }}
+                    </span>
+                  }
+                  @if (v.estadoVehiculo === 'EXPIRADO') {
+                    <span class="product-cleanup-hint danger-hint">
+                      <i class="fas fa-history"></i>
+                      Eliminación en: <strong>{{ v.diasRestantesExpirado ?? 'pocos' }} días</strong>
                     </span>
                   }
                   <span class="product-list-badge" [style.background]="getEstadoColor(v.estadoVehiculo)">
@@ -917,7 +929,22 @@
                     (click)="!showActionSheet() ? router.navigate(['/productos', p.id]) : null"
                   >
                     <div class="p-n-card-img"><img [src]="p | coverImage"><div class="p-n-card-price">{{ p.precio | currencyEs }}</div></div>
-                    <div class="p-n-card-body"><h3 class="p-n-card-title">{{ p.titulo }}</h3><div class="p-n-card-footer"><span class="p-n-badge" [style.background]="getEstadoColor(p.estado)">{{ p.estado }}</span></div></div>
+                    <div class="p-n-card-body">
+                      <h3 class="p-n-card-title">{{ p.titulo }}</h3>
+                      <div class="p-n-card-footer">
+                        <span class="p-n-badge" [style.background]="getEstadoColor(p.estado)">{{ p.estado }}</span>
+                        @if (p.estado === 'VENDIDO') {
+                          <span class="product-cleanup-hint-mini">
+                             <i class="fas fa-clock"></i> {{ p.diasRestantesVendido ?? '?' }}d
+                          </span>
+                        }
+                        @if (p.estado === 'EXPIRADO') {
+                          <span class="product-cleanup-hint-mini danger-mini">
+                             <i class="fas fa-history"></i> {{ p.diasRestantesExpirado ?? '?' }}d
+                          </span>
+                        }
+                      </div>
+                    </div>
                   </div>
                }
              }

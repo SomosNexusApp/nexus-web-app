@@ -9,7 +9,7 @@ export type CondicionProducto =
   | 'MUY_BUEN_ESTADO'
   | 'BUEN_ESTADO'
   | 'ACEPTABLE';
-export type EstadoProducto = 'DISPONIBLE' | 'RESERVADO' | 'VENDIDO';
+export type EstadoProducto = 'DISPONIBLE' | 'RESERVADO' | 'VENDIDO' | 'PAUSADO' | 'EXPIRADO' | 'ELIMINADO';
 
 export interface Producto {
   id: number;
@@ -36,4 +36,5 @@ export interface Producto {
   fechaPublicacion?: string;
   fechaActualizacion?: string;
   diasRestantesVendido?: number;
+  diasRestantesExpirado?: number;
 }

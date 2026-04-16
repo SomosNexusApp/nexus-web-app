@@ -118,6 +118,13 @@
               <span>Vendido. Se eliminará automáticamente en <strong>{{ producto()!.diasRestantesVendido ?? 'pocos' }} días</strong>.</span>
             </div>
           }
+
+          @if (producto()!.estado === 'EXPIRADO') {
+            <div class="sold-cleanup-alert fallback-warning">
+              <i class="fas fa-history"></i>
+              <span>Anuncio Caducado. Se eliminará en <strong>{{ producto()!.diasRestantesExpirado ?? 'pocos' }} días</strong> si no se reactiva.</span>
+            </div>
+          }
           
           <h1 class="product-title">{{ producto()!.titulo }}</h1>
           

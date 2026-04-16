@@ -4,7 +4,7 @@ import { Categoria } from './categoria.model';
 import { TipoOferta, CondicionProducto } from './producto.model';
 
 export type TipoVehiculo = 'COCHE' | 'MOTO' | 'FURGONETA' | 'SCOOTER' | 'OTRO';
-export type EstadoVehiculo = 'DISPONIBLE' | 'RESERVADO' | 'VENDIDO';
+export type EstadoVehiculo = 'DISPONIBLE' | 'RESERVADO' | 'VENDIDO' | 'EXPIRADO' | 'PAUSADO' | 'ELIMINADO';
 
 export interface Vehiculo {
   id: number;
@@ -36,4 +36,6 @@ export interface Vehiculo {
   galeriaImagenes?: string[];
   publicador?: Usuario | Empresa;
   fechaPublicacion?: string;
+  fechaCaducidad?: string;
+  diasRestantesExpirado?: number;
 }
