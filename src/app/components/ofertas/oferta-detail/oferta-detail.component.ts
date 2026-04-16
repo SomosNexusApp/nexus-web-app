@@ -502,7 +502,9 @@ export class OfertaDetailComponent implements OnInit, OnDestroy {
 
   get isExpired(): boolean {
     const o = this.oferta();
-    if (!o || !o.fechaExpiracion) return false;
+    if (!o) return false;
+    if (o.estado === 'AGOTADA') return true;
+    if (!o.fechaExpiracion) return false;
     return new Date(o.fechaExpiracion).getTime() < Date.now();
   }
 

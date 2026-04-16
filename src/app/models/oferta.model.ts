@@ -37,4 +37,6 @@ export interface Oferta {
   ciudadOferta?: string;
   gastosEnvio?: number;
   miVoto?: boolean | null;
+  estado?: 'ACTIVA' | 'PAUSADA' | 'AGOTADA' | 'ELIMINADA';
+  diasRestantesAgotado?: number;
 }

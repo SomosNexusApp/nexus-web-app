@@ -494,6 +494,37 @@
   color: var(--text-muted);
 }
 
+.product-cleanup-hint {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.78rem;
+  color: #f59e0b;
+  font-weight: 500;
+  margin-top: 2px;
+}
+
+.product-cleanup-hint i {
+  font-size: 0.85rem;
+}
+
+.product-cleanup-hint strong {
+  font-weight: 700;
+}
+
+.product-cleanup-hint-mini {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 0.65rem;
+  color: #f59e0b;
+  font-weight: 800;
+  margin-left: auto;
+  background: rgba(245, 158, 11, 0.1);
+  padding: 2px 6px;
+  border-radius: 6px;
+}
+
 .product-list-title {
   font-weight: 700;
   font-size: 1rem;

@@ -35,4 +35,5 @@ export interface Producto {
   numeroFavoritos: number;
   fechaPublicacion?: string;
   fechaActualizacion?: string;
+  diasRestantesVendido?: number;
 }

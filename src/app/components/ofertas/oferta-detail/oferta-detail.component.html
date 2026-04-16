@@ -68,6 +68,20 @@
         </div>
       </div>
 
+      <!-- AVISO DE LIMPIEZA AUTOMÁTICA -->
+      <div class="sold-cleanup-alert animate-fade-in" *ngIf="oferta().estado === 'AGOTADA'">
+        <div class="alert-blur"></div>
+        <div class="alert-content">
+          <div class="alert-icon-pulse">
+            <i class="fas fa-clock"></i>
+          </div>
+          <div class="alert-text">
+            <span class="warning-title">OFERTA FINALIZADA</span>
+            <p>Se eliminará automáticamente en <strong>{{ oferta().diasRestantesAgotado ?? 'pocos' }} días</strong>.</p>
+          </div>
+        </div>
+      </div>
+
       <h1 class="main-title animate-title">{{ oferta().titulo }}</h1>
 
       <div class="hero-stats animate-fade-up">

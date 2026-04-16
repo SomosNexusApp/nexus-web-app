@@ -149,9 +149,15 @@
                     p.titulo
                   }}</a>
                   <span class="product-list-price">{{ p.precio | currencyEs }}</span>
-                  @if (p.fechaCaducidad) {
+                  @if (p.fechaCaducidad && p.estado !== 'VENDIDO') {
                     <span class="product-expiry-hint">
                       Caduca: {{ p.fechaCaducidad | date : 'mediumDate' }}
+                    </span>
+                  }
+                  @if (p.estado === 'VENDIDO') {
+                    <span class="product-cleanup-hint">
+                      <i class="fas fa-clock"></i>
+                      Se elimina en: <strong>{{ p.diasRestantesVendido ?? 'pocos' }} días</strong>
                     </span>
                   }
                   <span class="product-list-badge" [style.background]="getEstadoColor(p.estado)">
@@ -293,6 +299,10 @@
                   </span>
                   @if (o.estado === 'AGOTADA') {
                     <span class="status-badge sold">AGOTADA</span>
+                    <span class="product-cleanup-hint">
+                      <i class="fas fa-clock"></i>
+                      Se elimina en: <strong>{{ o.diasRestantesAgotado ?? 'pocos' }} días</strong>
+                    </span>
                   }
                   @if (o.estado === 'PAUSADA') {
                     <span class="status-badge paused">PAUSADA</span>
@@ -923,7 +933,17 @@
                     (click)="!showActionSheet() ? router.navigate(['/ofertas', o.id]) : null"
                   >
                     <div class="p-n-card-img"><img [src]="o | coverImage"><div class="p-n-card-price">{{ o.precioOferta | currencyEs }}</div></div>
-                    <div class="p-n-card-body"><h3 class="p-n-card-title">{{ o.titulo }}</h3><div class="p-n-card-footer"><span class="p-n-badge" [style.background]="getEstadoColor(o.estado)">{{ o.estado }}</span></div></div>
+                    <div class="p-n-card-body">
+                      <h3 class="p-n-card-title">{{ o.titulo }}</h3>
+                      <div class="p-n-card-footer">
+                        <span class="p-n-badge" [style.background]="getEstadoColor(o.estado)">{{ o.estado }}</span>
+                        @if (o.estado === 'AGOTADA') {
+                          <span class="product-cleanup-hint-mini">
+                             <i class="fas fa-clock"></i> {{ o.diasRestantesAgotado ?? '?' }}d
+                          </span>
+                        }
+                      </div>
+                    </div>
                   </div>
                }
              }

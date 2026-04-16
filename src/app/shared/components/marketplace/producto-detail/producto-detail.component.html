@@ -111,6 +111,14 @@
       <section class="info-col glass-card">
         <div class="info-header">
           <div class="category-tag">{{ producto()!.categoria?.nombre || 'Producto' }}</div>
+          
+          @if (producto()!.estado === 'VENDIDO') {
+            <div class="sold-cleanup-alert">
+              <i class="fas fa-clock"></i>
+              <span>Vendido. Se eliminará automáticamente en <strong>{{ producto()!.diasRestantesVendido ?? 'pocos' }} días</strong>.</span>
+            </div>
+          }
+          
           <h1 class="product-title">{{ producto()!.titulo }}</h1>
           
           <div class="price-showcase">
