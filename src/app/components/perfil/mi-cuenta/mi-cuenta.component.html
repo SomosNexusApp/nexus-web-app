@@ -986,7 +986,18 @@
                    (click)="!showActionSheet() ? router.navigate(['/vehiculos', v.id]) : null"
                  >
                    <div class="p-n-card-img"><img [src]="v.imagenPrincipal"><div class="p-n-card-price">{{ v.precio | currencyEs }}</div></div>
-                   <div class="p-n-card-body"><h3 class="p-n-card-title">{{ v.marca }} {{ v.modelo }}</h3><div class="p-n-card-footer"><span class="p-n-badge" [style.background]="getEstadoColor(v.estadoVehiculo)">{{ v.estadoVehiculo }}</span></div></div>
+                   <div class="p-n-card-body">
+                      <h3 class="p-n-card-title">{{ v.marca }} {{ v.modelo }}</h3>
+                      <div class="p-n-card-footer">
+                        <span class="p-n-badge" [style.background]="getEstadoColor(v.estadoVehiculo)">{{ v.estadoVehiculo }}</span>
+                        @if (v.estadoVehiculo === 'EXPIRADO') {
+                          <span class="product-cleanup-hint-mini danger-mini">
+                             <i class="fas fa-history"></i> {{ v.diasRestantesExpirado ?? '?' }}d
+                          </span>
+                        }
+                      </div>
+                    </div>
+
                  </div>
                }
              }

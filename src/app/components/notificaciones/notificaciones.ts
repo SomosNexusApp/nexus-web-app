@@ -85,10 +85,40 @@ import { NotificationService, NotificacionInAppDto } from '../../core/services/n
                 <p>No tienes notificaciones por el momento.</p>
               </div>
             } @else {
-              <div class="notif-list-app">
+              <div class="notif-grid">
                 @for (n of notifications(); track n.id; let i = $index) {
+                  <!-- Desktop Card -->
                   <div 
-                    class="notif-item-app" 
+                    class="notif-card-elite desktop-only" 
+                    [class.unread]="!n.leida"
+                    [class.featured]="n.destacada"
+                    (click)="navigateTo(n.url || '')"
+                  >
+                    <div class="icon-wrapper" [style.background-color]="service.getNotifColor(n.tipo) + '20'">
+                      <i [class]="service.getNotifIcon(n.tipo)" [style.color]="service.getNotifColor(n.tipo)"></i>
+                    </div>
+                    <div class="card-body">
+                      <div class="card-meta">
+                        <span class="card-type" [style.color]="service.getNotifColor(n.tipo)">{{ service.getNotifTypeLabel(n.tipo) }}</span>
+                        <div class="meta-right">
+                          <span class="card-date">{{ n.fecha | date:'mediumDate' }} • {{ n.fecha | date:'shortTime' }}</span>
+                          <button class="btn-star" [class.active]="n.destacada" (click)="toggleDestacada(n); $event.stopPropagation()">
+                            <i class="fa-star" [class.fas]="n.destacada" [class.far]="!n.destacada"></i>
+                          </button>
+                        </div>
+                      </div>
+                      <h3 class="card-title">{{ n.titulo }}</h3>
+                      <p class="card-msg">{{ n.mensaje }}</p>
+                      <div class="card-actions">
+                        <a *ngIf="n.url" (click)="$event.stopPropagation()" [routerLink]="n.url" class="btn-action-elite">Ver detalles</a>
+                        <button *ngIf="!n.leida" class="btn-mark-single" (click)="markAsRead(n); $event.stopPropagation()">Marcar como leído</button>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Mobile Item -->
+                  <div 
+                    class="notif-item-app mobile-only" 
                     [class.unread]="!n.leida"
                     (click)="navigateTo(n.url || '')"
                   >
@@ -289,8 +319,8 @@ import { NotificationService, NotificacionInAppDto } from '../../core/services/n
 
     @media (max-width: 768px) {
       .desktop-only { display: none !important; }
+      .mobile-only { display: flex !important; }
       .mobile-app-header { display: flex; }
-      .notif-list-app { display: flex; }
       .container-elite { padding: 0; }
       .notif-page-nexus { background: #0a0a0f; }
       .notif-container { 
@@ -305,6 +335,10 @@ import { NotificationService, NotificacionInAppDto } from '../../core/services/n
         min-height: auto;
         padding-bottom: calc(80px + env(safe-area-inset-bottom, 0px));
       }
+    }
+
+    .mobile-only {
+      display: none;
     }
 
     .page-header {
@@ -843,17 +877,13 @@ export class NotificacionesComponent implements OnInit {
 
   loadNotifications() {
     this.loading.set(true);
-    this.service.getAll(this.page()).subscribe({
+    const filterValue = this.filter() === 'todas' ? undefined : this.filter();
+    this.service.getAll(this.page(), filterValue).subscribe({
       next: (res: any) => {
-        let items = res.content || [];
-        
-        // Manual local filtering for demo/speed if backend doesn't support query params yet
-        if (this.filter() === 'no-leidas') items = items.filter((n: any) => !n.leida);
-        if (this.filter() === 'destacadas') items = items.filter((n: any) => n.destacada);
-
+        const items = res.content || [];
         this.notifications.set(items);
         this.totalItems.set(res.totalElements || items.length);
-        this.totalPages.set(Math.ceil((res.totalElements || items.length) / 20));
+        this.totalPages.set(res.totalPages || Math.ceil((res.totalElements || items.length) / 20));
         this.loading.set(false);
       },
       error: () => this.loading.set(false)

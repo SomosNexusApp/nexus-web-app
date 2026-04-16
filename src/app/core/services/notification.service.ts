@@ -91,11 +91,11 @@ export class NotificationService {
     return this.http.put<void>(`${this.apiUrl}/${id}/toggle-destacada`, {});
   }
 
-  getAll(page = 0): Observable<{ content: NotificacionInAppDto[]; totalElements?: number }> {
+  getAll(page = 0, filter?: string): Observable<{ content: NotificacionInAppDto[]; totalElements?: number }> {
     const user = this.auth.user();
-    return this.http.get<{ content: NotificacionInAppDto[]; totalElements?: number }>(
-      `${this.apiUrl}/${user?.id}?page=${page}&size=20`,
-    );
+    let url = `${this.apiUrl}/${user?.id}?page=${page}&size=20`;
+    if (filter) url += `&filter=${filter}`;
+    return this.http.get<{ content: NotificacionInAppDto[]; totalElements?: number }>(url);
   }
 
   private showToast(notif: Notificacion): void {
