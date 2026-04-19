@@ -46,7 +46,7 @@ export class OauthTermsPopupComponent {
     };
 
     // Petición PATCH para actualizar el usuario actual
-    this.http.patch(`${environment.apiUrl}/usuario/me/terminos`, payload).subscribe({
+    this.http.patch(`${environment.apiUrl}/api/usuario/me/terminos`, payload).subscribe({
       next: () => {
         this.isLoading.set(false);
 

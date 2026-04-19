@@ -36,7 +36,7 @@ export class AvatarChoicePopupComponent {
     this.isLoading.set(true);
     const choice = this.selectedOption();
 
-    this.http.patch(`${environment.apiUrl}/usuario/me/avatar-choice`, { choice }).subscribe({
+    this.http.patch(`${environment.apiUrl}/api/usuario/me/avatar-choice`, { choice }).subscribe({
       next: () => {
         this.isLoading.set(false);
         

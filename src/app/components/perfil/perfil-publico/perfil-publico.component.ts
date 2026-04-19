@@ -99,8 +99,8 @@ export class PerfilPublicoComponent implements OnInit, OnDestroy {
 
     // El backend usa ID, intentamos primero buscar por username
     const endpoint = isNaN(Number(username))
-      ? `${environment.apiUrl}/usuario/username/${username}`
-      : `${environment.apiUrl}/usuario/${username}/perfil`;
+      ? `${environment.apiUrl}/api/usuario/username/${username}`
+      : `${environment.apiUrl}/api/usuario/${username}/perfil`;
 
     this.http.get<any>(endpoint).subscribe({
       next: (data) => {

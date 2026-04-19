@@ -33,27 +33,21 @@ export class OnboardingStepperComponent {
     newsletter: false,
     securityMethod: 'NONE', // 'NONE', 'EMAIL', 'TOTP'
     accountType: 'PERSONAL', // 'PERSONAL', 'EMPRESA'
-    avatarChoice: 'GOOGLE', // 'GOOGLE', 'INITIALS'
+    avatarChoice: 'GOOGLE', // 'GOOGLE', 'INITIALS', 'CUSTOM'
     totpCode: '',
     cif: '',
     nombreComercial: '',
     descripcion: '',
-    web: ''
+    web: '',
+    customAvatarPreview: null as string | null,
+    customAvatarFile: null as File | null
   };
 
   get isGoogleAvatarReal(): boolean {
     const url = this.user()?.googleAvatarUrl;
     if (!url) return false;
-    // Si es nuestro fallback de ui-avatars, no es real
     if (url.includes('ui-avatars.com')) return false;
-    // Si la URL es de Google pero no tiene el ID de foto real (heurística basada en el screenshot del user)
-    // Normalmente las fotos reales tienen un token largo tras /a/. 
-    // Si detectamos que es un default (ej: Brown circle with 'E'), lo tratamos como no real.
-    // Un indicador común es cuando la URL es muy corta o tiene ciertos parámetros.
     if (url.includes('googleusercontent.com') && url.includes('/a/')) {
-       // Heurística de token corto vs largo.
-       // Los placeholders suelen tener tokens de ~10-15 caracteres tras el /a/.
-       // Las fotos reales suelen tener tokens de 40+.
        const parts = url.split('/a/');
        if (parts.length > 1) {
          const token = parts[1].split('=')[0];
@@ -71,7 +65,9 @@ export class OnboardingStepperComponent {
   }
 
   get isLastStep(): boolean {
-    return this.isGoogleAvatarReal ? this.currentStep === 3 : this.currentStep === 2;
+    // Si tenemos avatar de Google real, el paso de "Personalización de avatar" (paso 3) es visible.
+    // Si no, también debe serlo porque permitimos subir uno custom de todas formas.
+    return this.currentStep === 3;
   }
 
   canContinue(): boolean {
@@ -79,6 +75,9 @@ export class OnboardingStepperComponent {
     if (this.currentStep === 1 && this.localState.securityMethod === 'TOTP') return this.isTotpVerified;
     if (this.currentStep === 2 && this.localState.accountType === 'EMPRESA') {
       return !!this.localState.cif && !!this.localState.nombreComercial;
+    }
+    if (this.currentStep === 3) {
+      if (this.localState.avatarChoice === 'CUSTOM' && !this.localState.customAvatarPreview) return false;
     }
     return true;
   }
@@ -91,7 +90,6 @@ export class OnboardingStepperComponent {
 
     this.isLoading.set(true);
 
-    // Guardar progreso según el paso actual
     if (this.currentStep === 0) {
       this.saveTerms();
     } else if (this.currentStep === 1) {
@@ -115,7 +113,7 @@ export class OnboardingStepperComponent {
       versionTerminosAceptados: '1.0'
     };
 
-    this.http.patch(`${environment.apiUrl}/usuario/me/terminos`, payload).subscribe({
+    this.http.patch(`${environment.apiUrl}/api/usuario/me/terminos`, payload).subscribe({
       next: () => {
         this.currentStep++;
         this.isLoading.set(false);
@@ -131,9 +129,8 @@ export class OnboardingStepperComponent {
       return;
     }
 
-    // Activar 2FA por Email
     if (this.localState.securityMethod === 'EMAIL') {
-      this.http.post(`${environment.apiUrl}/auth/2fa/activar?metodo=EMAIL`, {}).subscribe({
+      this.http.post(`${environment.apiUrl}/api/auth/2fa/activar?metodo=EMAIL`, {}).subscribe({
         next: () => {
           this.currentStep++;
           this.isLoading.set(false);
@@ -151,82 +148,118 @@ export class OnboardingStepperComponent {
       descripcion: this.localState.descripcion,
       web: this.localState.web
     };
-    this.http.patch(`${environment.apiUrl}/usuario/me/tipo-cuenta`, payload).subscribe({
+    this.http.patch(`${environment.apiUrl}/api/usuario/me/tipo-cuenta`, payload).subscribe({
       next: () => {
-        // Refrescamos el store 
-        this.http.get<any>(`${environment.apiUrl}/auth/me`).subscribe(u => {
+        // Refrescamos el store para tener el nuevo tipo de cuenta
+        this.http.get<any>(`${environment.apiUrl}/api/auth/me`).subscribe(u => {
           this.authStore.setUser(u);
-          if (this.isGoogleAvatarReal) {
-            this.currentStep++;
-          } else {
-            // Si no es real, forzamos iniciales y terminamos
-            this.localState.avatarChoice = 'INITIALS';
-            this.finish();
-          }
+          this.currentStep++; // Siempre vamos al paso de avatar ahora
           this.isLoading.set(false);
+        });
+      },
+      error: (err) => {
+        const msg = err.error?.error || 'Error al guardar datos de empresa. Revisa el CIF.';
+        alert(msg);
+        this.isLoading.set(false);
+      }
+    });
+  }
+
+  onAvatarFileSelected(event: any) {
+    const file = event.target.files[0];
+    if (file) {
+      this.localState.customAvatarFile = file;
+      const reader = new FileReader();
+      reader.onload = (e: any) => {
+        this.localState.customAvatarPreview = e.target.result;
+        this.localState.avatarChoice = 'CUSTOM';
+      };
+      reader.readAsDataURL(file);
+    }
+  }
+
+  private finish() {
+    this.isLoading.set(true);
+
+    // 1. Subir avatar si es CUSTOM
+    if (this.localState.avatarChoice === 'CUSTOM' && this.localState.customAvatarFile) {
+      const formData = new FormData();
+      formData.append('file', this.localState.customAvatarFile);
+      this.http.post<any>(`${environment.apiUrl}/api/usuario/${this.user()?.id}/avatar`, formData).subscribe({
+        next: (res) => {
+           this.saveAvatarChoiceAndFinish();
+        },
+        error: () => this.handleError('Error al subir el avatar personalizado.')
+      });
+    } else {
+      this.saveAvatarChoiceAndFinish();
+    }
+  }
+
+  private saveAvatarChoiceAndFinish() {
+    const choicePayload = { choice: this.localState.avatarChoice };
+    this.http.patch(`${environment.apiUrl}/api/usuario/me/avatar-choice`, choicePayload).subscribe({
+      next: () => {
+        // Marcamos onboarding como completo en el backend
+        this.http.post(`${environment.apiUrl}/api/usuario/me/complete-onboarding`, {}).subscribe({
+          next: () => {
+            // Actualizamos el flag en local antes de cerrar
+            const u = this.user();
+            if (u) {
+              u.onboardingCompletado = true;
+              this.authStore.setUser(u);
+            }
+            this.completeOnboarding();
+          },
+          error: () => this.handleError()
         });
       },
       error: () => this.handleError()
     });
   }
 
+  private completeOnboarding() {
+    this.popupService.closeOnboarding();
+    this.isLoading.set(false);
+    this.router.navigate(['/']);
+    // Forzamos un refresco de la sesión completa
+    window.location.reload(); 
+  }
+
   selectTotp() {
-    this.localState.securityMethod = 'TOTP';
     this.isLoading.set(true);
-    this.http.get(`${environment.apiUrl}/auth/2fa/totp-setup`).subscribe({
-      next: (res: any) => {
-        this.totpData = res;
+    this.http.post<any>(`${environment.apiUrl}/api/auth/2fa/generar-secreto`, {}).subscribe({
+      next: (data) => {
+        this.totpData = data;
         this.showTotpConfig = true;
+        this.localState.securityMethod = 'TOTP';
         this.isLoading.set(false);
       },
-      error: () => {
-        this.handleError();
-        this.localState.securityMethod = 'NONE';
-      }
+      error: () => this.handleError('Error al generar el secreto TOTP.')
     });
   }
 
   verifyTotp() {
     this.isLoading.set(true);
-    const payload = { codigo: this.localState.totpCode };
-    this.http.post(`${environment.apiUrl}/auth/2fa/confirmar?metodo=TOTP`, payload).subscribe({
-      next: () => {
-        this.isTotpVerified = true;
-        this.showTotpConfig = false;
+    const payload = { token: this.localState.totpCode };
+    this.http.post<any>(`${environment.apiUrl}/api/auth/2fa/verificar`, payload).subscribe({
+      next: (res) => {
+        if (res.verified) {
+          this.isTotpVerified = true;
+          this.showTotpConfig = false;
+          // Después de verificar el TOTP, podemos ir al siguiente paso o informar éxito.
+          alert('¡Verificación TOTP activada correctamente!');
+        } else {
+          alert('Código incorrecto. Inténtalo de nuevo.');
+        }
         this.isLoading.set(false);
       },
-      error: () => {
-        alert('Código inválido. Revisa tu App e inténtalo de nuevo.');
-        this.isLoading.set(false);
-      }
+      error: () => this.handleError('Error al verificar el código TOTP.')
     });
   }
 
-  private finish() {
-    this.isLoading.set(true);
-    
-    // Si el usuario es de Google/Social, siempre guardamos su preferencia de avatar al finalizar
-    if (this.user()?.googleId || this.user()?.facebookId) {
-      const payload = { choice: this.localState.avatarChoice };
-      this.http.patch(`${environment.apiUrl}/usuario/me/avatar-choice`, payload).subscribe({
-        next: () => this.completeOnboarding(),
-        error: () => this.completeOnboarding() // Continuamos igual si falla para no bloquear
-      });
-    } else {
-      this.completeOnboarding();
-    }
-  }
-
-  private completeOnboarding() {
-    this.popupService.closeOnboarding();
+  private handleError(message: string = 'Ocurrió un error al guardar tus preferencias. Por favor, inténtalo de nuevo.') {
     this.isLoading.set(false);
-    this.router.navigate(['/']);
-    // Forzamos un refresco visual si es necesario
-    window.location.reload(); 
-  }
-
-  private handleError() {
-    this.isLoading.set(false);
-    alert('Ocurrió un error al guardar tus preferencias. Por favor, inténtalo de nuevo.');
+    alert(message);
   }
 }

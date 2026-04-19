@@ -1,13 +1,29 @@
 <div class="onboarding-overlay" *ngIf="popupService.isOnboardingOpen()">
   <div class="onboarding-container">
-    
     <!-- Header with Progress -->
     <div class="onboarding-header">
       <div class="step-indicator">
-        <div class="indicator-dot" [class.active]="currentStep === 0" [class.completed]="currentStep > 0"></div>
-        <div class="indicator-dot" [class.active]="currentStep === 1" [class.completed]="currentStep > 1"></div>
-        <div class="indicator-dot" [class.active]="currentStep === 2" [class.completed]="currentStep > 2"></div>
-        <div class="indicator-dot" [class.active]="currentStep === 3" [class.completed]="currentStep > 3" *ngIf="user()?.googleAvatarUrl"></div>
+        <div
+          class="indicator-dot"
+          [class.active]="currentStep === 0"
+          [class.completed]="currentStep > 0"
+        ></div>
+        <div
+          class="indicator-dot"
+          [class.active]="currentStep === 1"
+          [class.completed]="currentStep > 1"
+        ></div>
+        <div
+          class="indicator-dot"
+          [class.active]="currentStep === 2"
+          [class.completed]="currentStep > 2"
+        ></div>
+        <div
+          class="indicator-dot"
+          [class.active]="currentStep === 3"
+          [class.completed]="currentStep > 3"
+          *ngIf="user()?.googleAvatarUrl"
+        ></div>
       </div>
     </div>
 
@@ -17,23 +33,24 @@
         <h2>Bienvenido a Nexus</h2>
         <p>Estamos encantados de tenerte aquí. Antes de empezar, revisa nuestros compromisos.</p>
       </div>
-      
+
       <div class="terms-card">
         <div class="terms-scroll">
-          Al unirte a Nexus, aceptas ser parte de una comunidad basada en la confianza y la transparencia. 
-          Nexus asegura que todas las transacciones son seguras y que tus datos están protegidos bajo 
-          los más altos estándares de privacidad (GDPR). No toleramos comportamientos fraudulentos y trabajamos 
-          día a día para ofrecerte la mejor experiencia de compra-venta de lujo.
+          Al unirte a Nexus, aceptas ser parte de una comunidad basada en la confianza y la
+          transparencia. Nexus asegura que todas las transacciones son seguras y que tus datos están
+          protegidos bajo los más altos estándares de privacidad (GDPR). No toleramos
+          comportamientos fraudulentos y trabajamos día a día para ofrecerte la mejor experiencia de
+          compra-venta de lujo.
         </div>
-        
+
         <label class="check-item">
-          <input type="checkbox" [(ngModel)]="localState.termsAccepted">
+          <input type="checkbox" [(ngModel)]="localState.termsAccepted" />
           <div class="custom-cb"><i class="fas fa-check" *ngIf="localState.termsAccepted"></i></div>
           <span class="cb-text">Acepto los términos y condiciones de Nexus Marketplace</span>
         </label>
-        
+
         <label class="check-item">
-          <input type="checkbox" [(ngModel)]="localState.newsletter">
+          <input type="checkbox" [(ngModel)]="localState.newsletter" />
           <div class="custom-cb"><i class="fas fa-check" *ngIf="localState.newsletter"></i></div>
           <span class="cb-text">Quiero recibir novedades y ofertas exclusivas (Newsletter)</span>
         </label>
@@ -44,11 +61,18 @@
     <div class="step-content" *ngIf="currentStep === 1">
       <div class="step-header">
         <h2>Seguridad Avanzada</h2>
-        <p>Protege tu cuenta con la verificación en dos pasos. Imprescindible para operar con seguridad.</p>
+        <p>
+          Protege tu cuenta con la verificación en dos pasos. Imprescindible para operar con
+          seguridad.
+        </p>
       </div>
 
       <div class="security-options" *ngIf="!showTotpConfig">
-        <div class="security-card" [class.active]="localState.securityMethod === 'NONE'" (click)="localState.securityMethod = 'NONE'">
+        <div
+          class="security-card"
+          [class.active]="localState.securityMethod === 'NONE'"
+          (click)="localState.securityMethod = 'NONE'"
+        >
           <div class="security-icon"><i class="fas fa-shield-alt"></i></div>
           <div class="security-info">
             <strong>Sin seguridad adicional</strong>
@@ -56,15 +80,23 @@
           </div>
         </div>
 
-        <div class="security-card" [class.active]="localState.securityMethod === 'EMAIL'" (click)="localState.securityMethod = 'EMAIL'">
+        <div
+          class="security-card"
+          [class.active]="localState.securityMethod === 'EMAIL'"
+          (click)="localState.securityMethod = 'EMAIL'"
+        >
           <div class="security-icon"><i class="fas fa-envelope"></i></div>
           <div class="security-info">
             <strong>Verificación por Email</strong>
             <span>Enviaremos un código a tu correo al iniciar sesión</span>
           </div>
         </div>
-        
-        <div class="security-card" [class.active]="localState.securityMethod === 'TOTP'" (click)="selectTotp()">
+
+        <div
+          class="security-card"
+          [class.active]="localState.securityMethod === 'TOTP'"
+          (click)="selectTotp()"
+        >
           <div class="security-icon"><i class="fas fa-mobile-alt"></i></div>
           <div class="security-info">
             <strong>App de Autenticación</strong>
@@ -76,23 +108,27 @@
       <!-- TOTP CONFIG AREA -->
       <div class="totp-setup-area" *ngIf="showTotpConfig">
         <div class="qr-container" *ngIf="totpData?.qrCode">
-          <img [src]="totpData.qrCode" alt="QR Code">
+          <img [src]="totpData.qrCode" alt="QR Code" />
         </div>
-        
+
         <div class="secret-box" *ngIf="totpData?.secret">
           {{ totpData.secret }}
         </div>
 
         <div class="totp-input-group">
           <label>Introduce el código de 6 dígitos de tu App</label>
-          <input type="text" maxlength="6" [(ngModel)]="localState.totpCode" placeholder="000000">
+          <input type="text" maxlength="6" [(ngModel)]="localState.totpCode" placeholder="000000" />
         </div>
 
-        <button class="btn-nx-verify" (click)="verifyTotp()" [disabled]="localState.totpCode.length !== 6 || isLoading()">
+        <button
+          class="btn-nx-verify"
+          (click)="verifyTotp()"
+          [disabled]="localState.totpCode.length !== 6 || isLoading()"
+        >
           Verificar y Activar
         </button>
-        
-        <button class="btn-nx-back" style="margin-top: 10px;" (click)="showTotpConfig = false">
+
+        <button class="btn-nx-back" style="margin-top: 10px" (click)="showTotpConfig = false">
           Cancelar y elegir otro método
         </button>
       </div>
@@ -107,16 +143,28 @@
 
       <div class="step-3-layout" [class.empresa-mode]="localState.accountType === 'EMPRESA'">
         <div class="identity-grid">
-          <div class="identity-card" [class.active]="localState.accountType === 'PERSONAL'" (click)="localState.accountType = 'PERSONAL'">
+          <div
+            class="identity-card"
+            [class.active]="localState.accountType === 'PERSONAL'"
+            (click)="localState.accountType = 'PERSONAL'"
+          >
             <i class="fas fa-user"></i>
             <h4>Personal</h4>
-            <p *ngIf="localState.accountType !== 'EMPRESA'">Para entusiastas que buscan comprar y vender artículos únicos.</p>
+            <p *ngIf="localState.accountType !== 'EMPRESA'">
+              Para entusiastas que buscan comprar y vender artículos únicos.
+            </p>
           </div>
-          
-          <div class="identity-card" [class.active]="localState.accountType === 'EMPRESA'" (click)="localState.accountType = 'EMPRESA'">
+
+          <div
+            class="identity-card"
+            [class.active]="localState.accountType === 'EMPRESA'"
+            (click)="localState.accountType = 'EMPRESA'"
+          >
             <i class="fas fa-briefcase"></i>
-            <h4>Empresa / Pro</h4>
-            <p *ngIf="localState.accountType !== 'EMPRESA'">Herramientas avanzadas para vendedores profesionales y marcas.</p>
+            <h4>Empresa</h4>
+            <p *ngIf="localState.accountType !== 'EMPRESA'">
+              Herramientas avanzadas para vendedores profesionales y marcas.
+            </p>
           </div>
         </div>
 
@@ -124,21 +172,28 @@
         <div class="empresa-details-area" *ngIf="localState.accountType === 'EMPRESA'">
           <div class="nx-input-group">
             <label>Nombre Comercial</label>
-            <input type="text" [(ngModel)]="localState.nombreComercial" placeholder="Nombre de tu negocio">
+            <input
+              type="text"
+              [(ngModel)]="localState.nombreComercial"
+              placeholder="Nombre de tu negocio"
+            />
           </div>
           <div class="nx-input-row">
             <div class="nx-input-group">
               <label>CIF / NIF</label>
-              <input type="text" [(ngModel)]="localState.cif" placeholder="A12345678">
+              <input type="text" [(ngModel)]="localState.cif" placeholder="A12345678" />
             </div>
             <div class="nx-input-group">
               <label>Sitio Web (opcional)</label>
-              <input type="text" [(ngModel)]="localState.web" placeholder="https://...">
+              <input type="text" [(ngModel)]="localState.web" placeholder="https://..." />
             </div>
           </div>
           <div class="nx-input-group">
             <label>Breve descripción</label>
-            <textarea [(ngModel)]="localState.descripcion" placeholder="¿A qué se dedica tu empresa?"></textarea>
+            <textarea
+              [(ngModel)]="localState.descripcion"
+              placeholder="¿A qué se dedica tu empresa?"
+            ></textarea>
           </div>
         </div>
       </div>
@@ -152,18 +207,48 @@
       </div>
 
       <div class="avatar-selection">
-        <div class="avatar-option" [class.active]="localState.avatarChoice === 'GOOGLE'" (click)="localState.avatarChoice = 'GOOGLE'">
+        <div
+          class="avatar-option"
+          [class.active]="localState.avatarChoice === 'GOOGLE'"
+          (click)="localState.avatarChoice = 'GOOGLE'"
+          *ngIf="isGoogleAvatarReal"
+        >
           <div class="avatar-wrapper">
-            <img [src]="user()?.googleAvatarUrl" alt="Google">
+            <img [src]="user()?.googleAvatarUrl" alt="Google" />
           </div>
           <span>Perfil de Google</span>
         </div>
 
-        <div class="avatar-option" [class.active]="localState.avatarChoice === 'INITIALS'" (click)="localState.avatarChoice = 'INITIALS'">
+        <div
+          class="avatar-option"
+          [class.active]="localState.avatarChoice === 'INITIALS'"
+          (click)="localState.avatarChoice = 'INITIALS'"
+        >
           <div class="avatar-wrapper">
             <div class="initials-fallback">{{ userInitials }}</div>
           </div>
           <span>Iniciales Nexus</span>
+        </div>
+
+        <div
+          class="avatar-option"
+          [class.active]="localState.avatarChoice === 'CUSTOM'"
+          (click)="avatarInput.click()"
+        >
+          <div class="avatar-wrapper">
+             <div class="custom-avatar-placeholder" *ngIf="!localState.customAvatarPreview">
+                <i class="fas fa-camera"></i>
+             </div>
+             <img [src]="localState.customAvatarPreview" *ngIf="localState.customAvatarPreview" alt="Custom">
+          </div>
+          <span>Personalizado</span>
+          <input 
+            type="file" 
+            #avatarInput 
+            style="display: none" 
+            (change)="onAvatarFileSelected($event)"
+            accept="image/*"
+          >
         </div>
       </div>
     </div>
@@ -173,7 +258,8 @@
       <button class="btn-nx-back" (click)="prevStep()" *ngIf="currentStep > 0 && !isLoading()">
         Atrás
       </button>
-      <div *ngIf="currentStep === 0"></div> <!-- Spacer if no back button -->
+      <div *ngIf="currentStep === 0"></div>
+      <!-- Spacer if no back button -->
 
       <button class="btn-nx-next" (click)="nextStep()" [disabled]="!canContinue() || isLoading()">
         <span *ngIf="!isLoading()">{{ isLastStep ? 'Finalizar' : 'Continuar' }}</span>
@@ -181,6 +267,5 @@
         <i class="fas fa-arrow-right" *ngIf="!isLoading()"></i>
       </button>
     </div>
-
   </div>
 </div>

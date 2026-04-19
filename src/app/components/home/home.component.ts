@@ -10,6 +10,10 @@ import { MejoresCategoriasComponent } from './mejores-categorias/mejores-categor
 import { PatrociniosStripComponent } from './patrocinios-strip/patrocinios-strip.component';
 import { MobileFeedComponent } from '../../mobile/mobile-feed/mobile-feed';
 
+// pagina principal del marketplace.
+// en mobile muestra MobileFeedComponent (scroll infinito tipo APP).
+// en desktop muestra las secciones clasicas (hero, categorias, chollos, etc.).
+// usamos OnPush para que Angular solo re-renderice cuando cambien las signals o inputs.
 @Component({
   selector: 'app-home',
   standalone: true,
@@ -27,12 +31,15 @@ import { MobileFeedComponent } from '../../mobile/mobile-feed/mobile-feed';
   ],
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.css'],
-  changeDetection: ChangeDetectionStrategy.OnPush,
+  changeDetection: ChangeDetectionStrategy.OnPush, // mas eficiente: solo re-renderiza cuando cambian los datos
 })
 export class HomeComponent implements OnInit {
+  // signal reactiva: true si la pantalla es de movil (<= 768px)
+  // se usa en el HTML para decidir que componente mostrar
   isMobileUI = signal(window.innerWidth <= 768);
 
   ngOnInit() {
+    // actualizamos la signal cuando el usuario redimensiona la ventana
     window.addEventListener('resize', () => {
       this.isMobileUI.set(window.innerWidth <= 768);
     });

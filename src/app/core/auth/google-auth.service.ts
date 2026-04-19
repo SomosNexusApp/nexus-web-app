@@ -107,10 +107,10 @@ export class GoogleAuthService {
     this.ngZone.run(() => {
       this.authService.googleLogin(response.credential).subscribe({
         next: (res) => {
-          if (res.esNuevoUsuario) {
-            this.guestPopup.showOnboarding();
+          if (res.usuario && res.usuario.onboardingCompletado === false) {
+            // AuthService ya invoca guestPopup.showOnboarding()
+            // No navegamos para evitar tapar el popup
           } else {
-            this.guestPopup.closePopup();
             this.router.navigate(['/']);
           }
         },
@@ -127,10 +127,9 @@ export class GoogleAuthService {
     this.ngZone.run(() => {
       this.authService.googleLogin(response.credential).subscribe({
         next: (res) => {
-          if (res.esNuevoUsuario) {
-            this.guestPopup.showOnboarding();
+          if (res.usuario && res.usuario.onboardingCompletado === false) {
+            // AuthService ya invoca guestPopup.showOnboarding()
           } else {
-            this.guestPopup.closePopup();
             this.router.navigate(['/']);
           }
           resolve();

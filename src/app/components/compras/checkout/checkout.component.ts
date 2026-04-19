@@ -577,7 +577,7 @@ export class CheckoutComponent implements OnInit, OnDestroy {
           pais: addr.pais,
           telefono: addr.telefono
         };
-        this.http.patch(`${environment.apiUrl}/usuario/me/direccion`, dirPayload).subscribe({
+        this.http.patch(`${environment.apiUrl}/api/usuario/me/direccion`, dirPayload).subscribe({
             next: () => console.log('Dirección guardada correctamente'),
             error: (err) => console.error('Error al guardar dirección', err)
         });

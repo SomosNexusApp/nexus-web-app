@@ -2,6 +2,12 @@ import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth-guard';
 import { guestGuard } from './core/guards/guest-guard';
 
+// todas las rutas de la app. usamos lazy loading (loadComponent) para que cada pagina
+// cargue su codigo solo cuando el usuario la visita. esto hace la carga inicial mucho mas rapida.
+//
+// los guards que usamos:
+// - authGuard: redirige al popup de registro si el usuario no esta logueado
+// - guestGuard: redirige al home si el usuario Ya esta logueado (ej: no tiene sentido ir a /login si ya estas dentro)
 export const routes: Routes = [
   {
     path: '',

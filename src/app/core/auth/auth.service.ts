@@ -11,6 +11,8 @@ import { GuestPopupService } from '../services/guest-popup.service';
 import { AuthResponse, RegisterRequest, LoginRequest } from '../../models/auth.model';
 import { Usuario } from '../../models/usuario.model';
 
+// servicio principal de autenticacion del frontend
+// centraliza todo: login, registro, logout, OAuth (Google/Facebook), 2FA y recuperacion de contraseña
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private http = inject(HttpClient);
@@ -19,33 +21,42 @@ export class AuthService {
   private router = inject(Router);
   private guestPopup = inject(GuestPopupService);
 
-  // NOTA: Base URL dinámica dependiente de si el endpoint es /auth o /api/auth
-  // Corregir la definición de las URLs en AuthService
+  // tenemos dos urls base: /auth (legacy) y /api/auth (nueva)
+  // ambas apuntan al mismo controlador del backend, pero las mantenemos por compatibilidad
   private readonly AUTH_URL = `${environment.apiUrl}/auth`;
   private readonly API_AUTH_URL = `${environment.apiUrl}/api/auth`;
 
   /**
-   * LOGIN
+   * LOGIN: manda las credenciales al backend y gestiona la respuesta
+   * si el usuario tiene 2FA activado, devuelve requires2FA=true y el cliente debe verificar el codigo
+   * si el login es directo (sin 2FA), guarda el token y carga el usuario completo
    */
   login(credenciales: LoginRequest & { captchaToken?: string }, isAdmin = false): Observable<AuthResponse> {
     const payload = {
-      user: credenciales.email || credenciales.username,
+      user: credenciales.email || credenciales.username, // acepta tanto email como username
       password: credenciales.password,
-      captchaToken: credenciales.captchaToken || 'token-omitido-en-dev',
+      captchaToken: credenciales.captchaToken || 'token-omitido-en-dev', // evitamos error si no hay captcha
     };
 
     const baseUrl = isAdmin ? this.API_AUTH_URL : this.AUTH_URL;
     return this.http.post<AuthResponse>(`${baseUrl}/login`, payload).pipe(
       switchMap((response) => {
+        // si requiere 2FA simplemente devolvemos la respuesta y dejamos al componente gestionarlo
         if (response.requires2FA || (response as any).requiere2FA) {
           return of(response);
         }
 
-        // Si el login es directo, guardamos token y obtenemos el usuario completo
+        // login directo: guardamos el token y cargamos el perfil completo del usuario
         this.jwt.saveToken(response.token, isAdmin);
         return this.loadCurrentUser(isAdmin).pipe(
           map((usuario) => {
-            if (!isAdmin) this.guestPopup.closePopup();
+            if (!isAdmin) {
+              this.guestPopup.closePopup();
+              // si es usuario nuevo (onboarding no completado), mostramos el asistente de bienvenida
+              if (usuario.onboardingCompletado === false) {
+                this.guestPopup.showOnboarding();
+              }
+            }
             return { ...response, usuario };
           }),
         );
@@ -154,13 +165,18 @@ export class AuthService {
   }
 
   /**
-   * Helper publico para manejar el login de OAuth y cargar el store
+   * helper para procesar el login exitoso de OAuth (Google o Facebook)
+   * guarda el token, carga el usuario y muestra el onboarding si es la primera vez
    */
   procesarLoginExitoso(response: AuthResponse): Observable<AuthResponse> {
     this.jwt.saveToken(response.token);
     return this.loadCurrentUser().pipe(
       map((usuario) => {
         this.guestPopup.closePopup();
+        if (usuario.onboardingCompletado === false) {
+          // si el proveedor OAuth no abrio el onboarding, lo hacemos aqui
+          this.guestPopup.showOnboarding();
+        }
         return { ...response, usuario };
       })
     );

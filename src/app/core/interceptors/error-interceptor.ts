@@ -14,6 +14,8 @@ import { GuestPopupService } from '../services/guest-popup.service';
 import { ToastService } from '../services/toast.service';
 import { environment } from '../../../environments/environment';
 
+// interceptor de errores HTTP: intercepta todas las respuestas y gestiona los errores mas comunes
+// lo usamos para no repetir el mismo manejo de 401/403/500 en cada componente
 @Injectable()
 export class ErrorInterceptor implements HttpInterceptor {
   constructor(
@@ -28,33 +30,39 @@ export class ErrorInterceptor implements HttpInterceptor {
       catchError((error: HttpErrorResponse) => {
         switch (error.status) {
           case 401:
-            // No autorizado o token expirado. IMPORTANTE: Solo para nuestra API
+            // token expirado o no autorizado. IMPORTANTE: solo actuamos si es de nuestra api,
+            // no de servicios externos (Stripe, Google, etc.) que tambien podrian devolver 401
             if (req.url.startsWith(environment.apiUrl)) {
-              this.authStore.clear();
-              this.jwtService.removeToken();
-              this.guestPopupService.showPopup(); // Mostrar modal de login sin redirigir
+              this.authStore.clear(); // borramos el estado de sesion
+              this.jwtService.removeToken(); // borramos el token del localStorage
+              this.guestPopupService.showPopup(); // mostramos el popup de login sin redirigir
             }
             break;
 
           case 403:
+            // el usuario esta logueado pero no tiene permisos para esto
             this.toastService.error('No tienes permiso para realizar esta acción.');
             break;
 
           case 429:
+            // demasiadas peticiones: rate limiting del servidor
             this.toastService.warning('Demasiados intentos. Espera un momento.');
             break;
 
           case 500:
+            // error en el servidor, le avisamos al usuario
             this.toastService.error('Error interno del servidor. Inténtalo más tarde.');
             break;
 
           case 0:
+            // status 0 = no se pudo conectar con el servidor (servidor caido, sin internet, etc.)
             if (req.url.startsWith(environment.apiUrl)) {
               this.toastService.error('No se pudo conectar con el servidor.');
             }
             break;
         }
 
+        // siempre propagamos el error para que el componente pueda manejarlo tambien si quiere
         return throwError(() => error);
       }),
     );

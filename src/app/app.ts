@@ -21,6 +21,11 @@ import { MobileBottomNav } from './mobile/mobile-bottom-nav/mobile-bottom-nav';
 import { CategoriaPanelComponent } from './shared/components/categoria-panel/categoria-panel.component';
 import { MobilePublishModalComponent } from './mobile/mobile-publish-modal/mobile-publish-modal';
 
+// componente raiz de la aplicacion. actua como shell global:
+// - monta el header, footer y router-outlet
+// - gestiona los popups globales (registro, onboarding, 2FA, tipo de cuenta)
+// - conecta/desconecta el websocket automaticamente cuando el usuario hace login/logout
+// - detecta si estamos en mobile o desktop para alternar los componentes de navegacion
 @Component({
   selector: 'app-root',
   standalone: true,
@@ -41,7 +46,7 @@ import { MobilePublishModalComponent } from './mobile/mobile-publish-modal/mobil
   styleUrls: ['./app.component.scss'],
 })
 export class AppComponent implements OnInit {
-  // Inyectamos el servicio de invitados para acceder a sus signals desde el HTML
+  // el servicio de popups es publico para que el HTML pueda leer sus signals directamente
   guestPopup = inject(GuestPopupService);
   private router = inject(Router);
 
@@ -50,33 +55,36 @@ export class AppComponent implements OnInit {
   private notifService = inject(NotificationService);
   public uiService = inject(UiService);
 
-  // Signals para controlar la visibilidad según la ruta
+  // signals para controlar que componentes se muestran segun la ruta actual
   isAdminRoute = signal(window.location.pathname.startsWith('/admin'));
   isMessagesRoute = signal(window.location.pathname.startsWith('/mensajes'));
   isPublishRoute = signal(window.location.pathname.startsWith('/publicar'));
-  isMobileUI = signal(window.innerWidth <= 768);
+  isMobileUI = signal(window.innerWidth <= 768); // <= 768px = movil
 
-  // Signals para los popups post-registro
+  // popups del flujo post-registro (se muestran en orden: 2FA → tipo cuenta → avatar)
   showTwoFactorPopup = signal(false);
   showAccountTypePopup = signal(false);
 
-  /** Modal prioritario: venta pagada — pasos de envío */
+  /** banner prioritario: cuando el vendedor tiene una venta lista para enviar */
   saleBanner = signal<NotificacionInAppDto | null>(null);
 
   constructor() {
-    // Escuchar el tamaño de la ventana para alternar entre componentes mobile/desktop
+    // detectamos cambios de tamano para alternar entre UI mobile y desktop
     window.addEventListener('resize', () => {
       const isMobile = window.innerWidth <= 768;
       this.isMobileUI.set(isMobile);
       this.uiService.isMobileUI.set(isMobile);
     });
-    // Conectar o desconectar WebSocket dinámicamente según estado auth
+    // effect: se re-ejecuta automaticamente cuando cambia isLoggedIn()
+    // conectamos el websocket al hacer login y lo cerramos al hacer logout
     effect(() => {
       if (this.authStore.isLoggedIn()) {
-        this.wsService.connect();
-        this.notifService.init();
+        this.wsService.connect(); // abrimos la conexion STOMP/SockJS
+        this.notifService.init(); // iniciamos el contador de no leidas
+        // esperamos un tick para que la sesion este lista antes de pedir notifs destacadas
         queueMicrotask(() => {
           this.notifService.getDestacadasPendientes().subscribe((list) => {
+            // buscamos si hay una venta reciente pendiente de envio para mostrar el banner
             const sale = list.find(
               (n) => n.tipo === 'COMPRA_PAGADA_VENDEDOR' || n.destacada === true,
             );
@@ -84,6 +92,7 @@ export class AppComponent implements OnInit {
           });
         });
       } else {
+        // al cerrar sesion, limpiamos todo
         this.wsService.disconnect();
         this.notifService.reset();
         this.saleBanner.set(null);
@@ -91,6 +100,7 @@ export class AppComponent implements OnInit {
     });
   }
 
+  // cierra el banner y marca la notificacion como leida en el backend
   closeSaleBanner(): void {
     const n = this.saleBanner();
     if (n?.id != null) {
@@ -106,7 +116,9 @@ export class AppComponent implements OnInit {
   }
 
   ngOnInit() {
-    // Escuchar cambios de ruta para el tracking de visitas y ocultar header en admin
+    // escuchamos cambios de ruta para:
+    // 1. ocultar el header/popups cuando se navega a rutas de admin
+    // 2. rastrear visitas de pagina para el sistema de popups periodicos
     this.router.events
       .pipe(filter((event) => event instanceof NavigationEnd))
       .subscribe((event: any) => {
@@ -121,21 +133,21 @@ export class AppComponent implements OnInit {
         this.isPublishRoute.set(isPublish);
 
         if (isAdmin) {
-          this.guestPopup.hidePopup();
+          this.guestPopup.hidePopup(); // en el admin no mostramos nunca el popup de registro
         } else {
-          this.guestPopup.trackPageVisit();
+          this.guestPopup.trackPageVisit(); // contamos visitas para el popup periodico
         }
       });
   }
 
-  // --- Manejadores de eventos de los Popups ---
-
-  // Borra tus señales antiguas (showTwoFactorPopup y showAccountTypePopup) de aquí arriba
+  // --- flujo de popups post-login ---
+  // el orden es: login → 2FA (si tiene) → tipo de cuenta → avatar
 
   onTwoFactorCompletado() {
     this.guestPopup.closeTwoFactorPopup();
 
     const user = this.authStore.user();
+    // si el usuario todavia no tiene tipo de cuenta asignado, le pedimos que elija
     if (user && !user.tipoCuenta) {
       this.guestPopup.showAccountTypePopup();
     }
@@ -145,12 +157,14 @@ export class AppComponent implements OnInit {
     this.guestPopup.closeAccountTypePopup();
 
     const user = this.authStore.user();
-    // Si es un usuario de Google y tiene foto, le dejamos elegir
+    // si entro con Google y tiene foto, le preguntamos si quiere usarla como avatar
     if (user && user.googleAvatarUrl) {
       this.guestPopup.showAvatarChoicePopup();
     } else {
-      // Si no es Google, simplemente terminamos el flujo
+      // si no es Google o no tiene foto, terminamos el flujo y vamos al home
       this.router.navigate(['/']);
     }
   }
 }
+
+

@@ -18,32 +18,38 @@ export interface NotificacionInAppDto {
   metadata?: string;
 }
 
+// servicio de notificaciones in-app: gestiona el contador de no leidas y las muestra como toasts
+// se inicializa cuando el usuario hace login y se suscribe al websocket para notificaciones en tiempo real
 @Injectable({ providedIn: 'root' })
 export class NotificationService {
+  // signal para el contador de no leidas (actualiza el badge del campana en tiempo real)
   private readonly unread = signal(0);
   private ws = inject(WebSocketService);
   private http = inject(HttpClient);
   private toast = inject(ToastService);
   private auth = inject(AuthStore);
 
-  readonly unreadCount = this.unread.asReadonly();
+  readonly unreadCount = this.unread.asReadonly(); // solo lectura para los componentes
 
   private apiUrl = `${environment.apiUrl}/api/notificaciones`;
-  private inited = false;
+  private inited = false; // flag para no inicializar dos veces si se llama a init() de nuevo
 
+  // inicializa el servicio: carga el conteo inicial y se suscribe al websocket
+  // se llama desde el componente raiz despues del login
   init(): void {
-    if (this.inited) return;
+    if (this.inited) return; // ya inicializado, evitamos doble suscripcion
     const user = this.auth.user();
     if (!user) return;
 
     this.inited = true;
-    this.refreshUnreadCount();
+    this.refreshUnreadCount(); // conteo inicial desde la api
 
+    // escuchamos el websocket para actualizar el conteo y mostrar toast cuando llega una nueva notif
     this.ws.notificaciones.subscribe((raw) => {
       const notif = raw as Notificacion & Partial<NotificacionInAppDto>;
       if (notif.id != null && notif.titulo) {
-        this.unread.update((n) => n + 1);
-        this.showToast(notif as Notificacion);
+        this.unread.update((n) => n + 1); // incrementamos el contador
+        this.showToast(notif as Notificacion); // mostramos el toast en pantalla
       }
     });
   }
@@ -98,25 +104,27 @@ export class NotificationService {
     return this.http.get<{ content: NotificacionInAppDto[]; totalElements?: number }>(url);
   }
 
+  // devuelve el icono correspondiente al tipo de notificacion (para la lista de notifs)
   private showToast(notif: Notificacion): void {
+    // determinamos el tipo de toast segun el tipo de notificacion
     let toastType: Toast['tipo'] = 'info';
     const t = notif.tipo;
     if (t === 'ALERTA' || t === 'ERROR' || t === 'DEVOLUCION') {
-      toastType = 'error';
+      toastType = 'error'; // rojo
     } else if (
       t === 'NUEVA_COMPRA' ||
       t === 'COMPRA_PAGADA_VENDEDOR' ||
       t === 'COMPRA_PAGADA_COMPRADOR' ||
       t === 'COMPRA_CONFIRMADA'
     ) {
-      toastType = 'success';
+      toastType = 'success'; // verde
     } else if (
       t === 'ADVERTENCIA' ||
       t === 'CADUCIDAD_ANUNCIO' ||
       t === 'ENVIO_PLAZO' ||
       t === 'GUIA_ENVIO_VENDEDOR'
     ) {
-      toastType = 'warning';
+      toastType = 'warning'; // amarillo/naranja
     } else if (t === 'FAVORITO_PRODUCTO' || t === 'FAVORITO_OFERTA') {
       toastType = 'success';
     }

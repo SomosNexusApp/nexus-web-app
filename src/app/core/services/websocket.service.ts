@@ -35,6 +35,9 @@ export interface Notificacion {
   url?: string;
 }
 
+// servicio que maneja la conexion WebSocket con el backend usando STOMP sobre SockJS
+// SockJS hace fallback a polling si el navegador no soporta WebSockets nativos
+// STOMP es un protocolo de mensajeria que funciona por encima del WebSocket
 @Injectable({ providedIn: 'root' })
 export class WebSocketService {
   private client: Client | null = null;
@@ -42,40 +45,49 @@ export class WebSocketService {
   private auth = inject(AuthStore);
   private http = inject(HttpClient);
 
+  // subjects que emiten cuando llegan mensajes/notificaciones/eventos del servidor
+  // son privados para que solo este servicio pueda emitir en ellos
   private mensajes$ = new Subject<ChatMensaje>();
   private notificaciones$ = new Subject<Notificacion>();
   private leidos$ = new Subject<{ roomId: string; usuarioId: number }>();
   private recibidos$ = new Subject<{ roomId: string; usuarioId: number }>();
+  // signal de Angular para el contador de conversaciones no leidas (actualiza la UI automaticamente)
   unreadConvCount = signal(0);
 
+  // exponemos los subjects como observables de solo lectura para que los componentes puedan suscribirse
   readonly mensajes = this.mensajes$.asObservable();
   readonly notificaciones = this.notificaciones$.asObservable();
   readonly leidos = this.leidos$.asObservable();
   readonly recibidos = this.recibidos$.asObservable();
 
-  // Track subscribed product topics to avoid duplicates
+  // guardamos los topics a los que ya estamos suscritos para no suscribirnos dos veces
+  // si nos suscribimos dos veces recibiríamos cada mensaje duplicado
   private subscribedTopics = new Set<string>();
 
   connect(): void {
     const token = this.jwt.getToken();
+    // si no hay token o ya estamos conectados, no hacemos nada
     if (!token || this.client?.connected) return;
 
     this.client = new Client({
+      // usamos SockJS como transporte (soporta fallback a polling HTTP)
       webSocketFactory: () => new SockJS(`${environment.wsUrl}/ws`),
+      // mandamos el JWT en la cabecera de conexion para que el backend nos identifique
       connectHeaders: { Authorization: `Bearer ${token}` },
-      reconnectDelay: 5000,
+      reconnectDelay: 5000, // reintenta la conexion cada 5 segundos si se cae
       onConnect: () => {
         const userId = this.auth.user()?.id;
         if (!userId) return;
 
-        // Cola privada de notificaciones (badge de mensajes nuevos, etc.)
+        // cola privada de notificaciones: solo las recibe este usuario
+        // el /user/ prefix hace que STOMP enrute el mensaje solo a esta sesion
         this.client!.subscribe(`/user/queue/notificaciones`, (msg) => {
           this.notificaciones$.next(JSON.parse(msg.body));
-          // Refresh count when a new notification arrives
+          // actualizamos el contador cada vez que llega una notificacion
           this.refreshUnreadCount();
         });
 
-        // Initial fetch
+        // hacemos la primera consulta al conectar para tener el conteo actualizado
         this.refreshUnreadCount();
       },
       onStompError: (frame) => {
@@ -87,11 +99,13 @@ export class WebSocketService {
   }
 
   /**
-   * Suscribirse al topic de una sala específica para recibir mensajes en tiempo real.
-   * Se llama desde ChatPanelComponent cuando se abre una conversación.
+   * Suscribirse al topic de una sala de chat para recibir mensajes en tiempo real.
+   * Se llama desde ChatPanelComponent cuando el usuario abre una conversación.
+   * El roomId identifica la conversación (formato: productoId_userId1_userId2).
    */
   suscribirseAlChat(roomId: string): void {
     const topicKey = `/topic/chat/${roomId}`;
+    // si ya estamos suscritos o no estamos conectados, salimos
     if (!this.client?.connected || this.subscribedTopics.has(topicKey)) return;
 
     this.subscribedTopics.add(topicKey);
@@ -100,6 +114,7 @@ export class WebSocketService {
     });
   }
 
+  // actualiza el numero de conversaciones no leidas consultando la api
   refreshUnreadCount(): void {
     const user = this.auth.user();
     if (!user) return;
@@ -108,6 +123,7 @@ export class WebSocketService {
       .subscribe((res) => this.unreadConvCount.set(res.noLeidos));
   }
 
+  // desconecta del websocket y limpia los topics suscritos
   disconnect(): void {
     this.client?.deactivate();
     this.client = null;
@@ -241,6 +257,8 @@ export class WebSocketService {
     }
   }
 
+  // notifica al otro usuario que estamos escribiendo en tiempo real
+  // se usa para el indicador "escribiendo..." del chat
   notificarEscribiendo(productoId: number | null, remitenteId: number, roomId: string): void {
     if (this.client?.connected) {
       this.client.publish({
@@ -255,6 +273,7 @@ export class WebSocketService {
     }
   }
 
+  // getter para saber desde fuera si estamos conectados
   get isConnected(): boolean {
     return this.client?.connected ?? false;
   }

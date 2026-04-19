@@ -74,7 +74,7 @@ export class MensajesContainerComponent implements OnInit, OnDestroy {
   }
 
   private iniciarConversacionDirecta(usuarioId: number) {
-    this.http.get<any>(`${environment.apiUrl}/usuario/${usuarioId}`).subscribe({
+    this.http.get<any>(`${environment.apiUrl}/api/usuario/${usuarioId}`).subscribe({
       next: (otroUsuario) => {
         const currentUser = this.authStore.user();
         if (!currentUser || currentUser.id === otroUsuario.id) return;

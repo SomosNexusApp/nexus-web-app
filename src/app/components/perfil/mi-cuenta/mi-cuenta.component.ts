@@ -364,7 +364,7 @@ export class MiCuentaComponent implements OnInit {
       const formData = new FormData();
       formData.append('file', file);
 
-      this.http.post<any>(`${environment.apiUrl}/usuario/${u.id}/avatar`, formData).subscribe({
+      this.http.post<any>(`${environment.apiUrl}/api/usuario/${u.id}/avatar`, formData).subscribe({
         next: () => {
           this.toast.success('Foto actualizada');
           this.authService.loadCurrentUser().subscribe();
@@ -377,7 +377,7 @@ export class MiCuentaComponent implements OnInit {
   guardarCambiosPerfil() {
     const u = this.user();
     if (!u) return;
-    this.http.patch(`${environment.apiUrl}/usuario/${u.id}`, this.editForm()).subscribe({
+    this.http.patch(`${environment.apiUrl}/api/usuario/${u.id}`, this.editForm()).subscribe({
       next: () => {
         this.toast.success('Perfil actualizado con éxito');
         this.authService.loadCurrentUser().subscribe();

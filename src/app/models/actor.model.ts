@@ -19,4 +19,5 @@ export interface Actor {
   avatarSource?: 'GOOGLE' | 'INITIALS' | 'CUSTOM';
   googleAvatarUrl?: string;
   customAvatarUrl?: string;
+  onboardingCompletado: boolean;
 }

@@ -1,28 +1,27 @@
-import { Injectable } from '@angular/core';
-import { HttpRequest, HttpHandler, HttpEvent, HttpInterceptor } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { JwtService } from '../auth/jwt-service';
-import { environment } from '../../../environments/environment';
-
+// interceptor que añade el token JWT a todas las peticiones HTTP que van al backend
+// Angular lo aplica automaticamente a todos los HttpClient.get/post/etc
 @Injectable()
 export class JwtInterceptor implements HttpInterceptor {
   constructor(private jwtService: JwtService) {}
 
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
+    // comprobamos si la peticion va dirigida a rutas de admin (usa un token diferente)
     const isAdminRequest = req.url.includes('/api/admin/') || 
                          req.url.includes('/admin/') ||
                           (req.url.includes('/api/auth/') && !req.url.includes('/login') && !req.url.includes('/register'));
     const token = this.jwtService.getToken(isAdminRequest);
     
-    // Un check más resiliente: si empieza por http y NO es nuestro servidor, es externo.
-    // Si es una ruta relativa (/api/...), se considera interno.
+    // si la url empieza por http y NO es nuestra api, es externa (ej: Stripe, Google)
+    // en ese caso NO añadimos nuestro JWT para no exponer el token a terceros
     const isExternal = req.url.startsWith('http') && !req.url.startsWith(environment.apiUrl);
     const isInternal = !isExternal;
 
     if (token && !this.jwtService.isValid(isAdminRequest)) {
-      // Si el token existe pero no es válido (ej: caducado), lo limpiamos
+      // si el token existe pero está caducado, lo limpiamos del storage
+      // la proxima peticion ya irá sin token y el backend devolverá 401
       this.jwtService.removeToken(isAdminRequest);
     } else if (token && isInternal) {
+      // añadimos el Bearer token a la cabecera Authorization
       req = req.clone({
         setHeaders: {
           Authorization: `Bearer ${token}`,

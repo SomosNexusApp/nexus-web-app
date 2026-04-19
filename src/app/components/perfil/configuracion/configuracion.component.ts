@@ -275,7 +275,7 @@ export class ConfiguracionComponent implements OnInit, AfterViewInit, OnDestroy 
       const formData = new FormData();
       formData.append('file', file);
 
-      this.http.post<any>(`${this.backendUrl}/usuario/${u.id}/avatar`, formData).subscribe({
+      this.http.post<any>(`${this.backendUrl}/api/usuario/${u.id}/avatar`, formData).subscribe({
         next: () => {
           this.toast.success('Avatar actualizado correctamente');
           this.authService.loadCurrentUser().subscribe();
@@ -286,7 +286,7 @@ export class ConfiguracionComponent implements OnInit, AfterViewInit, OnDestroy 
   }
 
   setAvatarChoice(choice: 'GOOGLE' | 'INITIALS' | 'CUSTOM') {
-    this.http.patch(`${this.backendUrl}/usuario/me/avatar-choice`, { choice }).subscribe({
+    this.http.patch(`${this.backendUrl}/api/usuario/me/avatar-choice`, { choice }).subscribe({
       next: () => {
         this.toast.success('Preferencia de imagen actualizada');
         this.authService.loadCurrentUser().subscribe();
@@ -298,7 +298,7 @@ export class ConfiguracionComponent implements OnInit, AfterViewInit, OnDestroy 
   guardarPerfil() {
     const u = this.user();
     if (!u) return;
-    this.http.patch(`${this.backendUrl}/usuario/${u.id}`, this.editPerfil()).subscribe({
+    this.http.patch(`${this.backendUrl}/api/usuario/${u.id}`, this.editPerfil()).subscribe({
       next: () => {
         this.toast.success('Perfil actualizado');
         this.authService.loadCurrentUser().subscribe();
@@ -354,7 +354,7 @@ export class ConfiguracionComponent implements OnInit, AfterViewInit, OnDestroy 
   }
 
   guardarPrivacidad() {
-    this.http.patch(`${this.backendUrl}/usuario/me/privacidad`, this.privacidad()).subscribe({
+    this.http.patch(`${this.backendUrl}/api/usuario/me/privacidad`, this.privacidad()).subscribe({
       next: () => this.toast.success('Ajustes de privacidad guardados'),
       error: () => this.toast.error('Error guardando privacidad'),
     });
@@ -376,7 +376,7 @@ export class ConfiguracionComponent implements OnInit, AfterViewInit, OnDestroy 
   ejecutarMigracionEmpresa() {
     const datos = this.datosEmpresa();
     this.http
-      .patch(`${this.backendUrl}/usuario/me/tipo-cuenta`, {
+      .patch(`${this.backendUrl}/api/usuario/me/tipo-cuenta`, {
         tipoCuenta: 'EMPRESA',
         cif: datos.cif,
         web: datos.web,
@@ -419,7 +419,7 @@ export class ConfiguracionComponent implements OnInit, AfterViewInit, OnDestroy 
     }
 
     this.http
-      .post(`${this.backendUrl}/usuario/me/cambiar-password`, {
+      .post(`${this.backendUrl}/api/usuario/me/cambiar-password`, {
         passwordActual: s.passwordActual,
         passwordNueva: s.passwordNueva,
       })
@@ -453,7 +453,7 @@ export class ConfiguracionComponent implements OnInit, AfterViewInit, OnDestroy 
 
     if (metodo === 'EMAIL') {
       this.loading2FA.set(true);
-      this.http.post(`${this.backendUrl}/usuario/me/2fa/enable-email`, {}).subscribe({
+      this.http.post(`${this.backendUrl}/api/usuario/me/2fa/enable-email`, {}).subscribe({
         next: () => {
           this.toast.success('2FA por Email activado');
           this.show2FASetup.set(false);
@@ -475,7 +475,7 @@ export class ConfiguracionComponent implements OnInit, AfterViewInit, OnDestroy 
       this.qrCodeUrl.set(null);
       this.loading2FA.set(true);
       this.http
-        .post<{ qrUrl: string }>(`${this.backendUrl}/usuario/me/2fa/setup-app`, {})
+        .post<{ qrUrl: string }>(`${this.backendUrl}/api/usuario/me/2fa/setup-app`, {})
         .subscribe({
           next: (res) => {
             this.qrCodeUrl.set(res.qrUrl);
@@ -492,7 +492,7 @@ export class ConfiguracionComponent implements OnInit, AfterViewInit, OnDestroy 
 
   confirmDisable2FA() {
     this.loading2FA.set(true);
-    this.http.post(`${this.backendUrl}/usuario/me/2fa/disable`, {}).subscribe({
+    this.http.post(`${this.backendUrl}/api/usuario/me/2fa/disable`, {}).subscribe({
       next: () => {
         this.toast.success('2FA Desactivado');
         this.show2FASetup.set(false);
@@ -511,7 +511,7 @@ export class ConfiguracionComponent implements OnInit, AfterViewInit, OnDestroy 
       return;
     }
     this.http
-      .post(`${this.backendUrl}/usuario/me/2fa/enable-app`, { code: this.totpCode })
+      .post(`${this.backendUrl}/api/usuario/me/2fa/enable-app`, { code: this.totpCode })
       .subscribe({
         next: () => {
           this.toast.success('Google Authenticator activado');
@@ -525,7 +525,7 @@ export class ConfiguracionComponent implements OnInit, AfterViewInit, OnDestroy 
 
   // --- Lógica Sesiones Reales ---
   cargarSesiones() {
-    this.http.get<any[]>(`${this.backendUrl}/usuario/me/sesiones`).subscribe({
+    this.http.get<any[]>(`${this.backendUrl}/api/usuario/me/sesiones`).subscribe({
       next: (res) => this.sesionesActivas.set(res || []),
       error: (err) => {
         console.error('Error cargando sesiones:', err);
@@ -535,7 +535,7 @@ export class ConfiguracionComponent implements OnInit, AfterViewInit, OnDestroy 
   }
 
   cerrarOtrasSesiones() {
-    this.http.delete(`${this.backendUrl}/usuario/me/sesiones/otras`).subscribe({
+    this.http.delete(`${this.backendUrl}/api/usuario/me/sesiones/otras`).subscribe({
       next: () => {
         this.toast.success('Historial de sesiones limpiado');
         this.cargarSesiones();
@@ -544,7 +544,7 @@ export class ConfiguracionComponent implements OnInit, AfterViewInit, OnDestroy 
   }
   guardarNotificaciones() {
     this.http
-      .patch(`${this.backendUrl}/usuario/me/notificaciones-config`, this.notificaciones())
+      .patch(`${this.backendUrl}/api/usuario/me/notificaciones-config`, this.notificaciones())
       .subscribe({
         next: () => this.toast.success('Preferencias guardadas'),
         error: () => this.toast.error('Error guardando preferencias'),
@@ -552,7 +552,7 @@ export class ConfiguracionComponent implements OnInit, AfterViewInit, OnDestroy 
   }
 
   descargarDatos() {
-    this.http.get(`${this.backendUrl}/usuario/me/datos-personales`).subscribe({
+    this.http.get(`${this.backendUrl}/api/usuario/me/datos-personales`).subscribe({
       next: (data) => {
         const jsonStr = JSON.stringify(data, null, 2);
         const blob = new Blob([jsonStr], { type: 'application/json' });
@@ -583,7 +583,7 @@ export class ConfiguracionComponent implements OnInit, AfterViewInit, OnDestroy 
     }
 
     this.http
-      .delete(`${this.backendUrl}/usuario/me/cuenta`, {
+      .delete(`${this.backendUrl}/api/usuario/me/cuenta`, {
         body: { password: this.deleteAccount().password },
       })
       .subscribe({

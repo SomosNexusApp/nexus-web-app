@@ -212,7 +212,7 @@ export class ProductoDetailComponent implements OnInit, OnDestroy {
     if (!vendedorId) return;
     this.cargandoVendedor.set(true);
 
-    this.http.get<Usuario>(`${environment.apiUrl}/usuario/${vendedorId}/perfil`).subscribe({
+    this.http.get<Usuario>(`${environment.apiUrl}/api/usuario/${vendedorId}/perfil`).subscribe({
       next: (u) => this.vendedor.set(u),
     });
 
