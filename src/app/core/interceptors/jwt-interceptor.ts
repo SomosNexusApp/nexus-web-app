@@ -1,3 +1,9 @@
+import { Injectable } from '@angular/core';
+import { HttpInterceptor, HttpRequest, HttpHandler, HttpEvent } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { JwtService } from '../auth/jwt-service';
+import { environment } from '../../../environments/environment';
+
 // interceptor que añade el token JWT a todas las peticiones HTTP que van al backend
 // Angular lo aplica automaticamente a todos los HttpClient.get/post/etc
 @Injectable()

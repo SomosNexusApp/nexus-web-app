@@ -1,3 +1,5 @@
+import { Injectable } from '@angular/core';
+
 // estructura del payload que viene dentro del JWT
 // el backend codifica estos datos en el token al hacer login
 export interface JwtPayload {
