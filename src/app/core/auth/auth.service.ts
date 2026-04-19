@@ -53,7 +53,7 @@ export class AuthService {
             if (!isAdmin) {
               this.guestPopup.closePopup();
               // si es usuario nuevo (onboarding no completado), mostramos el asistente de bienvenida
-              if (usuario.onboardingCompletado === false) {
+              if (!usuario.onboardingCompletado) {
                 this.guestPopup.showOnboarding();
               }
             }
@@ -126,12 +126,6 @@ export class AuthService {
       .pipe(switchMap((response) => this.procesarLoginExitoso(response)));
   }
 
-  facebookLogin(accessToken: string): Observable<AuthResponse> {
-    return this.http
-      .post<AuthResponse>(`${this.AUTH_URL}/facebook`, { token: accessToken })
-      .pipe(switchMap((response) => this.procesarLoginExitoso(response)));
-  }
-
   /**
    * RECUPERACIÓN DE CONTRASEÑA
    */
@@ -172,10 +166,13 @@ export class AuthService {
     this.jwt.saveToken(response.token);
     return this.loadCurrentUser().pipe(
       map((usuario) => {
-        this.guestPopup.closePopup();
-        if (usuario.onboardingCompletado === false) {
-          // si el proveedor OAuth no abrio el onboarding, lo hacemos aqui
+        if (!usuario.onboardingCompletado) {
+          // Primero mostramos el onboarding, luego cerramos el popup de registro
+          // para evitar que el closePopup tape el onboarding antes de montarse
           this.guestPopup.showOnboarding();
+          setTimeout(() => this.guestPopup.closePopup(), 50);
+        } else {
+          this.guestPopup.closePopup();
         }
         return { ...response, usuario };
       })

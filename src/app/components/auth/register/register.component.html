@@ -11,10 +11,6 @@
     @if (step() === 1) {
       <div class="oauth-section">
         <div id="google-btn-container" class="w-full"></div>
-
-        <button type="button" class="btn-oauth facebook w-full" (click)="continuarConFacebook()">
-          <i class="fab fa-facebook-f"></i> Continuar con Facebook
-        </button>
       </div>
 
       @if (!isOAuthMode()) {

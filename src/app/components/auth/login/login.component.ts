@@ -6,7 +6,6 @@ import { timer, Subscription } from 'rxjs';
 
 import { AuthService } from '../../../core/auth/auth.service';
 import { GoogleAuthService } from '../../../core/auth/google-auth.service';
-import { FacebookAuthService } from '../../../core/auth/facebook-auth.service';
 import { GuestPopupService } from '../../../core/services/guest-popup.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { HttpClient } from '@angular/common/http';
@@ -23,7 +22,6 @@ export class LoginComponent implements OnInit, OnDestroy {
   private fb = inject(FormBuilder);
   private authService = inject(AuthService);
   private googleAuth = inject(GoogleAuthService);
-  private facebookAuth = inject(FacebookAuthService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private guestPopup = inject(GuestPopupService);
@@ -137,20 +135,6 @@ export class LoginComponent implements OnInit, OnDestroy {
     try {
       await this.googleAuth.promptGoogleSignIn();
       // El servicio ya navega y cierra popup internamente
-      this.isLoading.set(false);
-    } catch (err: any) {
-      this.isLoading.set(false);
-      if (typeof err === 'string' && !err.includes('canceló')) {
-        this.errorMessage.set(err);
-      }
-    }
-  }
-
-  async continuarConFacebook() {
-    this.isLoading.set(true);
-    this.errorMessage.set(null);
-    try {
-      await this.facebookAuth.login();
       this.isLoading.set(false);
     } catch (err: any) {
       this.isLoading.set(false);

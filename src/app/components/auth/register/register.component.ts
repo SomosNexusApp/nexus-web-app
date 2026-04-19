@@ -15,7 +15,6 @@ import { map, catchError, delay, switchMap, timer, Observable, of } from 'rxjs';
 import { AuthService } from '../../../core/auth/auth.service';
 import { environment } from '../../../../environments/environment';
 import { GoogleAuthService } from '../../../core/auth/google-auth.service';
-import { FacebookAuthService } from '../../../core/auth/facebook-auth.service';
 import { GuestPopupService } from '../../../core/services/guest-popup.service';
 
 // Validador asíncrono para email único
@@ -51,7 +50,6 @@ export class RegisterComponent implements OnInit {
   private authService = inject(AuthService);
   private router = inject(Router);
   private googleAuth = inject(GoogleAuthService);
-  private facebookAuth = inject(FacebookAuthService);
   private guestPopup = inject(GuestPopupService);
 
   ngOnInit() {
@@ -146,16 +144,6 @@ export class RegisterComponent implements OnInit {
     this.isLoading.set(true);
     try {
       await this.googleAuth.promptGoogleSignIn();
-      this.isLoading.set(false);
-    } catch (err) {
-      this.isLoading.set(false);
-    }
-  }
-
-  async continuarConFacebook() {
-    this.isLoading.set(true);
-    try {
-      await this.facebookAuth.login();
       this.isLoading.set(false);
     } catch (err) {
       this.isLoading.set(false);

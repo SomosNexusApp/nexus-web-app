@@ -303,7 +303,7 @@
             <h3><i class="fas fa-key"></i> Gestión de Contraseña</h3>
             
             @if (user(); as u) {
-              @if (!u.isSocial && !u.googleId && !u.facebookId) {
+              @if (!u.isSocial && !u.googleId) {
                 <!-- Usuarios Locales (JWT) -->
               <div class="form-group">
                 <input
@@ -342,10 +342,10 @@
                   <strong>Identidad Gestionada Externamente</strong>
                   <p>
                     Tu cuenta está vinculada a 
-                    <strong>{{ user()?.googleId ? 'Google' : 'Facebook' }}</strong>. 
+                    <strong>Google</strong>. 
                     Por seguridad, debes gestionar tu contraseña directamente en su plataforma.
                   </p>
-                  <a [href]="user()?.googleId ? 'https://myaccount.google.com/security' : 'https://www.facebook.com/settings?tab=security'" 
+                  <a href="https://myaccount.google.com/security" 
                      target="_blank" class="btn-text">
                     Ir a ajustes de seguridad <i class="fas fa-external-link-alt"></i>
                   </a>
@@ -669,7 +669,7 @@
         </div>
 
         <!-- Solo pide contraseña si NO es de Google/Facebook -->
-        <div class="form-group-premium mt-4" *ngIf="!user()?.googleId && !user()?.facebookId">
+        <div class="form-group-premium mt-4" *ngIf="!user()?.googleId">
           <label>Confirma con tu contraseña</label>
           <div class="input-icon-wrapper">
             <i class="fas fa-lock"></i>
@@ -689,7 +689,7 @@
       <button class="btn-cancel-premium" (click)="showDeleteModal.set(false)">No, volver atrás</button>
       <button 
         class="btn-delete-final" 
-        [disabled]="deleteAccount().confirmText !== 'ELIMINAR' || (!user()?.googleId && !user()?.facebookId && !deleteAccount().password)"
+        [disabled]="deleteAccount().confirmText !== 'ELIMINAR' || (!user()?.googleId && !deleteAccount().password)"
         (click)="confirmarEliminacion()"
       >
         <span>Eliminar Permanentemente</span>

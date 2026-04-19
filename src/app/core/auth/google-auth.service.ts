@@ -107,10 +107,9 @@ export class GoogleAuthService {
     this.ngZone.run(() => {
       this.authService.googleLogin(response.credential).subscribe({
         next: (res) => {
-          if (res.usuario && res.usuario.onboardingCompletado === false) {
-            // AuthService ya invoca guestPopup.showOnboarding()
-            // No navegamos para evitar tapar el popup
-          } else {
+          // Si onboardingCompletado es falso/nulo, auth.service ya abrió el stepper.
+          // No navegamos para no tapar el modal del onboarding.
+          if (res.usuario && res.usuario.onboardingCompletado) {
             this.router.navigate(['/']);
           }
         },
@@ -127,7 +126,7 @@ export class GoogleAuthService {
     this.ngZone.run(() => {
       this.authService.googleLogin(response.credential).subscribe({
         next: (res) => {
-          if (res.usuario && res.usuario.onboardingCompletado === false) {
+          if (res.usuario && !res.usuario.onboardingCompletado) {
             // AuthService ya invoca guestPopup.showOnboarding()
           } else {
             this.router.navigate(['/']);
