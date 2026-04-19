@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+    <!-- 1. Sitemap con las rutas y categorías de la App (Generado estáticamente) -->
+    <sitemap>
+        <loc>https://nexus-app.es/sitemap-estatico.xml</loc>
+    </sitemap>
+    
+    <!-- 2. Sitemap con LOS PRODUCTOS DINÁMICOS (Generado automáticamente por tu Backend en vivo) -->
+    <sitemap>
+        <loc>https://api.nexus-app.es/sitemap.xml</loc>
+    </sitemap>
+</sitemapindex>

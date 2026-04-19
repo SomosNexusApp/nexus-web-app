@@ -1,0 +1,19 @@
+User-agent: *
+Allow: /
+Allow: /api/
+Disallow: /admin/
+Disallow: /auth/
+Disallow: /private/
+Disallow: /checkout/
+Disallow: /*?*
+
+# Optimizacion de rastreo para grandes buscadores
+User-agent: Googlebot
+Allow: /
+Allow: /search
+Disallow: /admin/
+
+User-agent: Bingbot
+Allow: /
+
+Sitemap: https://nexus-app.es/sitemap.xml

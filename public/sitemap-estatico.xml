@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+    <!-- Páginas Core -->
+    <url>
+        <loc>https://nexus-app.es/</loc>
+        <changefreq>always</changefreq>
+        <priority>1.00</priority>
+    </url>
+    <url>
+        <loc>https://nexus-app.es/ofertas</loc>
+        <changefreq>hourly</changefreq>
+        <priority>0.95</priority>
+    </url>
+    <url>
+        <loc>https://nexus-app.es/chollos</loc>
+        <changefreq>hourly</changefreq>
+        <priority>0.95</priority>
+    </url>
+
+    <!-- Categorías Oficiales -->
+    <url>
+        <loc>https://nexus-app.es/categoria/motor</loc>
+        <changefreq>hourly</changefreq>
+        <priority>0.90</priority>
+    </url>
+    <url>
+        <loc>https://nexus-app.es/categoria/tecnologia</loc>
+        <changefreq>hourly</changefreq>
+        <priority>0.90</priority>
+    </url>
+    <url>
+        <loc>https://nexus-app.es/categoria/moda</loc>
+        <changefreq>daily</changefreq>
+        <priority>0.85</priority>
+    </url>
+    <url>
+        <loc>https://nexus-app.es/categoria/hogar</loc>
+        <changefreq>daily</changefreq>
+        <priority>0.85</priority>
+    </url>
+    <url>
+        <loc>https://nexus-app.es/categoria/deportes</loc>
+        <changefreq>daily</changefreq>
+        <priority>0.80</priority>
+    </url>
+    <url>
+        <loc>https://nexus-app.es/categoria/juguetes</loc>
+        <changefreq>daily</changefreq>
+        <priority>0.80</priority>
+    </url>
+    <url>
+        <loc>https://nexus-app.es/categoria/otros</loc>
+        <changefreq>daily</changefreq>
+        <priority>0.70</priority>
+    </url>
+</urlset>
