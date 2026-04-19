@@ -62,13 +62,15 @@ export class RegisterComponent implements OnInit {
   }
 
   abrirConfiguracion2FA() {
+    // Tras configurar 2FA, abrimos el stepper de onboarding para completar el perfil
     this.guestPopup.showTwoFactorPopup();
-    this.router.navigate(['/']); // Navegamos al inicio, el popup del 2FA quedará por encima
+    this.router.navigate(['/']);
   }
 
   finalizarEIrATipoCuenta() {
-    this.guestPopup.showAccountTypePopup();
-    this.router.navigate(['/']); // Navegamos al inicio, el popup de Tipo de Cuenta quedará por encima
+    // Si el usuario salta el 2FA, abrimos igualmente el onboarding (términos, seguridad, tipo cuenta)
+    this.guestPopup.showOnboarding();
+    this.router.navigate(['/']);
   }
 
   @ViewChild('captchaRef') captchaRef!: RecaptchaComponent;

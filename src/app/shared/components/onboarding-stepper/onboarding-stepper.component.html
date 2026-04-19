@@ -3,27 +3,10 @@
     <!-- Header with Progress -->
     <div class="onboarding-header">
       <div class="step-indicator">
-        <div
-          class="indicator-dot"
-          [class.active]="currentStep === 0"
-          [class.completed]="currentStep > 0"
-        ></div>
-        <div
-          class="indicator-dot"
-          [class.active]="currentStep === 1"
-          [class.completed]="currentStep > 1"
-        ></div>
-        <div
-          class="indicator-dot"
-          [class.active]="currentStep === 2"
-          [class.completed]="currentStep > 2"
-        ></div>
-        <div
-          class="indicator-dot"
-          [class.active]="currentStep === 3"
-          [class.completed]="currentStep > 3"
-          *ngIf="user()?.googleAvatarUrl"
-        ></div>
+        <div class="indicator-dot" [class.active]="currentStep === 0" [class.completed]="currentStep > 0"></div>
+        <div class="indicator-dot" [class.active]="currentStep === 1" [class.completed]="currentStep > 1"></div>
+        <div class="indicator-dot" [class.active]="currentStep === 2" [class.completed]="currentStep > 2"></div>
+        <div class="indicator-dot" *ngIf="isSocialUser" [class.active]="currentStep === 3" [class.completed]="currentStep > 3"></div>
       </div>
     </div>
 
@@ -199,14 +182,15 @@
       </div>
     </div>
 
-    <!-- Step 4: Aesthetics (Avatar Selection) -->
+    <!-- Step 4: Avatar (solo para usuarios de Google) -->
     <div class="step-content" *ngIf="currentStep === 3">
       <div class="step-header">
         <h2>Tu Estilo</h2>
-        <p>¿Cómo quieres que te vean los demás? Elige tu imagen de perfil principal.</p>
+        <p>¿Cómo quieres que te vean los demás? Elige tu imagen de perfil.</p>
       </div>
 
       <div class="avatar-selection">
+        <!-- Foto de Google (solo si tiene una real) -->
         <div
           class="avatar-option"
           [class.active]="localState.avatarChoice === 'GOOGLE'"
@@ -216,9 +200,10 @@
           <div class="avatar-wrapper">
             <img [src]="user()?.googleAvatarUrl" alt="Google" />
           </div>
-          <span>Perfil de Google</span>
+          <span>Foto de Google</span>
         </div>
 
+        <!-- Iniciales -->
         <div
           class="avatar-option"
           [class.active]="localState.avatarChoice === 'INITIALS'"
@@ -227,28 +212,31 @@
           <div class="avatar-wrapper">
             <div class="initials-fallback">{{ userInitials }}</div>
           </div>
-          <span>Iniciales Nexus</span>
+          <span>Iniciales</span>
         </div>
 
+        <!-- Subir foto propia -->
         <div
-          class="avatar-option"
+          class="avatar-option custom-upload-option"
           [class.active]="localState.avatarChoice === 'CUSTOM'"
-          (click)="avatarInput.click()"
         >
-          <div class="avatar-wrapper">
-             <div class="custom-avatar-placeholder" *ngIf="!localState.customAvatarPreview">
-                <i class="fas fa-camera"></i>
-             </div>
-             <img [src]="localState.customAvatarPreview" *ngIf="localState.customAvatarPreview" alt="Custom">
+          <div class="avatar-wrapper" (click)="avatarInput.click()">
+            <img [src]="localState.customAvatarPreview" *ngIf="localState.customAvatarPreview" alt="Custom" />
+            <div class="custom-avatar-placeholder" *ngIf="!localState.customAvatarPreview">
+              <i class="fas fa-camera"></i>
+            </div>
           </div>
-          <span>Personalizado</span>
-          <input 
-            type="file" 
-            #avatarInput 
-            style="display: none" 
+          <span>Foto propia</span>
+          <button class="btn-upload-avatar" (click)="avatarInput.click()" type="button">
+            <i class="fas fa-upload"></i> {{ localState.customAvatarPreview ? 'Cambiar' : 'Subir foto' }}
+          </button>
+          <input
+            type="file"
+            #avatarInput
+            style="display: none"
             (change)="onAvatarFileSelected($event)"
-            accept="image/*"
-          >
+            accept="image/jpeg,image/png,image/webp"
+          />
         </div>
       </div>
     </div>

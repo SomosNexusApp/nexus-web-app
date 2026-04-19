@@ -529,3 +529,51 @@
 }
 
 @keyframes spin { to { transform: rotate(360deg); } }
+
+/* --- AVATAR - botón subir foto propia --- */
+.custom-upload-option {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.btn-upload-avatar {
+  margin-top: 10px;
+  background: rgba(168, 85, 247, 0.15);
+  border: 1px solid rgba(168, 85, 247, 0.4);
+  border-radius: 12px;
+  color: #c084fc;
+  font-size: 0.8rem;
+  font-weight: 700;
+  padding: 6px 14px;
+  cursor: pointer;
+  transition: all 0.25s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn-upload-avatar:hover {
+  background: rgba(168, 85, 247, 0.3);
+  border-color: #a855f7;
+  color: #fff;
+}
+
+.custom-avatar-placeholder {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.05);
+  border: 2px dashed rgba(255, 255, 255, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  color: rgba(255, 255, 255, 0.2);
+  transition: all 0.3s;
+}
+
+.avatar-option:hover .custom-avatar-placeholder {
+  border-color: rgba(168, 85, 247, 0.4);
+  color: rgba(168, 85, 247, 0.6);
+}

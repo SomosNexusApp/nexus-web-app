@@ -1,4 +1,4 @@
-import { Component, inject, signal, computed } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
@@ -31,9 +31,9 @@ export class OnboardingStepperComponent {
   localState = {
     termsAccepted: false,
     newsletter: false,
-    securityMethod: 'NONE', // 'NONE', 'EMAIL', 'TOTP'
-    accountType: 'PERSONAL', // 'PERSONAL', 'EMPRESA'
-    avatarChoice: 'GOOGLE', // 'GOOGLE', 'INITIALS', 'CUSTOM'
+    securityMethod: 'NONE',   // 'NONE', 'EMAIL', 'TOTP'
+    accountType: 'PERSONAL',  // 'PERSONAL', 'EMPRESA'
+    avatarChoice: 'INITIALS', // 'GOOGLE', 'INITIALS', 'CUSTOM'
     totpCode: '',
     cif: '',
     nombreComercial: '',
@@ -43,16 +43,24 @@ export class OnboardingStepperComponent {
     customAvatarFile: null as File | null
   };
 
+  // ── helpers ──────────────────────────────────────────────────────────────────
+
+  /** True si el usuario se registró mediante Google OAuth */
+  get isSocialUser(): boolean {
+    return !!this.user()?.googleId;
+  }
+
+  /** True si el avatar de Google es una foto real (no un placeholder generado) */
   get isGoogleAvatarReal(): boolean {
     const url = this.user()?.googleAvatarUrl;
     if (!url) return false;
     if (url.includes('ui-avatars.com')) return false;
     if (url.includes('googleusercontent.com') && url.includes('/a/')) {
-       const parts = url.split('/a/');
-       if (parts.length > 1) {
-         const token = parts[1].split('=')[0];
-         if (token.length < 30) return false; 
-       }
+      const parts = url.split('/a/');
+      if (parts.length > 1) {
+        const token = parts[1].split('=')[0];
+        if (token.length < 30) return false;
+      }
     }
     return true;
   }
@@ -64,10 +72,21 @@ export class OnboardingStepperComponent {
     return name.charAt(0).toUpperCase();
   }
 
+  /**
+   * El último paso es:
+   *  - Paso 3 (avatar) si el usuario es de Google
+   *  - Paso 2 (tipo de cuenta) si el usuario registró con email → no hay paso de avatar,
+   *    se asignan iniciales automáticamente.
+   */
   get isLastStep(): boolean {
-    // Si tenemos avatar de Google real, el paso de "Personalización de avatar" (paso 3) es visible.
-    // Si no, también debe serlo porque permitimos subir uno custom de todas formas.
-    return this.currentStep === 3;
+    return this.isSocialUser
+      ? this.currentStep === 3
+      : this.currentStep === 2;
+  }
+
+  /** Número total de pasos a mostrar (para los indicadores) */
+  get totalSteps(): number {
+    return this.isSocialUser ? 4 : 3;
   }
 
   canContinue(): boolean {
@@ -106,6 +125,8 @@ export class OnboardingStepperComponent {
     if (this.currentStep > 0) this.currentStep--;
   }
 
+  // ── pasos ─────────────────────────────────────────────────────────────────────
+
   private saveTerms() {
     const payload = {
       terminosAceptados: this.localState.termsAccepted,
@@ -141,21 +162,28 @@ export class OnboardingStepperComponent {
   }
 
   private saveAccountType() {
-    const payload = { 
+    const payload = {
       tipoCuenta: this.localState.accountType,
       cif: this.localState.cif,
       nombreComercial: this.localState.nombreComercial,
       descripcion: this.localState.descripcion,
       web: this.localState.web
     };
+
     this.http.patch(`${environment.apiUrl}/api/usuario/me/tipo-cuenta`, payload).subscribe({
       next: () => {
-        // Refrescamos el store para tener el nuevo tipo de cuenta
-        this.http.get<any>(`${environment.apiUrl}/api/auth/me`).subscribe(u => {
-          this.authStore.setUser(u);
-          this.currentStep++; // Siempre vamos al paso de avatar ahora
-          this.isLoading.set(false);
-        });
+        if (this.isSocialUser) {
+          // Usuario de Google: refrescamos store y vamos al paso de avatar
+          this.http.get<any>(`${environment.apiUrl}/api/auth/me`).subscribe(u => {
+            this.authStore.setUser(u);
+            this.currentStep++;
+            this.isLoading.set(false);
+          });
+        } else {
+          // Usuario de email: avatar = INITIALS automático, finalizamos directamente
+          this.localState.avatarChoice = 'INITIALS';
+          this.saveAvatarChoiceAndFinish();
+        }
       },
       error: (err) => {
         const msg = err.error?.error || 'Error al guardar datos de empresa. Revisa el CIF.';
@@ -164,6 +192,8 @@ export class OnboardingStepperComponent {
       }
     });
   }
+
+  // ── avatar ────────────────────────────────────────────────────────────────────
 
   onAvatarFileSelected(event: any) {
     const file = event.target.files[0];
@@ -181,14 +211,11 @@ export class OnboardingStepperComponent {
   private finish() {
     this.isLoading.set(true);
 
-    // 1. Subir avatar si es CUSTOM
     if (this.localState.avatarChoice === 'CUSTOM' && this.localState.customAvatarFile) {
       const formData = new FormData();
       formData.append('file', this.localState.customAvatarFile);
       this.http.post<any>(`${environment.apiUrl}/api/usuario/${this.user()?.id}/avatar`, formData).subscribe({
-        next: (res) => {
-           this.saveAvatarChoiceAndFinish();
-        },
+        next: () => this.saveAvatarChoiceAndFinish(),
         error: () => this.handleError('Error al subir el avatar personalizado.')
       });
     } else {
@@ -200,10 +227,8 @@ export class OnboardingStepperComponent {
     const choicePayload = { choice: this.localState.avatarChoice };
     this.http.patch(`${environment.apiUrl}/api/usuario/me/avatar-choice`, choicePayload).subscribe({
       next: () => {
-        // Marcamos onboarding como completo en el backend
         this.http.post(`${environment.apiUrl}/api/usuario/me/complete-onboarding`, {}).subscribe({
           next: () => {
-            // Actualizamos el flag en local antes de cerrar
             const u = this.user();
             if (u) {
               u.onboardingCompletado = true;
@@ -222,9 +247,10 @@ export class OnboardingStepperComponent {
     this.popupService.closeOnboarding();
     this.isLoading.set(false);
     this.router.navigate(['/']);
-    // Forzamos un refresco de la sesión completa
-    window.location.reload(); 
+    window.location.reload();
   }
+
+  // ── 2FA TOTP ──────────────────────────────────────────────────────────────────
 
   selectTotp() {
     this.isLoading.set(true);
@@ -247,7 +273,6 @@ export class OnboardingStepperComponent {
         if (res.verified) {
           this.isTotpVerified = true;
           this.showTotpConfig = false;
-          // Después de verificar el TOTP, podemos ir al siguiente paso o informar éxito.
           alert('¡Verificación TOTP activada correctamente!');
         } else {
           alert('Código incorrecto. Inténtalo de nuevo.');
@@ -258,7 +283,7 @@ export class OnboardingStepperComponent {
     });
   }
 
-  private handleError(message: string = 'Ocurrió un error al guardar tus preferencias. Por favor, inténtalo de nuevo.') {
+  private handleError(message = 'Ocurrió un error al guardar tus preferencias. Por favor, inténtalo de nuevo.') {
     this.isLoading.set(false);
     alert(message);
   }
